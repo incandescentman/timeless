@@ -125,12 +125,21 @@ function recalculateHeight(itemId)
 	item.style.height = item.scrollHeight + itemPaddingBottom + 'px';
 }
 
-function keydownHandler()
-{
-	recalculateHeight(this.id);
-	if(this.storeTimeout) clearTimeout(this.storeTimeout);
-	this.storeTimeout = setTimeout('storeValueForItemId("' + this.id + '")', 100);
+function keydownHandler(event) {
+    recalculateHeight(this.id);
+
+    if (event.key === "Enter") { // Use event.key which is more readable
+        event.preventDefault(); // Stop the default enter key action (newline)
+        storeValueForItemId(this.id); // Save the item
+        this.blur(); // Force the textarea to lose focus
+        return false; // Stop further processing
+    } else {
+        if (this.storeTimeout) clearTimeout(this.storeTimeout);
+        this.storeTimeout = setTimeout(() => storeValueForItemId(this.id), 1000);
+    }
 }
+
+
 
 function checkItem()
 {
@@ -141,17 +150,16 @@ function checkItem()
 	}
 }
 
-function generateItem(parentId, itemId)
-{
-	var item = document.createElement('textarea');
-	var parent = document.getElementById(parentId);
-	if(!parent) return; // offscreen items aren't generated
-	parent.appendChild(item);
-	item.id = itemId;
-	item.onkeyup = keydownHandler;
-	item.onblur = checkItem;
-	item.spellcheck = false;
-	return item;
+function generateItem(parentId, itemId) {
+    var item = document.createElement('textarea');
+    var parent = document.getElementById(parentId);
+    if (!parent) return; // offscreen items aren't generated
+    parent.appendChild(item);
+    item.id = itemId;
+    item.onkeydown = keydownHandler; // Change from onkeyup to onkeydown
+    item.onblur = checkItem;
+    item.spellcheck = false;
+    return item;
 }
 
 document.onclick = function(e)
