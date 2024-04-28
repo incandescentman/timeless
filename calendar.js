@@ -110,6 +110,7 @@ var lastDate;
 var calendarTableElement;
 var itemPaddingBottom = (navigator.userAgent.indexOf('Firefox') != -1) ? 2 : 0;
 var months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function idForDate(date)
 {
@@ -164,27 +165,28 @@ document.onclick = function(e)
 	item.focus();
 }
 
-function generateDay(day, date)
-{
-	var isShaded = (date.getMonth() % 2);
-	var isToday = (date.getDate() == todayDate.getDate() && date.getMonth() == todayDate.getMonth() && date.getFullYear() == todayDate.getFullYear());
 
-	if(isShaded) day.className += ' shaded';
-	if(isToday) day.className += ' today';
 
-	day.id = idForDate(date);
-	day.innerHTML = '<span>' + date.getDate() + '</span>';
+function generateDay(day, date) {
+    var isShaded = (date.getMonth() % 2);
+    var isToday = (date.getDate() == todayDate.getDate() && date.getMonth() == todayDate.getMonth() && date.getFullYear() == todayDate.getFullYear());
 
-	lookupItemsForParentId(day.id, function(items)
-	{
-		for(var i in items)
-		{
-			var item = generateItem(day.id, items[i].itemId);
-			item.value = items[i].itemValue;
-			recalculateHeight(item.id);
-		}
-	});
+    if (isShaded) day.className += ' shaded';
+    if (isToday) day.className += ' today';
+
+    day.id = idForDate(date);
+    day.innerHTML = '<span>' + daysOfWeek[date.getDay()] + ', ' + date.getDate() + '</span>'; // Displaying day of the week
+
+    lookupItemsForParentId(day.id, function(items) {
+        for (var i in items) {
+            var item = generateItem(day.id, items[i].itemId);
+            item.value = items[i].itemValue;
+            recalculateHeight(item.id);
+        }
+    });
 }
+
+
 
 function prependWeek()
 {
