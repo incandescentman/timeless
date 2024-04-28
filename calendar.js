@@ -175,7 +175,8 @@ function generateDay(day, date) {
     if (isToday) day.className += ' today';
 
     day.id = idForDate(date);
-    day.innerHTML = '<span>' + daysOfWeek[date.getDay()] + ', ' + date.getDate() + '</span>'; // Displaying day of the week
+    // Adjusting the order: Day of the week, Month, Date
+    day.innerHTML = '<span>' + daysOfWeek[date.getDay()] + ' ' + months[date.getMonth()] + ' ' + date.getDate() + '</span>';
 
     lookupItemsForParentId(day.id, function(items) {
         for (var i in items) {
