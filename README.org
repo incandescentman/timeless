@@ -32,7 +32,7 @@ That's the experience I wanted for a calendar and I bet I'm not the only one.
 
 To try to solve this problem, I researched and bought various apps that sounded promising, including [[https://www.moleskine.com/en-us/shop/moleskine-smart/apps-and-services/timepage/][Timepage by Moleskine]] and [[https://agenda.com/][Agenda]]. They were interesting approaches to the problem but didn't offer the visually intuitive interface I was looking for.
 
-** Continuous Calendar
+** A Continuous Calendar
 Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]], by [[https://github.com/evanw][Evan Wallace]]. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
 
 * My Enhancements
