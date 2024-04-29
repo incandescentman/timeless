@@ -1,0 +1,88 @@
+#+TITLE: Scroll & Key
+#+STARTUP: overview
+
+* Introduction
+Welcome to /Scroll & Key/, an infinitely scrolling calendar designed for ease of use and seamless integration into daily workflows. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
+
+* Why
+
+** The Problem: One month at a time
+Traditional calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
+
+You're shown a single month's worth of dates. Then, to navigate through time, you click the *＞* or "Next" button... at which point the current month is replaced by a view of the next month.
+
+Having different months displayed as discrete units in this way just doesn't make sense for my brain. It falsely disrupts temporal continuity, making it difficult to conceptualize with precision when upcoming events are happening.
+
+As a result, I find it difficult to think and plan ahead as I think about the future and, say, keep work deadlines in mind as I figure out my travel dates for upcoming flights.
+
+Even when calendars offer the ability to display several months at once --- e.g. "Current Month," "Last Month," and "Next Month" --- they still separate the dates from one to the next. Your brain has to do a tiny mental calculation to understand that the 31st of one month down at the bottom here is just one day before the 1st of the next month up there on the right.
+
+It's not like your brain can't do this... but it requires abstraction. Intellectualizing the concept of time. It's like a map that's not to scale. Sure, you can mentally adjust and compensate... but wouldn't you rather just be able to glance at a map knowing you can trust your intuitive sense of how far away things are from each other?
+
+** The Solution: A continuous perspective
+What I want is a calendar that accurately depicts the continuous flow of time, displaying the future as what it is: a continuous series of days.
+
+Instead of having to click "Next" like turning the page of a book, I want to be able to just scroll down to see upcoming events.
+
+Why do we display calendars in this counterintuitive way? Tradition. In the old days, we used glossy paper calendars, which we hung up on the wall. Wall space, since it is physical space, is limited. Your wall isn't high enough, and you're not tall enough, to display 12 months of days in a typeface large enough to be legible.
+
+But we're not in the 12th century anymore (the name of this app notwithstanding). We're no longer using paper. Just as your iPad offers you the ability to read a book in "Continuous Scroll" scroll format rather than requiring you to manually turn the page every ten paragraphs like some medieval scribe, you can just hold down the down arrow to keep reading.
+
+That's the experience I wanted for a calendar and I bet I'm not the only one.
+
+To try to solve this problem, I researched and bought various apps that sounded promising, including [[https://www.moleskine.com/en-us/shop/moleskine-smart/apps-and-services/timepage/][Timepage by Moleskine]] and [[https://agenda.com/][Agenda]]. They were interesting approaches to the problem but didn't offer the visually intuitive interface I was looking for.
+
+** Continuous Calendar
+Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]], by [[https://github.com/evanw][Evan Wallace]]. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
+
+* My Enhancements
+I've taken Evan's brilliant implementation and added a few enhancements:
+- Display days of the week
+- Display name of month
+- Add the ability to save a backup of stored calendar events as a JSON file, and add the ability to load stored events from that backup file.
+- Added an accompanying Python script to take the saved data and convert it into an ICS file that I can import into my MacOS calendar. This doesn't yet work reliably.
+- European-style calendar: The week begins on Monday. Why? Because it doesn't make sense to separate Saturday and Sunday into different weeks. We think of the weekend as a single unit. When I ask myself what I'm going to do this weekend, I'm thinking about Friday, Saturday, and Sunday. Then on Monday I go to work and start a new week.
+
+Here's a record of the development:
+https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a
+
+What remains to be done:
+- In order to facilitate importing calendar data to a calendar app like MacOS calendar: Modify the format of saved data to explicitly store the full date of each calendar event.
+
+* Features
+- Infinite scrolling through months and years, both forward in time (i.e. downward on the scrolling calendar) and backward in time (i.e. upward).
+- Click on any day to add calendar events.
+- Simple and intuitive interface, optimized for both desktop and mobile use.
+- Seamless integration of local storage to save and load your notes without the need for a backend.
+
+* Getting Started
+To get started with /Scroll & Key/, simply clone the repository and open the HTML file in your preferred web browser.
+
+#+BEGIN_SRC sh
+git clone https://github.com/yourusername/scroll-and-key.git
+cd scroll-and-key
+open index.html
+#+END_SRC
+
+* Usage
+** Adding Notes
+Click on any day to add a calendar event. A text area will appear where you can enter text. Press RETURN to save the note to local storage, which will automatically adjust the day's cell to accommodate the text.
+
+** Navigating the Calendar
+Use your mouse wheel or trackpad to scroll through months and years effortlessly. The calendar dynamically loads additional weeks as you scroll, ensuring a smooth and continuous user experience.
+
+** Managing Notes
+To edit a note, simply click on the existing note text, make changes, and press RETURN to save.
+
+** Deletion
+To delete a note, clear the text in the text area and click elsewhere or press RETURN.
+
+* Customization
+Scroll & Key is designed to be easily customizable. You can modify the CSS styles in /css/style.css/ to match your aesthetic preferences or adapt the functionality in /js/calendar.js/ to meet specific needs.
+
+* Contributing
+Contributions to /Scroll & Key/ are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
+
+* License
+Scroll & Key is released under the MIT License. See the LICENSE file in the repository for full details.
+
