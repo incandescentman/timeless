@@ -46,8 +46,7 @@ To try to solve this problem, I researched and bought various apps that sounded 
 ** A Continuous Calendar
 Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]], by [[https://github.com/evanw][Evan Wallace]]. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
 
-[[.img/interface.png]]
-
+[[file:interface.png]]
 
 * My Enhancements
 #+CAPTION: An illustration of the Scroll & Key interface.
