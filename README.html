@@ -882,35 +882,47 @@ p.verse {
 <header>
 <h1 class="title">Scroll &amp; Key</h1>
 </header>
-<div id="outline-container-org0e83f44" class="outline-2">
-<h2 id="org0e83f44">Introduction</h2>
-<div class="outline-text-2" id="text-org0e83f44">
+<div id="outline-container-org3623c82" class="outline-2">
+<h2 id="org3623c82">Introduction</h2>
+<div class="outline-text-2" id="text-org3623c82">
 <p>
 Welcome to <strong>Scroll &amp; Key</strong>, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (<a href="https://madebyevan.com/calendar/">https://madebyevan.com/calendar/</a>) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
 </p>
 
 
-<figure id="org08fa54b">
+<figure id="orga0543ac">
 <img src="https://github.com/incandescentman/scrollandkey/raw/main/2.png" alt="2.png">
 
 </figure>
 </div>
 </div>
 
-<div id="outline-container-orgdfe54d0" class="outline-2">
-<h2 id="orgdfe54d0">Why</h2>
-<div class="outline-text-2" id="text-orgdfe54d0">
+<div id="outline-container-orgfed0fff" class="outline-2">
+<h2 id="orgfed0fff">Why</h2>
+<div class="outline-text-2" id="text-orgfed0fff">
 </div>
-<div id="outline-container-org39ad036" class="outline-3">
-<h3 id="org39ad036">The Problem: One month at a time</h3>
-<div class="outline-text-3" id="text-org39ad036">
+<div id="outline-container-org58b4e03" class="outline-3">
+<h3 id="org58b4e03">The Problem: One month at a time</h3>
+<div class="outline-text-3" id="text-org58b4e03">
 <p>
 Traditional calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
 </p>
 
+
+<figure id="org8b86751">
+<img src="typical-interface.png" alt="typical-interface.png">
+
+</figure>
+
 <p>
 You&rsquo;re shown a single month&rsquo;s worth of dates. Then, to navigate through time, you click the <code>＞</code> or <code>Next</code> button&#x2026; at which point the current month is replaced by a view of the next month.
 </p>
+
+
+<figure id="org4503a4d">
+<img src="nextmonth.png" alt="nextmonth.png">
+
+</figure>
 
 <p>
 Having different months displayed as discrete units in this way just doesn&rsquo;t make sense for my brain. It falsely disrupts temporal continuity, making it difficult to conceptualize with precision when upcoming events are happening.
@@ -925,8 +937,8 @@ Even when calendars offer the ability to display several months at once &#x2014;
 </p>
 
 
-<figure id="org90683e5">
-<img src="https://github.com/incandescentman/scrollandkey/blob/main/mc-simple.png" alt="mc-simple.png">
+<figure id="org5fa4550">
+<img src="mc-simple.png" alt="mc-simple.png">
 
 </figure>
 
@@ -940,9 +952,9 @@ It&rsquo;s not like your brain can&rsquo;t do this&#x2026; but it requires abstr
 </div>
 </div>
 
-<div id="outline-container-org0e5a127" class="outline-3">
-<h3 id="org0e5a127">The Solution: A Continuous Perspective</h3>
-<div class="outline-text-3" id="text-org0e5a127">
+<div id="outline-container-org64cf79b" class="outline-3">
+<h3 id="org64cf79b">The Solution: A Continuous Perspective</h3>
+<div class="outline-text-3" id="text-org64cf79b">
 <p>
 What I want is a calendar that accurately depicts the continuous flow of time, displaying the future as what it is: a continuous series of days.
 </p>
@@ -969,15 +981,15 @@ To try to solve this problem, I researched and bought various apps that sounded 
 </div>
 </div>
 
-<div id="outline-container-orgdfab27f" class="outline-3">
-<h3 id="orgdfab27f">A Continuous Calendar</h3>
-<div class="outline-text-3" id="text-orgdfab27f">
+<div id="outline-container-org0241d3e" class="outline-3">
+<h3 id="org0241d3e">A Continuous Calendar</h3>
+<div class="outline-text-3" id="text-org0241d3e">
 <p>
 Then I stumbled upon <a href="https://madebyevan.com/calendar/">Continuous Calendar</a>, by <a href="https://github.com/evanw">Evan Wallace</a>. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
 </p>
 
 
-<figure id="orga8bee24">
+<figure id="org01c00b1">
 <img src="interface.png" alt="interface.png">
 
 </figure>
@@ -985,9 +997,9 @@ Then I stumbled upon <a href="https://madebyevan.com/calendar/">Continuous Calen
 </div>
 </div>
 
-<div id="outline-container-org0ce6b9f" class="outline-2">
-<h2 id="org0ce6b9f">My Enhancements</h2>
-<div class="outline-text-2" id="text-org0ce6b9f">
+<div id="outline-container-org47edfe6" class="outline-2">
+<h2 id="org47edfe6">My Enhancements</h2>
+<div class="outline-text-2" id="text-org47edfe6">
 <p>
 I&rsquo;ve taken Evan&rsquo;s brilliant implementation and added a few enhancements:
 </p>
@@ -1013,9 +1025,9 @@ What remains to be done:
 </div>
 </div>
 
-<div id="outline-container-org8046b24" class="outline-2">
-<h2 id="org8046b24">Features</h2>
-<div class="outline-text-2" id="text-org8046b24">
+<div id="outline-container-org849ba78" class="outline-2">
+<h2 id="org849ba78">Features</h2>
+<div class="outline-text-2" id="text-org849ba78">
 <ul class="org-ul">
 <li>Infinite scrolling through months and years, both forward in time (i.e. downward on the scrolling calendar) and backward in time (i.e. upward).</li>
 <li>Click on any day to add calendar events.</li>
@@ -1025,17 +1037,17 @@ What remains to be done:
 </div>
 </div>
 
-<div id="outline-container-org967e1ec" class="outline-2">
-<h2 id="org967e1ec">Getting Started</h2>
-<div class="outline-text-2" id="text-org967e1ec">
+<div id="outline-container-org312825f" class="outline-2">
+<h2 id="org312825f">Getting Started</h2>
+<div class="outline-text-2" id="text-org312825f">
 <p>
 To get started with <strong>Scroll &amp; Key</strong>:
 </p>
 </div>
 
-<div id="outline-container-org141374e" class="outline-3">
-<h3 id="org141374e">Non-expert users</h3>
-<div class="outline-text-3" id="text-org141374e">
+<div id="outline-container-orgf090300" class="outline-3">
+<h3 id="orgf090300">Non-expert users</h3>
+<div class="outline-text-3" id="text-orgf090300">
 <ol class="org-ol">
 <li>Click the green Code button at the top of this page, then click Download ZIP.</li>
 <li>Unzip the package</li>
@@ -1044,9 +1056,9 @@ To get started with <strong>Scroll &amp; Key</strong>:
 </div>
 </div>
 
-<div id="outline-container-org75351e2" class="outline-3">
-<h3 id="org75351e2">Expert users</h3>
-<div class="outline-text-3" id="text-org75351e2">
+<div id="outline-container-orgaf0c070" class="outline-3">
+<h3 id="orgaf0c070">Expert users</h3>
+<div class="outline-text-3" id="text-orgaf0c070">
 <p>
 Clone the repository and open the HTML file.
 </p>
@@ -1061,44 +1073,44 @@ open scrollandkey.html
 </div>
 </div>
 
-<div id="outline-container-orga7ce855" class="outline-2">
-<h2 id="orga7ce855">Usage</h2>
-<div class="outline-text-2" id="text-orga7ce855">
+<div id="outline-container-orgae3efc9" class="outline-2">
+<h2 id="orgae3efc9">Usage</h2>
+<div class="outline-text-2" id="text-orgae3efc9">
 <p>
 First, open <a href="scrollandkey.html">scrollandkey.html</a>.
 </p>
 </div>
 
-<div id="outline-container-orgb3e524b" class="outline-3">
-<h3 id="orgb3e524b">Adding Notes</h3>
-<div class="outline-text-3" id="text-orgb3e524b">
+<div id="outline-container-org089dc1c" class="outline-3">
+<h3 id="org089dc1c">Adding Notes</h3>
+<div class="outline-text-3" id="text-org089dc1c">
 <p>
 Click on any day to add a calendar event. A text area will appear where you can enter text. Press RETURN to save the note to local storage, which will automatically adjust the day&rsquo;s cell to accommodate the text.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org338c317" class="outline-3">
-<h3 id="org338c317">Navigating the Calendar</h3>
-<div class="outline-text-3" id="text-org338c317">
+<div id="outline-container-org5f61142" class="outline-3">
+<h3 id="org5f61142">Navigating the Calendar</h3>
+<div class="outline-text-3" id="text-org5f61142">
 <p>
 Use your mouse wheel or trackpad to scroll through months and years effortlessly. The calendar dynamically loads additional weeks as you scroll, ensuring a smooth and continuous user experience.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org79655e6" class="outline-3">
-<h3 id="org79655e6">Managing Notes</h3>
-<div class="outline-text-3" id="text-org79655e6">
+<div id="outline-container-org2275c31" class="outline-3">
+<h3 id="org2275c31">Managing Notes</h3>
+<div class="outline-text-3" id="text-org2275c31">
 <p>
 To edit a note, simply click on the existing note text, make changes, and press RETURN to save.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orga90ac9f" class="outline-3">
-<h3 id="orga90ac9f">Deletion</h3>
-<div class="outline-text-3" id="text-orga90ac9f">
+<div id="outline-container-org1427776" class="outline-3">
+<h3 id="org1427776">Deletion</h3>
+<div class="outline-text-3" id="text-org1427776">
 <p>
 To delete a note, clear the text in the text area and click elsewhere or press RETURN.
 </p>
@@ -1106,27 +1118,27 @@ To delete a note, clear the text in the text area and click elsewhere or press R
 </div>
 </div>
 
-<div id="outline-container-orga81c77a" class="outline-2">
-<h2 id="orga81c77a">Customization</h2>
-<div class="outline-text-2" id="text-orga81c77a">
+<div id="outline-container-org6c0069d" class="outline-2">
+<h2 id="org6c0069d">Customization</h2>
+<div class="outline-text-2" id="text-org6c0069d">
 <p>
 Scroll &amp; Key is designed to be easily customizable. You can modify the CSS styles in <em>css/style.css</em> to match your aesthetic preferences or adapt the functionality in <em>js/calendar.js</em> to meet specific needs.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org9a506b9" class="outline-2">
-<h2 id="org9a506b9">Contributing</h2>
-<div class="outline-text-2" id="text-org9a506b9">
+<div id="outline-container-orgb042e23" class="outline-2">
+<h2 id="orgb042e23">Contributing</h2>
+<div class="outline-text-2" id="text-orgb042e23">
 <p>
 Contributions to <strong>Scroll &amp; Key</strong> are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgcfe7177" class="outline-2">
-<h2 id="orgcfe7177">License</h2>
-<div class="outline-text-2" id="text-orgcfe7177">
+<div id="outline-container-orge762b28" class="outline-2">
+<h2 id="orge762b28">License</h2>
+<div class="outline-text-2" id="text-orge762b28">
 <p>
 Scroll &amp; Key is released under the MIT License. See the LICENSE file in the repository for full details.
 </p>

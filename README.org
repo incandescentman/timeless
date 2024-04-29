@@ -12,11 +12,11 @@ Welcome to *Scroll & Key*, an infinitely scrolling calendar designed to help you
 ** The Problem: One month at a time
 Traditional calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
 
-#+ATTR_HTML: :width 300px [[https://github.com/incandescentman/scrollandkey/raw/main/typical-interface.png]]
+[[file:typical-interface.png]]
 
 You're shown a single month's worth of dates. Then, to navigate through time, you click the ~＞~ or ~Next~ button... at which point the current month is replaced by a view of the next month.
 
-#+ATTR_HTML: :width 300px [[https://github.com/incandescentman/scrollandkey/raw/main/nextmonth.png]]
+[[file:nextmonth.png]]
 
 Having different months displayed as discrete units in this way just doesn't make sense for my brain. It falsely disrupts temporal continuity, making it difficult to conceptualize with precision when upcoming events are happening.
 
@@ -24,7 +24,7 @@ As a result, I find it difficult to think and plan ahead as I think about the fu
 
 Even when calendars offer the ability to display several months at once --- e.g. "Current Month," "Last Month," and "Next Month" --- they still separate the dates from one to the next.
 
-https://github.com/incandescentman/scrollandkey/blob/main/mc-simple.png
+[[file:mc-simple.png]]
 
 Your brain has to do a tiny mental calculation to understand that the 31st of one month down at the bottom here is just one day before the 1st of the next month up there on the right.
 
@@ -111,4 +111,3 @@ Contributions to *Scroll & Key* are welcome! I need all the help I can get. Plea
 
 * License
 Scroll & Key is released under the MIT License. See the LICENSE file in the repository for full details.
-
