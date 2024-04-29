@@ -415,7 +415,7 @@ window.onload = function()
 function showHelp() { document.getElementById('help').style.display = 'block'; }
 function hideHelp() { document.getElementById('help').style.display = 'none'; }
 
-document.write('<div id="header"><a class="button" href="javascript:smoothScrollToToday()">Scroll to today</a><a class="button" href="javascript:showHelp()">Help</a><button onclick="downloadLocalStorageData()">Save Backup</button><button onclick="document.getElementById(\'fileInput\').click()">Load Backup</button></div>');
+document.write('<div id="header"><a class="button" href="javascript:smoothScrollToToday()">Scroll to today</a><a class="button" href="javascript:showHelp()">Help</a><a class="button" href="javascript:downloadLocalStorageData()">Save Backup</a><a class="button" href="javascript:document.getElementById(\'fileInput\').click()">Load Backup</a></div>');
 document.write('<input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">');
 document.write('<table id="calendar"></table>');
 document.write('<div id="help"><div><ul><li>Click on a day to add a note</li><li>To delete a note, delete its text</li><li>Use the scroll wheel to move forward or backward in time</li></ul><a class="button" href="javascript:hideHelp()">Close</a></div></div>');
