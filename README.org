@@ -2,7 +2,7 @@
 #+STARTUP: overview
 
 * Introduction
-Welcome to /Scroll & Key/, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
+Welcome to *Scroll & Key*, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
 
 #+CAPTION: An illustration of the Scroll & Key interface.
 [[https://github.com/incandescentman/scrollandkey/raw/European-Calendar/2.png]]
@@ -12,7 +12,7 @@ Welcome to /Scroll & Key/, an infinitely scrolling calendar designed to help you
 ** The Problem: One month at a time
 Traditional calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
 
-You're shown a single month's worth of dates. Then, to navigate through time, you click the *＞* or "Next" button... at which point the current month is replaced by a view of the next month.
+You're shown a single month's worth of dates. Then, to navigate through time, you click the ~＞~ or ~Next~ button... at which point the current month is replaced by a view of the next month.
 
 Having different months displayed as discrete units in this way just doesn't make sense for my brain. It falsely disrupts temporal continuity, making it difficult to conceptualize with precision when upcoming events are happening.
 
@@ -22,7 +22,7 @@ Even when calendars offer the ability to display several months at once --- e.g.
 
 It's not like your brain can't do this... but it requires abstraction. Intellectualizing the concept of time. It's like a map that's not to scale. Sure, you can mentally adjust and compensate... but wouldn't you rather just be able to glance at a map knowing you can trust your intuitive sense of how far away things are from each other?
 
-** The Solution: A continuous perspective
+** The Solution: A Continuous Perspective
 What I want is a calendar that accurately depicts the continuous flow of time, displaying the future as what it is: a continuous series of days.
 
 Instead of having to click "Next" like turning the page of a book, I want to be able to just scroll down to see upcoming events.
@@ -62,7 +62,7 @@ What remains to be done:
 - Seamless integration of local storage to save and load your notes without the need for a backend.
 
 * Getting Started
-To get started with /Scroll & Key/:
+To get started with *Scroll & Key*:
 
 ** Non-expert users
 1. Click the green Code button at the top of this page, then click Download ZIP.
@@ -70,15 +70,17 @@ To get started with /Scroll & Key/:
 3. Open the file ~scrollandkey.html~. That's it!
 
 ** Expert users
-simply clone the repository and open the HTML file in your preferred web browser.
+Clone the repository and open the HTML file.
 
 #+BEGIN_SRC sh
-git clone https://github.com/yourusername/scroll-and-key.git
-cd scroll-and-key
-open index.html
+git clone https://github.com/incandescentman/scrollandkey.git
+cd scrollandkey
+open scrollandkey.html
 #+END_SRC
 
 * Usage
+First, open [[file:scrollandkey.html][scrollandkey.html]].
+
 ** Adding Notes
 Click on any day to add a calendar event. A text area will appear where you can enter text. Press RETURN to save the note to local storage, which will automatically adjust the day's cell to accommodate the text.
 
@@ -95,7 +97,7 @@ To delete a note, clear the text in the text area and click elsewhere or press R
 Scroll & Key is designed to be easily customizable. You can modify the CSS styles in /css/style.css/ to match your aesthetic preferences or adapt the functionality in /js/calendar.js/ to meet specific needs.
 
 * Contributing
-Contributions to /Scroll & Key/ are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
+Contributions to *Scroll & Key* are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
 
 * License
 Scroll & Key is released under the MIT License. See the LICENSE file in the repository for full details.
