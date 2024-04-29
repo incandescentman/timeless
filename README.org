@@ -58,7 +58,7 @@ I've taken Evan's brilliant implementation and added a few enhancements:
 - Display name of month
 - Add the ability to save a backup of stored calendar events as a JSON file, and add the ability to load stored events from that backup file.
 - Added an accompanying Python script to take the saved data and convert it into an ICS file that I can import into my MacOS calendar. This doesn't yet work reliably.
-- European-style calendar: The week begins on Monday. Why? Because it doesn't make sense to separate Saturday and Sunday into different weeks. We think of the weekend as a single unit. When I ask myself what I'm going to do this weekend, I'm thinking about Friday, Saturday, and Sunday. Then on Monday I go to work and start a new week.
+- European-style calendar: The week begins on Monday. Why? Because it doesn't make sense to separate Saturday and Sunday into different weeks. We think of the weekend as a single unit. When I ask myself what I'm going to do this weekend, I'm thinking about Friday, Saturday, and Sunday. Then on Monday, I go to work and start a new week.
 
 Here's a record of the development:
 https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a
