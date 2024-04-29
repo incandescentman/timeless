@@ -4,7 +4,7 @@
 * Introduction
 Welcome to *Scroll & Key*, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
 
-#+CAPTION: An illustration of the Scroll & Key interface.
+# #+ATTR_HTML: :width 300px +CAPTION: An illustration of the Scroll & Key interface.
 [[https://github.com/incandescentman/scrollandkey/raw/main/2.png]]
 
 * Why
@@ -12,11 +12,11 @@ Welcome to *Scroll & Key*, an infinitely scrolling calendar designed to help you
 ** The Problem: One month at a time
 Traditional calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
 
-[[https://github.com/incandescentman/scrollandkey/raw/main/typical-interface.png]]
+#+ATTR_HTML: :width 300px [[https://github.com/incandescentman/scrollandkey/raw/main/typical-interface.png]]
 
 You're shown a single month's worth of dates. Then, to navigate through time, you click the ~＞~ or ~Next~ button... at which point the current month is replaced by a view of the next month.
 
-[[https://github.com/incandescentman/scrollandkey/raw/main/nextmonth.png]]
+#+ATTR_HTML: :width 300px [[https://github.com/incandescentman/scrollandkey/raw/main/nextmonth.png]]
 
 Having different months displayed as discrete units in this way just doesn't make sense for my brain. It falsely disrupts temporal continuity, making it difficult to conceptualize with precision when upcoming events are happening.
 
@@ -46,12 +46,12 @@ To try to solve this problem, I researched and bought various apps that sounded 
 ** A Continuous Calendar
 Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]], by [[https://github.com/evanw][Evan Wallace]]. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
 
-[[https://github.com/incandescentman/scrollandkey/raw/main/interface.png]]
+#+ATTR_HTML: :width 300px [[https://github.com/incandescentman/scrollandkey/raw/main/interface.png]]
 
 
 * My Enhancements
 #+CAPTION: An illustration of the Scroll & Key interface.
-[[https://github.com/incandescentman/scrollandkey/raw/main/3.png]]
+#+ATTR_HTML: :width 300px [[https://github.com/incandescentman/scrollandkey/raw/main/3.png]]
 
 I've taken Evan's brilliant implementation and added a few enhancements:
 - Display days of the week
