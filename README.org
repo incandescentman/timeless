@@ -62,7 +62,15 @@ What remains to be done:
 - Seamless integration of local storage to save and load your notes without the need for a backend.
 
 * Getting Started
-To get started with /Scroll & Key/, simply clone the repository and open the HTML file in your preferred web browser.
+To get started with /Scroll & Key/:
+
+** Non-expert users
+1. Click the green Code button at the top of this page, then click Download ZIP.
+2. Unzip the package
+3. Open the file ~scrollandkey.html~. That's it!
+
+** Expert users
+simply clone the repository and open the HTML file in your preferred web browser.
 
 #+BEGIN_SRC sh
 git clone https://github.com/yourusername/scroll-and-key.git
