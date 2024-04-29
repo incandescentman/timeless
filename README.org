@@ -22,7 +22,7 @@ Having different months displayed as discrete units in this way just doesn't mak
 
 As a result, I find it difficult to think and plan ahead as I think about the future and, say, keep work deadlines in mind as I figure out my travel dates for upcoming flights.
 
-Even when calendars offer the ability to display several months at once --- e.g. "Current Month," "Last Month," and "Next Month" --- they still separate the dates from one to the next.
+Even calendars that offer the ability to display several months at once still separate the dates from one month to the next:
 
 [[file:mc-simple.png]]
 
@@ -50,7 +50,7 @@ Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]], 
 
 * My Enhancements
 #+CAPTION: An illustration of the Scroll & Key interface.
-#+ATTR_HTML: :width 300px [[https://github.com/incandescentman/scrollandkey/raw/main/3.png]]
+[[https://github.com/incandescentman/scrollandkey/raw/main/3.png]]
 
 I've taken Evan's brilliant implementation and added a few enhancements:
 - Display days of the week
@@ -75,9 +75,9 @@ What remains to be done:
 To get started with *Scroll & Key*:
 
 ** Non-expert users
-1. Click the green Code button at the top of this page, then click Download ZIP.
-2. Unzip the package
-3. Open the file ~scrollandkey.html~. That's it!
+1. To download: Click the green ~<> Code ▼~ button at the top of this github.com page, then click ~Download ZIP~.
+2. Unzip the package.
+3. Open the file ~scrollandkey.html~.
 
 ** Expert users
 Clone the repository and open the HTML file.
