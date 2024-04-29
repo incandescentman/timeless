@@ -71,6 +71,8 @@ What remains to be done:
 - Simple and intuitive interface, optimized for both desktop and mobile use.
 - Seamless integration of local storage to save and load your notes without the need for a backend.
 
+[[file:scrolly.gif]]
+
 * Getting Started
 To get started with *Scroll & Key*:
 
