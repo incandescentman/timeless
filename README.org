@@ -4,6 +4,9 @@
 * Introduction
 Welcome to /Scroll & Key/, an infinitely scrolling calendar designed for ease of use and seamless integration into daily workflows. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
 
+#+CAPTION: An illustration of the Scroll & Key interface.
+[[https://github.com/incandescentman/scrollandkey/raw/European-Calendar/2.png]]
+
 * Why
 
 ** The Problem: One month at a time
@@ -36,6 +39,9 @@ To try to solve this problem, I researched and bought various apps that sounded 
 Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]], by [[https://github.com/evanw][Evan Wallace]]. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
 
 * My Enhancements
+#+CAPTION: An illustration of the Scroll & Key interface.
+[[https://github.com/incandescentman/scrollandkey/raw/European-Calendar/2.png]]
+
 I've taken Evan's brilliant implementation and added a few enhancements:
 - Display days of the week
 - Display name of month
