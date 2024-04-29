@@ -110,7 +110,8 @@ var lastDate;
 var calendarTableElement;
 var itemPaddingBottom = (navigator.userAgent.indexOf('Firefox') != -1) ? 2 : 0;
 var months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
-var daysOfWeek = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
+
+var daysOfWeek = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
 
 function idForDate(date)
 {
@@ -176,6 +177,8 @@ document.onclick = function(e)
 
 
 function generateDay(day, date) {
+    console.log(date); // Log to see the actual date being passed
+
     var isShaded = (date.getMonth() % 2);
     var isToday = (date.getDate() == todayDate.getDate() && date.getMonth() == todayDate.getMonth() && date.getFullYear() == todayDate.getFullYear());
 
@@ -183,8 +186,7 @@ function generateDay(day, date) {
     if (isToday) day.className += ' today';
 
     day.id = idForDate(date);
-    // Adjusting the order: Day of the week, Month, Date
-    day.innerHTML = '<span>' + daysOfWeek[date.getDay()] + ' ' + months[date.getMonth()] + ' ' + date.getDate() + '</span>';
+    day.innerHTML = '<span>' + daysOfWeek[getAdjustedDayIndex(date)] + ' ' + months[date.getMonth()] + ' ' + date.getDate() + '</span>';
 
     lookupItemsForParentId(day.id, function(items) {
         for (var i in items) {
@@ -195,47 +197,49 @@ function generateDay(day, date) {
     });
 }
 
-
-
-function prependWeek()
-{
-	var week = calendarTableElement.insertRow(0);
-	var monthName = '';
-
-	// move firstDate to the beginning of the previous week assuming it is already at the beginning of a week
-	do
-	{
-		firstDate.setDate(firstDate.getDate() - 1);
-		if(firstDate.getDate() == 1) monthName = months[firstDate.getMonth()] + '<br />' + firstDate.getFullYear();
-
-		var day = week.insertCell(0);
-		generateDay(day, firstDate);
-	} while(firstDate.getDay() != 0);
-
-	var extra = week.insertCell(-1);
-	extra.className = 'extra';
-	extra.innerHTML = monthName;
+function getAdjustedDayIndex(date) {
+    var day = date.getDay();
+    return (day === 0) ? 6 : day - 1; // Adjusts so Monday is 0 and Sunday is 6
 }
 
-function appendWeek()
-{
-	var week = calendarTableElement.insertRow(-1);
-	var monthName = '';
 
-	// move lastDate to the end of the next week assuming it is already at the end of a week
-	do
-	{
-		lastDate.setDate(lastDate.getDate() + 1);
-		if(lastDate.getDate() == 1) monthName = months[lastDate.getMonth()] + '<br />' + lastDate.getFullYear();
+function prependWeek() {
+    var week = calendarTableElement.insertRow(0);
+    var monthName = '';
 
-		var day = week.insertCell(-1);
-		generateDay(day, lastDate);
-	} while(lastDate.getDay() != 6)
-
-	var extra = week.insertCell(-1);
-	extra.className = 'extra';
-	extra.innerHTML = monthName;
+    do {
+        firstDate.setDate(firstDate.getDate() - 1);
+        console.log("Prepending date:", firstDate.toDateString()); // Check what date is being set
+        if (firstDate.getDate() === 1) {
+            monthName = months[firstDate.getMonth()] + ' ' + firstDate.getFullYear();
+        }
+        var day = week.insertCell(0);
+        generateDay(day, new Date(firstDate)); // Use a new instance to avoid reference issues
+    } while (getAdjustedDayIndex(firstDate) !== 0);
 }
+
+
+
+
+function appendWeek() {
+    var week = calendarTableElement.insertRow(-1);
+    var monthName = '';
+
+    do {
+        lastDate.setDate(lastDate.getDate() + 1);
+        if (lastDate.getDate() === 1) {
+            monthName = months[lastDate.getMonth()] + ' ' + lastDate.getFullYear();
+        }
+        var day = week.insertCell(-1);
+        generateDay(day, new Date(lastDate)); // Ensure a new date object is used
+    } while (getAdjustedDayIndex(lastDate) !== 6); // Ensure the week ends on Sunday
+
+    var extra = week.insertCell(-1);
+    extra.className = 'extra';
+    extra.innerHTML = monthName;
+}
+
+
 
 function scrollPositionForElement(element)
 {
@@ -331,31 +335,29 @@ function poll()
 	}
 }
 
-function loadCalendarAroundDate(seedDate)
-{
-	calendarTableElement.innerHTML = '';
-	firstDate = new Date(seedDate);
 
-	// move firstDate to the beginning of the week
-	while(firstDate.getDay() != 0) firstDate.setDate(firstDate.getDate() - 1);
+function loadCalendarAroundDate(seedDate) {
+    calendarTableElement.innerHTML = '';
+    firstDate = new Date(seedDate);
 
-	// set lastDate to the day before firstDate
-	lastDate = new Date(firstDate);
-	lastDate.setDate(firstDate.getDate() - 1);
+    // Find the closest previous Monday
+    while (getAdjustedDayIndex(firstDate) !== 0) {
+        firstDate.setDate(firstDate.getDate() - 1);
+    }
 
-	// generate the current week (which is like appending to the current zero-length week)
-	appendWeek();
+    lastDate = new Date(firstDate);
+    lastDate.setDate(firstDate.getDate() - 1);
 
-	// fill up the entire window with weeks
-	while(documentScrollHeight() <= window.innerHeight)
-	{
-		prependWeek();
-		appendWeek();
-	}
+    appendWeek();
+    while (documentScrollHeight() <= window.innerHeight) {
+        prependWeek();
+        appendWeek();
+    }
 
-	// need to let safari recalculate heights before we start scrolling
-	setTimeout('scrollToToday()', 50);
+    setTimeout('scrollToToday()', 50);
 }
+
+
 
 window.onload = function()
 {
