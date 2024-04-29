@@ -2,7 +2,7 @@
 #+STARTUP: overview
 
 * Introduction
-Welcome to /Scroll & Key/, an infinitely scrolling calendar designed for ease of use and seamless integration into daily workflows. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
+Welcome to /Scroll & Key/, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
 
 #+CAPTION: An illustration of the Scroll & Key interface.
 [[https://github.com/incandescentman/scrollandkey/raw/European-Calendar/2.png]]
@@ -40,7 +40,7 @@ Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]], 
 
 * My Enhancements
 #+CAPTION: An illustration of the Scroll & Key interface.
-[[https://github.com/incandescentman/scrollandkey/raw/European-Calendar/2.png]]
+[[https://github.com/incandescentman/scrollandkey/raw/European-Calendar/3.png]]
 
 I've taken Evan's brilliant implementation and added a few enhancements:
 - Display days of the week
