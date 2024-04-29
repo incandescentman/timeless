@@ -1,5 +1,10 @@
 /*
- Continuous Calendar (https://madebyevan.com/calendar/)
+ 📜 Scroll & Key: The Infinitely Scrolling Calendar 📜
+
+ An appreciative fork of:
+
+ Continuous Calendar by Evan Wallace
+ (https://madebyevan.com/calendar/)
  License: MIT License (see below)
 
  Copyright (c) 2010 Evan Wallace
