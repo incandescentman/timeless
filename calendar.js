@@ -358,6 +358,50 @@ function loadCalendarAroundDate(seedDate) {
 }
 
 
+function downloadLocalStorageData() {
+    var data = {};
+    for (var key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+            data[key] = localStorage.getItem(key);
+        }
+    }
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "calendar_data.json");
+    document.body.appendChild(downloadAnchorNode); // Required for Firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function loadDataFromFile() {
+    var input = document.getElementById('fileInput');
+    if (input.files.length === 0) {
+        alert('Please select a file to load.');
+        return;
+    }
+    var file = input.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+        var data = JSON.parse(e.target.result);
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+                localStorage.setItem(key, data[key]);
+            }
+        }
+        alert('Data loaded successfully!');
+        location.reload(); // Optional: reload the page to reflect the new data
+    };
+
+    reader.onerror = function() {
+        alert('There was an error reading the file!');
+    };
+
+    reader.readAsText(file);
+}
+
+
 
 window.onload = function()
 {
@@ -371,6 +415,7 @@ window.onload = function()
 function showHelp() { document.getElementById('help').style.display = 'block'; }
 function hideHelp() { document.getElementById('help').style.display = 'none'; }
 
-document.write('<div id="header"><a class="button" href="javascript:smoothScrollToToday()">Scroll to today</a><a class="button" href="javascript:showHelp()">Help</a>&nbsp; by <a href="..">Evan Wallace</a></div>');
+document.write('<div id="header"><a class="button" href="javascript:smoothScrollToToday()">Scroll to today</a><a class="button" href="javascript:showHelp()">Help</a><button onclick="downloadLocalStorageData()">Save Backup</button><button onclick="document.getElementById(\'fileInput\').click()">Load Backup</button></div>');
+document.write('<input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">');
 document.write('<table id="calendar"></table>');
 document.write('<div id="help"><div><ul><li>Click on a day to add a note</li><li>To delete a note, delete its text</li><li>Use the scroll wheel to move forward or backward in time</li></ul><a class="button" href="javascript:hideHelp()">Close</a></div></div>');
