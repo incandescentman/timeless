@@ -1,8 +1,8 @@
-#+TITLE: Scroll & Key
+#+TITLE: Timeless
 #+STARTUP: overview
 
 * Introduction
-Welcome to *Scroll & Key*, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life.
+Welcome to *Timeless*, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life.
 
 This project is an appreciative fork of Continuous Calendar by Evan Wallace (https://madebyevan.com/calendar/) with some added functionality of my own.
 
@@ -60,7 +60,7 @@ Then I stumbled upon [[https://madebyevan.com/calendar/][Continuous Calendar]] b
 [[file:scrolly.gif]]
 
 * My Enhancements
-#+CAPTION: An illustration of the Scroll & Key interface.
+#+CAPTION: An illustration of the Timeless interface.
 [[https://github.com/incandescentman/scrollandkey/raw/main/3.png]]
 
 I've taken Evan's original implementation and added a few enhancements of my own:
@@ -77,7 +77,7 @@ https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a
 - In order to facilitate exporting calendar data to a calendar app like MacOS calendar, I want to modify the format of saved data to explicitly store the full date of each calendar event.
 
 * Getting Started
-To get started with *Scroll & Key*:
+To get started with *Timeless*:
 
 ** Non-expert users
 1. To download: Click the green ~<> Code ▼~ button at the top of this github.com page, then click ~Download ZIP~.
@@ -109,10 +109,10 @@ To edit a note, simply click on the existing note text, make changes, and press 
 To delete a note, clear the text in the text area and click elsewhere or press RETURN.
 
 * Customization
-Scroll & Key is designed to be easily customizable. You can modify the CSS styles in /css/style.css/ to match your aesthetic preferences or adapt the functionality in /js/calendar.js/ to meet specific needs.
+Timeless is designed to be easily customizable. You can modify the CSS styles in /css/style.css/ to match your aesthetic preferences or adapt the functionality in /js/calendar.js/ to meet specific needs.
 
 * Contributing
-Contributions to *Scroll & Key* are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
+Contributions to *Timeless* are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
 
 * License
-Scroll & Key is released under the MIT License. See the LICENSE file in the repository for full details.
+Timeless is released under the MIT License. See the LICENSE file in the repository for full details.
