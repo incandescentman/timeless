@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Scroll &amp; Key</title>
+<title>Timeless</title>
 <meta name="author" content="Jay Dixit" />
 <meta name="generator" content="Org Mode" />
 <style type="text/css">
@@ -880,36 +880,40 @@ p.verse {
 <body>
 <div id="content" class="content">
 <header>
-<h1 class="title">Scroll &amp; Key</h1>
+<h1 class="title">Timeless</h1>
 </header>
-<div id="outline-container-org3623c82" class="outline-2">
-<h2 id="org3623c82">Introduction</h2>
-<div class="outline-text-2" id="text-org3623c82">
+<div id="outline-container-org72923ed" class="outline-2">
+<h2 id="org72923ed">Introduction</h2>
+<div class="outline-text-2" id="text-org72923ed">
 <p>
-Welcome to <strong>Scroll &amp; Key</strong>, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life. This project is an appreciative fork of the Continuous Calendar by Evan Wallace (<a href="https://madebyevan.com/calendar/">https://madebyevan.com/calendar/</a>) and retains the simplicity and functionality of the original while introducing enhancements and additional features for modern users.
+Welcome to <strong>Timeless</strong>, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life.
+</p>
+
+<p>
+This project is an appreciative fork of Continuous Calendar by Evan Wallace (<a href="https://madebyevan.com/calendar/">https://madebyevan.com/calendar/</a>) with some added functionality of my own.
 </p>
 
 
-<figure id="orga0543ac">
+<figure id="org1374260">
 <img src="https://github.com/incandescentman/scrollandkey/raw/main/2.png" alt="2.png">
 
 </figure>
 </div>
 </div>
 
-<div id="outline-container-orgfed0fff" class="outline-2">
-<h2 id="orgfed0fff">Why</h2>
-<div class="outline-text-2" id="text-orgfed0fff">
+<div id="outline-container-org4ae6c70" class="outline-2">
+<h2 id="org4ae6c70">Why</h2>
+<div class="outline-text-2" id="text-org4ae6c70">
 </div>
-<div id="outline-container-org58b4e03" class="outline-3">
-<h3 id="org58b4e03">The Problem: One month at a time</h3>
-<div class="outline-text-3" id="text-org58b4e03">
+<div id="outline-container-org5842dd8" class="outline-3">
+<h3 id="org5842dd8">The Problem: Conceptualizing the future one month at a time</h3>
+<div class="outline-text-3" id="text-org5842dd8">
 <p>
-Traditional calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
+Traditional digital calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
 </p>
 
 
-<figure id="org8b86751">
+<figure id="org83b4f0c">
 <img src="typical-interface.png" alt="typical-interface.png">
 
 </figure>
@@ -919,77 +923,81 @@ You&rsquo;re shown a single month&rsquo;s worth of dates. Then, to navigate thro
 </p>
 
 
-<figure id="org4503a4d">
+<figure id="org403fc47">
 <img src="nextmonth.png" alt="nextmonth.png">
 
 </figure>
 
 <p>
-Having different months displayed as discrete units in this way just doesn&rsquo;t make sense for my brain. It falsely disrupts temporal continuity, making it difficult to conceptualize with precision when upcoming events are happening.
+Having different months displayed as discrete units in this way doesn&rsquo;t make sense for my brain. It presents time as discontinuous and divided, making it difficult to conceptualize in an intuitive way when events are happening relative to each other.
 </p>
 
 <p>
-As a result, I find it difficult to think and plan ahead as I think about the future and, say, keep work deadlines in mind as I figure out my travel dates for upcoming flights.
+With traditional calendars, I find it difficult to plan ahead as I think about the future as I figure out, say, travel dates for an upcoming trip.
 </p>
 
 <p>
-Even when calendars offer the ability to display several months at once &#x2014; e.g. &ldquo;Current Month,&rdquo; &ldquo;Last Month,&rdquo; and &ldquo;Next Month&rdquo; &#x2014; they still separate the dates from one to the next.
+Even calendars that offer the ability to display several months at once still separate dates from one month to the next:
 </p>
 
 
-<figure id="org5fa4550">
+<figure id="orge0c3ce0">
 <img src="mc-simple.png" alt="mc-simple.png">
 
 </figure>
 
 <p>
-Your brain has to do a tiny mental calculation to understand that the 31st of one month down at the bottom here is just one day before the 1st of the next month up there on the right.
+Your brain has to do a little mental calculation to grasp that the 31st of one month down at the bottom over here is just one day before the 1st of the next month up there on the right.
 </p>
 
 <p>
-It&rsquo;s not like your brain can&rsquo;t do this&#x2026; but it requires abstraction. Intellectualizing the concept of time. It&rsquo;s like a map that&rsquo;s not to scale. Sure, you can mentally adjust and compensate&#x2026; but wouldn&rsquo;t you rather just be able to glance at a map knowing you can trust your intuitive sense of how far away things are from each other?
+It&rsquo;s not like your brain can&rsquo;t figure it out&#x2026; but it requires a level of abstraction, intellectualizing the concept of time.
+</p>
+
+<p>
+It&rsquo;s like a map that&rsquo;s not to scale. Sure, you can mentally compensate&#x2026; but wouldn&rsquo;t you rather just be able to see at a glance where things are, knowing you can trust your intuitive sense of how far away things are from each other?
 </p>
 </div>
 </div>
 
-<div id="outline-container-org64cf79b" class="outline-3">
-<h3 id="org64cf79b">The Solution: A Continuous Perspective</h3>
-<div class="outline-text-3" id="text-org64cf79b">
+<div id="outline-container-orge4af98e" class="outline-3">
+<h3 id="orge4af98e">The Solution: A continuous perspective</h3>
+<div class="outline-text-3" id="text-orge4af98e">
 <p>
 What I want is a calendar that accurately depicts the continuous flow of time, displaying the future as what it is: a continuous series of days.
 </p>
 
 <p>
-Instead of having to click &ldquo;Next&rdquo; like turning the page of a book, I want to be able to just scroll down to see upcoming events.
+Instead of having to click &ldquo;Next,&rdquo; like turning the page of a book, I want to be able to just scroll down to see upcoming events.
 </p>
 
 <p>
-Why do we display calendars in this counterintuitive way? Tradition. In the old days, we used glossy paper calendars, which we hung up on the wall. Wall space, since it is physical space, is limited. Your wall isn&rsquo;t high enough, and you&rsquo;re not tall enough, to display 12 months of days in a typeface large enough to be legible.
+Why are calendars designed in this counterintuitive way? Tradition. In the old days, we hung paper calendars on the wall. Wall space, since it&rsquo;s physical space, is limited. Your wall isn&rsquo;t high enough &#x2013; and you&rsquo;re not tall enough &#x2013; to display 12 months worth of days.
 </p>
 
 <p>
-But we&rsquo;re not in the 12th century anymore (the name of this app notwithstanding). We&rsquo;re no longer using paper. Just as your iPad offers you the ability to read a book in &ldquo;Continuous Scroll&rdquo; scroll format rather than requiring you to manually turn the page every ten paragraphs like some medieval scribe, you can just hold down the down arrow to keep reading.
+But we&rsquo;re not in the 12th century anymore (the name of this app notwithstanding). Google Calendar is not a paper calendar. Just as your iPad lets you read a book in &ldquo;Continuous Scroll&rdquo; mode rather than requiring you to manually turn the page every few paragraphs, you can just press the down arrow to read on.
 </p>
 
 <p>
-That&rsquo;s the experience I wanted for a calendar and I bet I&rsquo;m not the only one.
+That&rsquo;s the experience I want for a calendar and I bet I&rsquo;m not the only one.
 </p>
 
 <p>
-To try to solve this problem, I researched and bought various apps that sounded promising, including <a href="https://www.moleskine.com/en-us/shop/moleskine-smart/apps-and-services/timepage/">Timepage by Moleskine</a> and <a href="https://agenda.com/">Agenda</a>. They were interesting approaches to the problem but didn&rsquo;t offer the visually intuitive interface I was looking for.
+To try to solve this problem, I researched and bought various apps that sounded promising, including <a href="https://www.moleskine.com/en-us/shop/moleskine-smart/apps-and-services/timepage/">Timepage by Moleskine</a> and <a href="https://agenda.com/">Agenda</a>. Though interesting approaches, they didn&rsquo;t offer the visually intuitive monthly interface I was looking for.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org0241d3e" class="outline-3">
-<h3 id="org0241d3e">A Continuous Calendar</h3>
-<div class="outline-text-3" id="text-org0241d3e">
+<div id="outline-container-org4c58b56" class="outline-3">
+<h3 id="org4c58b56">A Continuous Calendar</h3>
+<div class="outline-text-3" id="text-org4c58b56">
 <p>
-Then I stumbled upon <a href="https://madebyevan.com/calendar/">Continuous Calendar</a>, by <a href="https://github.com/evanw">Evan Wallace</a>. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
+Then I stumbled upon <a href="https://madebyevan.com/calendar/">Continuous Calendar</a> by <a href="https://github.com/evanw">Evan Wallace</a>. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
 </p>
 
 
-<figure id="org01c00b1">
+<figure id="org77d6a74">
 <img src="interface.png" alt="interface.png">
 
 </figure>
@@ -997,68 +1005,82 @@ Then I stumbled upon <a href="https://madebyevan.com/calendar/">Continuous Calen
 </div>
 </div>
 
-<div id="outline-container-org47edfe6" class="outline-2">
-<h2 id="org47edfe6">My Enhancements</h2>
-<div class="outline-text-2" id="text-org47edfe6">
-<p>
-I&rsquo;ve taken Evan&rsquo;s brilliant implementation and added a few enhancements:
-</p>
-<ul class="org-ul">
-<li>Display days of the week</li>
-<li>Display name of month</li>
-<li>Add the ability to save a backup of stored calendar events as a JSON file, and add the ability to load stored events from that backup file.</li>
-<li>Added an accompanying Python script to take the saved data and convert it into an ICS file that I can import into my MacOS calendar. This doesn&rsquo;t yet work reliably.</li>
-<li>European-style calendar: The week begins on Monday. Why? Because it doesn&rsquo;t make sense to separate Saturday and Sunday into different weeks. We think of the weekend as a single unit. When I ask myself what I&rsquo;m going to do this weekend, I&rsquo;m thinking about Friday, Saturday, and Sunday. Then on Monday, I go to work and start a new week.</li>
-</ul>
-
-<p>
-Here&rsquo;s a record of the development:
-<a href="https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a">https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a</a>
-</p>
-
-<p>
-What remains to be done:
-</p>
-<ul class="org-ul">
-<li>In order to facilitate importing calendar data to a calendar app like MacOS calendar: Modify the format of saved data to explicitly store the full date of each calendar event.</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org849ba78" class="outline-2">
-<h2 id="org849ba78">Features</h2>
-<div class="outline-text-2" id="text-org849ba78">
+<div id="outline-container-orge7ed49c" class="outline-2">
+<h2 id="orge7ed49c">Evan&rsquo;s Original Features</h2>
+<div class="outline-text-2" id="text-orge7ed49c">
 <ul class="org-ul">
 <li>Infinite scrolling through months and years, both forward in time (i.e. downward on the scrolling calendar) and backward in time (i.e. upward).</li>
-<li>Click on any day to add calendar events.</li>
-<li>Simple and intuitive interface, optimized for both desktop and mobile use.</li>
-<li>Seamless integration of local storage to save and load your notes without the need for a backend.</li>
+<li>Click on a day to add calendar events.</li>
+<li>Calendar data stored not on the cloud but within your browser&rsquo;s local storage.</li>
 </ul>
+
+
+<figure id="orgfdbab49">
+<img src="scrolly.gif" alt="scrolly.gif">
+
+</figure>
 </div>
 </div>
 
-<div id="outline-container-org312825f" class="outline-2">
-<h2 id="org312825f">Getting Started</h2>
-<div class="outline-text-2" id="text-org312825f">
+<div id="outline-container-orgd3a36e3" class="outline-2">
+<h2 id="orgd3a36e3">My Enhancements</h2>
+<div class="outline-text-2" id="text-orgd3a36e3">
+
+<figure id="org6daf1f6">
+<img src="https://github.com/incandescentman/scrollandkey/raw/main/3.png" alt="3.png">
+
+<figcaption><span class="figure-number">Figure 1: </span>An illustration of the Timeless interface.</figcaption>
+</figure>
+
 <p>
-To get started with <strong>Scroll &amp; Key</strong>:
+I&rsquo;ve taken Evan&rsquo;s original implementation and added a few enhancements of my own:
+</p>
+<ul class="org-ul">
+<li>Added the ability to display days of the week</li>
+<li>Added the ability to display name of month</li>
+<li>Add the ability to save a backup of your stored calendar events as a JSON file; and add the ability to load stored events from said backup file.</li>
+<li>Added an accompanying Python script to take the saved data and convert it into an ICS file that I can import into my MacOS calendar. (This doesn&rsquo;t yet work reliably.)</li>
+<li>European-style calendar: In my mind, the week begins on Monday. Why? Because, for the reasons discussed above, it doesn&rsquo;t make sense to separate Saturday and Sunday into separate weeks. I think of the weekend as a single unit. When I ask myself what I&rsquo;m going to do this weekend, I&rsquo;m thinking about Saturday and Sunday, not Saturday of this week and Sunday of next.</li>
+</ul>
+
+<p>
+I&rsquo;m not a coder. ChatGPT Plus made these changes for me. Here&rsquo;s a record of my conversation with ChatGPT:
+<a href="https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a">https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a</a>
 </p>
 </div>
 
-<div id="outline-container-orgf090300" class="outline-3">
-<h3 id="orgf090300">Non-expert users</h3>
-<div class="outline-text-3" id="text-orgf090300">
+<div id="outline-container-orgeeb3220" class="outline-3">
+<h3 id="orgeeb3220">What remains to be done:</h3>
+<div class="outline-text-3" id="text-orgeeb3220">
+<ul class="org-ul">
+<li>In order to facilitate exporting calendar data to a calendar app like MacOS calendar, I want to modify the format of saved data to explicitly store the full date of each calendar event.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org32f142b" class="outline-2">
+<h2 id="org32f142b">Getting Started</h2>
+<div class="outline-text-2" id="text-org32f142b">
+<p>
+To get started with <strong>Timeless</strong>:
+</p>
+</div>
+
+<div id="outline-container-org2db6fc5" class="outline-3">
+<h3 id="org2db6fc5">Non-expert users</h3>
+<div class="outline-text-3" id="text-org2db6fc5">
 <ol class="org-ol">
-<li>Click the green Code button at the top of this page, then click Download ZIP.</li>
-<li>Unzip the package</li>
-<li>Open the file <code>scrollandkey.html</code>. That&rsquo;s it!</li>
+<li>To download: Click the green <code>&lt;&gt; Code ▼</code> button at the top of this github.com page, then click <code>Download ZIP</code>.</li>
+<li>Unzip the package.</li>
+<li>Open the file <code>scrollandkey.html</code>.</li>
 </ol>
 </div>
 </div>
 
-<div id="outline-container-orgaf0c070" class="outline-3">
-<h3 id="orgaf0c070">Expert users</h3>
-<div class="outline-text-3" id="text-orgaf0c070">
+<div id="outline-container-orgb3cea0f" class="outline-3">
+<h3 id="orgb3cea0f">Expert users</h3>
+<div class="outline-text-3" id="text-orgb3cea0f">
 <p>
 Clone the repository and open the HTML file.
 </p>
@@ -1073,44 +1095,44 @@ open scrollandkey.html
 </div>
 </div>
 
-<div id="outline-container-orgae3efc9" class="outline-2">
-<h2 id="orgae3efc9">Usage</h2>
-<div class="outline-text-2" id="text-orgae3efc9">
+<div id="outline-container-org2f7baec" class="outline-2">
+<h2 id="org2f7baec">Usage</h2>
+<div class="outline-text-2" id="text-org2f7baec">
 <p>
-First, open <a href="scrollandkey.html">scrollandkey.html</a>.
+First, open <a href="timeless.html">timeless.html</a>.
 </p>
 </div>
 
-<div id="outline-container-org089dc1c" class="outline-3">
-<h3 id="org089dc1c">Adding Notes</h3>
-<div class="outline-text-3" id="text-org089dc1c">
+<div id="outline-container-orge19bded" class="outline-3">
+<h3 id="orge19bded">Adding Notes</h3>
+<div class="outline-text-3" id="text-orge19bded">
 <p>
 Click on any day to add a calendar event. A text area will appear where you can enter text. Press RETURN to save the note to local storage, which will automatically adjust the day&rsquo;s cell to accommodate the text.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org5f61142" class="outline-3">
-<h3 id="org5f61142">Navigating the Calendar</h3>
-<div class="outline-text-3" id="text-org5f61142">
+<div id="outline-container-org9855e86" class="outline-3">
+<h3 id="org9855e86">Navigating the Calendar</h3>
+<div class="outline-text-3" id="text-org9855e86">
 <p>
 Use your mouse wheel or trackpad to scroll through months and years effortlessly. The calendar dynamically loads additional weeks as you scroll, ensuring a smooth and continuous user experience.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org2275c31" class="outline-3">
-<h3 id="org2275c31">Managing Notes</h3>
-<div class="outline-text-3" id="text-org2275c31">
+<div id="outline-container-org4e1e25d" class="outline-3">
+<h3 id="org4e1e25d">Managing Notes</h3>
+<div class="outline-text-3" id="text-org4e1e25d">
 <p>
 To edit a note, simply click on the existing note text, make changes, and press RETURN to save.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org1427776" class="outline-3">
-<h3 id="org1427776">Deletion</h3>
-<div class="outline-text-3" id="text-org1427776">
+<div id="outline-container-org5dfc47b" class="outline-3">
+<h3 id="org5dfc47b">Deletion</h3>
+<div class="outline-text-3" id="text-org5dfc47b">
 <p>
 To delete a note, clear the text in the text area and click elsewhere or press RETURN.
 </p>
@@ -1118,29 +1140,29 @@ To delete a note, clear the text in the text area and click elsewhere or press R
 </div>
 </div>
 
-<div id="outline-container-org6c0069d" class="outline-2">
-<h2 id="org6c0069d">Customization</h2>
-<div class="outline-text-2" id="text-org6c0069d">
+<div id="outline-container-orgf32e271" class="outline-2">
+<h2 id="orgf32e271">Customization</h2>
+<div class="outline-text-2" id="text-orgf32e271">
 <p>
-Scroll &amp; Key is designed to be easily customizable. You can modify the CSS styles in <em>css/style.css</em> to match your aesthetic preferences or adapt the functionality in <em>js/calendar.js</em> to meet specific needs.
+Timeless is designed to be easily customizable. You can modify the CSS styles in <em>css/style.css</em> to match your aesthetic preferences or adapt the functionality in <em>js/calendar.js</em> to meet specific needs.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgb042e23" class="outline-2">
-<h2 id="orgb042e23">Contributing</h2>
-<div class="outline-text-2" id="text-orgb042e23">
+<div id="outline-container-orge0aa6dc" class="outline-2">
+<h2 id="orge0aa6dc">Contributing</h2>
+<div class="outline-text-2" id="text-orge0aa6dc">
 <p>
-Contributions to <strong>Scroll &amp; Key</strong> are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
+Contributions to <strong>Timeless</strong> are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orge762b28" class="outline-2">
-<h2 id="orge762b28">License</h2>
-<div class="outline-text-2" id="text-orge762b28">
+<div id="outline-container-org8947216" class="outline-2">
+<h2 id="org8947216">License</h2>
+<div class="outline-text-2" id="text-org8947216">
 <p>
-Scroll &amp; Key is released under the MIT License. See the LICENSE file in the repository for full details.
+Timeless is released under the MIT License. See the LICENSE file in the repository for full details.
 </p>
 </div>
 </div>

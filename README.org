@@ -94,7 +94,7 @@ open scrollandkey.html
 #+END_SRC
 
 * Usage
-First, open [[file:scrollandkey.html][scrollandkey.html]].
+First, open [[file:timeless.html][timeless.html]].
 
 ** Adding Notes
 Click on any day to add a calendar event. A text area will appear where you can enter text. Press RETURN to save the note to local storage, which will automatically adjust the day's cell to accommodate the text.
