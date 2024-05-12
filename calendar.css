@@ -1,8 +1,12 @@
 :root {
-  --border-width: 2px;
+  --border-width: 1px;
   --border-color: black;
   --header-height: 27px;
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);  /* Reduced offset, blur, and opacity */
+}
+
+body, td {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
 #header {
@@ -63,10 +67,17 @@ a.button {
   transition: all 0.3s;
 }
 
-a.button:active {
-	background: #D7D7D7;
-	background: -webkit-gradient(linear, left top, left bottom, from(#CFCFCF), to(#DFDFDF));
+a.button:hover {
+  background: linear-gradient(to bottom, #E0E0E0, #C0C0C0);
+  box-shadow: var(--shadow);
 }
+
+a.button:active {
+  background: linear-gradient(to bottom, #B0B0B0, #909090); /* Darker gradient on click */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2); /* Smaller, lighter shadow for a pressed-in effect */
+  transform: translateY(1px); /* Slightly move the button down to mimic pressing */
+}
+
 
 body, td {
 	background: white;
@@ -76,10 +87,10 @@ body, td {
 }
 
 table {
-	margin: 0 auto;
-	border-spacing: 0 0;
-	border-left: 1px solid black;
-	border-top: 1px solid black;
+  margin: 0 auto;
+  border-spacing: 0;
+  border-left: var(--border-width) solid var(--border-color);
+  border-top: var(--border-width) solid var(--border-color);
 }
 
 td {
@@ -110,14 +121,6 @@ td.shaded {
 	background: #CFE7FF;
 }
 
-td.today {
-	border-left: 2px solid black;
-	border-top: 2px solid black;
-	border-right: 3px solid black;
-	border-bottom: 3px solid black;
-	padding-top: 1px;
-	width: 116px;
-}
 
 textarea {
 	display: block;
@@ -148,7 +151,7 @@ a:focus {
 
 td.today {
   background-color: #C92228;
-  border: 2px solid #C92228;
+  border: var(--border-width) solid #C92228;
   color: #FFF;
   font-weight: bold;
   font-size:300%;
@@ -180,13 +183,3 @@ a.button {
   transition: all 0.3s;
 }
 
-a.button:hover {
-  background: linear-gradient(to bottom, #E0E0E0, #C0C0C0);
-  box-shadow: var(--shadow);
-}
-
-a.button:active {
-  background: linear-gradient(to bottom, #B0B0B0, #909090); /* Darker gradient on click */
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2); /* Smaller, lighter shadow for a pressed-in effect */
-  transform: translateY(1px); /* Slightly move the button down to mimic pressing */
-}
