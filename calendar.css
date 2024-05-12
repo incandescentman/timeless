@@ -6,20 +6,18 @@
 }
 
 #header {
-	line-height: 27px;
-	background: white;
-	position: fixed;
-	left: 0;
-	right: 0;
-	height: 27px;
-	padding: 5px;
-	text-align: center;
+  line-height: var(--header-height);
+  background: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  padding: 5px;
+  text-align: center;
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 
-#header {
-	top: 0;
-	border-bottom: 2px solid black;
-}
 
 #help {
 	display: none;
@@ -32,41 +30,37 @@
 	background: rgba(0, 0, 0, 0.75);
 }
 
+
 #help div {
-	text-align: right;
-	margin: 150px auto 0 auto;
-	width: 400px;
-	height: 90px;
-	padding: 20px;
-	color: black;
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
-	-moz-box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-	-webkit-box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-	background: white;
+  text-align: right;
+  margin: 150px auto;
+  width: 400px;
+  height: 90px;
+  padding: 20px;
+  color: black;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  background: white;
 }
 
 #help ul {
-	margin: 0;
-	padding: 0 0 20px 20px;
-	text-align: left;
-	line-height: 15px;
+  margin: 0;
+  padding: 0 0 20px 20px;
+  text-align: left;
+  line-height: 15px;
 }
 
 a.button {
-	display: inline-block;
-	color: black;
-	text-decoration: none;
-	padding: 5px 15px;
-	line-height: 15px;
-	margin: 0 0 0 5px;
-	border: 1px solid #999;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	border-radius: 4px;
-	background: #EFEFEF;
-	background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#DFDFDF));
+  display: inline-block;
+  color: black;
+  text-decoration: none;
+  padding: 5px 15px;
+  line-height: 15px;
+  margin-left: 5px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #FFFFFF, #DFDFDF);
+  transition: all 0.3s;
 }
 
 a.button:active {
