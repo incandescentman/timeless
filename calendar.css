@@ -171,10 +171,12 @@ td.shaded textarea {
 
 
 a.button {
+    font-size:200%;
+
   display: inline-block;
   color: black;
   text-decoration: none;
-  padding: 5px 15px;
+  padding: 13px;
   line-height: 15px;
   margin-left: 5px;
   border: 1px solid #999;
@@ -213,7 +215,7 @@ a.timeless {
 }
 
 #header {
-  padding-bottom:65px;
+  padding-bottom:80px;
 }
 
 span.bold {
