@@ -1,3 +1,10 @@
+:root {
+  --border-width: 2px;
+  --border-color: black;
+  --header-height: 27px;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);  /* Reduced offset, blur, and opacity */
+}
+
 #header {
 	line-height: 27px;
 	background: white;
@@ -144,10 +151,48 @@ a:focus {
 	outline: none;
 }
 
+
 td.today {
   background-color: #C92228;
-  border-color: #C92228;
-  color:#FFF;
-  font-weight:bold;
+  border: 2px solid #C92228;
+  color: #FFF;
+  font-weight: bold;
+  font-size:300%;
+  text-transform:uppercase;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
 
+td.shaded {
+  background: #CFE7FF;
+}
+
+
+td.shaded textarea {
+  background: white;
+}
+
+
+a.button {
+  display: inline-block;
+  color: black;
+  text-decoration: none;
+  padding: 5px 15px;
+  line-height: 15px;
+  margin-left: 5px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #FFFFFF, #DFDFDF);
+  transition: all 0.3s;
+}
+
+a.button:hover {
+  background: linear-gradient(to bottom, #E0E0E0, #C0C0C0);
+  box-shadow: var(--shadow);
+}
+
+a.button:active {
+  background: linear-gradient(to bottom, #B0B0B0, #909090); /* Darker gradient on click */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2); /* Smaller, lighter shadow for a pressed-in effect */
+  transform: translateY(1px); /* Slightly move the button down to mimic pressing */
 }
