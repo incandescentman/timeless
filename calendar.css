@@ -183,3 +183,22 @@ a.button {
   transition: all 0.3s;
 }
 
+a.timeless {
+  font-size:150%;
+  text-decoration:none;
+background: linear-gradient(to bottom, #E0E0E0, #CFE7FF);
+  box-shadow: var(--shadow);
+  color:#000;
+}
+a.timeless:hover
+{
+background: linear-gradient(to bottom, #E0E0E0, #C0C0C0);
+}
+
+
+a.timeless:active {
+    color:#000;
+  background: linear-gradient(to bottom, #B0B0B0, #909090); /* Darker gradient on click */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2); /* Smaller, lighter shadow for a pressed-in effect */
+  transform: translateY(1px); /* Slightly move the button down to mimic pressing */
+}
