@@ -184,21 +184,38 @@ a.button {
 }
 
 a.timeless {
-  font-size:150%;
-  text-decoration:none;
-background: linear-gradient(to bottom, #E0E0E0, #CFE7FF);
+  font-size: 137%;
+  text-decoration: none;
+  background: linear-gradient(to bottom, #E0E0E0, #CFE7FF);
   box-shadow: var(--shadow);
-  color:#000;
-}
-a.timeless:hover
-{
-background: linear-gradient(to bottom, #E0E0E0, #C0C0C0);
+  color: #000;
+ padding: 3px 10px;  /* Reduced padding for smaller size */
+  border-radius: 4px;  /* Rounded corners for a smoother look */
+  display: inline-block; /* Ensures padding and border-radius are applied correctly */
+  transition: background 0.3s, box-shadow 0.3s, transform 0.3s; /* Smooth transition for visual properties */
 }
 
+a.timeless:hover {
+  background: linear-gradient(to bottom, #D0D0FF, #B0C0E7); /* Slightly lighter for better hover effect */
+}
 
 a.timeless:active {
-    color:#000;
-  background: linear-gradient(to bottom, #B0B0B0, #909090); /* Darker gradient on click */
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2); /* Smaller, lighter shadow for a pressed-in effect */
-  transform: translateY(1px); /* Slightly move the button down to mimic pressing */
+  color: #FFF; /* Change text color to white for better contrast on active state */
+  background: linear-gradient(to bottom, #909090, #707070); /* Darker gradient on click */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Reduce shadow spread for a more subtle pressed effect */
+  transform: translateY(2px); /* Increase translate to enhance the pressed effect */
+}
+
+
+a.timeless {
+  margin-top:15px;
+  margin-bottom:15px;
+}
+
+#header {
+  padding-bottom:80px;
+}
+
+span.bold {
+  font-weight:bold;
 }
