@@ -242,7 +242,8 @@ span.bold {
     transform: translateX(-100%) translateY(-50%); /* Move tooltip to the left and vertically center */
     white-space: nowrap; /* Prevents line breaks */
     z-index: 1000; /* High z-index to ensure visibility on top */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for depth */}
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
+}
 
 /* Position tooltip to the left of the button */
 .button {
@@ -253,7 +254,7 @@ span.bold {
 /* Show tooltip on hover */
 .button:hover::after {
     opacity: 1;
-    transform: translateX(-80%) translateY(-110%); /* Adjust further to the left with a slight upward translation */
+    transform: translateX(-100%) translateY(-110%); /* Maintain centered and left-aligned */
+    z-index: 1001; /* Lift tooltip to be visible above other buttons */
 }
-/* Increase z-index on hover to lift both button and tooltip */
 
