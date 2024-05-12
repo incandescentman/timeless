@@ -220,4 +220,38 @@ span.bold {
   font-weight:bold;
 }
 
+.button:hover {
+    z-index: 1001; /* Slightly higher than the tooltip to lift the button on top */
+}
+
+
+/* Tooltip base style */
+.button::after {
+    content: attr(data-tooltip); /* Uses the value in the data-tooltip attribute */
+    position: absolute;
+    background-color: #333; /* Dark background for tooltip */
+    color: #fff; /* White text */
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    transform: translateX(-100%) translateY(-50%); /* Move tooltip to the left and vertically center */
+    white-space: nowrap; /* Prevents line breaks */
+    z-index: 1000; /* High z-index to ensure visibility on top */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for depth */}
+
+/* Position tooltip to the left of the button */
+.button {
+    position: relative; /* Ensure button acts as a reference point */
+    z-index: 1; /* Lower z-index for buttons */
+}
+
+/* Show tooltip on hover */
+.button:hover::after {
+    opacity: 1;
+    transform: translateX(-80%) translateY(-110%); /* Adjust further to the left with a slight upward translation */
+}
+/* Increase z-index on hover to lift both button and tooltip */
 
