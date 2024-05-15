@@ -144,8 +144,6 @@ function keydownHandler(event) {
     }
 }
 
-
-
 function checkItem()
 {
 	if(this.value.length == 0)
@@ -178,8 +176,6 @@ document.onclick = function(e)
 	item.focus();
 }
 
-
-
 function generateDay(day, date) {
     console.log(date); // Log to see the actual date being passed
 
@@ -206,7 +202,6 @@ function getAdjustedDayIndex(date) {
     return (day === 0) ? 6 : day - 1; // Adjusts so Monday is 0 and Sunday is 6
 }
 
-
 function prependWeek() {
     var week = calendarTableElement.insertRow(0);
     var monthName = '';
@@ -221,9 +216,6 @@ function prependWeek() {
         generateDay(day, new Date(firstDate)); // Use a new instance to avoid reference issues
     } while (getAdjustedDayIndex(firstDate) !== 0);
 }
-
-
-
 
 function appendWeek() {
     var week = calendarTableElement.insertRow(-1);
@@ -242,8 +234,6 @@ function appendWeek() {
     extra.className = 'extra';
     extra.innerHTML = monthName;
 }
-
-
 
 function scrollPositionForElement(element)
 {
@@ -339,7 +329,6 @@ function poll()
 	}
 }
 
-
 function loadCalendarAroundDate(seedDate) {
     calendarTableElement.innerHTML = '';
     firstDate = new Date(seedDate);
@@ -361,7 +350,7 @@ function loadCalendarAroundDate(seedDate) {
     setTimeout('scrollToToday()', 50);
 }
 
-
+// Improved download function with key check
 function downloadLocalStorageData() {
     var data = {};
     for (var key in localStorage) {
@@ -373,11 +362,12 @@ function downloadLocalStorageData() {
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("download", "calendar_data.json");
-    document.body.appendChild(downloadAnchorNode); // Required for Firefox
+    document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 }
 
+// Improved load data function with better feedback
 function loadDataFromFile() {
     var input = document.getElementById('fileInput');
     if (input.files.length === 0) {
@@ -388,14 +378,18 @@ function loadDataFromFile() {
     var reader = new FileReader();
 
     reader.onload = function(e) {
-        var data = JSON.parse(e.target.result);
-        for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-                localStorage.setItem(key, data[key]);
+        try {
+            var data = JSON.parse(e.target.result);
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    localStorage.setItem(key, data[key]);
+                }
             }
+            alert('Data loaded successfully!');
+            location.reload(); // Optional: reload the page to reflect the new data
+        } catch (error) {
+            alert('Invalid file format. Please select a valid JSON file.');
         }
-        alert('Data loaded successfully!');
-        location.reload(); // Optional: reload the page to reflect the new data
     };
 
     reader.onerror = function() {
@@ -405,15 +399,12 @@ function loadDataFromFile() {
     reader.readAsText(file);
 }
 
+window.onload = function() {
+    calendarTableElement = document.getElementById('calendar');
+    todayDate = new Date;
 
-
-window.onload = function()
-{
-	calendarTableElement = document.getElementById('calendar');
-	todayDate = new Date;
-
-	loadCalendarAroundDate(todayDate);
-	setInterval('poll()', 100);
+    loadCalendarAroundDate(todayDate);
+    setInterval('poll()', 100);
 }
 
 function showHelp() { document.getElementById('help').style.display = 'block'; }
@@ -429,4 +420,3 @@ document.write('<div id="header">' +
 document.write('<input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">');
 document.write('<table id="calendar"></table>');
 document.write('<div id="help"><div><ul><li>Click on a day to add a note</li><li>To delete a note, delete its text</li><li>Use the scroll wheel to move forward or backward in time</li></ul><a class="button" href="javascript:hideHelp()">Close</a></div></div>');
-
