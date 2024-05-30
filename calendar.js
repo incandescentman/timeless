@@ -399,6 +399,82 @@ function loadDataFromFile() {
     reader.readAsText(file);
 }
 
+
+
+
+async function saveDirectoryHandleToLocalStorage(handle) {
+    const serializedHandle = await handle.queryPermission({ writable: true });
+    if (serializedHandle !== 'granted') {
+        throw new Error('Permission to write to directory was not granted.');
+    }
+    localStorage.setItem('iCloudDirHandle', JSON.stringify(handle));
+}
+
+async function getDirectoryHandleFromLocalStorage() {
+    const handleData = localStorage.getItem('iCloudDirHandle');
+    if (!handleData) {
+        return null;
+    }
+    const handle = JSON.parse(handleData);
+    const permission = await handle.queryPermission({ writable: true });
+    if (permission !== 'granted') {
+        throw new Error('Permission to write to directory was not granted.');
+    }
+    return handle;
+}
+
+async function exportToiCloud() {
+    try {
+        // Request persistent storage
+        if (navigator.storage && navigator.storage.persist) {
+            await navigator.storage.persist();
+        }
+
+        let dirHandle;
+        const savedDirHandle = localStorage.getItem('iCloudDirHandle');
+
+        if (savedDirHandle) {
+            // Attempt to retrieve the saved directory handle
+            dirHandle = await getDirectoryHandleFromLocalStorage();
+        }
+
+        if (!dirHandle) {
+            // If no saved handle or retrieving failed, prompt the user to select a directory
+            dirHandle = await window.showDirectoryPicker();
+            // Save the new directory handle
+            await saveDirectoryHandleToLocalStorage(dirHandle);
+        }
+
+        // Create a new file handle in the selected directory
+        const fileHandle = await dirHandle.getFileHandle('calendar_data.json', { create: true });
+
+        // Create a writable stream
+        const writable = await fileHandle.createWritable();
+
+        // Prepare the data to be saved
+        var data = {};
+        for (var key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) {
+                data[key] = localStorage.getItem(key);
+            }
+        }
+        var dataStr = JSON.stringify(data);
+
+        // Write the data to the file
+        await writable.write(dataStr);
+
+        // Close the writable stream
+        await writable.close();
+
+        alert('Data saved to iCloud Drive successfully!');
+    } catch (error) {
+        alert('Failed to save data to iCloud Drive.');
+        console.error(error);
+    }
+}
+
+
+
 window.onload = function() {
     calendarTableElement = document.getElementById('calendar');
     todayDate = new Date;
@@ -414,7 +490,8 @@ document.write('<div id="header">' +
     '<a href="https://github.com/incandescentman/timeless" target="_blank" class="timeless" rel="noopener noreferrer">🪐 <span class="bold">Timeless:</span> The Infinite Calendar ✨</a><br>' +
     '<a class="button" href="javascript:smoothScrollToToday()" data-tooltip="Go to Today">📅</a>' +
     '<a class="button" href="javascript:document.getElementById(\'fileInput\').click()" data-tooltip="Load Calendar Data">📥</a>' +
-    '<a class="button" href="javascript:downloadLocalStorageData()" data-tooltip="Save Calendar Data">💾</a>' +
+    '<a class="button" href="javascript:downloadLocalStorageData()" data-tooltip="Save Calendar Data">💾</a>'  +
+    '<a class="button" href="javascript:exportToiCloud()" data-tooltip="Save to iCloud Drive">🌩️</a>' +
     '<a class="button" href="javascript:showHelp()" data-tooltip="Help">ℹ️</a>' +
     '</div>');
 document.write('<input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">');
