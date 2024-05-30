@@ -96,9 +96,9 @@ https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a
 To get started with *Timeless*:
 
 ** Non-expert users
-1. To download: Click the green ~<> Code ▼~ button at the top of this github.com page, then click ~Download ZIP~.
-2. Unzip the package.
-3. Open the file ~index.html~.
+Visit this page: [[https://incandescentman.github.io/timeless/][Timeless: The Infinitely Scrolling Calendar 📅✨]]
+
+That's it! You can now begin adding events!
 
 ** Expert users
 Clone the repository and open the HTML file.
@@ -110,8 +110,6 @@ open index.html
 #+END_SRC
 
 * Usage
-First, open [[file:index.html][index.html]].
-
 ** Adding Notes
 Click on any day to add a calendar event. A text area will appear where you can enter text. Press RETURN to save the note to local storage, which will automatically adjust the day's cell to accommodate the text.
 
