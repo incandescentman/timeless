@@ -372,12 +372,6 @@ function loadDataFromFile() {
 
 async function exportToiCloud() {
     try {
-        // Request persistent storage permission
-        const granted = await navigator.storage.persist();
-        if (!granted) {
-            alert('Persistent storage permission was not granted. Exporting may not remember the last directory used.');
-        }
-
         // Prompt the user to select a directory
         const handle = await window.showDirectoryPicker();
 
