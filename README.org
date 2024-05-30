@@ -7,6 +7,16 @@ Welcome to *Timeless*, an infinitely scrolling calendar designed to help you vis
 Here it is in action:
 [[https://incandescentman.github.io/timeless/][Timeless: The Infinitely Scrolling Calendar 📅✨]]
 
+Summary:
+- An infinitely scrolling web calendar app that allows adding notes to any day. New weeks are dynamically added when scrolling, so the calendar expands infinitely in both directions.
+- Data is stored client-side using localStorage, so notes are private.
+- To add a note, you click on a day and start typing. Hitting enter saves the note. To delete a note, you delete its text.
+- It shows the current date highlighted, and automatically scrolls to today's date on load. You can click the calendar button to smoothly scroll to today's date anytime.
+- The calendar shows the full month names and year in the blank space at the end of each month for easier navigation when scrolling far into the past or future.
+- Export the calendar data to a JSON file in your Downloads folder; or import data from your saved JSON file to load previously saved notes.
+- You can choose to sync your data between multiple devices by saving calendar data to a shared drive, such as iCloud, Dropbox, or Google Drive.
+   + The sync button allows syncing the calendar data in a cloud storage directory of your choosing. It compares timestamps to determine whether to load newer data from the file or save newer local data to the file.
+
 This project is an appreciative fork of [[https://madebyevan.com/calendar/][Continuous Calendar]] by Evan Wallace with some added functionality of my own.
 
 #+ATTR_HTML: :width 300px
