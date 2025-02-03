@@ -8,871 +8,9 @@
 <meta name="generator" content="Org Mode" />
 <style type="text/css">
 <!--/*--><![CDATA[/*><!--*/
-/* Global variables. */
-:root,
-::backdrop {
-  /* Set sans-serif & mono fonts */
-  --sans-font: -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir,
-    "Nimbus Sans L", Roboto, "Noto Sans", "Segoe UI", Arial, Helvetica,
-    "Helvetica Neue", sans-serif;
-  --mono-font: Consolas, Menlo, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
-  --standard-border-radius: 5px;
-
-  /* Default (light) theme */
-  --bg: #fff;
-  --accent-bg: #f5f7ff;
-  --text: #212121;
-  --text-light: #585858;
-  --border: #898EA4;
-  --accent: #0d47a1;
-  --code: #d81b60;
-  --preformatted: #444;
-  --marked: #ffdd33;
-  --disabled: #efefef;
-}
-
-/* Dark theme */
-@media (prefers-color-scheme: dark) {
-  :root,
-  ::backdrop {
-    color-scheme: dark;
-    --bg: #212121;
-    --accent-bg: #2b2b2b;
-    --text: #dcdcdc;
-    --text-light: #ababab;
-    --accent: #ffb300;
-    --code: #f06292;
-    --preformatted: #ccc;
-    --disabled: #111;
-  }
-  /* Add a bit of transparency so light media isn't so glaring in dark mode */
-  img,
-  video {
-    opacity: 0.8;
-  }
-}
-
-/* Reset box-sizing */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-/* Reset default appearance */
-textarea,
-select,
-input,
-progress {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-html {
-  /* Set the font globally */
-  font-family: var(--sans-font);
-  scroll-behavior: smooth;
-}
-
-/* Make the body a nice central block */
-body {
-  color: var(--text);
-  background-color: var(--bg);
-  font-size: 1.15rem;
-  line-height: 1.5;
-  display: grid;
-  grid-template-columns: 1fr min(45rem, 90%) 1fr;
-  margin: 0;
-}
-body > * {
-  grid-column: 2;
-}
-
-/* Make the header bg full width, but the content inline with body */
-body > header {
-  background-color: var(--accent-bg);
-  border-bottom: 1px solid var(--border);
-  text-align: center;
-  padding: 0 0.5rem 2rem 0.5rem;
-  grid-column: 1 / -1;
-}
-
-body > header h1 {
-  max-width: 1200px;
-  margin: 1rem auto;
-}
-
-body > header p {
-  max-width: 40rem;
-  margin: 1rem auto;
-}
-
-/* Add a little padding to ensure spacing is correct between content and header > nav */
-main {
-  padding-top: 1.5rem;
-}
-
-body > footer {
-  margin-top: 4rem;
-  padding: 2rem 1rem 1.5rem 1rem;
-  color: var(--text-light);
-  font-size: 0.9rem;
-  text-align: center;
-  border-top: 1px solid var(--border);
-}
-
-/* Format headers */
-h1 {
-  font-size: 3rem;
-}
-
-h2 {
-  font-size: 2.6rem;
-  margin-top: 3rem;
-}
-
-h3 {
-  font-size: 2rem;
-  margin-top: 3rem;
-}
-
-h4 {
-  font-size: 1.44rem;
-}
-
-h5 {
-  font-size: 1.15rem;
-}
-
-h6 {
-  font-size: 0.96rem;
-}
-
-/* Prevent long strings from overflowing container */
-p, h1, h2, h3, h4, h5, h6 {
-  overflow-wrap: break-word;
-}
-
-/* Fix line height when title wraps */
-h1,
-h2,
-h3 {
-  line-height: 1.1;
-}
-
-/* Reduce header size on mobile */
-@media only screen and (max-width: 720px) {
-  h1 {
-    font-size: 2.5rem;
-  }
-
-  h2 {
-    font-size: 2.1rem;
-  }
-
-  h3 {
-    font-size: 1.75rem;
-  }
-
-  h4 {
-    font-size: 1.25rem;
-  }
-}
-
-/* Format links & buttons */
-a,
-a:visited {
-  color: var(--accent);
-}
-
-a:hover {
-  text-decoration: none;
-}
-
-button,
-[role="button"],
-input[type="submit"],
-input[type="reset"],
-input[type="button"],
-label[type="button"] {
-  border: none;
-  border-radius: var(--standard-border-radius);
-  background-color: var(--accent);
-  font-size: 1rem;
-  color: var(--bg);
-  padding: 0.7rem 0.9rem;
-  margin: 0.5rem 0;
-
-  /* Ensure buttons use correct font */
-  font-family: inherit;
-}
-
-button[disabled],
-[role="button"][aria-disabled="true"],
-input[type="submit"][disabled],
-input[type="reset"][disabled],
-input[type="button"][disabled],
-input[type="checkbox"][disabled],
-input[type="radio"][disabled],
-select[disabled] {
-  cursor: not-allowed;
-}
-
-input:disabled,
-textarea:disabled,
-select:disabled,
-button[disabled] {
-  cursor: not-allowed;
-  background-color: var(--disabled);
-  color: var(--text-light)
-}
-
-input[type="range"] {
-  padding: 0;
-}
-
-/* Set the cursor to '?' on an abbreviation and style the abbreviation to show that there is more information underneath */
-abbr[title] {
-  cursor: help;
-  text-decoration-line: underline;
-  text-decoration-style: dotted;
-}
-
-button:enabled:hover,
-[role="button"]:not([aria-disabled="true"]):hover,
-input[type="submit"]:enabled:hover,
-input[type="reset"]:enabled:hover,
-input[type="button"]:enabled:hover,
-label[type="button"]:hover {
-  filter: brightness(1.4);
-  cursor: pointer;
-}
-
-button:focus-visible:where(:enabled, [role="button"]:not([aria-disabled="true"])),
-input:enabled:focus-visible:where(
-  [type="submit"],
-  [type="reset"],
-  [type="button"]
-) {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-/* Format navigation */
-header > nav {
-  font-size: 1rem;
-  line-height: 2;
-  padding: 1rem 0 0 0;
-}
-
-/* Use flexbox to allow items to wrap, as needed */
-header > nav ul,
-header > nav ol {
-  align-content: space-around;
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* List items are inline elements, make them behave more like blocks */
-header > nav ul li,
-header > nav ol li {
-  display: inline-block;
-}
-
-header > nav a,
-header > nav a:visited {
-  margin: 0 0.5rem 1rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: var(--standard-border-radius);
-  color: var(--text);
-  display: inline-block;
-  padding: 0.1rem 1rem;
-  text-decoration: none;
-}
-
-header > nav a:hover,
-header > nav a.current,
-header > nav a[aria-current="page"] {
-  border-color: var(--accent);
-  color: var(--accent);
-  cursor: pointer;
-}
-
-/* Reduce nav side on mobile */
-@media only screen and (max-width: 720px) {
-  header > nav a {
-    border: none;
-    padding: 0;
-    text-decoration: underline;
-    line-height: 1;
-  }
-}
-
-/* Consolidate box styling */
-aside, details, pre, progress, blockquote {
-  background-color: var(--accent-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--standard-border-radius);
-  margin-bottom: 1rem;
-
-}
-
-aside {
-  font-size: 1rem;
-  width: 30%;
-  padding: 0 15px;
-  margin-inline-start: 15px;
-  float: right;
-}
-*[dir="rtl"] aside {
-  float: left;
-}
-
-/* Make aside full-width on mobile */
-@media only screen and (max-width: 720px) {
-  aside {
-    width: 100%;
-    float: none;
-    margin-inline-start: 0;
-  }
-}
-
-article, fieldset, dialog {
-  border: 1px solid var(--border);
-  padding: 1rem;
-  border-radius: var(--standard-border-radius);
-  margin-bottom: 1rem;
-}
-
-article h2:first-child,
-section h2:first-child {
-  margin-top: 1rem;
-}
-
-section {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 2rem 1rem;
-  margin: 3rem 0;
-}
-
-/* Don't double separators when chaining sections */
-section + section,
-section:first-child {
-  border-top: 0;
-  padding-top: 0;
-}
-
-section:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-details {
-  padding: 0.7rem 1rem;
-}
-
-summary {
-  cursor: pointer;
-  font-weight: bold;
-  padding: 0.7rem 1rem;
-  margin: -0.7rem -1rem;
-  word-break: break-all;
-}
-
-details[open] > summary + * {
-  margin-top: 0;
-}
-
-details[open] > summary {
-  margin-bottom: 0.5rem;
-}
-
-details[open] > :last-child {
-  margin-bottom: 0;
-}
-
-/* Format tables */
-table {
-  border-collapse: collapse;
-  margin: 1.5rem 0;
-}
-
-td,
-th {
-  border: 1px solid var(--border);
-  text-align: start;
-  padding: 0.5rem;
-}
-
-th {
-  background-color: var(--accent-bg);
-  font-weight: bold;
-}
-
-tr:nth-child(even) {
-  /* Set every other cell slightly darker. Improves readability. */
-  background-color: var(--accent-bg);
-}
-
-table caption {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-/* Format forms */
-textarea,
-select,
-input {
-  font-size: inherit;
-  font-family: inherit;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  color: var(--text);
-  background-color: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--standard-border-radius);
-  box-shadow: none;
-  max-width: 100%;
-  display: inline-block;
-}
-label {
-  display: block;
-}
-textarea:not([cols]) {
-  width: 100%;
-}
-
-/* Add arrow to drop-down */
-select:not([multiple]) {
-  background-image: linear-gradient(45deg, transparent 49%, var(--text) 51%),
-    linear-gradient(135deg, var(--text) 51%, transparent 49%);
-  background-position: calc(100% - 15px), calc(100% - 10px);
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-  padding-inline-end: 25px;
-}
-*[dir="rtl"] select:not([multiple]) {
-  background-position: 10px, 15px;
-}
-
-/* checkbox and radio button style */
-input[type="checkbox"],
-input[type="radio"] {
-  vertical-align: middle;
-  position: relative;
-  width: min-content;
-}
-
-input[type="checkbox"] + label,
-input[type="radio"] + label {
-  display: inline-block;
-}
-
-input[type="radio"] {
-  border-radius: 100%;
-}
-
-input[type="checkbox"]:checked,
-input[type="radio"]:checked {
-  background-color: var(--accent);
-}
-
-input[type="checkbox"]:checked::after {
-  /* Creates a rectangle with colored right and bottom borders which is rotated to look like a check mark */
-  content: " ";
-  width: 0.18em;
-  height: 0.32em;
-  border-radius: 0;
-  position: absolute;
-  top: 0.05em;
-  left: 0.17em;
-  background-color: transparent;
-  border-right: solid var(--bg) 0.08em;
-  border-bottom: solid var(--bg) 0.08em;
-  font-size: 1.8em;
-  transform: rotate(45deg);
-}
-input[type="radio"]:checked::after {
-  /* creates a colored circle for the checked radio button  */
-  content: " ";
-  width: 0.25em;
-  height: 0.25em;
-  border-radius: 100%;
-  position: absolute;
-  top: 0.125em;
-  background-color: var(--bg);
-  left: 0.125em;
-  font-size: 32px;
-}
-
-/* Makes input fields wider on smaller screens */
-@media only screen and (max-width: 720px) {
-  textarea,
-  select,
-  input {
-    width: 100%;
-  }
-}
-
-/* Set a height for color input */
-input[type="color"] {
-  height: 2.5rem;
-  padding:  0.2rem;
-}
-
-/* do not show border around file selector button */
-input[type="file"] {
-  border: 0;
-}
-
-/* Misc body elements */
-hr {
-  border: none;
-  height: 1px;
-  background: var(--border);
-  margin: 1rem auto;
-}
-
-mark {
-  padding: 2px 5px;
-  border-radius: var(--standard-border-radius);
-  background-color: var(--marked);
-  color: black;
-}
-
-img,
-video {
-  max-width: 100%;
-  height: auto;
-  border-radius: var(--standard-border-radius);
-}
-
-figure {
-  margin: 0;
-  display: block;
-  overflow-x: auto;
-}
-
-figcaption {
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--text-light);
-  margin-bottom: 1rem;
-}
-
-cite {
-  font-size: 0.9rem;
-  color: var(--text-light);
-  font-style: normal;
-}
-
-dt {
-    color: var(--text-light);
-}
-
-/* Use mono font for code elements */
-code,
-pre,
-pre span,
-kbd,
-samp, blockquote {
-  font-family: var(--mono-font);
-  color: var(--code);
-}
-
-kbd {
-  color: var(--preformatted);
-  border: 1px solid var(--preformatted);
-  border-bottom: 3px solid var(--preformatted);
-  border-radius: var(--standard-border-radius);
-  padding: 0.1rem 0.4rem;
-}
-
-pre, blockquote {
-  padding: 1rem 1.4rem;
-  max-width: 100%;
-  overflow: auto;
-  color: var(--preformatted);
-}
-
-/* Fix embedded code within pre */
-pre code {
-  color: var(--preformatted);
-  background: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* Progress bars */
-/* Declarations are repeated because you */
-/* cannot combine vendor-specific selectors */
-progress {
-  width: 100%;
-}
-
-progress:indeterminate {
-  background-color: var(--accent-bg);
-}
-
-progress::-webkit-progress-bar {
-  border-radius: var(--standard-border-radius);
-  background-color: var(--accent-bg);
-}
-
-progress::-webkit-progress-value {
-  border-radius: var(--standard-border-radius);
-  background-color: var(--accent);
-}
-
-progress::-moz-progress-bar {
-  border-radius: var(--standard-border-radius);
-  background-color: var(--accent);
-  transition-property: width;
-  transition-duration: 0.3s;
-}
-
-progress:indeterminate::-moz-progress-bar {
-  background-color: var(--accent-bg);
-}
-
-dialog {
-  max-width: 40rem;
-  margin: auto;
-}
-
-dialog::backdrop {
-  background-color: var(--bg);
-  opacity: 0.8;
-}
-
-@media only screen and (max-width: 720px) {
-  dialog {
-    max-width: 100%;
-    margin: auto 1em;
-  }
-}
-
-/* Classes for buttons and notices */
-.button,
-.button:visited {
-  display: inline-block;
-  text-decoration: none;
-  border: none;
-  border-radius: 5px;
-  background: var(--accent);
-  font-size: 1rem;
-  color: var(--bg);
-  padding: 0.7rem 0.9rem;
-  margin: 0.5rem 0;
-}
-
-.button:hover,
-.button:focus {
-  filter: brightness(1.4);
-  cursor: pointer;
-}
-
-.notice {
-  background: var(--accent-bg);
-  border: 2px solid var(--border);
-  border-radius: 5px;
-  padding: 1.5rem;
-  margin: 2rem 0;
-}
-
-
-
-
-
-
-
-
-
-
-/* add the hierarchy*/
-div.outline-text-3 {
-    margin-left:1em;
-}
-
-div.outline-text-4{
-    margin-left:0.2em
-
-}
-
-div.outline-text-5{
-    margin-left:3em
-}
-
-div.outline-text-6 {
-    margin-left:6em
-}
-
-
-div.outline-text-7 {
-    margin-left:9em
-}
-
-
-
-
-
-div dl dt::after {
- content: ":";}
-
-
-h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 4em; font-weight: bold; letter-spacing: -1px; line-height: 1; text-align: center;   margin-bottom: 16px}
-
-
-
-h2
-{
-    font-family: 'Helvetica Neue', sans-serif;
-    font-weight: 100;
-    font-size:3em;
-    line-height: 32px;
-    padding-bottom:0.2em;
-    margin-right:auto ;
-    margin-top:1em;
-  margin-bottom: 0.5em;
-  font-weight:bold;
-}
-
-
-h3 {
-  font-size: 1.3em;
-  margin-left:2em;
-}
-
-h4 {
-  font-size: 1.1em;
-    margin-left: 0.2em;
-}
-
-
-h5
-{
-margin-left:3em
-}
-
-h6
-{
-    margin-left:6em ;
-      font-size: 1em;
-}
-
-h7
-{
-    margin-left:9em ;
-      font-size: 1em;
-      font-weight:bold;
-}
-
-
-li ul li {
-  margin:0;
-}
-
-
-
-h1.title {
-  text-align:left;
-}
-
-
-div.outline-text-3
-{margin-left: 2.6em;}
-
-h1:first-letter, h2:first-letter, h3:first-letter, h4:first-letter, h5:first-letter
-{
-text-transform:capitalize;
-}
-
-div dl dt {
-  font-weight:700;
-}
-
-
-pre, blockquote {
-    border-radius: 8px;
-    padding: 0 1em 1em;
-    text-align: left;
-    white-space: normal;
-    word-wrap: break-word;
-word-wrap:normal!important;
-     white-space: pre-wrap;       /* css-3 */
-     word-wrap: normal;
-
-}
-
-
-div.outline-text-3 {
-    margin-left:5em;
-}
-
-
-
-li > p, li > ul, li > .inlinetask, li > dl {
-    margin-left: 0px;
-}
-
-dd > p, dd > ul, dd > .inlinetask, dd > dl {
-    margin-left: 0px;
-}
-
-
-div dl dt {
-  font-size:125%;
-
-}
-
-div dl dt::first-letter
-{
-  text-transform: capitalize;
-}
-
-
-div blockquote p {
-  font-size:200%;
-  margin:0;
-}
-
-h2 {
-  line-height: 1;
-}
-
-
-h1.title {
-  display:none;
-}
-
-
-pre.example, blockquote {
-  padding-top:1em
-}
-
-
-
-blockquote p {
-font-size: 1.15rem !important;
-margin:1em !important;
-}
-
-
-p.verse {
-    color: #111;
-    font: 14px Baskerville, "Palatino Linotype", "Times New Roman", Times, serif;
-    margin: auto;
-    padding: 20px 0;
-    text-align: left;
-    width: 390px;
-    line-height: 1.5;
-    margin-bottom: 15px;
+body, p, h1, h2, h3, h4, h5, h6, a, li, span, div {
+    font-family: "Helvetica Neue", Helvetica, sans-serif !important;
+    font-size: 13px !important;
 }
 /*]]>*/-->
 </style>
@@ -881,10 +19,9 @@ p.verse {
 <div id="content" class="content">
 <header>
 <h1 class="title">Timeless</h1>
-</header>
-<div id="outline-container-org37f0c5a" class="outline-2">
-<h2 id="org37f0c5a">Introduction</h2>
-<div class="outline-text-2" id="text-org37f0c5a">
+</header><div id="outline-container-org7a9bd57" class="outline-1">
+<h1 id="org7a9bd57">Introduction</h1>
+<div class="outline-text-1" id="text-org7a9bd57">
 <p>
 Welcome to <strong>Timeless</strong>, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life.
 </p>
@@ -895,15 +32,14 @@ Here it is in action:
 </p>
 
 
-<figure id="org9df4563">
-<img src="unreliablenarrator_infinite_future._macos_application_icon_dc535484-c32d-4ba0-a99f-b920d9e44f2b.png" alt="unreliablenarrator_infinite_future._macos_application_icon_dc535484-c32d-4ba0-a99f-b920d9e44f2b.png" width="300px">
+<figure id="org423d2a7">
+<img src="img/unreliablenarrator_infinite_future._macos_application_icon_dc535484-c32d-4ba0-a99f-b920d9e44f2b.png" alt="unreliablenarrator_infinite_future._macos_application_icon_dc535484-c32d-4ba0-a99f-b920d9e44f2b.png" width="300px">
 
 </figure>
 </div>
-
-<div id="outline-container-orgd247dc9" class="outline-3">
-<h3 id="orgd247dc9">Summary:</h3>
-<div class="outline-text-3" id="text-orgd247dc9">
+<div id="outline-container-org88bc3f0" class="outline-2">
+<h2 id="org88bc3f0">Summary:</h2>
+<div class="outline-text-2" id="text-org88bc3f0">
 <ul class="org-ul">
 <li>An infinitely scrolling web calendar app that allows adding notes to any day. New weeks are dynamically added when scrolling, so the calendar expands infinitely in both directions.</li>
 <li>Data is stored client-side using localStorage, so notes are private.</li>
@@ -923,21 +59,20 @@ This project is an appreciative fork of <a href="https://madebyevan.com/calendar
 </div>
 </div>
 </div>
-
-<div id="outline-container-org2132293" class="outline-2">
-<h2 id="org2132293">Why</h2>
-<div class="outline-text-2" id="text-org2132293">
+<div id="outline-container-org9773ecb" class="outline-1">
+<h1 id="org9773ecb">Why</h1>
+<div class="outline-text-1" id="text-org9773ecb">
 </div>
-<div id="outline-container-orgcbcf6d5" class="outline-3">
-<h3 id="orgcbcf6d5">The Problem: Conceptualizing the future one month at a time</h3>
-<div class="outline-text-3" id="text-orgcbcf6d5">
+<div id="outline-container-orgf7ccafd" class="outline-2">
+<h2 id="orgf7ccafd">The Problem: Conceptualizing the future one month at a time</h2>
+<div class="outline-text-2" id="text-orgf7ccafd">
 <p>
 Traditional digital calendars like MacOS Calendar and Google Calendar segment time into discrete months: You conceptualize the future one month at a time.
 </p>
 
 
-<figure id="orgdddee98">
-<img src="typical-interface.png" alt="typical-interface.png">
+<figure id="org27accf4">
+<img src="img/typical-interface.png" alt="typical-interface.png">
 
 </figure>
 
@@ -946,8 +81,8 @@ You&rsquo;re shown a single month&rsquo;s worth of dates. Then, to navigate thro
 </p>
 
 
-<figure id="orgf645e8a">
-<img src="nextmonth.png" alt="nextmonth.png">
+<figure id="org5356155">
+<img src="img/nextmonth.png" alt="nextmonth.png">
 
 </figure>
 
@@ -964,8 +99,8 @@ Even calendars that offer the ability to display several months at once still se
 </p>
 
 
-<figure id="org8fed414">
-<img src="mc-simple.png" alt="mc-simple.png">
+<figure id="org613fe7e">
+<img src="img/mc-simple.png" alt="mc-simple.png">
 
 </figure>
 
@@ -982,13 +117,12 @@ It&rsquo;s like a map that&rsquo;s not to scale. Sure, you can mentally compensa
 </p>
 </div>
 </div>
+<div id="outline-container-orgffce377" class="outline-2">
+<h2 id="orgffce377">The Solution: A continuous perspective</h2>
+<div class="outline-text-2" id="text-orgffce377">
 
-<div id="outline-container-orgc4a353b" class="outline-3">
-<h3 id="orgc4a353b">The Solution: A continuous perspective</h3>
-<div class="outline-text-3" id="text-orgc4a353b">
-
-<figure id="orgb17ddd4">
-<img src="unreliablenarrator_infinite_future_with_scrolling_calendar_dat_aab1ab6f-609f-41ad-b18c-af1556b51b19.png" alt="unreliablenarrator_infinite_future_with_scrolling_calendar_dat_aab1ab6f-609f-41ad-b18c-af1556b51b19.png">
+<figure id="org124e457">
+<img src="img/unreliablenarrator_infinite_future_with_scrolling_calendar_dat_aab1ab6f-609f-41ad-b18c-af1556b51b19.png" alt="unreliablenarrator_infinite_future_with_scrolling_calendar_dat_aab1ab6f-609f-41ad-b18c-af1556b51b19.png">
 
 </figure>
 
@@ -1017,26 +151,24 @@ To try to solve this problem, I researched and bought various apps that sounded 
 </p>
 </div>
 </div>
-
-<div id="outline-container-org680369f" class="outline-3">
-<h3 id="org680369f">A Continuous Calendar</h3>
-<div class="outline-text-3" id="text-org680369f">
+<div id="outline-container-org711238c" class="outline-2">
+<h2 id="org711238c">A Continuous Calendar</h2>
+<div class="outline-text-2" id="text-org711238c">
 <p>
 Then I stumbled upon <a href="https://madebyevan.com/calendar/">Continuous Calendar</a> by <a href="https://github.com/evanw">Evan Wallace</a>. It was perfect. Exactly what I was looking for: a calendar where I could scroll down and up as I thought about the future and planned my weeks and months. One that displayed time in a visual, intuitive way.
 </p>
 
 
-<figure id="orgd0db189">
-<img src="interface.png" alt="interface.png">
+<figure id="orgfb9c8ce">
+<img src="img/interface.png" alt="interface.png">
 
 </figure>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgce840fe" class="outline-2">
-<h2 id="orgce840fe">Evan&rsquo;s Original Features</h2>
-<div class="outline-text-2" id="text-orgce840fe">
+<div id="outline-container-org218a051" class="outline-1">
+<h1 id="org218a051">Evan&rsquo;s Original Features</h1>
+<div class="outline-text-1" id="text-org218a051">
 <ul class="org-ul">
 <li>Infinite scrolling through months and years, both forward in time (i.e. downward on the scrolling calendar) and backward in time (i.e. upward).</li>
 <li>Click on a day to add calendar events.</li>
@@ -1044,19 +176,18 @@ Then I stumbled upon <a href="https://madebyevan.com/calendar/">Continuous Calen
 </ul>
 
 
-<figure id="orge09a78d">
-<img src="scrolly.gif" alt="scrolly.gif">
+<figure id="orgbc7db28">
+<img src="img/scrolly.gif" alt="scrolly.gif">
 
 </figure>
 </div>
 </div>
+<div id="outline-container-org7d20bcf" class="outline-1">
+<h1 id="org7d20bcf">My Enhancements</h1>
+<div class="outline-text-1" id="text-org7d20bcf">
 
-<div id="outline-container-org4ec6517" class="outline-2">
-<h2 id="org4ec6517">My Enhancements</h2>
-<div class="outline-text-2" id="text-org4ec6517">
-
-<figure id="org4a716f2">
-<img src="unreliablenarrator_infinite_calendar_scrolling_calendar._appli_56f4a6e0-a252-4621-8bb6-7443c1c2933c.png" alt="unreliablenarrator_infinite_calendar_scrolling_calendar._appli_56f4a6e0-a252-4621-8bb6-7443c1c2933c.png">
+<figure id="org582c5f8">
+<img src="img/unreliablenarrator_infinite_calendar_scrolling_calendar._appli_56f4a6e0-a252-4621-8bb6-7443c1c2933c.png" alt="unreliablenarrator_infinite_calendar_scrolling_calendar._appli_56f4a6e0-a252-4621-8bb6-7443c1c2933c.png">
 
 </figure>
 
@@ -1076,28 +207,25 @@ I&rsquo;m not a coder. ChatGPT Plus made these changes for me. Here&rsquo;s a re
 <a href="https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a">https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a</a>
 </p>
 </div>
-
-<div id="outline-container-orgcc6fe7c" class="outline-3">
-<h3 id="orgcc6fe7c">What remains to be done:</h3>
-<div class="outline-text-3" id="text-orgcc6fe7c">
+<div id="outline-container-orgdcb5d54" class="outline-2">
+<h2 id="orgdcb5d54">What remains to be done:</h2>
+<div class="outline-text-2" id="text-orgdcb5d54">
 <ul class="org-ul">
 <li>In order to facilitate exporting calendar data to a calendar app like MacOS calendar, I want to modify the format of saved data to explicitly store the full date of each calendar event.</li>
 </ul>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org37a2d15" class="outline-2">
-<h2 id="org37a2d15">Getting Started</h2>
-<div class="outline-text-2" id="text-org37a2d15">
+<div id="outline-container-org0f68f82" class="outline-1">
+<h1 id="org0f68f82">Getting Started</h1>
+<div class="outline-text-1" id="text-org0f68f82">
 <p>
 To get started with <strong>Timeless</strong>:
 </p>
 </div>
-
-<div id="outline-container-org459c5fe" class="outline-3">
-<h3 id="org459c5fe">Non-expert users</h3>
-<div class="outline-text-3" id="text-org459c5fe">
+<div id="outline-container-org66161ff" class="outline-2">
+<h2 id="org66161ff">Non-expert users</h2>
+<div class="outline-text-2" id="text-org66161ff">
 <p>
 Visit this page: <a href="https://incandescentman.github.io/timeless/">Timeless: The Infinitely Scrolling Calendar 📅✨</a>
 </p>
@@ -1107,10 +235,9 @@ That&rsquo;s it! You can now begin adding events!
 </p>
 </div>
 </div>
-
-<div id="outline-container-org306ae71" class="outline-3">
-<h3 id="org306ae71">Expert users</h3>
-<div class="outline-text-3" id="text-org306ae71">
+<div id="outline-container-orgb7944f8" class="outline-2">
+<h2 id="orgb7944f8">Expert users</h2>
+<div class="outline-text-2" id="text-orgb7944f8">
 <p>
 Clone the repository and open the HTML file.
 </p>
@@ -1124,69 +251,62 @@ open index.html
 </div>
 </div>
 </div>
-
-<div id="outline-container-org8718905" class="outline-2">
-<h2 id="org8718905">Usage</h2>
-<div class="outline-text-2" id="text-org8718905">
+<div id="outline-container-orga45d7f1" class="outline-1">
+<h1 id="orga45d7f1">Usage</h1>
+<div class="outline-text-1" id="text-orga45d7f1">
 </div>
-<div id="outline-container-org3d3140e" class="outline-3">
-<h3 id="org3d3140e">Adding Notes</h3>
-<div class="outline-text-3" id="text-org3d3140e">
+<div id="outline-container-orge7ba0ce" class="outline-2">
+<h2 id="orge7ba0ce">Adding Notes</h2>
+<div class="outline-text-2" id="text-orge7ba0ce">
 <p>
 Click on any day to add a calendar event. A text area will appear where you can enter text. Press RETURN to save the note to local storage, which will automatically adjust the day&rsquo;s cell to accommodate the text.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org904a7ac" class="outline-3">
-<h3 id="org904a7ac">Navigating the Calendar</h3>
-<div class="outline-text-3" id="text-org904a7ac">
+<div id="outline-container-org6ad3302" class="outline-2">
+<h2 id="org6ad3302">Navigating the Calendar</h2>
+<div class="outline-text-2" id="text-org6ad3302">
 <p>
 Use your mouse wheel or trackpad to scroll through months and years effortlessly. The calendar dynamically loads additional weeks as you scroll, ensuring a smooth and continuous user experience.
 </p>
 </div>
 </div>
-
-<div id="outline-container-orgcc6ac48" class="outline-3">
-<h3 id="orgcc6ac48">Managing Notes</h3>
-<div class="outline-text-3" id="text-orgcc6ac48">
+<div id="outline-container-orgdf56857" class="outline-2">
+<h2 id="orgdf56857">Managing Notes</h2>
+<div class="outline-text-2" id="text-orgdf56857">
 <p>
 To edit a note, simply click on the existing note text, make changes, and press RETURN to save.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org2793a86" class="outline-3">
-<h3 id="org2793a86">Deletion</h3>
-<div class="outline-text-3" id="text-org2793a86">
+<div id="outline-container-org135b72b" class="outline-2">
+<h2 id="org135b72b">Deletion</h2>
+<div class="outline-text-2" id="text-org135b72b">
 <p>
 To delete a note, clear the text in the text area and click elsewhere or press RETURN.
 </p>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orge1f96fc" class="outline-2">
-<h2 id="orge1f96fc">Customization</h2>
-<div class="outline-text-2" id="text-orge1f96fc">
+<div id="outline-container-org05cfa5d" class="outline-1">
+<h1 id="org05cfa5d">Customization</h1>
+<div class="outline-text-1" id="text-org05cfa5d">
 <p>
 Timeless is designed to be easily customizable. You can modify the CSS styles in <em>css/style.css</em> to match your aesthetic preferences or adapt the functionality in <em>js/calendar.js</em> to meet specific needs.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org75526e0" class="outline-2">
-<h2 id="org75526e0">Contributing</h2>
-<div class="outline-text-2" id="text-org75526e0">
+<div id="outline-container-orgeca9d87" class="outline-1">
+<h1 id="orgeca9d87">Contributing</h1>
+<div class="outline-text-1" id="text-orgeca9d87">
 <p>
 Contributions to <strong>Timeless</strong> are welcome! I need all the help I can get. Please fork the repository, make your changes, and submit a pull request. We appreciate your input and look forward to seeing your creative ideas and improvements.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org9b23d03" class="outline-2">
-<h2 id="org9b23d03">License</h2>
-<div class="outline-text-2" id="text-org9b23d03">
+<div id="outline-container-orgb2b9923" class="outline-1">
+<h1 id="orgb2b9923">License</h1>
+<div class="outline-text-1" id="text-orgb2b9923">
 <p>
 Timeless is released under the MIT License. See the LICENSE file in the repository for full details.
 </p>
