@@ -2,29 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Timeless: </title>
-<title>🪐 Timeless 📅✨ --- Infinitely Scrolling Calendar</title>
+  <title>Timeless</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Timeless</h1>
-    <p>An infinitely scrolling calendar. <em>Now with new features!</em></p>
+  <div id="header">
+    <!-- This is the main header area -->
+    <a href="https://github.com/incandescentman/timeless" target="_blank" class="timeless">
+      🪐 <span class="bold">Timeless:</span> The Infinite Calendar ✨
+    </a>
+    <br/>
+    <!-- Buttons to load/save data etc. -->
+    <a class="button" href="javascript:document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">📥</a>
+    <a class="button" href="javascript:downloadLocalStorageData()" data-tooltip="Save to Downloads">💾</a>
+    <a class="button" href="javascript:smoothScrollToToday()" data-tooltip="Go to Today">📅</a>
+    <a class="button" href="javascript:shouldLoadOrExport()" data-tooltip="Sync to Cloud">🔄</a>
+    <a class="button" href="javascript:showHelp()" data-tooltip="Help">ℹ️</a>
 
-    <!-- Quick Date Jump -->
-    <div class="jump-container">
-      <label for="jumpDate">Jump to date:</label>
-      <input type="date" id="jumpDate" />
-      <button id="jumpBtn">Go</button>
+    <input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">
+  </div>
+
+  <!-- The actual calendar table we want to fill -->
+  <table id="calendar"></table>
+
+  <!-- The help overlay -->
+  <div id="help">
+    <div>
+      <ul>
+        <li>Click on a day to add a note</li>
+        <li>To delete a note, just delete its text</li>
+        <li>Scroll to travel forward/backward in time</li>
+      </ul>
+      <a class="button" href="javascript:hideHelp()">Close</a>
     </div>
+  </div>
 
-    <!-- Undo Button -->
-    <button id="undoBtn">Undo</button>
-  </header>
-
-  <!-- Calendar container -->
-  <div id="calendar-container"></div>
-
+  <!-- Load the JS at the end -->
   <script src="calendar.js"></script>
 </body>
 </html>
