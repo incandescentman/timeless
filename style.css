@@ -153,11 +153,14 @@ a.button:active {
 /* -----------------------------------------------------
    The Calendar Table (#calendar)
 ----------------------------------------------------- */
+
 table {
+  width: 100%;         /* or a fixed width like 840px for 7 columns @ 120px each */
+  table-layout: fixed; /* crucial for fixed column widths */
   margin: 0 auto;
   border-spacing: 0;
-  border-left: var(--border-width) solid var(--border-color);
-  border-top: var(--border-width) solid var(--border-color);
+  border-left: 1px solid black;
+  border-top: 1px solid black;
 }
 
 /* Each day cell */
@@ -200,7 +203,7 @@ td.today {
   border: var(--border-width) solid #C92228;
   color: #FFF;
   font-weight: bold;
-  font-size: 300%;
+  font-size: 150%;
   text-transform: uppercase;
   box-shadow: var(--shadow);
   text-align: center;
@@ -228,4 +231,32 @@ textarea:focus {
 /* If the day is already shaded, lighten the note area on top of it */
 td.shaded textarea {
   background: white;
+}
+
+/* Force every cell to be 120px wide */
+td {
+  width: 120px;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: 3px 15px 20px 3px;
+  text-align: right;
+  vertical-align: top;
+  cursor: pointer;
+  box-sizing: border-box;
+  width: 120px;
+  word-wrap: break-word;    /* or overflow-wrap: anywhere; in modern browsers */
+  white-space: normal;      /* let text wrap to next line */
+  overflow: hidden;         /* hide overflow if the text is too big */
+  text-overflow: ellipsis;  /* show "..." if clipped (works best with display: block or inline-block) */
+}
+
+/* If you want the "extra" cell the same width: */
+td.extra {
+  width: 120px; /* or keep it the same if you want them all equal */
+  padding: 3px 10px;
+  text-align: left;
+  border: none;
+  font: bold 30px 'Arial Narrow', sans-serif;
+  line-height: 33px;
+  cursor: auto;
 }
