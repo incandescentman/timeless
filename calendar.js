@@ -87,20 +87,22 @@ function undoLastChange() {
 //    - T (or t) to jump to today (smooth scroll)
 ////////////////////////////////////////////////////////////////////////
 
+
+// T key always regenerates around systemToday
 document.addEventListener("keydown", (e) => {
-  // If typing in a note, don't override arrow keys
-  if (e.target && e.target.tagName.toLowerCase() === "textarea") {
-    return;
-  }
+  if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
 
   if (e.key === "ArrowUp") {
     window.scrollBy(0, -window.innerHeight / 2);
   } else if (e.key === "ArrowDown") {
     window.scrollBy(0, window.innerHeight / 2);
   } else if (e.key === "t" || e.key === "T") {
-    smoothScrollToToday();
+    // always load the real system date
+    loadCalendarAroundDate(systemToday);
   }
 });
+
+
 
 ////////////////////////////////////////////////////////////////////////
 // 4. QUICK DATE JUMP UI:
@@ -116,15 +118,21 @@ document.write(`
 `);
 
 /* Jump to the specified date in <input type="date" id="jumpDate"> */
+
+
+// keep track of system date separately
+let systemToday = new Date();
+// keep track of user-chosen jump date
+let jumpDateVar = null;
+
 function jumpToDate() {
   const val = document.getElementById("jumpDate").value;
   if (!val) return;
   const [yyyy, mm, dd] = val.split("-");
-  const newDate = new Date(yyyy, mm - 1, dd);
-  // Set "todayDate" to that date, then regenerate around that date
-  todayDate = newDate;
-  loadCalendarAroundDate(todayDate);
+  jumpDateVar = new Date(yyyy, mm - 1, dd);
+  loadCalendarAroundDate(jumpDateVar);
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 // 5. STORING FULL DATES (YYYY-MM-DD):

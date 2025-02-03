@@ -12,14 +12,28 @@
       🪐 <span class="bold">Timeless:</span> The Infinite Calendar ✨
     </a>
     <br/>
-    <!-- Buttons to load/save data etc. -->
-    <a class="button" href="javascript:document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">📥</a>
-    <a class="button" href="javascript:downloadLocalStorageData()" data-tooltip="Save to Downloads">💾</a>
-    <a class="button" href="javascript:smoothScrollToToday()" data-tooltip="Go to Today">📅</a>
-    <a class="button" href="javascript:shouldLoadOrExport()" data-tooltip="Sync to Cloud">🔄</a>
-    <a class="button" href="javascript:showHelp()" data-tooltip="Help">ℹ️</a>
 
-    <input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">
+
+<div id="header">
+  <!-- Existing header stuff... -->
+  <a class="button" href="javascript:document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">📥</a>
+  <a class="button" href="javascript:downloadLocalStorageData()" data-tooltip="Save to Downloads">💾</a>
+  <a class="button" href="javascript:smoothScrollToToday()" data-tooltip="Go to Today">📅</a>
+  <a class="button" href="javascript:shouldLoadOrExport()" data-tooltip="Sync to Cloud">🔄</a>
+  <a class="button" href="javascript:showHelp()" data-tooltip="Help">ℹ️</a>
+
+  <input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">
+
+  <!-- DATE PICKER + Go -->
+  <label for="jumpDate">Jump to date:</label>
+  <input type="date" id="jumpDate" style="max-width: 150px;">
+  <button onclick="jumpToDate()" title="Jump to date">Go</button>
+
+  <!-- UNDO BUTTON -->
+  <button onclick="undoLastChange()" title="Undo last change">Undo</button>
+</div>
+
+
   </div>
 
   <!-- The actual calendar table we want to fill -->

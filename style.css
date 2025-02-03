@@ -155,9 +155,10 @@ a.button:active {
 ----------------------------------------------------- */
 
 table {
-  width: 100%;         /* or a fixed width like 840px for 7 columns @ 120px each */
-  table-layout: fixed; /* crucial for fixed column widths */
-  margin: 0 auto;
+  /* Remove width: 100%; */
+  width: 960px;        /* or however many columns * 120px */
+  margin: 0 auto;      /* This centers the table horizontally */
+  table-layout: fixed; /* Respect fixed column widths */
   border-spacing: 0;
   border-left: 1px solid black;
   border-top: 1px solid black;
