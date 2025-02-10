@@ -23,6 +23,8 @@ An appreciative fork of Continuous Calendar by Evan Wallace (https://madebyevan.
 License: MIT License (see below)
 */
 
+
+
 ////////////////////////////////////////////////////////////////////////
 // 1. ADD A WEEKEND HIGHLIGHT CSS STYLE (inline):
 ////////////////////////////////////////////////////////////////////////
@@ -35,72 +37,6 @@ document.write(`
   }
 </style>
 `);
-
-
-
-////////////////////////////////////////////////////////////////////////
-// 2. GLOBAL UNDO STACK
-////////////////////////////////////////////////////////////////////////
-
-let undoStack = [];
-const MAX_UNDO = 5;
-
-function pushUndoState() {
-  // Create a snapshot of all localStorage data
-  const snapshot = {};
-  for (const key in localStorage) {
-    if (localStorage.hasOwnProperty(key)) {
-      snapshot[key] = localStorage[key];
-    }
-  }
-  // Push JSON string of snapshot
-  undoStack.push(JSON.stringify(snapshot));
-  // Limit stack size
-  if (undoStack.length > MAX_UNDO) {
-    undoStack.shift();
-  }
-}
-
-function undoLastChange() {
-  if (undoStack.length === 0) {
-    alert("No undo history available.");
-    return;
-  }
-  // Pop the last saved state
-  const lastSnapshotStr = undoStack.pop();
-  if (!lastSnapshotStr) return;
-
-  // Restore localStorage from snapshot
-  localStorage.clear();
-  const snapshotData = JSON.parse(lastSnapshotStr);
-  for (const key in snapshotData) {
-    localStorage.setItem(key, snapshotData[key]);
-  }
-  // Reload the page so the UI re-renders
-  location.reload();
-}
-
-////////////////////////////////////////////////////////////////////////
-// 3. KEYBOARD NAVIGATION
-//    - ArrowUp (↑) scroll half-screen up
-//    - ArrowDown (↓) scroll half-screen down
-//    - T (or t) to jump to today (smooth scroll)
-////////////////////////////////////////////////////////////////////////
-
-
-// T key always regenerates around systemToday
-document.addEventListener("keydown", (e) => {
-  if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
-
-  if (e.key === "ArrowUp") {
-    window.scrollBy(0, -window.innerHeight / 2);
-  } else if (e.key === "ArrowDown") {
-    window.scrollBy(0, window.innerHeight / 2);
-  } else if (e.key === "t" || e.key === "T") {
-    // always load the real system date
-    loadCalendarAroundDate(systemToday);
-  }
-});
 
 
 
@@ -135,25 +71,400 @@ function jumpToDate() {
 
 
 ////////////////////////////////////////////////////////////////////////
-// 5. STORING FULL DATES (YYYY-MM-DD):
-//    We'll store an extra key "YYYY-MM-DD" whenever you create or remove notes.
-//    This way your existing M_D_YYYY approach still works, but you also
-//    maintain data in the ISO format for ICS or other usage.
+// 1. Track two dates:
+//    systemToday = the real system date (don't overwrite this)
+//    todayDate = the "calendar reference" date (the user-chosen date,
+//                or system date at initial load)
+////////////////////////////////////////////////////////////////////////
+
+let systemToday = new Date(); // the real system date
+let todayDate;                // the date we generate the calendar around
+
+////////////////////////////////////////////////////////////////////////
+// 2. GLOBAL UNDO STACK
+////////////////////////////////////////////////////////////////////////
+
+let undoStack = [];
+const MAX_UNDO = 5;
+
+function pushUndoState() {
+  const snapshot = {};
+  for (const key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      snapshot[key] = localStorage[key];
+    }
+  }
+  undoStack.push(JSON.stringify(snapshot));
+  if (undoStack.length > MAX_UNDO) {
+    undoStack.shift();
+  }
+}
+
+function undoLastChange() {
+  if (undoStack.length === 0) {
+    alert("No undo history available.");
+    return;
+  }
+  const lastSnapshotStr = undoStack.pop();
+  if (!lastSnapshotStr) return;
+
+  // restore localStorage
+  localStorage.clear();
+  const snapshotData = JSON.parse(lastSnapshotStr);
+  for (const key in snapshotData) {
+    localStorage.setItem(key, snapshotData[key]);
+  }
+  location.reload();
+}
+
+////////////////////////////////////////////////////////////////////////
+// 3. KEYBOARD NAVIGATION
+////////////////////////////////////////////////////////////////////////
+
+document.addEventListener("keydown", (e) => {
+  // If typing in a note, don't override arrow keys
+  if (e.target && e.target.tagName.toLowerCase() === "textarea") {
+    return;
+  }
+
+  if (e.key === "ArrowUp") {
+    window.scrollBy(0, -window.innerHeight / 2);
+  } else if (e.key === "ArrowDown") {
+    window.scrollBy(0, window.innerHeight / 2);
+  } else if (e.key === "t" || e.key === "T") {
+    // -------------- Always go to systemToday here:
+    todayDate = new Date(systemToday); // clone the system date
+    loadCalendarAroundDate(todayDate);
+  }
+});
+
+////////////////////////////////////////////////////////////////////////
+// 4. QUICK DATE JUMP
+////////////////////////////////////////////////////////////////////////
+
+function jumpToDate() {
+  const val = document.getElementById("jumpDate").value;
+  if (!val) return;
+  const [yyyy, mm, dd] = val.split("-");
+  const jumpDateObj = new Date(yyyy, mm - 1, dd);
+  todayDate = jumpDateObj;
+  loadCalendarAroundDate(todayDate);
+}
+
+////////////////////////////////////////////////////////////////////////
+// 5. STORING FULL DATES
 ////////////////////////////////////////////////////////////////////////
 
 function parseDateFromId(idStr) {
-  // idStr = "month_day_year" e.g. "5_6_2024"
-  // from idForDate(date): date.getMonth() + '_' + date.getDate() + '_' + date.getFullYear()
+  // e.g., "5_6_2024" => "2024-06-05"
   const parts = idStr.split("_");
   if (parts.length !== 3) return null;
   let [month, day, year] = parts.map((p) => parseInt(p));
-  // Example: month=5 => means June (0-based from getMonth())
-  // So the actual month is month+1
   const realMonth = month + 1;
-  // Build an ISO string
-  const iso = `${year.toString().padStart(4, "0")}-${String(realMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const iso = `${year.toString().padStart(4,"0")}-${String(realMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
   return iso;
 }
+
+function storeValueForItemId(itemId) {
+  pushUndoState();
+  const item = document.getElementById(itemId);
+  if (!item) return;
+  const parentId = item.parentNode.id;
+  localStorage[itemId] = item.value;
+
+  // keep track of items
+  const parentIdsToItemIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
+  if (!parentIdsToItemIds.includes(itemId)) {
+    parentIdsToItemIds.push(itemId);
+    localStorage[parentId] = parentIdsToItemIds;
+  }
+
+  // also store ISO date
+  const isoDate = parseDateFromId(parentId);
+  if (isoDate) {
+    localStorage[isoDate] = item.value;
+  }
+
+  localStorage.setItem("lastSavedTimestamp", Date.now());
+}
+
+function removeValueForItemId(itemId) {
+  pushUndoState();
+  delete localStorage[itemId];
+
+  const item = document.getElementById(itemId);
+  if (!item) return;
+  const parentId = item.parentNode.id;
+  if (localStorage[parentId]) {
+    let parentIdsToItemIds = localStorage[parentId].split(",");
+    parentIdsToItemIds = parentIdsToItemIds.filter((id) => id !== itemId);
+    if (parentIdsToItemIds.length > 0) {
+      localStorage[parentId] = parentIdsToItemIds;
+    } else {
+      delete localStorage[parentId];
+    }
+  }
+
+  // also remove ISO
+  const isoDate = parseDateFromId(parentId);
+  if (isoDate && localStorage[isoDate]) {
+    delete localStorage[isoDate];
+  }
+}
+
+/* ... your existing code for loadDataFromFile, exportToFileHandle, etc. ... */
+
+////////////////////////////////////////////////////////////////////////
+// Infinite Calendar Logic
+////////////////////////////////////////////////////////////////////////
+
+var calendarTableElement;
+var firstDate;
+var lastDate;
+var itemPaddingBottom = navigator.userAgent.indexOf("Firefox") != -1 ? 2 : 0;
+var months = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
+var daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
+
+function idForDate(date) {
+  return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
+}
+
+function recalculateHeight(itemId) {
+  const item = document.getElementById(itemId);
+  if (!item) return;
+  item.style.height = "0px";
+  item.style.height = item.scrollHeight + itemPaddingBottom + "px";
+}
+
+function keydownHandler(e) {
+  recalculateHeight(this.id);
+  if (e.key === "Enter") {
+    e.preventDefault();
+    storeValueForItemId(this.id);
+    this.blur();
+    return false;
+  } else {
+    if (this.storeTimeout) clearTimeout(this.storeTimeout);
+    this.storeTimeout = setTimeout(() => storeValueForItemId(this.id), 1000);
+  }
+}
+
+function checkItem() {
+  if (this.value.length === 0) {
+    removeValueForItemId(this.id);
+    this.parentNode.removeChild(this);
+  }
+}
+
+function generateItem(parentId, itemId) {
+  const item = document.createElement("textarea");
+  const parent = document.getElementById(parentId);
+  if (!parent) return null;
+  parent.appendChild(item);
+  item.id = itemId;
+  item.onkeydown = keydownHandler;
+  item.onblur = checkItem;
+  item.spellcheck = false;
+  return item;
+}
+
+document.onclick = function(e) {
+  const parentId = e.target.id;
+  if (parentId.indexOf("_") === -1) return;
+
+  const newItem = generateItem(parentId, nextItemId());
+  recalculateHeight(newItem.id);
+  storeValueForItemId(newItem.id);
+  newItem.focus();
+};
+
+function generateDay(day, date) {
+  // weekend highlight
+  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+  if (isWeekend) {
+    day.className += " weekend";
+  }
+
+  const isShaded = (date.getMonth() % 2) === 1;
+  if (isShaded) {
+    day.className += " shaded";
+  }
+
+  const isToday =
+    date.getFullYear() === todayDate.getFullYear() &&
+    date.getMonth() === todayDate.getMonth() &&
+    date.getDate() === todayDate.getDate();
+  if (isToday) {
+    day.className += " today";
+  }
+
+  day.id = idForDate(date);
+  day.innerHTML = `<span>${daysOfWeek[getAdjustedDayIndex(date)]}
+                   ${months[date.getMonth()]}
+                   ${date.getDate()}</span>`;
+
+  lookupItemsForParentId(day.id, (items) => {
+    for (const it of items) {
+      const note = generateItem(day.id, it.itemId);
+      note.value = it.itemValue;
+      recalculateHeight(note.id);
+    }
+  });
+}
+
+function getAdjustedDayIndex(date) {
+  const day = date.getDay();
+  // Monday=0 ... Sunday=6
+  return day === 0 ? 6 : day - 1;
+}
+
+function prependWeek() {
+  const week = calendarTableElement.insertRow(0);
+  let monthName = "";
+  do {
+    firstDate.setDate(firstDate.getDate() - 1);
+    if (firstDate.getDate() === 1) {
+      monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+    }
+    const dayCell = week.insertCell(0);
+    generateDay(dayCell, new Date(firstDate));
+  } while (getAdjustedDayIndex(firstDate) !== 0);
+}
+
+function appendWeek() {
+  const week = calendarTableElement.insertRow(-1);
+  let monthName = "";
+  do {
+    lastDate.setDate(lastDate.getDate() + 1);
+    if (lastDate.getDate() === 1) {
+      monthName = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+    }
+    const dayCell = week.insertCell(-1);
+    generateDay(dayCell, new Date(lastDate));
+  } while (getAdjustedDayIndex(lastDate) !== 6);
+
+  const extra = week.insertCell(-1);
+  extra.className = "extra";
+  extra.innerHTML = monthName;
+}
+
+function scrollPositionForElement(element) {
+  let y = element.offsetTop;
+  let node = element;
+  while (node.offsetParent && node.offsetParent !== document.body) {
+    node = node.offsetParent;
+    y += node.offsetTop;
+  }
+  const clientHeight = element.clientHeight;
+  return y - (window.innerHeight - clientHeight) / 2;
+}
+
+function scrollToToday() {
+  const tCell = document.getElementById(idForDate(todayDate));
+  if (!tCell) return;
+  window.scrollTo(0, scrollPositionForElement(tCell));
+}
+
+let startTime, startY, goalY;
+
+function curve(x) {
+  return x < 0.5 ? 4 * x * x * x : 1 - 4 * (1 - x) * (1 - x) * (1 - x);
+}
+
+function scrollAnimation() {
+  const percent = (new Date() - startTime) / 1000;
+  if (percent > 1) {
+    window.scrollTo(0, goalY);
+  } else {
+    const newY = Math.round(startY + (goalY - startY) * curve(percent));
+    window.scrollTo(0, newY);
+    setTimeout(scrollAnimation, 10);
+  }
+}
+
+function documentScrollTop() {
+  let scrollTop = document.body.scrollTop;
+  if (document.documentElement) {
+    scrollTop = Math.max(scrollTop, document.documentElement.scrollTop);
+  }
+  return scrollTop;
+}
+
+function documentScrollHeight() {
+  let scrollHeight = document.body.scrollHeight;
+  if (document.documentElement) {
+    scrollHeight = Math.max(scrollHeight, document.documentElement.scrollHeight);
+  }
+  return scrollHeight;
+}
+
+function smoothScrollToToday() {
+  const elem = document.getElementById(idForDate(todayDate));
+  if (!elem) return;
+  goalY = scrollPositionForElement(elem);
+  startY = documentScrollTop();
+  startTime = new Date();
+  if (goalY !== startY) setTimeout(scrollAnimation, 10);
+}
+
+function poll() {
+  if (documentScrollTop() < 200) {
+    const oldScrollHeight = documentScrollHeight();
+    for (let i = 0; i < 8; i++) prependWeek();
+    window.scrollBy(0, documentScrollHeight() - oldScrollHeight);
+  } else if (documentScrollTop() > documentScrollHeight() - window.innerHeight - 200) {
+    for (let i = 0; i < 8; i++) appendWeek();
+  }
+
+  // update if the system date changed (like crossing midnight):
+  const newSysDate = new Date();
+  if (
+    newSysDate.getDate() !== systemToday.getDate() ||
+    newSysDate.getMonth() !== systemToday.getMonth() ||
+    newSysDate.getFullYear() !== systemToday.getFullYear()
+  ) {
+    systemToday = newSysDate;
+  }
+}
+
+function loadCalendarAroundDate(seedDate) {
+  calendarTableElement.innerHTML = "";
+  // find the Monday prior
+  firstDate = new Date(seedDate);
+  while (getAdjustedDayIndex(firstDate) !== 0) {
+    firstDate.setDate(firstDate.getDate() - 1);
+  }
+
+  lastDate = new Date(firstDate);
+  lastDate.setDate(lastDate.getDate() - 1);
+
+  appendWeek();
+  while (documentScrollHeight() <= window.innerHeight) {
+    prependWeek();
+    appendWeek();
+  }
+
+  setTimeout(scrollToToday, 50);
+}
+
+window.onload = function() {
+  calendarTableElement = document.getElementById("calendar");
+  // initial "todayDate" is the system date
+  todayDate = new Date(systemToday);
+  loadCalendarAroundDate(todayDate);
+  setInterval(poll, 100);
+};
+
+function showHelp() {
+  document.getElementById("help").style.display = "block";
+}
+function hideHelp() {
+  document.getElementById("help").style.display = "none";
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // BELOW IS YOUR ORIGINAL CODE, with MINIMAL MODIFICATIONS annotated
