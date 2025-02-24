@@ -5,10 +5,10 @@
   <title>Timeless: The Infinite Calendar</title>
   <style>
 :root {
- --border-width: 1px;
- --border-color: black;
- --header-height: 27px;
- --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+--border-width: 1px;
+--border-color: black;
+--header-height: 27px;
+--shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Reset / Base */
@@ -292,10 +292,10 @@ td.shaded textarea {
   </div>
 
   <script>
-/***************************
+/**************
  * Timeless: The Infinitely Scrolling Calendar
  * by Jay Dixit
- ***************************/
+ **************/
 
 /* 1. systemToday vs. todayDate */
 let systemToday = new Date();
@@ -463,16 +463,33 @@ function generateItem(parentId, itemId) {
   return item;
 }
 
+// This was missing! Added the lookup function
+function lookupItemsForParentId(parentId, callback) {
+  if (localStorage[parentId]) {
+    const ids = localStorage[parentId].split(",");
+    const itemList = [];
+    for (const itemId of ids) {
+      const itemValue = localStorage[itemId];
+      if (itemValue !== undefined) { // Check if the item exists
+        itemList.push({ itemId, itemValue });
+      }
+    }
+    callback(itemList);
+  }
+}
+
 /*
  * Instead of document.onclick, let's specifically
  * handle clicks on <td> by using closest("td")
  */
 document.addEventListener("click", (e) => {
   const td = e.target.closest("td");
-  if (!td) return;
-  const parentId = td.id;
-  if (!parentId.includes("_")) return;
+  if (!td || !td.id || !td.id.includes("_")) return;
 
+  // Don't add a new note if user clicked on an existing note or "extra" cell
+  if (e.target.tagName === "TEXTAREA" || td.className.includes("extra")) return;
+
+  const parentId = td.id;
   const newItem = generateItem(parentId, nextItemId());
   if (newItem) {
     recalculateHeight(newItem.id);
@@ -660,6 +677,17 @@ function hideHelp() {
 /* Toggle Dark Mode */
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
+  // Optionally save the preference to localStorage
+  if (document.body.classList.contains("dark-mode")) {
+    localStorage.setItem("darkMode", "enabled");
+  } else {
+    localStorage.setItem("darkMode", "disabled");
+  }
+}
+
+// Apply dark mode if previously enabled
+if (localStorage.getItem("darkMode") === "enabled") {
+  document.body.classList.add("dark-mode");
 }
 
 /* Data load/save functions (unchanged) */
@@ -795,6 +823,16 @@ window.onload = function () {
   todayDate = new Date(systemToday);
   loadCalendarAroundDate(todayDate);
   setInterval(poll, 100);
+
+  // Set initial jump date field to today's date
+  const jumpDateField = document.getElementById("jumpDate");
+  if (jumpDateField) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    jumpDateField.value = `${yyyy}-${mm}-${dd}`;
+  }
 };
   </script>
 </body>
