@@ -88,9 +88,86 @@ I've taken Evan's original implementation and added a few enhancements of my own
 I'm not a coder. ChatGPT Plus made these changes for me. Here's a record of my conversation with ChatGPT:
 https://chat.openai.com/share/512d0b31-f773-49a6-8246-2e003f186e6a
 
-** What remains to be done:
-- In order to facilitate exporting calendar data to a calendar app like MacOS calendar, I want to modify the format of saved data to explicitly store the full date of each calendar event.
 
+
+** New Functional Enhancements
+
+** Smoother Undo
+
+Previously, undoing a change forced a full page reload. Now, when you trigger an Undo:
+- We reload the last localStorage snapshot in place.
+- We call loadCalendarAroundDate(todayDate) to re-render the calendar without reloading the entire page.
+- This provides a smoother user experience and preserves scroll position.
+
+** Highlight "Clicked" Day
+
+When you click on a day to add a note, that cell briefly flashes a highlight. This offers a visual cue that you've successfully triggered a new note. Specifically:
+- We add a temporary CSS class (.clicked-day) to the clicked cell, then remove it after 500ms.
+- This short-lived highlight draws attention to the cell you're editing.
+
+** Smarter Multi-Line Input
+
+You can now insert line breaks within notes without immediately saving:
+- Enter (no Shift) saves the note and closes the textarea.
+- Shift+Enter inserts a newline, allowing multi-line notes (like bullet points) within the same entry.
+- This approach offers a more natural text-editing experience.
+
+** Time Range for Date Picker
+
+We've set an optional range for the "Jump to date" field:
+
+<input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31">
+
+This helps constrain dates if you rarely plan events before 2000 or after 2050 (though you can remove or adjust this if you need a broader timeline).
+
+** Cosmetic & UI Improvements
+
+** Spacing Around the Header
+
+We removed the large padding-bottom on the header and instead applied:
+
+#calendarContainer {
+  margin-top: 100px;
+}
+
+This ensures the calendar doesn't hide behind the header while preserving a cleaner layout with less unused space.
+
+** Subtle Card-Like Cells
+
+We increased the cell padding and corner rounding to give each day a more "card-like" feel:
+
+#calendar td {
+  padding: 12px 16px;
+  border-radius: 10px;
+  ...
+}
+
+It's a small visual tweak that adds more breathing room for your notes.
+
+** Hover Color & Box Shadow
+
+Along with a mild box-shadow, day cells now display a faint background-color change on hover. This better indicates interactivity when you move your cursor over each cell. In dark mode, the hover effect similarly provides a slight highlight.
+
+** Animated "Today"
+
+We added a pulse animation for the current day:
+
+@keyframes pulseToday {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70%  { box-shadow: 0 0 10px 20px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+#calendar td.today {
+  animation: pulseToday 2s infinite;
+}
+
+This gently draws the user's eye to "today's" cell without overwhelming them.
+
+** Monospace for Date Text
+
+For a more consistent, clock-like feel, we applied a monospace font ('Fira Code', monospace) to the day/date label. This is purely stylistic but can help align day numbers visually---especially if you track multiple columns of data.
+
+Feel free to merge these sections into your existing README. These highlights should help others understand the new features and visual polish that make Timeless even more enjoyable to use!
 * Getting Started
 To get started with *Timeless*:
 

@@ -459,8 +459,7 @@ body.dark-mode .loading:after {
 
 /*
  * Notes/tasks textarea styling
- * - Ensures auto-expanding behavior
- * - Prevents text truncation
+ * Fixed to avoid scrollbars while still expanding properly
  */
 textarea {
   font-family: 'Inter', sans-serif;
@@ -479,10 +478,10 @@ textarea {
   resize: none;
   box-sizing: border-box;
   display: block;
-  overflow: visible !important; /* Critical: ensures text isn't cut off */
+  overflow: hidden; /* Hide scrollbars */
   word-wrap: break-word;
   white-space: normal;
-  height: auto; /* Let it expand naturally */
+  height: auto; /* Allow height to adjust naturally */
 }
 textarea:focus {
   background-color: rgba(255, 255, 255, 0.95);
@@ -510,8 +509,7 @@ body.dark-mode textarea:focus {
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  height: auto !important; /* Force auto height for today's cell */
-  min-height: 24px;
+  overflow: hidden; /* Ensure no scrollbars in today's cell */
 }
 
 /*
@@ -1114,9 +1112,6 @@ function recalculateHeight(itemId) {
 
   // Set new height with a little extra padding to avoid clipping
   item.style.height = (scrollHeight + itemPaddingBottom + 5) + "px";
-
-  // Force a reflow to make sure the height is applied
-  item.offsetHeight;
 }
 
 /*
