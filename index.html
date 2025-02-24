@@ -416,10 +416,20 @@ let calendarTableElement;
 let firstDate, lastDate;
 const itemPaddingBottom = (navigator.userAgent.indexOf("Firefox") !== -1) ? 2 : 0;
 
+/* Add this to your script section where the months array is defined */
+
+// Full month names (keep this for any places you want the full name)
 const months = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December"
 ];
+
+// Short month names
+const shortMonths = [
+  "Jan","Feb","Mar","Apr","May","Jun",
+  "Jul","Aug","Sep","Oct","Nov","Dec"
+];
+
 const daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
 
 function idForDate(date) {
@@ -517,7 +527,7 @@ function generateDay(dayCell, date) {
   dayCell.id = idForDate(date);
   dayCell.innerHTML = `
     <span>${daysOfWeek[getAdjustedDayIndex(date)]}
-          ${months[date.getMonth()]}
+          ${shortMonths[date.getMonth()]}
           ${date.getDate()}</span>
   `;
   lookupItemsForParentId(dayCell.id, (items) => {
@@ -531,6 +541,7 @@ function generateDay(dayCell, date) {
   });
 }
 
+
 function getAdjustedDayIndex(date) {
   const day = date.getDay();
   return (day === 0) ? 6 : day - 1; // Monday=0 ... Sunday=6
@@ -542,7 +553,9 @@ function prependWeek() {
   do {
     firstDate.setDate(firstDate.getDate() - 1);
     if (firstDate.getDate() === 1) {
+      // Choose whether to use short or full month name
       monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+      // or: monthName = shortMonths[firstDate.getMonth()] + " " + firstDate.getFullYear();
     }
     const dayCell = weekRow.insertCell(0);
     generateDay(dayCell, new Date(firstDate));
@@ -555,7 +568,12 @@ function appendWeek() {
   do {
     lastDate.setDate(lastDate.getDate() + 1);
     if (lastDate.getDate() === 1) {
+      // You can decide whether to use short or full month names here
+      // Option 1: Keep full month name in the month label
       monthName = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+
+      // Option 2: Use short month name in the month label
+      // monthName = shortMonths[lastDate.getMonth()] + " " + lastDate.getFullYear();
     }
     const dayCell = weekRow.insertCell(-1);
     generateDay(dayCell, new Date(lastDate));
