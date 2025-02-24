@@ -1,52 +1,801 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Timeless</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Timeless: The Infinite Calendar</title>
+  <style>
+:root {
+ --border-width: 1px;
+ --border-color: black;
+ --header-height: 27px;
+ --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Reset / Base */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+               "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+               "Helvetica Neue", Arial, sans-serif;
+  background: white;
+  color: black;
+}
+
+/* Dark Mode class on body */
+body.dark-mode {
+  background: #111;
+  color: #eee;
+}
+body.dark-mode td {
+  border-color: #777;
+}
+body.dark-mode td.shaded {
+  background: #333;
+}
+body.dark-mode td.weekend {
+  background: #222;
+}
+body.dark-mode td.today {
+  background: #a02222; /* slightly lighter red in dark mode */
+  border: var(--border-width) solid #a02222;
+}
+body.dark-mode textarea {
+  background: #555;
+  border: 1px solid #aaa;
+  color: #fff;
+}
+
+/* Fixed Header */
+#header {
+  line-height: var(--header-height);
+  background: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  padding: 5px;
+  text-align: center;
+  border-bottom: var(--border-width) solid var(--border-color);
+  z-index: 999;
+  padding-bottom: 80px;
+}
+body.dark-mode #header {
+  background: #333;
+  color: #eee;
+  border-bottom-color: #555;
+}
+
+/* Timeless Title Button */
+a.timeless {
+  font-size: 137%;
+  text-decoration: none;
+  background: linear-gradient(to bottom, #E0E0E0, #CFE7FF);
+  box-shadow: var(--shadow);
+  color: #000;
+  padding: 3px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+a.timeless:hover {
+  background: linear-gradient(to bottom, #D0D0FF, #B0C0E7);
+}
+a.timeless:active {
+  color: #FFF;
+  background: linear-gradient(to bottom, #909090, #707070);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transform: translateY(2px);
+}
+
+/* Help Overlay */
+#help {
+  display: none;
+  position: fixed;
+  left: 0; right: 0;
+  bottom: 0; top: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2000;
+}
+#help div {
+  text-align: right;
+  margin: 150px auto;
+  width: 400px;
+  height: 90px;
+  padding: 20px;
+  color: black;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  background: white;
+}
+#help ul {
+  margin: 0;
+  padding: 0 0 20px 20px;
+  text-align: left;
+  line-height: 15px;
+}
+
+/* Buttons */
+a.button {
+  font-size: 150%; /* reduced from 200% */
+  display: inline-block;
+  color: black;
+  text-decoration: none;
+  padding: 10px;
+  line-height: 15px;
+  margin-left: 5px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #FFFFFF, #DFDFDF);
+  transition: all 0.3s;
+  position: relative;
+}
+body.dark-mode a.button {
+  color: #333;
+  background: linear-gradient(to bottom, #ccc, #aaa);
+}
+a.button:hover {
+  background: linear-gradient(to bottom, #E0E0E0, #C0C0C0);
+  box-shadow: var(--shadow);
+  z-index: 1001;
+}
+a.button:active {
+  background: linear-gradient(to bottom, #B0B0B0, #909090);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+  transform: translateY(1px);
+}
+
+/* Tooltip on button hover */
+.button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 50%;
+  right: 105%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1000;
+}
+.button:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(-5px);
+}
+
+/* Calendar Table */
+#calendar {
+  width: 960px;
+  margin: 0 auto;
+  table-layout: fixed;
+  border-spacing: 0;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+}
+#calendar td {
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: 3px 15px 20px 3px;
+  text-align: right;
+  vertical-align: top;
+  width: 120px;
+  height: 100px;
+  cursor: pointer;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#calendar td.extra {
+  width: 120px;
+  padding: 3px 10px;
+  text-align: left;
+  border: none;
+  font: bold 30px 'Arial Narrow', sans-serif;
+  line-height: 33px;
+  cursor: auto;
+}
+#calendar td.shaded {
+  background: #CFE7FF;
+}
+#calendar td.weekend {
+  background-color: #f0f7ff;
+}
+#calendar td.today {
+  background-color: #C92228;
+  border: var(--border-width) solid #C92228;
+  color: #FFF;
+  font-weight: bold;
+  font-size: 150%;
+  text-transform: uppercase;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+/* Notes in <textarea> */
+textarea {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  font: 12px sans-serif;
+  margin: 3px 0 0 0;
+  padding: 2px 5px 0 5px;
+  background: #CFE7FF;
+  border: 1px solid #5FAFFF;
+  border-radius: 4px;
+  resize: none;
+  box-sizing: border-box;
+}
+textarea:focus {
+  outline: none;
+}
+td.shaded textarea {
+  background: white;
+}
+
+/* Some spacing for the header so the table isn't hidden */
+#calendarContainer {
+  margin-top: 120px;
+}
+
+#fileInput {
+  display: none;
+}
+  </style>
 </head>
 <body>
   <div id="header">
-    <!-- This is the main header area -->
-    <a href="https://github.com/incandescentman/timeless" target="_blank" class="timeless">
-      🪐 <span class="bold">Timeless:</span> The Infinite Calendar ✨
-    </a>
-    <br/>
+    <a href="/" class="timeless">Timeless</a>
+    <span>🪐</span>
+    <div>
+      <span>Timeless: The Infinite Calendar ✨</span>
+      <!-- New Dark Mode Toggle Button -->
+      <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">🌙</a>
 
-    <!-- Existing header stuff... -->
-    <a class="button" href="javascript:document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">📥</a>
-    <a class="button" href="javascript:downloadLocalStorageData()" data-tooltip="Save to Downloads">💾</a>
-    <a class="button" href="javascript:smoothScrollToToday()" data-tooltip="Go to Today">📅</a>
-    <a class="button" href="javascript:shouldLoadOrExport()" data-tooltip="Sync to Cloud">🔄</a>
-    <a class="button" href="javascript:showHelp()" data-tooltip="Help">ℹ️</a>
+      <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">📥</a>
+      <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">💾</a>
+      <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">📅</a>
+      <a href="#" class="button" onclick="shouldLoadOrExport()" data-tooltip="Sync with Cloud">🔄</a>
+      <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">ℹ️</a>
+      <input type="file" id="fileInput" onchange="loadDataFromFile()">
 
-    <input type="file" id="fileInput" style="display: none;" onchange="loadDataFromFile()">
-
-    <!-- DATE PICKER + Go -->
-    <label for="jumpDate">Jump to date:</label>
-    <input type="date" id="jumpDate" style="max-width: 150px;">
-    <button onclick="jumpToDate()" title="Jump to date">Go</button>
-
-    <!-- UNDO BUTTON -->
-    <button onclick="undoLastChange()" title="Undo last change">Undo</button>
+      <span>Jump to date:</span>
+      <input type="date" id="jumpDate">
+      <button onclick="jumpToDate()">Go</button>
+      <button onclick="undoLastChange()">Undo</button>
+    </div>
   </div>
 
-  <!-- The actual calendar table we want to fill -->
-  <table id="calendar"></table>
-
-  <!-- The help overlay -->
   <div id="help">
     <div>
       <ul>
         <li>Click on a day to add a note</li>
         <li>To delete a note, just delete its text</li>
-        <li>Scroll to travel forward/backward in time</li>
+        <li>Press <code>↑</code> or <code>↓</code> to scroll, <code>T</code> to jump to Today</li>
       </ul>
-      <a class="button" href="javascript:hideHelp()">Close</a>
+      <a href="#" onclick="hideHelp()">Close</a>
     </div>
   </div>
 
-  <!-- Load the JS at the end -->
-  <script src="calendar.js"></script>
+  <div id="calendarContainer">
+    <table id="calendar"></table>
+  </div>
+
+  <script>
+/***************************
+ * Timeless: The Infinitely Scrolling Calendar
+ * by Jay Dixit
+ ***************************/
+
+/* 1. systemToday vs. todayDate */
+let systemToday = new Date();
+let todayDate;
+
+/* 2. Undo Stack */
+let undoStack = [];
+const MAX_UNDO = 5;
+
+function pushUndoState() {
+  const snapshot = {};
+  for (const key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      snapshot[key] = localStorage[key];
+    }
+  }
+  undoStack.push(JSON.stringify(snapshot));
+  if (undoStack.length > MAX_UNDO) {
+    undoStack.shift();
+  }
+}
+function undoLastChange() {
+  if (undoStack.length === 0) {
+    alert("No undo history available.");
+    return;
+  }
+  const lastSnapshotStr = undoStack.pop();
+  if (!lastSnapshotStr) return;
+  localStorage.clear();
+  const snapshotData = JSON.parse(lastSnapshotStr);
+  for (const key in snapshotData) {
+    localStorage.setItem(key, snapshotData[key]);
+  }
+  location.reload();
+}
+
+/* 3. Keyboard Navigation */
+document.addEventListener("keydown", (e) => {
+  if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
+
+  // smaller scroll: 1/3 screen
+  if (e.key === "ArrowUp") {
+    window.scrollBy(0, -window.innerHeight / 3);
+  } else if (e.key === "ArrowDown") {
+    window.scrollBy(0, window.innerHeight / 3);
+  } else if (e.key === "t" || e.key === "T") {
+    todayDate = new Date(systemToday);
+    loadCalendarAroundDate(todayDate);
+  }
+});
+
+/* 4. Quick Date Jump + Smooth Scroll */
+function jumpToDate() {
+  const val = document.getElementById("jumpDate")?.value;
+  if (!val) return;
+  const [yyyy, mm, dd] = val.split("-");
+  const jumpDateObj = new Date(yyyy, mm - 1, dd);
+  todayDate = jumpDateObj;
+  loadCalendarAroundDate(todayDate);
+
+  // Smooth scroll after short delay
+  setTimeout(smoothScrollToToday, 100);
+}
+
+/* 5. Storing Full Dates (YYYY-MM-DD) */
+function parseDateFromId(idStr) {
+  const parts = idStr.split("_");
+  if (parts.length !== 3) return null;
+  let [month, day, year] = parts.map((p) => parseInt(p));
+  const realMonth = month + 1;
+  return `${year.toString().padStart(4,"0")}-${String(realMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+}
+
+/* storeValueForItemId / removeValueForItemId */
+function storeValueForItemId(itemId) {
+  pushUndoState();
+  const item = document.getElementById(itemId);
+  if (!item) return;
+  const parentId = item.parentNode.id;
+  localStorage[itemId] = item.value;
+
+  const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
+  if (!parentIds.includes(itemId)) {
+    parentIds.push(itemId);
+    localStorage[parentId] = parentIds;
+  }
+  const isoDate = parseDateFromId(parentId);
+  if (isoDate) {
+    localStorage[isoDate] = item.value;
+  }
+  localStorage.setItem("lastSavedTimestamp", Date.now());
+}
+
+function removeValueForItemId(itemId) {
+  pushUndoState();
+  delete localStorage[itemId];
+
+  const item = document.getElementById(itemId);
+  if (!item) return;
+  const parentId = item.parentNode.id;
+  if (localStorage[parentId]) {
+    let parentIds = localStorage[parentId].split(",");
+    parentIds = parentIds.filter((id) => id !== itemId);
+    if (parentIds.length > 0) {
+      localStorage[parentId] = parentIds;
+    } else {
+      delete localStorage[parentId];
+    }
+  }
+  const isoDate = parseDateFromId(parentId);
+  if (isoDate && localStorage[isoDate]) {
+    delete localStorage[isoDate];
+  }
+}
+
+/* 6. Infinite Calendar Logic */
+let calendarTableElement;
+let firstDate, lastDate;
+const itemPaddingBottom = (navigator.userAgent.indexOf("Firefox") !== -1) ? 2 : 0;
+
+const months = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
+const daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
+
+function idForDate(date) {
+  return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
+}
+function recalculateHeight(itemId) {
+  const item = document.getElementById(itemId);
+  if (!item) return;
+  item.style.height = "0px";
+  item.style.height = item.scrollHeight + itemPaddingBottom + "px";
+}
+
+function keydownHandler(e) {
+  recalculateHeight(this.id);
+  if (e.key === "Enter") {
+    e.preventDefault();
+    storeValueForItemId(this.id);
+    this.blur();
+    return false;
+  } else {
+    if (this.storeTimeout) clearTimeout(this.storeTimeout);
+    this.storeTimeout = setTimeout(() => storeValueForItemId(this.id), 1000);
+  }
+}
+
+function checkItem() {
+  if (this.value.length === 0) {
+    removeValueForItemId(this.id);
+    this.parentNode.removeChild(this);
+  }
+}
+function generateItem(parentId, itemId) {
+  const item = document.createElement("textarea");
+  const parent = document.getElementById(parentId);
+  if (!parent) return null;
+  parent.appendChild(item);
+  item.id = itemId;
+  item.onkeydown = keydownHandler;
+  item.onblur = checkItem;
+  item.spellcheck = false;
+  return item;
+}
+
+/*
+ * Instead of document.onclick, let's specifically
+ * handle clicks on <td> by using closest("td")
+ */
+document.addEventListener("click", (e) => {
+  const td = e.target.closest("td");
+  if (!td) return;
+  const parentId = td.id;
+  if (!parentId.includes("_")) return;
+
+  const newItem = generateItem(parentId, nextItemId());
+  if (newItem) {
+    recalculateHeight(newItem.id);
+    storeValueForItemId(newItem.id);
+    newItem.focus();
+  }
+});
+
+function generateDay(dayCell, date) {
+  // highlight weekends
+  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+  if (isWeekend) dayCell.className += " weekend";
+
+  // highlight every-other-month
+  const isShaded = (date.getMonth() % 2 === 1);
+  if (isShaded) dayCell.className += " shaded";
+
+  // highlight "today"
+  const isToday =
+    date.getFullYear() === todayDate.getFullYear() &&
+    date.getMonth() === todayDate.getMonth() &&
+    date.getDate() === todayDate.getDate();
+  if (isToday) dayCell.className += " today";
+
+  dayCell.id = idForDate(date);
+  dayCell.innerHTML = `
+    <span>${daysOfWeek[getAdjustedDayIndex(date)]}
+          ${months[date.getMonth()]}
+          ${date.getDate()}</span>
+  `;
+  lookupItemsForParentId(dayCell.id, (items) => {
+    for (const it of items) {
+      const note = generateItem(dayCell.id, it.itemId);
+      if (note) {
+        note.value = it.itemValue;
+        recalculateHeight(note.id);
+      }
+    }
+  });
+}
+
+function getAdjustedDayIndex(date) {
+  const day = date.getDay();
+  return (day === 0) ? 6 : day - 1; // Monday=0 ... Sunday=6
+}
+
+function prependWeek() {
+  const weekRow = calendarTableElement.insertRow(0);
+  let monthName = "";
+  do {
+    firstDate.setDate(firstDate.getDate() - 1);
+    if (firstDate.getDate() === 1) {
+      monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+    }
+    const dayCell = weekRow.insertCell(0);
+    generateDay(dayCell, new Date(firstDate));
+  } while (getAdjustedDayIndex(firstDate) !== 0);
+}
+
+function appendWeek() {
+  const weekRow = calendarTableElement.insertRow(-1);
+  let monthName = "";
+  do {
+    lastDate.setDate(lastDate.getDate() + 1);
+    if (lastDate.getDate() === 1) {
+      monthName = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+    }
+    const dayCell = weekRow.insertCell(-1);
+    generateDay(dayCell, new Date(lastDate));
+  } while (getAdjustedDayIndex(lastDate) !== 6);
+
+  const extra = weekRow.insertCell(-1);
+  extra.className = "extra";
+  extra.innerHTML = monthName;
+}
+
+/* Scrolling & Animation */
+function scrollPositionForElement(element) {
+  let y = element.offsetTop;
+  let node = element;
+  while (node.offsetParent && node.offsetParent !== document.body) {
+    node = node.offsetParent;
+    y += node.offsetTop;
+  }
+  const clientHeight = element.clientHeight;
+  return y - (window.innerHeight - clientHeight) / 2;
+}
+let startTime, startY, goalY;
+function curve(x) {
+  return (x < 0.5) ? (4 * x * x * x) : (1 - 4 * (1 - x) * (1 - x) * (1 - x));
+}
+function scrollAnimation() {
+  const percent = (new Date() - startTime) / 1000;
+  if (percent > 1) {
+    window.scrollTo(0, goalY);
+  } else {
+    const newY = Math.round(startY + (goalY - startY) * curve(percent));
+    window.scrollTo(0, newY);
+    setTimeout(scrollAnimation, 10);
+  }
+}
+function documentScrollTop() {
+  let scrollTop = document.body.scrollTop;
+  if (document.documentElement) {
+    scrollTop = Math.max(scrollTop, document.documentElement.scrollTop);
+  }
+  return scrollTop;
+}
+function documentScrollHeight() {
+  let scrollHeight = document.body.scrollHeight;
+  if (document.documentElement) {
+    scrollHeight = Math.max(scrollHeight, document.documentElement.scrollHeight);
+  }
+  return scrollHeight;
+}
+function scrollToToday() {
+  const elem = document.getElementById(idForDate(todayDate));
+  if (elem) {
+    window.scrollTo(0, scrollPositionForElement(elem));
+  }
+}
+function smoothScrollToToday() {
+  const elem = document.getElementById(idForDate(todayDate));
+  if (!elem) return;
+  goalY = scrollPositionForElement(elem);
+  startY = documentScrollTop();
+  startTime = new Date();
+  if (goalY !== startY) setTimeout(scrollAnimation, 10);
+}
+
+/* poll() for infinite scrolling */
+function poll() {
+  if (documentScrollTop() < 200) {
+    const oldHeight = documentScrollHeight();
+    for (let i = 0; i < 8; i++) prependWeek();
+    window.scrollBy(0, documentScrollHeight() - oldHeight);
+  } else if (
+    documentScrollTop() >
+    documentScrollHeight() - window.innerHeight - 200
+  ) {
+    for (let i = 0; i < 8; i++) appendWeek();
+  }
+
+  // crossing midnight?
+  const newSysDate = new Date();
+  if (
+    newSysDate.getDate() !== systemToday.getDate() ||
+    newSysDate.getMonth() !== systemToday.getMonth() ||
+    newSysDate.getFullYear() !== systemToday.getFullYear()
+  ) {
+    systemToday = newSysDate;
+  }
+}
+
+/* loadCalendarAroundDate */
+function loadCalendarAroundDate(seedDate) {
+  calendarTableElement.innerHTML = "";
+  firstDate = new Date(seedDate);
+  while (getAdjustedDayIndex(firstDate) !== 0) {
+    firstDate.setDate(firstDate.getDate() - 1);
+  }
+  lastDate = new Date(firstDate);
+  lastDate.setDate(lastDate.getDate() - 1);
+
+  appendWeek();
+  while (documentScrollHeight() <= window.innerHeight) {
+    prependWeek();
+    appendWeek();
+  }
+  setTimeout(scrollToToday, 50);
+}
+
+/* nextItemId, help overlay, data load/save, etc. */
+function nextItemId() {
+  localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
+  return "item" + localStorage.nextId;
+}
+function showHelp() {
+  document.getElementById("help").style.display = "block";
+}
+function hideHelp() {
+  document.getElementById("help").style.display = "none";
+}
+
+/* Toggle Dark Mode */
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
+
+/* Data load/save functions (unchanged) */
+function downloadLocalStorageData() {
+  var data = {};
+  for (var key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+  var downloadAnchorNode = document.createElement("a");
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", "calendar_data.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
+function downloadBackupStorageData() {
+  var data = {};
+  for (var key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+  var downloadAnchorNode = document.createElement("a");
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", "calendar_data_backup.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+
+  alert("A backup of your existing calendar data has been saved to your Downloads folder just in case.");
+}
+
+function loadDataFromFile() {
+  var input = document.getElementById("fileInput");
+  if (input.files.length === 0) {
+    alert("Please select a file to load.");
+    return;
+  }
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+          localStorage.setItem(key, data[key]);
+        }
+      }
+      alert("Data loaded successfully!");
+      location.reload();
+    } catch (error) {
+      alert("Invalid file format. Please select a valid JSON file.");
+    }
+  };
+  reader.onerror = function() {
+    alert("There was an error reading the file!");
+  };
+  reader.readAsText(file);
+}
+
+async function shouldLoadOrExport() {
+  try {
+    const handle = await window.showDirectoryPicker();
+    const fileHandle = await handle.getFileHandle("calendar_data.json", { create: false });
+    const file = await fileHandle.getFile();
+    const contents = await file.text();
+    const data = JSON.parse(contents);
+
+    const fileTimestamp = data.lastSavedTimestamp;
+    const localTimestamp = localStorage.getItem("lastSavedTimestamp");
+
+    if (fileTimestamp && (!localTimestamp || fileTimestamp > localTimestamp)) {
+      downloadBackupStorageData();
+      await loadDataFromFileHandle(fileHandle);
+      location.reload();
+    } else {
+      await exportToFileHandle(fileHandle);
+    }
+  } catch (err) {
+    if (err.name === "AbortError") {
+      console.log("User cancelled file/directory selection");
+    } else {
+      console.error("Error syncing data:", err);
+      alert("There was an error syncing the calendar data. See console for details.");
+    }
+  }
+}
+
+async function loadDataFromFileHandle(fileHandle) {
+  try {
+    const file = await fileHandle.getFile();
+    const contents = await file.text();
+    const data = JSON.parse(contents);
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        localStorage.setItem(key, data[key]);
+      }
+    }
+    alert("Loaded calendar data from file.");
+  } catch (err) {
+    console.error("Error loading data from file:", err);
+    alert("There was an error loading the calendar data. See console for details.");
+  }
+}
+
+async function exportToFileHandle(fileHandle) {
+  try {
+    const writable = await fileHandle.createWritable();
+    const data = {};
+    for (const key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        data[key] = localStorage.getItem(key);
+      }
+    }
+    data.lastSavedTimestamp = Date.now();
+    await writable.write(JSON.stringify(data));
+    await writable.close();
+    alert("Saved calendar data to file.");
+  } catch (err) {
+    console.error("Error saving data to file:", err);
+    alert("There was an error saving the calendar data. See console for details.");
+  }
+}
+
+/* 7. Initialization */
+window.onload = function () {
+  calendarTableElement = document.getElementById("calendar");
+  todayDate = new Date(systemToday);
+  loadCalendarAroundDate(todayDate);
+  setInterval(poll, 100);
+};
+  </script>
 </body>
 </html>
