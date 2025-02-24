@@ -19,6 +19,7 @@
 --border-color: black;
 --header-height: 27px;
 --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+--cell-min-height: 120px; /* New variable for minimum cell height */
 }
 
 /*
@@ -27,7 +28,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
   background: white;
   color: black;
   transition: background-color 0.5s, color 0.5s;
@@ -239,7 +240,7 @@ body.dark-mode input[type="date"] {
 }
 
 /*
- * Calendar day cells styling
+ * Calendar day cells styling with minimum height
  */
 #calendar td {
   padding: 12px 16px;
@@ -251,7 +252,8 @@ body.dark-mode input[type="date"] {
   text-align: right;
   vertical-align: top;
   width: 120px;
-  min-height: 100px;
+  min-height: var(--cell-min-height); /* Consistent minimum height */
+  height: var(--cell-min-height); /* Set default height */
   cursor: pointer;
   box-sizing: border-box;
   word-wrap: break-word;
@@ -340,10 +342,7 @@ body.dark-mode #calendar td.shaded {
   opacity: 0.8;
   font-weight: 400;
   padding: 0 0 0 15px;
-  vertical-align: top;
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
+  vertical-align: middle; /* Center vertically */
   border-radius: 10px;
   box-shadow: none;
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -351,10 +350,13 @@ body.dark-mode #calendar td.shaded {
   text-align: left;
   border: none;
   cursor: auto;
+  /* Override the min-height for the month label */
+  min-height: var(--cell-min-height);
+  height: var(--cell-min-height);
 }
 #calendar td.extra:hover {
   opacity: 1;
-  transform: translateY(-50%) scale(1.02);
+  transform: translateY(0) scale(1.02);
 }
 
 /*
@@ -462,7 +464,7 @@ body.dark-mode .loading:after {
  * Fixed to avoid scrollbars while still expanding properly
  */
 textarea {
-  font-family: 'Inter', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
   padding: 8px;
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.85);
@@ -802,9 +804,9 @@ body.dark-mode #yearViewContainer {
  * with tasks that automatically resize to show all content.
  */
 
-/**************************
+/*************
  * CORE VARIABLES & STATE
- **************************/
+ *************/
 
 /* Track the current system date vs. user-selected "today" date */
 let systemToday = new Date();
@@ -819,9 +821,9 @@ let rangeStart = null;
 let rangeEnd = null;
 let isSelectingRange = false;
 
-/**************************
+/*************
  * UNDO FUNCTIONALITY
- **************************/
+ *************/
 
 /*
  * Push current localStorage state to undo stack
@@ -865,9 +867,9 @@ function undoLastChange() {
   showToast("Changes undone successfully");
 }
 
-/**************************
+/*************
  * TOAST NOTIFICATIONS
- **************************/
+ *************/
 
 /*
  * Shows a toast notification message
@@ -905,9 +907,9 @@ function showToast(message, duration = 3000) {
   }, duration);
 }
 
-/**************************
+/*************
  * LOADING INDICATOR
- **************************/
+ *************/
 
 /*
  * Display loading spinner
@@ -923,9 +925,9 @@ function hideLoading() {
   document.getElementById('loadingIndicator').classList.remove('active');
 }
 
-/**************************
+/*************
  * UTILITY FUNCTIONS
- **************************/
+ *************/
 
 /*
  * Throttle function to limit execution frequency
@@ -944,9 +946,9 @@ function throttle(func, delay) {
   };
 }
 
-/**************************
+/*************
  * KEYBOARD NAVIGATION
- **************************/
+ *************/
 
 /*
  * Global keyboard shortcuts
@@ -975,9 +977,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/**************************
+/*************
  * DATE NAVIGATION
- **************************/
+ *************/
 
 /*
  * Jump to specific date from date picker
@@ -997,9 +999,9 @@ function jumpToDate() {
   }, 300);
 }
 
-/**************************
+/*************
  * DATA STORAGE & PERSISTENCE
- **************************/
+ *************/
 
 /*
  * Parse a cell ID to get ISO date format
@@ -1068,9 +1070,9 @@ function removeValueForItemId(itemId) {
   }
 }
 
-/**************************
+/*************
  * CALENDAR CORE LOGIC
- **************************/
+ *************/
 
 let calendarTableElement;
 let firstDate, lastDate;
@@ -1194,9 +1196,9 @@ function lookupItemsForParentId(parentId, callback) {
   }
 }
 
-/**************************
+/*************
  * DATE RANGE SELECTION
- **************************/
+ *************/
 
 /*
  * Toggle date range selection mode
@@ -1283,9 +1285,9 @@ function highlightDaysInRange() {
   }
 }
 
-/**************************
+/*************
  * EVENT HANDLERS
- **************************/
+ *************/
 
 /*
  * Handle clicks on calendar cells
@@ -1321,9 +1323,9 @@ document.addEventListener("click", (e) => {
   }
 });
 
-/**************************
+/*************
  * CALENDAR RENDERING
- **************************/
+ *************/
 
 /*
  * Generate a day cell with proper styling and content
@@ -1424,9 +1426,9 @@ function appendWeek() {
   extra.innerHTML = monthName;
 }
 
-/**************************
+/*************
  * SCROLLING & POSITIONING
- **************************/
+ *************/
 
 /*
  * Calculate scroll position to center an element
@@ -1525,9 +1527,9 @@ function smoothScrollToToday() {
   else hideLoading();
 }
 
-/**************************
+/*************
  * INFINITE SCROLLING
- **************************/
+ *************/
 
 /*
  * Poll for scroll position to dynamically load content
@@ -1566,9 +1568,9 @@ function poll() {
 // Throttled poll function to limit execution frequency
 const throttledPoll = throttle(poll, 200);
 
-/**************************
+/*************
  * YEAR VIEW
- **************************/
+ *************/
 
 /*
  * Show the year-at-a-glance view
@@ -1686,9 +1688,9 @@ function hideYearView() {
   document.getElementById('yearViewContainer').style.display = 'none';
 }
 
-/**************************
+/*************
  * CALENDAR INITIALIZATION
- **************************/
+ *************/
 
 /*
  * Load the calendar around a specific date
@@ -1722,9 +1724,9 @@ function loadCalendarAroundDate(seedDate) {
   }, 50);
 }
 
-/**************************
+/*************
  * UI CONTROLS
- **************************/
+ *************/
 
 /*
  * Show help overlay
@@ -1803,9 +1805,9 @@ function nextItemId() {
   return "item" + localStorage.nextId;
 }
 
-/**************************
+/*************
  * DATA PERSISTENCE
- **************************/
+ *************/
 
 /*
  * Download calendar data as JSON file
@@ -1971,9 +1973,9 @@ async function exportToFileHandle(fileHandle) {
   }
 }
 
-/**************************
+/*************
  * INITIALIZATION
- **************************/
+ *************/
 
 /*
  * Initialize the calendar on page load
