@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Timeless: The Infinite Calendar</title>
+
+  <!-- Monospace + Additional Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
 :root {
  --border-width: 1px;
@@ -18,90 +21,19 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-               "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-               "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
   background: white;
   color: black;
   transition: background-color 0.5s, color 0.5s;
 }
 
-/* Dark Mode class on body */
+/* Dark Mode */
 body.dark-mode {
   background: #111;
   color: #eee;
 }
 
-/* Modern Rounded Cells & Subtle Borders */
-#calendar td {
-  border-radius: 8px;
-  border: none;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-  margin: 2px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  padding: 8px 12px 12px 8px; /* Improved padding */
-  text-align: right;
-  vertical-align: top;
-  width: 120px;
-  height: auto; /* Allow auto height */
-  min-height: 100px;
-  cursor: pointer;
-  box-sizing: border-box;
-  word-wrap: break-word;
-  white-space: normal;
-  overflow: visible; /* Let content flow out naturally */
-}
-
-#calendar td:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-body.dark-mode #calendar td {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode #calendar td:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-
-/* Redesign weekend and today indicators */
-#calendar td.weekend {
-  background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
-}
-
-#calendar td.today {
-  background: linear-gradient(135deg, rgba(229, 62, 62, 0.9) 0%, rgba(197, 48, 48, 0.9) 100%);
-  transform: scale(1.03);
-  z-index: 10;
-  box-shadow: 0 8px 15px rgba(220, 38, 38, 0.3);
-  color: #FFF;
-  font-weight: 600;
-}
-
-#calendar td.today span {
-  color: white;
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 2px 5px;
-  border-radius: 4px;
-  display: inline-block;
-  margin-bottom: 8px;
-}
-
-body.dark-mode #calendar td.weekend {
-  background: linear-gradient(to bottom right, #2d3748, #1a202c);
-}
-
-body.dark-mode #calendar td.today {
-  background: linear-gradient(135deg, #c53030 0%, #9b2c2c 100%);
-  box-shadow: 0 8px 15px rgba(160, 30, 30, 0.4);
-}
-
-body.dark-mode #calendar td.shaded {
-  background: #333;
-}
-
-/* Stylish Header with Gradient */
+/* Stylish Header (removed padding-bottom: 80px; ) */
 #header {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
@@ -111,13 +43,10 @@ body.dark-mode #calendar td.shaded {
   justify-content: space-between;
   padding: 10px 20px;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: var(--header-height);
   line-height: var(--header-height);
   z-index: 999;
-  padding-bottom: 80px;
 }
 
 body.dark-mode #header {
@@ -125,59 +54,15 @@ body.dark-mode #header {
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Make date display more readable and modern */
-#calendar td span {
-  font-size: 12px;
-  font-weight: 500;
-  color: #666;
-  letter-spacing: 0.5px;
-  display: block;
-  margin-bottom: 10px; /* Increased from 5px */
+/* Container beneath the header, use margin-top for spacing */
+#calendarContainer {
+  margin-top: 100px; /* Instead of padding-bottom in the header */
+  animation: fadeIn 0.5s ease-out;
 }
 
-body.dark-mode #calendar td span {
-  color: #aaa;
-}
-
-/* Calendar Table */
-#calendar {
-  width: 960px;
-  margin: 0 auto;
-  table-layout: fixed;
-  border-spacing: 3px; /* Reduced slightly for better cell sizing */
-  border: none;
-}
-
-/* Elegant month label */
-#calendar td.extra {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px; /* Slightly smaller */
-  line-height: 1.2;
-  color: #555;
-  opacity: 0.8;
-  font-weight: 400;
-  padding: 0 0 0 15px;
-  vertical-align: top;
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  border-radius: 0;
-  box-shadow: none;
-  transition: opacity 0.3s, transform 0.3s;
-  width: 120px;
-  text-align: left;
-  border: none;
-  cursor: auto;
-}
-
-#calendar td.extra:hover {
-  opacity: 1;
-  transform: translateY(-50%) scale(1.02);
-  box-shadow: none;
-}
-
-body.dark-mode #calendar td.extra {
-  color: #aaa;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Timeless Title Button */
@@ -202,6 +87,79 @@ a.timeless:active {
   background: linear-gradient(to bottom, #909090, #707070);
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   transform: translateY(2px);
+}
+
+/* Buttons + Dark Mode variations */
+a.button, button {
+  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  background: white;
+  color: #444;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 5px;
+  transition: all 0.3s;
+  position: relative;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 15px;
+}
+a.button:hover, button:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body.dark-mode a.button, body.dark-mode button {
+  background: #2d3748;
+  color: #cbd5e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+body.dark-mode a.button:hover, body.dark-mode button:hover {
+  background: #3a4a5e;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Tooltip on button hover */
+.button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 50%; right: 105%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1000;
+}
+.button:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(-5px);
+}
+
+/* Date Picker with time range */
+input[type="date"] {
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+input[type="date"][id="jumpDate"] {
+  min: 2000-01-01;
+  max: 2050-12-31;
+}
+
+body.dark-mode input[type="date"] {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
 }
 
 /* Help Overlay */
@@ -231,78 +189,181 @@ a.timeless:active {
   line-height: 15px;
 }
 
-/* Update button styling */
-a.button, button {
-  font-size: 16px;
-  padding: 8px 12px;
-  border-radius: 20px;
+/* The main calendar table */
+#calendar {
+  width: 960px;
+  margin: 0 auto;
+  table-layout: fixed;
+  border-spacing: 3px;
   border: none;
-  background: white;
-  color: #444;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin: 0 5px;
-  transition: all 0.3s;
-  position: relative;
-  text-decoration: none;
-  display: inline-block;
-  line-height: 15px;
 }
 
-a.button:hover, button:hover {
-  background: #f8f9fa;
+/* Modern Rounded Cells & Subtle Borders:
+   increased padding & radius for more "card-like" look */
+#calendar td {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  margin: 2px;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+  text-align: right;
+  vertical-align: top;
+  width: 120px;
+  min-height: 100px;
+  cursor: pointer;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow: visible;
+}
+
+/* Light hover color tweak */
+#calendar td:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  background-color: rgba(0,0,0,0.02);
 }
 
-body.dark-mode a.button, body.dark-mode button {
-  background: #2d3748;
-  color: #cbd5e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+/* Dark mode for cells */
+body.dark-mode #calendar td {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+body.dark-mode #calendar td:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+  background-color: rgba(255,255,255,0.05);
 }
 
-body.dark-mode a.button:hover, body.dark-mode button:hover {
-  background: #3a4a5e;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+/* weekend / today / shading */
+#calendar td.weekend {
+  background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+}
+body.dark-mode #calendar td.weekend {
+  background: linear-gradient(to bottom right, #2d3748, #1a202c);
 }
 
-input[type="date"] {
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  padding: 6px 12px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+#calendar td.shaded {
+  background: #CFE7FF;
+}
+body.dark-mode #calendar td.shaded {
+  background: #333;
 }
 
-body.dark-mode input[type="date"] {
-  background: #2d3748;
-  border-color: #4a5568;
-  color: #cbd5e0;
+/* Animated "today" with a mild pulse */
+@keyframes pulseToday {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70% { box-shadow: 0 0 10px 20px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+#calendar td.today {
+  background: linear-gradient(135deg, rgba(229, 62, 62, 0.9) 0%, rgba(197, 48, 48, 0.9) 100%);
+  transform: scale(1.03);
+  z-index: 10;
+  color: #FFF;
+  font-weight: 600;
+  animation: pulseToday 2s infinite;
 }
 
-/* Tooltip on button hover */
-.button::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: 50%;
-  right: 105%;
-  transform: translateY(-50%);
-  background-color: #333;
-  color: #fff;
-  padding: 5px;
+/* Overwrite the box-shadow if you want a more dramatic effect:
+   #calendar td.today {
+     box-shadow: 0 8px 15px rgba(220, 38, 38, 0.3);
+   }
+*/
+
+#calendar td.today span {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 2px 5px;
   border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s;
-  z-index: 1000;
-}
-.button:hover::after {
-  opacity: 1;
-  transform: translateY(-50%) translateX(-5px);
+  display: inline-block;
+  margin-bottom: 8px;
 }
 
-/* Better note textareas - now with auto height */
+/* If you prefer short hover color or prefer the existing color, feel free to adjust. */
+
+/* Using Playfair for month label */
+#calendar td.extra {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  line-height: 1.2;
+  color: #555;
+  opacity: 0.8;
+  font-weight: 400;
+  padding: 0 0 0 15px;
+  vertical-align: top;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 10px; /* Round corners for consistency */
+  box-shadow: none;
+  transition: opacity 0.3s, transform 0.3s;
+  width: 120px;
+  text-align: left;
+  border: none;
+  cursor: auto;
+}
+#calendar td.extra:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.02);
+}
+
+/* Dark mode for extra cell */
+body.dark-mode #calendar td.extra {
+  color: #aaa;
+}
+
+/* Make date display monospaced for clocklike alignment */
+#calendar td span {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 10px;
+  font-family: 'Fira Code', monospace; /* Monospace for day & date */
+  color: #666;
+}
+body.dark-mode #calendar td span {
+  color: #aaa;
+}
+
+/* .clicked-day highlight for 0.5s */
+.clicked-day {
+  box-shadow: 0 0 0 3px rgba(80,160,255,0.5) !important;
+  animation: clickedHighlight 0.5s forwards;
+}
+@keyframes clickedHighlight {
+  0% { box-shadow: 0 0 0 3px rgba(80,160,255,0.5); }
+  100% { box-shadow: none; }
+}
+
+/* .loading spinner indicator */
+.loading {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+}
+.loading.active {
+  display: block;
+}
+.loading:after {
+  content: "";
+  display: block;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 4px solid #ddd;
+  border-top-color: #666;
+  animation: spin 1s infinite linear;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+body.dark-mode .loading:after {
+  border-color: #444;
+  border-top-color: #bbb;
+}
+
+/* textareas: auto-height, shift+enter multiline, etc. */
 textarea {
   font-family: 'Inter', sans-serif;
   padding: 8px;
@@ -314,113 +375,49 @@ textarea {
   transition: background 0.3s, box-shadow 0.3s;
   color: #333;
   width: 100%;
-  margin: 0 0 8px 0; /* Added margin between notes */
+  margin: 0 0 8px 0;
   min-height: 24px;
   line-height: 1.4;
   resize: none;
   box-sizing: border-box;
   display: block;
-  overflow: hidden; /* Hide scrollbars */
+  overflow: hidden;
   word-wrap: break-word;
 }
-
 textarea:focus {
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   outline: none;
 }
-
 body.dark-mode textarea {
   background-color: rgba(45, 55, 72, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #cbd5e0;
 }
-
 body.dark-mode textarea:focus {
   background-color: rgba(45, 55, 72, 0.95);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-/* Ensure notes inside today's cell are readable */
+/* Inside today's cell, ensure contrast for textareas */
 #calendar td.today textarea {
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
-
 td.shaded textarea {
   background-color: rgba(255, 255, 255, 0.8);
 }
-
 body.dark-mode td.shaded textarea {
   background-color: rgba(60, 70, 90, 0.8);
-}
-
-/* Some spacing for the header so the table isn't hidden */
-#calendarContainer {
-  margin-top: 120px;
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 #fileInput {
   display: none;
 }
-
-/* Current day indicator */
-.current-day-dot {
-  width: 6px;
-  height: 6px;
-  background-color: #38b2ac;
-  border-radius: 50%;
-  display: inline-block;
-  margin-left: 5px;
-  box-shadow: 0 0 0 2px rgba(56, 178, 172, 0.3);
-}
-
-body.dark-mode .current-day-dot {
-  background-color: #4fd1c5;
-  box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.3);
-}
-
-/* Add loading indicator */
-.loading {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: none;
-}
-
-.loading.active {
-  display: block;
-}
-
-.loading:after {
-  content: "";
-  display: block;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 4px solid #ddd;
-  border-top-color: #666;
-  animation: spin 1s infinite linear;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-body.dark-mode .loading:after {
-  border-color: #444;
-  border-top-color: #bbb;
-}
   </style>
 </head>
+
 <body>
   <div id="header">
     <a href="/" class="timeless">Timeless</a>
@@ -436,7 +433,8 @@ body.dark-mode .loading:after {
       <input type="file" id="fileInput" onchange="loadDataFromFile()">
 
       <span>Jump to date:</span>
-      <input type="date" id="jumpDate">
+      <!-- Time range for date picker -->
+      <input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31">
       <button onclick="jumpToDate()">Go</button>
       <button onclick="undoLastChange()">Undo</button>
     </div>
@@ -445,7 +443,7 @@ body.dark-mode .loading:after {
   <div id="help">
     <div>
       <ul>
-        <li>Click on a day to add a note</li>
+        <li>Click on a day to add a note (Shift+Enter for multiple lines, Enter to save)</li>
         <li>To delete a note, just delete its text</li>
         <li>Press <code>↑</code> or <code>↓</code> to scroll, <code>T</code> to jump to Today</li>
       </ul>
@@ -460,10 +458,10 @@ body.dark-mode .loading:after {
   </div>
 
   <script>
-/****
+/**
  * Timeless: The Infinitely Scrolling Calendar
  * by Jay Dixit
- ****/
+ **/
 
 /* 1. systemToday vs. todayDate */
 let systemToday = new Date();
@@ -490,33 +488,36 @@ function undoLastChange() {
     alert("No undo history available.");
     return;
   }
+  // pop snapshot
   const lastSnapshotStr = undoStack.pop();
   if (!lastSnapshotStr) return;
+
+  // restore localStorage from snapshot
   localStorage.clear();
   const snapshotData = JSON.parse(lastSnapshotStr);
   for (const key in snapshotData) {
     localStorage.setItem(key, snapshotData[key]);
   }
-  showLoading();
-  setTimeout(() => {
-    location.reload();
-  }, 300);
+
+  // Re-render in place (no full reload)
+  loadCalendarAroundDate(todayDate);
+
+  // Optionally highlight that an undo occurred, or show a small toast:
+  alert("Undo complete!");
 }
 
 /* Show/hide loading indicator */
 function showLoading() {
   document.getElementById('loadingIndicator').classList.add('active');
 }
-
 function hideLoading() {
   document.getElementById('loadingIndicator').classList.remove('active');
 }
 
-/* 3. Keyboard Navigation */
+/* 3. Keyboard Navigation + SHIFT+ENTER multiline */
 document.addEventListener("keydown", (e) => {
   if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
 
-  // smaller scroll: 1/3 screen
   if (e.key === "ArrowUp") {
     window.scrollBy(0, -window.innerHeight / 3);
   } else if (e.key === "ArrowDown") {
@@ -533,20 +534,17 @@ function jumpToDate() {
   if (!val) return;
 
   showLoading();
-
   const [yyyy, mm, dd] = val.split("-");
   const jumpDateObj = new Date(yyyy, mm - 1, dd);
   todayDate = jumpDateObj;
   loadCalendarAroundDate(todayDate);
 
-  // Smooth scroll after short delay
   setTimeout(() => {
     smoothScrollToToday();
-    hideLoading();
   }, 300);
 }
 
-/* 5. Storing Full Dates (YYYY-MM-DD) */
+/* 5. Storing Full Dates */
 function parseDateFromId(idStr) {
   const parts = idStr.split("_");
   if (parts.length !== 3) return null;
@@ -555,7 +553,6 @@ function parseDateFromId(idStr) {
   return `${year.toString().padStart(4,"0")}-${String(realMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
 }
 
-/* storeValueForItemId / removeValueForItemId */
 function storeValueForItemId(itemId) {
   pushUndoState();
   const item = document.getElementById(itemId);
@@ -568,6 +565,8 @@ function storeValueForItemId(itemId) {
     parentIds.push(itemId);
     localStorage[parentId] = parentIds;
   }
+
+  // Also store ISO date
   const isoDate = parseDateFromId(parentId);
   if (isoDate) {
     localStorage[isoDate] = item.value;
@@ -591,6 +590,8 @@ function removeValueForItemId(itemId) {
       delete localStorage[parentId];
     }
   }
+
+  // remove ISO
   const isoDate = parseDateFromId(parentId);
   if (isoDate && localStorage[isoDate]) {
     delete localStorage[isoDate];
@@ -602,41 +603,34 @@ let calendarTableElement;
 let firstDate, lastDate;
 const itemPaddingBottom = (navigator.userAgent.indexOf("Firefox") !== -1) ? 2 : 0;
 
-/* Add this to your script section where the months array is defined */
-
-// Full month names (keep this for any places you want the full name)
 const months = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December"
 ];
-
-// Short month names
 const shortMonths = [
   "Jan","Feb","Mar","Apr","May","Jun",
   "Jul","Aug","Sep","Oct","Nov","Dec"
 ];
-
 const daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
 
 function idForDate(date) {
   return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
 }
 
-// Updated function to automatically resize the textarea to fit content
+/* Auto-height for textareas */
 function recalculateHeight(itemId) {
   const item = document.getElementById(itemId);
   if (!item) return;
-
-  // Set initial height to 0 for accurate scrollHeight calculation
   item.style.height = "0px";
-
-  // Set the height to scrollHeight to fit all content
   item.style.height = (item.scrollHeight + itemPaddingBottom) + "px";
 }
 
+/* SHIFT+Enter multiline vs Enter=save */
 function keydownHandler(e) {
   recalculateHeight(this.id);
-  if (e.key === "Enter") {
+
+  // SHIFT+Enter => newline, Enter => save
+  if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     storeValueForItemId(this.id);
     this.blur();
@@ -653,6 +647,7 @@ function checkItem() {
     this.parentNode.removeChild(this);
   }
 }
+
 function generateItem(parentId, itemId) {
   const item = document.createElement("textarea");
   const parent = document.getElementById(parentId);
@@ -671,7 +666,7 @@ function lookupItemsForParentId(parentId, callback) {
     const itemList = [];
     for (const itemId of ids) {
       const itemValue = localStorage[itemId];
-      if (itemValue !== undefined) { // Check if the item exists
+      if (itemValue !== undefined) {
         itemList.push({ itemId, itemValue });
       }
     }
@@ -679,16 +674,19 @@ function lookupItemsForParentId(parentId, callback) {
   }
 }
 
-/*
- * Instead of document.onclick, let's specifically
- * handle clicks on <td> by using closest("td")
- */
+/* 7. Handling day clicks + highlight clicked day */
 document.addEventListener("click", (e) => {
   const td = e.target.closest("td");
   if (!td || !td.id || !td.id.includes("_")) return;
 
-  // Don't add a new note if user clicked on an existing note or "extra" cell
+  // don't add a new note if user clicked on an existing note or "extra" cell
   if (e.target.tagName === "TEXTAREA" || td.className.includes("extra")) return;
+
+  // highlight the cell briefly
+  td.classList.add("clicked-day");
+  setTimeout(() => {
+    td.classList.remove("clicked-day");
+  }, 500);
 
   const parentId = td.id;
   const newItem = generateItem(parentId, nextItemId());
@@ -699,23 +697,20 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/* Generate each day cell */
 function generateDay(dayCell, date) {
-  // highlight weekends
   const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
   if (isWeekend) dayCell.className += " weekend";
 
-  // highlight every-other-month
   const isShaded = (date.getMonth() % 2 === 1);
   if (isShaded) dayCell.className += " shaded";
 
-  // highlight "today"
   const isToday =
     date.getFullYear() === todayDate.getFullYear() &&
     date.getMonth() === todayDate.getMonth() &&
     date.getDate() === todayDate.getDate();
   if (isToday) dayCell.className += " today";
 
-  // Check if this date is the current system date (not the user-selected "today")
   const isCurrentSystemDate =
     date.getFullYear() === systemToday.getFullYear() &&
     date.getMonth() === systemToday.getMonth() &&
@@ -723,10 +718,11 @@ function generateDay(dayCell, date) {
 
   dayCell.id = idForDate(date);
   dayCell.innerHTML = `
-    <span>${daysOfWeek[getAdjustedDayIndex(date)]}
-          ${shortMonths[date.getMonth()]}
-          ${date.getDate()}
-          ${isCurrentSystemDate && !isToday ? '<div class="current-day-dot"></div>' : ''}
+    <span>
+      ${daysOfWeek[getAdjustedDayIndex(date)]}
+      ${shortMonths[date.getMonth()]}
+      ${date.getDate()}
+      ${isCurrentSystemDate && !isToday ? '<div class="current-day-dot"></div>' : ''}
     </span>
   `;
   lookupItemsForParentId(dayCell.id, (items) => {
@@ -740,10 +736,10 @@ function generateDay(dayCell, date) {
   });
 }
 
-
+/* For Monday=0 -> Sunday=6 */
 function getAdjustedDayIndex(date) {
   const day = date.getDay();
-  return (day === 0) ? 6 : day - 1; // Monday=0 ... Sunday=6
+  return (day === 0) ? 6 : day - 1;
 }
 
 function prependWeek() {
@@ -752,7 +748,6 @@ function prependWeek() {
   do {
     firstDate.setDate(firstDate.getDate() - 1);
     if (firstDate.getDate() === 1) {
-      // Choose whether to use short or full month name
       monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
     }
     const dayCell = weekRow.insertCell(0);
@@ -766,7 +761,6 @@ function appendWeek() {
   do {
     lastDate.setDate(lastDate.getDate() + 1);
     if (lastDate.getDate() === 1) {
-      // You can decide whether to use short or full month names here
       monthName = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
     }
     const dayCell = weekRow.insertCell(-1);
@@ -778,7 +772,7 @@ function appendWeek() {
   extra.innerHTML = monthName;
 }
 
-/* Scrolling & Animation */
+/* Scrolling, Animation, & Loading Indicators */
 function scrollPositionForElement(element) {
   let y = element.offsetTop;
   let node = element;
@@ -789,9 +783,10 @@ function scrollPositionForElement(element) {
   const clientHeight = element.clientHeight;
   return y - (window.innerHeight - clientHeight) / 2;
 }
+
 let startTime, startY, goalY;
 function curve(x) {
-  return (x < 0.5) ? (4 * x * x * x) : (1 - 4 * (1 - x) * (1 - x) * (1 - x));
+  return (x < 0.5) ? (4 * x * x * x) : (1 - 4 * (1 - x)*(1 - x)*(1 - x));
 }
 function scrollAnimation() {
   const percent = (new Date() - startTime) / 1000;
@@ -799,11 +794,12 @@ function scrollAnimation() {
     window.scrollTo(0, goalY);
     hideLoading();
   } else {
-    const newY = Math.round(startY + (goalY - startY) * curve(percent));
+    const newY = Math.round(startY + (goalY - startY)*curve(percent));
     window.scrollTo(0, newY);
     setTimeout(scrollAnimation, 10);
   }
 }
+
 function documentScrollTop() {
   let scrollTop = document.body.scrollTop;
   if (document.documentElement) {
@@ -823,6 +819,8 @@ function scrollToToday() {
   if (elem) {
     window.scrollTo(0, scrollPositionForElement(elem));
     hideLoading();
+  } else {
+    hideLoading();
   }
 }
 function smoothScrollToToday() {
@@ -839,7 +837,7 @@ function smoothScrollToToday() {
   else hideLoading();
 }
 
-/* poll() for infinite scrolling */
+/* poll() for infinite scrolling & midnight crossing */
 function poll() {
   if (documentScrollTop() < 200) {
     const oldHeight = documentScrollHeight();
@@ -860,7 +858,6 @@ function poll() {
     newSysDate.getFullYear() !== systemToday.getFullYear()
   ) {
     systemToday = newSysDate;
-    // If we crossed midnight, refresh the calendar to show the new current day
     const currentTodayElement = document.querySelector('.current-day-dot');
     if (!currentTodayElement) {
       location.reload();
@@ -868,7 +865,7 @@ function poll() {
   }
 }
 
-/* loadCalendarAroundDate */
+/* loadCalendarAroundDate (no full reload) */
 function loadCalendarAroundDate(seedDate) {
   showLoading();
   calendarTableElement.innerHTML = "";
@@ -889,11 +886,7 @@ function loadCalendarAroundDate(seedDate) {
   }, 50);
 }
 
-/* nextItemId, help overlay, data load/save, etc. */
-function nextItemId() {
-  localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
-  return "item" + localStorage.nextId;
-}
+/* Show/hide help overlay */
 function showHelp() {
   document.getElementById("help").style.display = "block";
 }
@@ -904,20 +897,19 @@ function hideHelp() {
 /* Toggle Dark Mode */
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
-  // Optionally save the preference to localStorage
   if (document.body.classList.contains("dark-mode")) {
     localStorage.setItem("darkMode", "enabled");
   } else {
     localStorage.setItem("darkMode", "disabled");
   }
 }
-
-// Apply dark mode if previously enabled
 if (localStorage.getItem("darkMode") === "enabled") {
   document.body.classList.add("dark-mode");
 }
 
-/* Data load/save functions (unchanged) */
+/* Data load/save & Cloud sync omitted for brevity. */
+/* ... But we keep them in the code below (unchanged). */
+
 function downloadLocalStorageData() {
   showLoading();
   var data = {};
@@ -1059,7 +1051,7 @@ async function exportToFileHandle(fileHandle) {
   }
 }
 
-/* 7. Initialization */
+/* 8. Initialization */
 window.onload = function () {
   calendarTableElement = document.getElementById("calendar");
   todayDate = new Date(systemToday);
@@ -1077,9 +1069,8 @@ window.onload = function () {
   }
 };
 
-// Add a resize event handler to adjust textareas when window is resized
+/* Recalculate textareas on window resize */
 window.addEventListener('resize', function() {
-  // Find all textareas and recalculate their heights
   const textareas = document.querySelectorAll('textarea');
   textareas.forEach(textarea => {
     recalculateHeight(textarea.id);
