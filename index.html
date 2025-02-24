@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timeless: The Infinite Calendar</title>
 
-  <!-- Monospace + Additional Fonts -->
+  <!-- Import fonts: Inter for general UI, Playfair Display for month headings, Fira Code for monospaced dates -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
+/*
+ * CSS Variables for consistent theming
+ */
 :root {
 --border-width: 1px;
 --border-color: black;
@@ -18,7 +21,9 @@
 --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Reset / Base */
+/*
+ * Base styles and resets
+ */
 html, body {
   margin: 0;
   padding: 0;
@@ -26,18 +31,23 @@ html, body {
   background: white;
   color: black;
   transition: background-color 0.5s, color 0.5s;
+  /* Subtle background pattern */
   background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
-/* Dark Mode */
+/*
+ * Dark mode styles
+ */
 body.dark-mode {
   background: #111;
   color: #eee;
   background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
-/* Stylish Header */
+/*
+ * Fixed header bar styling
+ */
 #header {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
@@ -50,26 +60,36 @@ body.dark-mode {
   top: 0; left: 0; right: 0;
   height: var(--header-height);
   line-height: var(--header-height);
-  z-index: 999;
+  z-index: 999; /* Keep header above all other content */
 }
 
+/*
+ * Dark mode header styling
+ */
 body.dark-mode #header {
   background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Container beneath the header, use margin-top for spacing */
+/*
+ * Container for the calendar with margin to avoid header overlap
+ */
 #calendarContainer {
-  margin-top: 100px; /* Instead of padding-bottom in the header */
-  animation: fadeIn 0.5s ease-out;
+  margin-top: 100px; /* Space for the fixed header */
+  animation: fadeIn 0.5s ease-out; /* Fade in animation when page loads */
 }
 
+/*
+ * Fade-in animation definition
+ */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Timeless Title Button */
+/*
+ * "Timeless" logo/link styling
+ */
 a.timeless {
   font-size: 137%;
   text-decoration: none;
@@ -93,7 +113,9 @@ a.timeless:active {
   transform: translateY(2px);
 }
 
-/* Buttons + Dark Mode variations */
+/*
+ * Button styling (shared between <a> and <button> elements)
+ */
 a.button, button {
   font-size: 16px;
   padding: 8px 12px;
@@ -115,6 +137,9 @@ a.button:hover, button:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/*
+ * Dark mode button styling
+ */
 body.dark-mode a.button, body.dark-mode button {
   background: #2d3748;
   color: #cbd5e0;
@@ -125,7 +150,9 @@ body.dark-mode a.button:hover, body.dark-mode button:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Tooltip on button hover */
+/*
+ * Tooltip for buttons (shows on hover)
+ */
 .button::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -148,7 +175,9 @@ body.dark-mode a.button:hover, body.dark-mode button:hover {
   transform: translateY(-50%) translateX(-5px);
 }
 
-/* Date Picker with time range */
+/*
+ * Date picker input styling
+ */
 input[type="date"] {
   border-radius: 20px;
   border: 1px solid #ddd;
@@ -160,13 +189,18 @@ input[type="date"][id="jumpDate"] {
   max: 2050-12-31;
 }
 
+/*
+ * Dark mode date picker styling
+ */
 body.dark-mode input[type="date"] {
   background: #2d3748;
   border-color: #4a5568;
   color: #cbd5e0;
 }
 
-/* Help Overlay */
+/*
+ * Help overlay styling
+ */
 #help {
   display: none;
   position: fixed;
@@ -193,7 +227,9 @@ body.dark-mode input[type="date"] {
   line-height: 1.5;
 }
 
-/* The main calendar table */
+/*
+ * Main calendar table styling
+ */
 #calendar {
   width: 960px;
   margin: 0 auto;
@@ -202,7 +238,9 @@ body.dark-mode input[type="date"] {
   border: none;
 }
 
-/* Modern Rounded Cells & Subtle Borders */
+/*
+ * Calendar day cells styling
+ */
 #calendar td {
   padding: 12px 16px;
   border-radius: 10px;
@@ -222,14 +260,18 @@ body.dark-mode input[type="date"] {
   position: relative;
 }
 
-/* Light hover color tweak */
+/*
+ * Cell hover effect
+ */
 #calendar td:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
   background-color: rgba(0,0,0,0.02);
 }
 
-/* Dark mode for cells */
+/*
+ * Dark mode cell styling
+ */
 body.dark-mode #calendar td {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
@@ -238,7 +280,9 @@ body.dark-mode #calendar td:hover {
   background-color: rgba(255,255,255,0.05);
 }
 
-/* weekend / today / shading */
+/*
+ * Weekend cell styling (Saturday/Sunday)
+ */
 #calendar td.weekend {
   background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
 }
@@ -246,6 +290,9 @@ body.dark-mode #calendar td.weekend {
   background: linear-gradient(to bottom right, #2d3748, #1a202c);
 }
 
+/*
+ * Alternating month shading
+ */
 #calendar td.shaded {
   background: #CFE7FF;
 }
@@ -253,7 +300,9 @@ body.dark-mode #calendar td.shaded {
   background: #333;
 }
 
-/* Animated "today" with a mild pulse */
+/*
+ * Today's cell styling with pulse animation
+ */
 @keyframes pulseToday {
   0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
   70% { box-shadow: 0 0 10px 20px rgba(220, 38, 38, 0); }
@@ -268,6 +317,9 @@ body.dark-mode #calendar td.shaded {
   animation: pulseToday 2s infinite;
 }
 
+/*
+ * Today's cell date display
+ */
 #calendar td.today span {
   color: white;
   background-color: rgba(0, 0, 0, 0.2);
@@ -277,7 +329,9 @@ body.dark-mode #calendar td.shaded {
   margin-bottom: 8px;
 }
 
-/* Using Playfair for month label */
+/*
+ * Month label in rightmost column
+ */
 #calendar td.extra {
   font-family: 'Playfair Display', serif;
   font-size: 22px;
@@ -290,7 +344,7 @@ body.dark-mode #calendar td.shaded {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
-  border-radius: 10px; /* Round corners for consistency */
+  border-radius: 10px;
   box-shadow: none;
   transition: opacity 0.5s ease, transform 0.5s ease;
   width: 120px;
@@ -303,12 +357,16 @@ body.dark-mode #calendar td.shaded {
   transform: translateY(-50%) scale(1.02);
 }
 
-/* Dark mode for extra cell */
+/*
+ * Dark mode month label
+ */
 body.dark-mode #calendar td.extra {
   color: #aaa;
 }
 
-/* Make date display monospaced for clocklike alignment */
+/*
+ * Date display in each cell, using monospace font for alignment
+ */
 #calendar td span {
   font-size: 12px;
   font-weight: 500;
@@ -322,7 +380,9 @@ body.dark-mode #calendar td span {
   color: #aaa;
 }
 
-/* .clicked-day highlight for 0.5s */
+/*
+ * Cell click animation
+ */
 .clicked-day {
   box-shadow: 0 0 0 3px rgba(80,160,255,0.5) !important;
   animation: clickedHighlight 0.5s forwards;
@@ -332,7 +392,9 @@ body.dark-mode #calendar td span {
   100% { box-shadow: none; }
 }
 
-/* Styles for date range selection */
+/*
+ * Date range selection styling
+ */
 .selected-range-start, .selected-range-end {
   background-color: rgba(66, 153, 225, 0.6) !important;
   position: relative;
@@ -366,7 +428,9 @@ body.dark-mode #calendar td span {
   border-radius: 3px;
 }
 
-/* .loading spinner indicator */
+/*
+ * Loading spinner
+ */
 .loading {
   position: fixed;
   top: 50%; left: 50%;
@@ -393,7 +457,11 @@ body.dark-mode .loading:after {
   border-top-color: #bbb;
 }
 
-/* textareas: auto-height, shift+enter multiline, etc. */
+/*
+ * Notes/tasks textarea styling
+ * - Ensures auto-expanding behavior
+ * - Prevents text truncation
+ */
 textarea {
   font-family: 'Inter', sans-serif;
   padding: 8px;
@@ -411,14 +479,20 @@ textarea {
   resize: none;
   box-sizing: border-box;
   display: block;
-  overflow: hidden;
+  overflow: visible !important; /* Critical: ensures text isn't cut off */
   word-wrap: break-word;
+  white-space: normal;
+  height: auto; /* Let it expand naturally */
 }
 textarea:focus {
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   outline: none;
 }
+
+/*
+ * Dark mode textarea styling
+ */
 body.dark-mode textarea {
   background-color: rgba(45, 55, 72, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -429,12 +503,20 @@ body.dark-mode textarea:focus {
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-/* Inside today's cell, ensure contrast for textareas */
+/*
+ * Special styling for textareas in today's cell
+ */
 #calendar td.today textarea {
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
   border: 1px solid rgba(255, 255, 255, 0.3);
+  height: auto !important; /* Force auto height for today's cell */
+  min-height: 24px;
 }
+
+/*
+ * Special styling for textareas in shaded cells
+ */
 td.shaded textarea {
   background-color: rgba(255, 255, 255, 0.8);
 }
@@ -442,7 +524,9 @@ body.dark-mode td.shaded textarea {
   background-color: rgba(60, 70, 90, 0.8);
 }
 
-/* Improve the current day indicator dot */
+/*
+ * Indicator dot for current day when it's not the selected "today"
+ */
 .current-day-dot {
   display: inline-block;
   width: 8px;
@@ -454,7 +538,9 @@ body.dark-mode td.shaded textarea {
   vertical-align: middle;
 }
 
-/* Add keyboard focus styles for better accessibility */
+/*
+ * Accessibility: keyboard focus styles
+ */
 textarea:focus, button:focus, a:focus, input:focus {
   outline: 2px solid #4299e1;
   outline-offset: 2px;
@@ -467,7 +553,9 @@ body.dark-mode input:focus {
   outline-color: #63b3ed;
 }
 
-/* Toast notifications */
+/*
+ * Toast notification system styling
+ */
 #toast-container {
   position: fixed;
   bottom: 20px;
@@ -491,7 +579,9 @@ body.dark-mode .toast {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-/* Year view styles */
+/*
+ * Year view container styling
+ */
 #yearViewContainer {
   display: none;
   position: fixed;
@@ -535,7 +625,9 @@ body.dark-mode #yearViewContainer {
   text-align: center;
 }
 
-/* Responsive adjustments for small screens */
+/*
+ * Responsive styling for different screen sizes
+ */
 @media (max-width: 1000px) {
   #calendar {
     width: 100%;
@@ -584,7 +676,9 @@ body.dark-mode #yearViewContainer {
   }
 }
 
-/* Print Styles */
+/*
+ * Print styles for better printing experience
+ */
 @media print {
   #header, #help, .loading, button, .yearViewContainer {
     display: none !important;
@@ -631,6 +725,9 @@ body.dark-mode #yearViewContainer {
   }
 }
 
+/*
+ * Hide file input element (used for file upload button)
+ */
 #fileInput {
   display: none;
 }
@@ -638,6 +735,7 @@ body.dark-mode #yearViewContainer {
 </head>
 
 <body>
+  <!-- Fixed header with app controls -->
   <div id="header">
     <a href="/" class="timeless" aria-label="Timeless Calendar Home">Timeless</a>
     <span>🪐</span>
@@ -654,13 +752,14 @@ body.dark-mode #yearViewContainer {
       <input type="file" id="fileInput" onchange="loadDataFromFile()">
 
       <span>Jump to date:</span>
-      <!-- Time range for date picker -->
+      <!-- Date picker for quick navigation -->
       <input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31">
       <button onclick="jumpToDate()" aria-label="Go to selected date">Go</button>
       <button onclick="undoLastChange()" aria-label="Undo last change">Undo</button>
     </div>
   </div>
 
+  <!-- Help overlay with instructions -->
   <div id="help">
     <div>
       <ul>
@@ -675,15 +774,17 @@ body.dark-mode #yearViewContainer {
     </div>
   </div>
 
+  <!-- Loading spinner -->
   <div class="loading" id="loadingIndicator"></div>
 
+  <!-- Main calendar container -->
   <div id="calendarContainer">
     <div id="top-sentinel"></div>
     <table id="calendar"></table>
     <div id="bottom-sentinel"></div>
   </div>
 
-  <!-- Year view container -->
+  <!-- Year view overlay -->
   <div id="yearViewContainer">
     <div style="text-align:center; margin-bottom:20px;">
       <h2 id="yearViewTitle">2023 at a Glance</h2>
@@ -698,21 +799,35 @@ body.dark-mode #yearViewContainer {
 /*
  * Timeless: The Infinitely Scrolling Calendar
  * by Jay Dixit
+ *
+ * An infinite, seamless calendar that dynamically loads as you scroll,
+ * with tasks that automatically resize to show all content.
  */
 
-/* 1. systemToday vs. todayDate */
+/**************************
+ * CORE VARIABLES & STATE
+ **************************/
+
+/* Track the current system date vs. user-selected "today" date */
 let systemToday = new Date();
 let todayDate;
 
-/* 2. Undo Stack */
+/* History stack for undo functionality */
 let undoStack = [];
 const MAX_UNDO = 5;
 
-/* Date range selection */
+/* State for date range selection feature */
 let rangeStart = null;
 let rangeEnd = null;
 let isSelectingRange = false;
 
+/**************************
+ * UNDO FUNCTIONALITY
+ **************************/
+
+/*
+ * Push current localStorage state to undo stack
+ */
 function pushUndoState() {
   const snapshot = {};
   for (const key in localStorage) {
@@ -726,6 +841,9 @@ function pushUndoState() {
   }
 }
 
+/*
+ * Restore previous state from undo stack
+ */
 function undoLastChange() {
   if (undoStack.length === 0) {
     showToast("No undo history available");
@@ -749,7 +867,15 @@ function undoLastChange() {
   showToast("Changes undone successfully");
 }
 
-/* Show Toast Notifications */
+/**************************
+ * TOAST NOTIFICATIONS
+ **************************/
+
+/*
+ * Shows a toast notification message
+ * @param {string} message - The message to display
+ * @param {number} duration - How long to show the message (ms)
+ */
 function showToast(message, duration = 3000) {
   // Create toast container if it doesn't exist
   let toastContainer = document.getElementById('toast-container');
@@ -773,19 +899,42 @@ function showToast(message, duration = 3000) {
   // Fade out and remove after duration
   setTimeout(() => {
     toast.style.opacity = '0';
-    setTimeout(() => { toastContainer.removeChild(toast); }, 300);
+    setTimeout(() => {
+      if (toastContainer.contains(toast)) {
+        toastContainer.removeChild(toast);
+      }
+    }, 300);
   }, duration);
 }
 
-/* Show/hide loading indicator */
+/**************************
+ * LOADING INDICATOR
+ **************************/
+
+/*
+ * Display loading spinner
+ */
 function showLoading() {
   document.getElementById('loadingIndicator').classList.add('active');
 }
+
+/*
+ * Hide loading spinner
+ */
 function hideLoading() {
   document.getElementById('loadingIndicator').classList.remove('active');
 }
 
-/* Throttle function to limit execution frequency */
+/**************************
+ * UTILITY FUNCTIONS
+ **************************/
+
+/*
+ * Throttle function to limit execution frequency
+ * @param {Function} func - Function to throttle
+ * @param {number} delay - Minimum time between executions (ms)
+ * @returns {Function} Throttled function
+ */
 function throttle(func, delay) {
   let lastCall = 0;
   return function(...args) {
@@ -797,24 +946,44 @@ function throttle(func, delay) {
   };
 }
 
-/* 3. Keyboard Navigation + Keyboard Shortcuts */
+/**************************
+ * KEYBOARD NAVIGATION
+ **************************/
+
+/*
+ * Global keyboard shortcuts
+ */
 document.addEventListener("keydown", (e) => {
+  // Don't trigger when typing in a textarea
   if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
 
+  // Arrow Up = Scroll up 1/3 screen
   if (e.key === "ArrowUp") {
     window.scrollBy(0, -window.innerHeight / 3);
-  } else if (e.key === "ArrowDown") {
+  }
+  // Arrow Down = Scroll down 1/3 screen
+  else if (e.key === "ArrowDown") {
     window.scrollBy(0, window.innerHeight / 3);
-  } else if (e.key === "t" || e.key === "T") {
+  }
+  // T = Jump to today
+  else if (e.key === "t" || e.key === "T") {
     todayDate = new Date(systemToday);
     loadCalendarAroundDate(todayDate);
-  } else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !e.shiftKey && !e.altKey) {
+  }
+  // Ctrl+D = Toggle dark mode
+  else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !e.shiftKey && !e.altKey) {
     e.preventDefault();
     toggleDarkMode();
   }
 });
 
-/* 4. Quick Date Jump + Smooth Scroll */
+/**************************
+ * DATE NAVIGATION
+ **************************/
+
+/*
+ * Jump to specific date from date picker
+ */
 function jumpToDate() {
   const val = document.getElementById("jumpDate")?.value;
   if (!val) return;
@@ -830,7 +999,15 @@ function jumpToDate() {
   }, 300);
 }
 
-/* 5. Storing Full Dates */
+/**************************
+ * DATA STORAGE & PERSISTENCE
+ **************************/
+
+/*
+ * Parse a cell ID to get ISO date format
+ * @param {string} idStr - Cell ID in format "month_day_year"
+ * @returns {string} ISO date format (YYYY-MM-DD)
+ */
 function parseDateFromId(idStr) {
   const parts = idStr.split("_");
   if (parts.length !== 3) return null;
@@ -839,6 +1016,10 @@ function parseDateFromId(idStr) {
   return `${year.toString().padStart(4,"0")}-${String(realMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
 }
 
+/*
+ * Store textarea content in localStorage
+ * @param {string} itemId - ID of the textarea
+ */
 function storeValueForItemId(itemId) {
   pushUndoState();
   const item = document.getElementById(itemId);
@@ -846,13 +1027,14 @@ function storeValueForItemId(itemId) {
   const parentId = item.parentNode.id;
   localStorage[itemId] = item.value;
 
+  // Store reference to this item in parent
   const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
   if (!parentIds.includes(itemId)) {
     parentIds.push(itemId);
     localStorage[parentId] = parentIds;
   }
 
-  // Also store ISO date
+  // Also store ISO date for easier searching
   const isoDate = parseDateFromId(parentId);
   if (isoDate) {
     localStorage[isoDate] = item.value;
@@ -860,6 +1042,10 @@ function storeValueForItemId(itemId) {
   localStorage.setItem("lastSavedTimestamp", Date.now());
 }
 
+/*
+ * Remove textarea content from localStorage
+ * @param {string} itemId - ID of the textarea to remove
+ */
 function removeValueForItemId(itemId) {
   pushUndoState();
   delete localStorage[itemId];
@@ -877,18 +1063,22 @@ function removeValueForItemId(itemId) {
     }
   }
 
-  // remove ISO
+  // Remove ISO date reference
   const isoDate = parseDateFromId(parentId);
   if (isoDate && localStorage[isoDate]) {
     delete localStorage[isoDate];
   }
 }
 
-/* 6. Infinite Calendar Logic */
+/**************************
+ * CALENDAR CORE LOGIC
+ **************************/
+
 let calendarTableElement;
 let firstDate, lastDate;
 const itemPaddingBottom = (navigator.userAgent.indexOf("Firefox") !== -1) ? 2 : 0;
 
+// Month names and day names
 const months = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December"
@@ -899,34 +1089,72 @@ const shortMonths = [
 ];
 const daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
 
+/*
+ * Generate ID for a date
+ * @param {Date} date - Date object
+ * @returns {string} ID in format "month_day_year"
+ */
 function idForDate(date) {
   return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
 }
 
-/* Auto-height for textareas */
+/*
+ * Recalculate and set textarea height based on content
+ * @param {string} itemId - ID of the textarea
+ */
 function recalculateHeight(itemId) {
   const item = document.getElementById(itemId);
   if (!item) return;
-  item.style.height = "0px";
-  item.style.height = (item.scrollHeight + itemPaddingBottom) + "px";
+
+  // Reset height to get accurate scrollHeight
+  item.style.height = "0";
+
+  // Get the full scrollHeight and add padding
+  const scrollHeight = item.scrollHeight;
+
+  // Set new height with a little extra padding to avoid clipping
+  item.style.height = (scrollHeight + itemPaddingBottom + 5) + "px";
+
+  // Force a reflow to make sure the height is applied
+  item.offsetHeight;
 }
 
-/* SHIFT+Enter multiline vs Enter=save */
+/*
+ * Recalculate heights for all textareas in the calendar
+ * Ensures proper display of all content
+ */
+function recalculateAllHeights() {
+  const textareas = document.querySelectorAll('textarea');
+  textareas.forEach(textarea => {
+    recalculateHeight(textarea.id);
+  });
+}
+
+/*
+ * Handle textarea keydown events
+ * - Auto-resize as you type
+ * - Enter to save, Shift+Enter for newline
+ */
 function keydownHandler(e) {
   recalculateHeight(this.id);
 
-  // SHIFT+Enter => newline, Enter => save
+  // SHIFT+Enter adds newline, Enter saves and blurs
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     storeValueForItemId(this.id);
     this.blur();
     return false;
   } else {
+    // Auto-save after 1 second of inactivity
     if (this.storeTimeout) clearTimeout(this.storeTimeout);
     this.storeTimeout = setTimeout(() => storeValueForItemId(this.id), 1000);
   }
 }
 
+/*
+ * Check if textarea is empty when blurred
+ * Remove if empty
+ */
 function checkItem() {
   if (this.value.length === 0) {
     removeValueForItemId(this.id);
@@ -934,6 +1162,12 @@ function checkItem() {
   }
 }
 
+/*
+ * Generate a new textarea for a cell
+ * @param {string} parentId - ID of the parent cell
+ * @param {string} itemId - ID for the new textarea
+ * @returns {HTMLElement} The created textarea
+ */
 function generateItem(parentId, itemId) {
   const item = document.createElement("textarea");
   const parent = document.getElementById(parentId);
@@ -946,6 +1180,11 @@ function generateItem(parentId, itemId) {
   return item;
 }
 
+/*
+ * Retrieve items for a cell from localStorage
+ * @param {string} parentId - ID of the cell
+ * @param {Function} callback - Function to call with items
+ */
 function lookupItemsForParentId(parentId, callback) {
   if (localStorage[parentId]) {
     const ids = localStorage[parentId].split(",");
@@ -960,7 +1199,13 @@ function lookupItemsForParentId(parentId, callback) {
   }
 }
 
-/* Date range selection */
+/**************************
+ * DATE RANGE SELECTION
+ **************************/
+
+/*
+ * Toggle date range selection mode
+ */
 function toggleRangeSelection() {
   isSelectingRange = !isSelectingRange;
   if (!isSelectingRange) {
@@ -970,6 +1215,9 @@ function toggleRangeSelection() {
   showToast(isSelectingRange ? "Select range start date" : "Range selection cancelled");
 }
 
+/*
+ * Clear date range selection
+ */
 function clearRangeSelection() {
   document.querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day').forEach(el => {
     el.classList.remove('selected-range-start', 'selected-range-end', 'selected-range-day');
@@ -978,6 +1226,10 @@ function clearRangeSelection() {
   rangeEnd = null;
 }
 
+/*
+ * Handle cell click in range selection mode
+ * @param {HTMLElement} td - The clicked table cell
+ */
 function handleRangeSelection(td) {
   const dateId = td.id;
   if (!dateId) return;
@@ -1018,6 +1270,9 @@ function handleRangeSelection(td) {
   }
 }
 
+/*
+ * Highlight all days within the selected range
+ */
 function highlightDaysInRange() {
   if (!rangeStart || !rangeEnd) return;
 
@@ -1033,25 +1288,35 @@ function highlightDaysInRange() {
   }
 }
 
-/* 7. Handling day clicks + highlight clicked day */
+/**************************
+ * EVENT HANDLERS
+ **************************/
+
+/*
+ * Handle clicks on calendar cells
+ * - Create notes on empty cell click
+ * - Handle range selection when in that mode
+ */
 document.addEventListener("click", (e) => {
   const td = e.target.closest("td");
   if (!td || !td.id || !td.id.includes("_")) return;
 
-  // don't add a new note if user clicked on an existing note or "extra" cell
+  // don't add a new note if user clicked on existing note or "extra" cell
   if (e.target.tagName === "TEXTAREA" || td.className.includes("extra")) return;
 
+  // If in range selection mode, handle it
   if (isSelectingRange) {
     handleRangeSelection(td);
     return;
   }
 
-  // highlight the cell briefly
+  // Highlight the cell with animation to show it was clicked
   td.classList.add("clicked-day");
   setTimeout(() => {
     td.classList.remove("clicked-day");
   }, 500);
 
+  // Add a new note
   const parentId = td.id;
   const newItem = generateItem(parentId, nextItemId());
   if (newItem) {
@@ -1061,25 +1326,38 @@ document.addEventListener("click", (e) => {
   }
 });
 
-/* Generate each day cell */
+/**************************
+ * CALENDAR RENDERING
+ **************************/
+
+/*
+ * Generate a day cell with proper styling and content
+ * @param {HTMLElement} dayCell - The table cell to populate
+ * @param {Date} date - The date for this cell
+ */
 function generateDay(dayCell, date) {
+  // Weekend styling (Saturday/Sunday)
   const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
   if (isWeekend) dayCell.className += " weekend";
 
+  // Alternate month highlighting
   const isShaded = (date.getMonth() % 2 === 1);
   if (isShaded) dayCell.className += " shaded";
 
+  // Highlight today's date
   const isToday =
     date.getFullYear() === todayDate.getFullYear() &&
     date.getMonth() === todayDate.getMonth() &&
     date.getDate() === todayDate.getDate();
   if (isToday) dayCell.className += " today";
 
+  // Mark current system date if different from today
   const isCurrentSystemDate =
     date.getFullYear() === systemToday.getFullYear() &&
     date.getMonth() === systemToday.getMonth() &&
     date.getDate() === systemToday.getDate();
 
+  // Set ID and add date display to cell
   dayCell.id = idForDate(date);
   dayCell.innerHTML = `
     <span>
@@ -1089,6 +1367,8 @@ function generateDay(dayCell, date) {
       ${isCurrentSystemDate && !isToday ? '<div class="current-day-dot"></div>' : ''}
     </span>
   `;
+
+  // Retrieve and populate any existing notes for this day
   lookupItemsForParentId(dayCell.id, (items) => {
     for (const it of items) {
       const note = generateItem(dayCell.id, it.itemId);
@@ -1100,12 +1380,20 @@ function generateDay(dayCell, date) {
   });
 }
 
-/* For Monday=0 -> Sunday=6 */
+/*
+ * Convert day of week to adjusted index (Monday = 0, Sunday = 6)
+ * @param {Date} date - Date to get day from
+ * @returns {number} Adjusted day index
+ */
 function getAdjustedDayIndex(date) {
   const day = date.getDay();
   return (day === 0) ? 6 : day - 1;
 }
 
+/*
+ * Prepend a week before the first visible week
+ * Used when scrolling up
+ */
 function prependWeek() {
   const weekRow = calendarTableElement.insertRow(0);
   let monthName = "";
@@ -1119,6 +1407,10 @@ function prependWeek() {
   } while (getAdjustedDayIndex(firstDate) !== 0);
 }
 
+/*
+ * Append a week after the last visible week
+ * Used when scrolling down
+ */
 function appendWeek() {
   const weekRow = calendarTableElement.insertRow(-1);
   let monthName = "";
@@ -1131,12 +1423,21 @@ function appendWeek() {
     generateDay(dayCell, new Date(lastDate));
   } while (getAdjustedDayIndex(lastDate) !== 6);
 
+  // Add month label in extra column
   const extra = weekRow.insertCell(-1);
   extra.className = "extra";
   extra.innerHTML = monthName;
 }
 
-/* Scrolling, Animation, & Loading Indicators */
+/**************************
+ * SCROLLING & POSITIONING
+ **************************/
+
+/*
+ * Calculate scroll position to center an element
+ * @param {HTMLElement} element - Element to scroll to
+ * @returns {number} Target Y scroll position
+ */
 function scrollPositionForElement(element) {
   let y = element.offsetTop;
   let node = element;
@@ -1148,10 +1449,21 @@ function scrollPositionForElement(element) {
   return y - (window.innerHeight - clientHeight) / 2;
 }
 
+// Variables for smooth scrolling animation
 let startTime, startY, goalY;
+
+/*
+ * Easing function for smooth scrolling
+ * @param {number} x - Progress from 0 to 1
+ * @returns {number} Eased value
+ */
 function curve(x) {
   return (x < 0.5) ? (4 * x * x * x) : (1 - 4 * (1 - x)*(1 - x)*(1 - x));
 }
+
+/*
+ * Animate scrolling to target position
+ */
 function scrollAnimation() {
   const percent = (new Date() - startTime) / 1000;
   if (percent > 1) {
@@ -1164,6 +1476,10 @@ function scrollAnimation() {
   }
 }
 
+/*
+ * Get current scroll position
+ * @returns {number} Current scroll position
+ */
 function documentScrollTop() {
   let scrollTop = document.body.scrollTop;
   if (document.documentElement) {
@@ -1171,6 +1487,11 @@ function documentScrollTop() {
   }
   return scrollTop;
 }
+
+/*
+ * Get total scrollable height
+ * @returns {number} Total document height
+ */
 function documentScrollHeight() {
   let scrollHeight = document.body.scrollHeight;
   if (document.documentElement) {
@@ -1178,6 +1499,10 @@ function documentScrollHeight() {
   }
   return scrollHeight;
 }
+
+/*
+ * Immediate scroll to today's date
+ */
 function scrollToToday() {
   const elem = document.getElementById(idForDate(todayDate));
   if (elem) {
@@ -1187,6 +1512,10 @@ function scrollToToday() {
     hideLoading();
   }
 }
+
+/*
+ * Smooth animated scroll to today's date
+ */
 function smoothScrollToToday() {
   showLoading();
   const elem = document.getElementById(idForDate(todayDate));
@@ -1201,20 +1530,30 @@ function smoothScrollToToday() {
   else hideLoading();
 }
 
-/* poll() for infinite scrolling & midnight crossing */
+/**************************
+ * INFINITE SCROLLING
+ **************************/
+
+/*
+ * Poll for scroll position to dynamically load content
+ * Used when IntersectionObserver isn't available
+ */
 function poll() {
+  // When near top, prepend weeks
   if (documentScrollTop() < 200) {
     const oldHeight = documentScrollHeight();
     for (let i = 0; i < 8; i++) prependWeek();
     window.scrollBy(0, documentScrollHeight() - oldHeight);
-  } else if (
+  }
+  // When near bottom, append weeks
+  else if (
     documentScrollTop() >
     documentScrollHeight() - window.innerHeight - 200
   ) {
     for (let i = 0; i < 8; i++) appendWeek();
   }
 
-  // crossing midnight?
+  // Check if we crossed midnight to update the current day
   const newSysDate = new Date();
   if (
     newSysDate.getDate() !== systemToday.getDate() ||
@@ -1229,10 +1568,16 @@ function poll() {
   }
 }
 
-// Throttled poll function
+// Throttled poll function to limit execution frequency
 const throttledPoll = throttle(poll, 200);
 
-/* Year View */
+/**************************
+ * YEAR VIEW
+ **************************/
+
+/*
+ * Show the year-at-a-glance view
+ */
 function showYearView() {
   const year = todayDate.getFullYear();
   document.getElementById('yearViewTitle').textContent = `${year} at a Glance`;
@@ -1339,40 +1684,70 @@ function showYearView() {
   document.getElementById('yearViewContainer').style.display = 'block';
 }
 
+/*
+ * Hide the year view
+ */
 function hideYearView() {
   document.getElementById('yearViewContainer').style.display = 'none';
 }
 
-/* loadCalendarAroundDate (no full reload) */
+/**************************
+ * CALENDAR INITIALIZATION
+ **************************/
+
+/*
+ * Load the calendar around a specific date
+ * @param {Date} seedDate - Center date for the calendar
+ */
 function loadCalendarAroundDate(seedDate) {
   showLoading();
   calendarTableElement.innerHTML = "";
   firstDate = new Date(seedDate);
+
+  // Find the start of the week containing the seed date
   while (getAdjustedDayIndex(firstDate) !== 0) {
     firstDate.setDate(firstDate.getDate() - 1);
   }
   lastDate = new Date(firstDate);
   lastDate.setDate(lastDate.getDate() - 1);
 
+  // Add initial week
   appendWeek();
+
+  // Add enough weeks to fill the viewport
   while (documentScrollHeight() <= window.innerHeight) {
     prependWeek();
     appendWeek();
   }
+
+  // Scroll to today and fix textarea heights
   setTimeout(() => {
     scrollToToday();
+    recalculateAllHeights(); // Ensure all textareas are properly sized
   }, 50);
 }
 
-/* Show/hide help overlay */
+/**************************
+ * UI CONTROLS
+ **************************/
+
+/*
+ * Show help overlay
+ */
 function showHelp() {
   document.getElementById("help").style.display = "block";
 }
+
+/*
+ * Hide help overlay
+ */
 function hideHelp() {
   document.getElementById("help").style.display = "none";
 }
 
-/* Toggle Dark Mode */
+/*
+ * Toggle dark/light mode
+ */
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
   if (document.body.classList.contains("dark-mode")) {
@@ -1384,23 +1759,33 @@ function toggleDarkMode() {
   }
 }
 
-// Setup IntersectionObserver for infinite scrolling
+/*
+ * Set up intersection observers for efficient infinite scrolling
+ */
 function setupScrollObservers() {
   const options = {
     rootMargin: '200px',
   };
 
+  // Observer for top of page (prepend weeks)
   const topObserver = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
       const oldHeight = documentScrollHeight();
       for (let i = 0; i < 8; i++) prependWeek();
       window.scrollBy(0, documentScrollHeight() - oldHeight);
+
+      // Make sure heights are calculated properly
+      recalculateAllHeights();
     }
   }, options);
 
+  // Observer for bottom of page (append weeks)
   const bottomObserver = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
       for (let i = 0; i < 8; i++) appendWeek();
+
+      // Make sure heights are calculated properly
+      recalculateAllHeights();
     }
   }, options);
 
@@ -1414,12 +1799,22 @@ function setupScrollObservers() {
   }
 }
 
+/*
+ * Generate a unique ID for new note items
+ * @returns {string} New item ID
+ */
 function nextItemId() {
   localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
   return "item" + localStorage.nextId;
 }
 
-/* Data load/save functions */
+/**************************
+ * DATA PERSISTENCE
+ **************************/
+
+/*
+ * Download calendar data as JSON file
+ */
 function downloadLocalStorageData() {
   showLoading();
   var data = {};
@@ -1441,6 +1836,9 @@ function downloadLocalStorageData() {
   }, 300);
 }
 
+/*
+ * Create a backup of calendar data
+ */
 function downloadBackupStorageData() {
   showLoading();
   var data = {};
@@ -1463,6 +1861,9 @@ function downloadBackupStorageData() {
   }, 300);
 }
 
+/*
+ * Load calendar data from a file
+ */
 function loadDataFromFile() {
   showLoading();
   var input = document.getElementById("fileInput");
@@ -1495,6 +1896,9 @@ function loadDataFromFile() {
   reader.readAsText(file);
 }
 
+/*
+ * Determine whether to load or export data based on timestamps
+ */
 async function shouldLoadOrExport() {
   showLoading();
   try {
@@ -1526,6 +1930,10 @@ async function shouldLoadOrExport() {
   }
 }
 
+/*
+ * Load data from a file handle
+ * @param {FileSystemFileHandle} fileHandle - Handle to the file
+ */
 async function loadDataFromFileHandle(fileHandle) {
   try {
     const file = await fileHandle.getFile();
@@ -1544,6 +1952,10 @@ async function loadDataFromFileHandle(fileHandle) {
   }
 }
 
+/*
+ * Export data to a file handle
+ * @param {FileSystemFileHandle} fileHandle - Handle to the file
+ */
 async function exportToFileHandle(fileHandle) {
   try {
     const writable = await fileHandle.createWritable();
@@ -1564,7 +1976,13 @@ async function exportToFileHandle(fileHandle) {
   }
 }
 
-/* 8. Initialization */
+/**************************
+ * INITIALIZATION
+ **************************/
+
+/*
+ * Initialize the calendar on page load
+ */
 window.onload = function () {
   calendarTableElement = document.getElementById("calendar");
   todayDate = new Date(systemToday);
@@ -1591,14 +2009,16 @@ window.onload = function () {
   if (localStorage.getItem("darkMode") === "enabled") {
     document.body.classList.add("dark-mode");
   }
+
+  // Make sure all textareas have correct heights
+  setTimeout(recalculateAllHeights, 100);
 };
 
-/* Recalculate textareas on window resize */
+/*
+ * Recalculate textarea heights on window resize
+ */
 window.addEventListener('resize', function() {
-  const textareas = document.querySelectorAll('textarea');
-  textareas.forEach(textarea => {
-    recalculateHeight(textarea.id);
-  });
+  recalculateAllHeights();
 });
   </script>
 </body>
