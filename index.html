@@ -43,13 +43,13 @@ body.dark-mode {
   text-align: right;
   vertical-align: top;
   width: 120px;
-  min-height: 120px; /* Ensure minimum height */
-  height: auto;
+  height: auto; /* Allow auto height */
+  min-height: 100px;
   cursor: pointer;
   box-sizing: border-box;
   word-wrap: break-word;
   white-space: normal;
-  overflow: visible; /* Changed from hidden to allow content to display properly */
+  overflow: visible; /* Let content flow out naturally */
 }
 
 #calendar td:hover {
@@ -302,7 +302,7 @@ body.dark-mode input[type="date"] {
   transform: translateY(-50%) translateX(-5px);
 }
 
-/* Better note textareas */
+/* Better note textareas - now with auto height */
 textarea {
   font-family: 'Inter', sans-serif;
   padding: 8px;
@@ -320,8 +320,7 @@ textarea {
   resize: none;
   box-sizing: border-box;
   display: block;
-  overflow-y: auto; /* Allow scrolling for longer notes */
-  max-height: 150px; /* Limit height with scrolling */
+  overflow: hidden; /* Hide scrollbars */
   word-wrap: break-word;
 }
 
@@ -623,25 +622,16 @@ function idForDate(date) {
   return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
 }
 
-// Improved height calculation to handle varying content
+// Updated function to automatically resize the textarea to fit content
 function recalculateHeight(itemId) {
   const item = document.getElementById(itemId);
   if (!item) return;
 
-  // Set minimum height
-  const minHeight = 24;
-
-  // Reset height for proper calculation
+  // Set initial height to 0 for accurate scrollHeight calculation
   item.style.height = "0px";
 
-  // Calculate required height based on content (limit max height)
-  const newHeight = Math.max(minHeight, Math.min(item.scrollHeight + itemPaddingBottom, 150));
-
-  // Apply new height
-  item.style.height = newHeight + "px";
-
-  // Show/hide scrollbar as needed
-  item.style.overflowY = item.scrollHeight > 150 ? "auto" : "hidden";
+  // Set the height to scrollHeight to fit all content
+  item.style.height = (item.scrollHeight + itemPaddingBottom) + "px";
 }
 
 function keydownHandler(e) {
@@ -1086,6 +1076,15 @@ window.onload = function () {
     jumpDateField.value = `${yyyy}-${mm}-${dd}`;
   }
 };
+
+// Add a resize event handler to adjust textareas when window is resized
+window.addEventListener('resize', function() {
+  // Find all textareas and recalculate their heights
+  const textareas = document.querySelectorAll('textarea');
+  textareas.forEach(textarea => {
+    recalculateHeight(textarea.id);
+  });
+});
   </script>
 </body>
 </html>
