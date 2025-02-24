@@ -8,11 +8,23 @@ License: MIT License (see below)
 Copyright 2010 Evan Wallace
 Copyright 2024 Jay Dixit
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
 
-The software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
+The software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties of
+merchantability, fitness for a particular purpose and noninfringement.
+In no event shall the authors or copyright holders be liable for any claim,
+damages or other liability, whether in an action of contract, tort or otherwise,
+arising from, out of or in connection with the software or the use or other
+dealings in the software.
 */
 
 /*
@@ -23,66 +35,19 @@ An appreciative fork of Continuous Calendar by Evan Wallace (https://madebyevan.
 License: MIT License (see below)
 */
 
+/*******************
+ * 1. Setup: systemToday (the real system date) vs. todayDate (current focus)
+ *******************/
 
-
-////////////////////////////////////////////////////////////////////////
-// 1. ADD A WEEKEND HIGHLIGHT CSS STYLE (inline):
-////////////////////////////////////////////////////////////////////////
-
-document.write(`
-<style>
-  /* Very simple weekend highlight */
-  .weekend {
-    background-color: #f0f7ff; /* light bluish background for weekends */
-  }
-</style>
-`);
-
-
-
-////////////////////////////////////////////////////////////////////////
-// 4. QUICK DATE JUMP UI:
-//    We inject an <input type="date"> and "Go" button into your header
-////////////////////////////////////////////////////////////////////////
-
-document.write(`
-  <div style="margin: 0.5em;">
-    <input type="date" id="jumpDate" style="max-width: 150px;">
-    <button onclick="jumpToDate()" title="Jump to date">Go</button>
-    <button onclick="undoLastChange()" title="Undo last change">Undo</button>
-  </div>
-`);
-
-/* Jump to the specified date in <input type="date" id="jumpDate"> */
-
-
-// keep track of system date separately
+// The real system date, which we do not overwrite during normal usage
 let systemToday = new Date();
-// keep track of user-chosen jump date
-let jumpDateVar = null;
 
-function jumpToDate() {
-  const val = document.getElementById("jumpDate").value;
-  if (!val) return;
-  const [yyyy, mm, dd] = val.split("-");
-  jumpDateVar = new Date(yyyy, mm - 1, dd);
-  loadCalendarAroundDate(jumpDateVar);
-}
+// The user-chosen or current "focus" date for the calendar
+let todayDate;
 
-
-////////////////////////////////////////////////////////////////////////
-// 1. Track two dates:
-//    systemToday = the real system date (don't overwrite this)
-//    todayDate = the "calendar reference" date (the user-chosen date,
-//                or system date at initial load)
-////////////////////////////////////////////////////////////////////////
-
-let systemToday = new Date(); // the real system date
-let todayDate;                // the date we generate the calendar around
-
-////////////////////////////////////////////////////////////////////////
-// 2. GLOBAL UNDO STACK
-////////////////////////////////////////////////////////////////////////
+/*******************
+ * 2. GLOBAL UNDO STACK
+ *******************/
 
 let undoStack = [];
 const MAX_UNDO = 5;
@@ -108,7 +73,7 @@ function undoLastChange() {
   const lastSnapshotStr = undoStack.pop();
   if (!lastSnapshotStr) return;
 
-  // restore localStorage
+  // Restore localStorage
   localStorage.clear();
   const snapshotData = JSON.parse(lastSnapshotStr);
   for (const key in snapshotData) {
@@ -117,33 +82,35 @@ function undoLastChange() {
   location.reload();
 }
 
-////////////////////////////////////////////////////////////////////////
-// 3. KEYBOARD NAVIGATION
-////////////////////////////////////////////////////////////////////////
+/*******************
+ * 3. KEYBOARD NAVIGATION
+ *    - ArrowUp / ArrowDown = scroll half screen
+ *    - T/t = jump back to systemToday
+ *******************/
 
 document.addEventListener("keydown", (e) => {
-  // If typing in a note, don't override arrow keys
-  if (e.target && e.target.tagName.toLowerCase() === "textarea") {
-    return;
-  }
+  // Don't override arrow keys if typing in a note
+  if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
 
   if (e.key === "ArrowUp") {
     window.scrollBy(0, -window.innerHeight / 2);
   } else if (e.key === "ArrowDown") {
     window.scrollBy(0, window.innerHeight / 2);
   } else if (e.key === "t" || e.key === "T") {
-    // -------------- Always go to systemToday here:
-    todayDate = new Date(systemToday); // clone the system date
+    // Revert to real system date
+    todayDate = new Date(systemToday);
     loadCalendarAroundDate(todayDate);
   }
 });
 
-////////////////////////////////////////////////////////////////////////
-// 4. QUICK DATE JUMP
-////////////////////////////////////////////////////////////////////////
+/*******************
+ * 4. QUICK DATE JUMP
+ *    We assume there's <input type="date" id="jumpDate"> in index.html
+ *    and a "Go" button that calls jumpToDate().
+ *******************/
 
 function jumpToDate() {
-  const val = document.getElementById("jumpDate").value;
+  const val = document.getElementById("jumpDate")?.value;
   if (!val) return;
   const [yyyy, mm, dd] = val.split("-");
   const jumpDateObj = new Date(yyyy, mm - 1, dd);
@@ -151,19 +118,22 @@ function jumpToDate() {
   loadCalendarAroundDate(todayDate);
 }
 
-////////////////////////////////////////////////////////////////////////
-// 5. STORING FULL DATES
-////////////////////////////////////////////////////////////////////////
+/*******************
+ * 5. STORING FULL DATES (YYYY-MM-DD)
+ *******************/
 
 function parseDateFromId(idStr) {
-  // e.g., "5_6_2024" => "2024-06-05"
+  // e.g. "5_6_2024" => "2024-06-05"
   const parts = idStr.split("_");
   if (parts.length !== 3) return null;
   let [month, day, year] = parts.map((p) => parseInt(p));
-  const realMonth = month + 1;
-  const iso = `${year.toString().padStart(4,"0")}-${String(realMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-  return iso;
+  const realMonth = month + 1; // months are 0-based in JS
+  return `${year.toString().padStart(4,"0")}-${String(realMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
 }
+
+/*******************
+ * storeValueForItemId & removeValueForItemId
+ *******************/
 
 function storeValueForItemId(itemId) {
   pushUndoState();
@@ -172,14 +142,14 @@ function storeValueForItemId(itemId) {
   const parentId = item.parentNode.id;
   localStorage[itemId] = item.value;
 
-  // keep track of items
+  // keep track of items in this parent day
   const parentIdsToItemIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
   if (!parentIdsToItemIds.includes(itemId)) {
     parentIdsToItemIds.push(itemId);
     localStorage[parentId] = parentIdsToItemIds;
   }
 
-  // also store ISO date
+  // Also store in YYYY-MM-DD format for ICS usage
   const isoDate = parseDateFromId(parentId);
   if (isoDate) {
     localStorage[isoDate] = item.value;
@@ -205,23 +175,22 @@ function removeValueForItemId(itemId) {
     }
   }
 
-  // also remove ISO
+  // Also remove ISO
   const isoDate = parseDateFromId(parentId);
   if (isoDate && localStorage[isoDate]) {
     delete localStorage[isoDate];
   }
 }
 
-/* ... your existing code for loadDataFromFile, exportToFileHandle, etc. ... */
-
-////////////////////////////////////////////////////////////////////////
-// Infinite Calendar Logic
-////////////////////////////////////////////////////////////////////////
+/*******************
+ * Infinite Calendar Logic
+ *******************/
 
 var calendarTableElement;
 var firstDate;
 var lastDate;
-var itemPaddingBottom = navigator.userAgent.indexOf("Firefox") != -1 ? 2 : 0;
+var itemPaddingBottom = navigator.userAgent.indexOf("Firefox") !== -1 ? 2 : 0;
+
 var months = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December"
@@ -229,6 +198,7 @@ var months = [
 var daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
 
 function idForDate(date) {
+  // e.g. returns "5_6_2024"
   return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
 }
 
@@ -271,9 +241,13 @@ function generateItem(parentId, itemId) {
   return item;
 }
 
+/*
+ * Clicking on a day to add a new note
+ */
 document.onclick = function(e) {
   const parentId = e.target.id;
-  if (parentId.indexOf("_") === -1) return;
+  // only proceed if the clicked element's ID looks like "5_6_2024"
+  if (!parentId.includes("_")) return;
 
   const newItem = generateItem(parentId, nextItemId());
   recalculateHeight(newItem.id);
@@ -281,34 +255,43 @@ document.onclick = function(e) {
   newItem.focus();
 };
 
-function generateDay(day, date) {
-  // weekend highlight
-  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+/*******************
+ * generateDay: fill each table cell with date info, notes, etc.
+ *******************/
+
+function generateDay(dayCell, date) {
+  // highlight weekends
+  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
   if (isWeekend) {
-    day.className += " weekend";
+    dayCell.className += " weekend";
   }
 
-  const isShaded = (date.getMonth() % 2) === 1;
+  // highlight every-other-month
+  const isShaded = (date.getMonth() % 2 === 1);
   if (isShaded) {
-    day.className += " shaded";
+    dayCell.className += " shaded";
   }
 
+  // highlight "today" (the user-chosen date)
   const isToday =
     date.getFullYear() === todayDate.getFullYear() &&
     date.getMonth() === todayDate.getMonth() &&
     date.getDate() === todayDate.getDate();
   if (isToday) {
-    day.className += " today";
+    dayCell.className += " today";
   }
 
-  day.id = idForDate(date);
-  day.innerHTML = `<span>${daysOfWeek[getAdjustedDayIndex(date)]}
-                   ${months[date.getMonth()]}
-                   ${date.getDate()}</span>`;
+  dayCell.id = idForDate(date);
+  dayCell.innerHTML = `
+    <span>${daysOfWeek[getAdjustedDayIndex(date)]}
+          ${months[date.getMonth()]}
+          ${date.getDate()}</span>
+  `;
 
-  lookupItemsForParentId(day.id, (items) => {
+  // retrieve existing notes for this day
+  lookupItemsForParentId(dayCell.id, (items) => {
     for (const it of items) {
-      const note = generateItem(day.id, it.itemId);
+      const note = generateItem(dayCell.id, it.itemId);
       note.value = it.itemValue;
       recalculateHeight(note.id);
     }
@@ -322,34 +305,39 @@ function getAdjustedDayIndex(date) {
 }
 
 function prependWeek() {
-  const week = calendarTableElement.insertRow(0);
+  const weekRow = calendarTableElement.insertRow(0);
   let monthName = "";
   do {
     firstDate.setDate(firstDate.getDate() - 1);
     if (firstDate.getDate() === 1) {
       monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
     }
-    const dayCell = week.insertCell(0);
+    const dayCell = weekRow.insertCell(0);
     generateDay(dayCell, new Date(firstDate));
   } while (getAdjustedDayIndex(firstDate) !== 0);
 }
 
 function appendWeek() {
-  const week = calendarTableElement.insertRow(-1);
+  const weekRow = calendarTableElement.insertRow(-1);
   let monthName = "";
   do {
     lastDate.setDate(lastDate.getDate() + 1);
     if (lastDate.getDate() === 1) {
       monthName = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
     }
-    const dayCell = week.insertCell(-1);
+    const dayCell = weekRow.insertCell(-1);
     generateDay(dayCell, new Date(lastDate));
   } while (getAdjustedDayIndex(lastDate) !== 6);
 
-  const extra = week.insertCell(-1);
+  // an "extra" cell for month name
+  const extra = weekRow.insertCell(-1);
   extra.className = "extra";
   extra.innerHTML = monthName;
 }
+
+/*******************
+ * Scrolling & Animation
+ *******************/
 
 function scrollPositionForElement(element) {
   let y = element.offsetTop;
@@ -362,16 +350,15 @@ function scrollPositionForElement(element) {
   return y - (window.innerHeight - clientHeight) / 2;
 }
 
-function scrollToToday() {
-  const tCell = document.getElementById(idForDate(todayDate));
-  if (!tCell) return;
-  window.scrollTo(0, scrollPositionForElement(tCell));
-}
-
-let startTime, startY, goalY;
+let startTime;
+let startY;
+let goalY;
 
 function curve(x) {
-  return x < 0.5 ? 4 * x * x * x : 1 - 4 * (1 - x) * (1 - x) * (1 - x);
+  // cubic easing
+  return (x < 0.5)
+    ? (4 * x * x * x)
+    : (1 - 4 * (1 - x) * (1 - x) * (1 - x));
 }
 
 function scrollAnimation() {
@@ -410,16 +397,28 @@ function smoothScrollToToday() {
   if (goalY !== startY) setTimeout(scrollAnimation, 10);
 }
 
+/*******************
+ * poll() function for infinite scrolling & updating system date
+ *******************/
+
 function poll() {
+  // add more weeks so user can scroll infinitely
   if (documentScrollTop() < 200) {
-    const oldScrollHeight = documentScrollHeight();
-    for (let i = 0; i < 8; i++) prependWeek();
-    window.scrollBy(0, documentScrollHeight() - oldScrollHeight);
-  } else if (documentScrollTop() > documentScrollHeight() - window.innerHeight - 200) {
-    for (let i = 0; i < 8; i++) appendWeek();
+    const oldHeight = documentScrollHeight();
+    for (let i = 0; i < 8; i++) {
+      prependWeek();
+    }
+    window.scrollBy(0, documentScrollHeight() - oldHeight);
+  } else if (
+    documentScrollTop() >
+    documentScrollHeight() - window.innerHeight - 200
+  ) {
+    for (let i = 0; i < 8; i++) {
+      appendWeek();
+    }
   }
 
-  // update if the system date changed (like crossing midnight):
+  // If you want to detect crossing midnight, update systemToday
   const newSysDate = new Date();
   if (
     newSysDate.getDate() !== systemToday.getDate() ||
@@ -430,10 +429,16 @@ function poll() {
   }
 }
 
+/*******************
+ * loadCalendarAroundDate(seedDate)
+ *******************/
+
 function loadCalendarAroundDate(seedDate) {
+  // Clear existing rows
   calendarTableElement.innerHTML = "";
-  // find the Monday prior
+
   firstDate = new Date(seedDate);
+  // find the Monday prior
   while (getAdjustedDayIndex(firstDate) !== 0) {
     firstDate.setDate(firstDate.getDate() - 1);
   }
@@ -441,6 +446,7 @@ function loadCalendarAroundDate(seedDate) {
   lastDate = new Date(firstDate);
   lastDate.setDate(lastDate.getDate() - 1);
 
+  // fill initial weeks
   appendWeek();
   while (documentScrollHeight() <= window.innerHeight) {
     prependWeek();
@@ -450,46 +456,54 @@ function loadCalendarAroundDate(seedDate) {
   setTimeout(scrollToToday, 50);
 }
 
-window.onload = function() {
+/*******************
+ * Window onload: set up the table, load around systemToday, start poll
+ *******************/
+
+window.onload = function () {
   calendarTableElement = document.getElementById("calendar");
-  // initial "todayDate" is the system date
+  // Use the real system date as the initial focus
   todayDate = new Date(systemToday);
   loadCalendarAroundDate(todayDate);
+
   setInterval(poll, 100);
 };
 
-function showHelp() {
-  document.getElementById("help").style.display = "block";
-}
-function hideHelp() {
-  document.getElementById("help").style.display = "none";
-}
-
-
-////////////////////////////////////////////////////////////////////////
-// BELOW IS YOUR ORIGINAL CODE, with MINIMAL MODIFICATIONS annotated
-////////////////////////////////////////////////////////////////////////
+/*******************
+ * nextItemId, load/save data, help overlay, etc.
+ *******************/
 
 function nextItemId() {
   localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
   return "item" + localStorage.nextId;
 }
 
-// callback expects a list of objects with the itemId and itemValue properties set
+// callback expects a list of objects with itemId & itemValue
 function lookupItemsForParentId(parentId, callback) {
   if (localStorage[parentId]) {
-    var parentIdsToItemIds = localStorage[parentId].split(",");
-    var itemList = [];
-
-    for (var itemIndex in parentIdsToItemIds) {
-      var itemId = parentIdsToItemIds[itemIndex];
-      var itemValue = localStorage[itemId];
-      itemList.push({ itemId: itemId, itemValue: itemValue });
+    const ids = localStorage[parentId].split(",");
+    const itemList = [];
+    for (const itemId of ids) {
+      const itemValue = localStorage[itemId];
+      itemList.push({ itemId, itemValue });
     }
-
     callback(itemList);
   }
 }
+
+function showHelp() {
+  document.getElementById("help").style.display = "block";
+}
+
+function hideHelp() {
+  document.getElementById("help").style.display = "none";
+}
+
+/*
+   The rest of your data loading/saving code (exportToFileHandle,
+   loadDataFromFile, etc.) can go here if needed
+*/
+
 
 function storeValueForItemId(itemId) {
   // Push current localStorage state before making changes
@@ -996,11 +1010,3 @@ window.onload = function () {
   loadCalendarAroundDate(todayDate);
   setInterval(poll, 100);
 };
-
-function showHelp() {
-  document.getElementById("help").style.display = "block";
-}
-function hideHelp() {
-  document.getElementById("help").style.display = "none";
-}
-
