@@ -1472,41 +1472,154 @@ document.addEventListener('click', (evt) => {
  ****/
 
 document.addEventListener("keydown", (e) => {
-  if (e.target && e.target.tagName.toLowerCase() === "textarea") {
-    // If focus is in a textarea, let it handle arrow keys
+  // If user is typing in a textarea or an input, ignore shortcuts
+  if (
+    e.target &&
+    (e.target.tagName.toLowerCase() === "textarea" ||
+     e.target.tagName.toLowerCase() === "input")
+  ) {
     return;
   }
 
-  // 1) Let normal Up/Down pass through to the browser
-  //    (so it scrolls line-by-line or page-by-page in a normal way)
-  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-    // Do nothing => default browser behavior
-    return;
-  }
+  switch (e.key) {
+    /************************
+     * 1. ESC: close overlays or cancel selection
+     ************************/
+    case "Escape":
+      // If help is open, close it
+      const helpElem = document.getElementById("help");
+      if (helpElem && helpElem.style.display === "block") {
+        hideHelp();
+        return;
+      }
 
-  // 2) Implement "Alt+Down" => jump to next month
-  if (e.key === "ArrowDown" && e.altKey) {
-    e.preventDefault(); // stop the browser from default arrow scrolling
-    jumpOneMonthForward();
-    return;
-  }
+      // If yearView is open, close it
+      const yearViewElem = document.getElementById("yearViewContainer");
+      if (yearViewElem && yearViewElem.style.display === "block") {
+        hideYearView();
+        return;
+      }
 
-  // 3) "T" => Jump to today
-  if (e.key === "t" || e.key === "T") {
-    todayDate = new Date(systemToday);
-    loadCalendarAroundDate(todayDate);
-  }
+      // If we’re selecting a range, cancel it
+      if (isSelectingRange) {
+        clearRangeSelection();
+        isSelectingRange = false;
+        showToast("Range selection cancelled");
+        return;
+      }
+      break;
 
-  // 4) Ctrl+D => Toggle dark mode
-  else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !e.shiftKey && !e.altKey) {
-    e.preventDefault();
-    toggleDarkMode();
+
+
+
+    /************************
+     * 2. Question Mark (?): toggle help overlay
+     ************************/
+    case "?":
+      // Toggle help. If it’s open, hide it; otherwise, show it
+      const isHelpOpen = (document.getElementById("help").style.display === "block");
+      if (isHelpOpen) hideHelp();
+      else showHelp();
+      e.preventDefault();
+      break;
+
+    /************************
+     * 3. Ctrl+Z or 'z': Undo
+     ************************/
+    case "z":
+    case "Z":
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl+Z => also undo
+        e.preventDefault();
+        undoLastChange();
+      } else {
+        // Plain 'z' => also do undo (unless you only want Ctrl+Z)
+        e.preventDefault();
+        undoLastChange();
+      }
+      break;
+
+    /************************
+     * 4. 'y': Toggle Year View
+     ************************/
+    case "y":
+    case "Y":
+      // If year view is open => close, else => open
+      const yv = document.getElementById("yearViewContainer");
+      if (yv && yv.style.display === "block") hideYearView();
+      else showYearView();
+      e.preventDefault();
+      break;
+
+    /************************
+     * 5. 'g': Focus Jump-to-Date input
+     ************************/
+    case "g":
+    case "G":
+      const jumpDateField = document.getElementById("jumpDate");
+      if (jumpDateField) {
+        jumpDateField.focus();
+      }
+      e.preventDefault();
+      break;
+
+    /************************
+     * 6. Day-by-day nav with Left/Right arrow
+     *    (while not interfering with Up/Down)
+     ************************/
+    case "ArrowLeft":
+      e.preventDefault();
+      stepDay(-1); // move 1 day backward
+      break;
+    case "ArrowRight":
+      e.preventDefault();
+      stepDay(+1); // move 1 day forward
+      break;
+
+
+    /************************
+     * 7. 't' => jump to today
+     **************************************/
+    case "t":
+    case "T":
+      todayDate = new Date(systemToday);
+      loadCalendarAroundDate(todayDate);
+      break;
+
+    /************************************************
+     * 8. Ctrl+D => toggle dark mode
+     ************************************************/
+    default:
+      if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        toggleDarkMode();
+      }
+      break;
   }
 });
 
 /****
  * JUMP & LOAD
  ****/
+
+function stepDay(delta) {
+  // Move todayDate by delta days
+  if (!todayDate) todayDate = new Date(systemToday);
+  todayDate.setDate(todayDate.getDate() + delta);
+
+  // Re-load calendar around that date
+  loadCalendarAroundDate(todayDate);
+
+  // Optionally smooth scroll to that day
+  setTimeout(() => {
+    const elem = document.getElementById(idForDate(todayDate));
+    if (!elem) return;
+    goalY = scrollPositionForElement(elem);
+    startY = documentScrollTop();
+    startTime = new Date();
+    if (goalY !== startY) setTimeout(scrollAnimation, 10);
+  }, 200);
+}
 
 function jumpOneMonthForward() {
   // Parse currentVisibleMonth => "MonthName Year"
