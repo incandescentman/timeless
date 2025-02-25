@@ -14,291 +14,290 @@
   />
 
   <style>
-/*
- * CSS Variables for consistent theming
- */
-:root {
- --border-width: 1px;
- --border-color: black;
- --header-height: 27px;
- --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
- --cell-min-height: 120px;
+    /*
+     * CSS Variables for consistent theming
+     */
+    :root {
+     --border-width: 1px;
+     --border-color: black;
+     --header-height: 27px;
+     --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+     --cell-min-height: 120px;
 
-  /* Light mode colors */
- --bg-primary: white;
- --bg-pattern: #e2e8f0;
- --text-primary: black;
- --weekend-gradient-from: #f8f9fa;
- --weekend-gradient-to: #e9ecef;
- --shaded-month: #CFE7FF;
- --today-gradient-from: rgba(229, 62, 62, 0.9);
- --today-gradient-to: rgba(197, 48, 48, 0.9);
- --month-boundary: #aaa;
- --header-gradient-from: #f8f9fa;
- --header-gradient-to: #e9ecef;
- --month-heading-bg: white;
- --month-heading-text: #333;
-}
+      /* Light mode colors */
+     --bg-primary: white;
+     --bg-pattern: #e2e8f0;
+     --text-primary: black;
+     --weekend-gradient-from: #f8f9fa;
+     --weekend-gradient-to: #e9ecef;
+     --shaded-month: #CFE7FF;
+     --today-gradient-from: rgba(229, 62, 62, 0.9);
+     --today-gradient-to: rgba(197, 48, 48, 0.9);
+     --month-boundary: #aaa;
+     --header-gradient-from: #f8f9fa;
+     --header-gradient-to: #e9ecef;
+     --month-heading-bg: white;
+     --month-heading-text: #333;
+    }
 
-/*
- * Dark mode colors
- */
-body.dark-mode {
- --bg-primary: #222;
- --bg-pattern: rgba(255, 255, 255, 0.05);
- --text-primary: #eee;
- --weekend-gradient-from: #303542;
- --weekend-gradient-to: #232731;
- --shaded-month: #2a2a2a;
- --today-gradient-from: rgba(229, 62, 62, 0.8);
- --today-gradient-to: rgba(197, 48, 48, 0.8);
- --month-boundary: #555;
- --header-gradient-from: #2c3e50;
- --header-gradient-to: #1a1a2e;
- --month-heading-bg: #2c2c2c;
- --month-heading-text: #ddd;
-}
+    /*
+     * Dark mode colors
+     */
+    body.dark-mode {
+     --bg-primary: #222;
+     --bg-pattern: rgba(255, 255, 255, 0.05);
+     --text-primary: #eee;
+     --weekend-gradient-from: #303542;
+     --weekend-gradient-to: #232731;
+     --shaded-month: #2a2a2a;
+     --today-gradient-from: rgba(229, 62, 62, 0.8);
+     --today-gradient-to: rgba(197, 48, 48, 0.8);
+     --month-boundary: #555;
+     --header-gradient-from: #2c3e50;
+     --header-gradient-to: #1a1a2e;
+     --month-heading-bg: #2c2c2c;
+     --month-heading-text: #ddd;
+    }
 
-/*
- * Base styles and resets
- */
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color 0.5s, color 0.5s;
-  background-image: radial-gradient(var(--bg-pattern) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
+    /*
+     * Base styles and resets
+     */
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.5s, color 0.5s;
+      background-image: radial-gradient(var(--bg-pattern) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
 
-/*
- * Fixed header bar styling
- */
-#header {
-  background: linear-gradient(135deg, var(--header-gradient-from) 0%, var(--header-gradient-to) 100%);
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  border-bottom: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
+    /* Parallax background element */
+    .parallax-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(200,200,255,0.3), rgba(240,240,255,0.3));
+      background-attachment: fixed;
+      z-index: -1;
+    }
+
+    /*
+     * Fixed header bar styling
+     */
+    #header {
+      background: linear-gradient(135deg, var(--header-gradient-from) 0%, var(--header-gradient-to) 100%);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+      border-bottom: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-height);
+      line-height: var(--header-height);
+      z-index: 999;
+    }
+
+    /* Mini-calendar widget in header */
+/* New styles for the mini calendar */
+#miniCalendar {
   position: fixed;
-  top: 0; left: 0; right: 0;
-  height: var(--header-height);
-  line-height: var(--header-height);
-  z-index: 999; /* Keep header above all other content */
-}
-
-/*
- * A second fixed bar for the current month heading
- * Sits below #header
- */
-#stickyMonthHeader {
-  position: fixed;
-  top: calc(var(--header-height) + 20px);
-  left: 0;
-  width: 100%;
-  font-family: 'Playfair Display', serif;
-  font-size: 20px;
-  font-weight: 600;
-  padding: 5px 20px;
-  background: var(--month-heading-bg);
-  color: var(--month-heading-text);
-  z-index: 998; /* Just below the main header */
-  display: none; /* Becomes visible once we have a month name */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  text-align: center;
-  border-radius: 0 0 4px 4px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-/*
- * Container for the calendar
- */
-#calendarContainer {
-  margin-top: 100px; /* avoid header overlap */
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/*
- * "Timeless" logo/link styling
- */
-a.timeless {
-  font-size: 137%;
-  text-decoration: none;
-  background: linear-gradient(to bottom, #E0E0E0, #CFE7FF);
-  box-shadow: var(--shadow);
-  color: #000;
-  padding: 3px 10px;
-  border-radius: 4px;
-  display: inline-block;
-  transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-a.timeless:hover {
-  background: linear-gradient(to bottom, #D0D0FF, #B0C0E7);
-}
-a.timeless:active {
-  color: #FFF;
-  background: linear-gradient(to bottom, #909090, #707070);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  transform: translateY(2px);
-}
-
-/*
- * Button styling
- */
-a.button, button {
-  font-size: 16px;
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: none;
-  background: white;
-  color: #444;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin: 0 5px;
-  transition: all 0.3s;
-  position: relative;
-  text-decoration: none;
-  display: inline-block;
-  line-height: 15px;
-}
-a.button:hover, button:hover {
-  background: #f8f9fa;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/*
- * Dark mode button styling
- */
-body.dark-mode a.button, body.dark-mode button {
-  background: #3a3a3a;
-  color: #cbd5e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-body.dark-mode a.button:hover, body.dark-mode button:hover {
-  background: #4a4a4a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-/*
- * Tooltip for buttons
- */
-.button::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: 50%; right: 105%;
+  left: 10px;              /* Positioned on the left side */
+  top: 50%;                /* Center vertically */
   transform: translateY(-50%);
-  background-color: #333;
-  color: #fff;
-  padding: 5px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s;
-  z-index: 1000;
-}
-.button:hover::after {
-  opacity: 1;
-  transform: translateY(-50%) translateX(-5px);
+  padding: 10px;
+  border-radius: 5px;
+  /* No background color so the dot grid shows through */
+  background: transparent;
+  box-shadow: none;
 }
 
-/*
- * Date picker input styling
- */
-input[type="date"] {
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  padding: 6px 12px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-}
-body.dark-mode input[type="date"] {
-  background: #2d2d2d;
-  border-color: #4a4a4a;
-  color: #cbd5e0;
-}
 
-/*
- * Help overlay styling
- */
-#help {
-  display: none;
-  position: fixed;
-  left: 0; right: 0;
-  bottom: 0; top: 0;
-  background: rgba(0,0,0,0.75);
-  z-index: 2000;
-}
-#help div {
-  text-align: right;
-  margin: 150px auto;
-  width: 400px;
-  height: auto;
-  padding: 20px;
-  color: black;
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-  background: white;
-}
-#help ul {
-  margin: 0;
-  padding: 0 0 20px 20px;
-  text-align: left;
-  line-height: 1.5;
-}
+    /*
+     * A second fixed bar for the current month heading
+     */
+    #stickyMonthHeader {
+      position: fixed;
+      top: calc(var(--header-height) + 20px);
+      left: 0;
+      width: 100%;
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 600;
+      padding: 5px 20px;
+      background: var(--month-heading-bg);
+      color: var(--month-heading-text);
+      z-index: 998;
+      display: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      text-align: center;
+      border-radius: 0 0 4px 4px;
+      transition: background-color 0.3s, color 0.3s;
+    }
 
-/*
- * Main calendar table styling
- */
-#calendar {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-  table-layout: fixed;
-  border-spacing: 3px;
-  border: none;
-}
+    /*
+     * Container for the calendar
+     */
+    #calendarContainer {
+      margin-top: 100px;
+      animation: fadeIn 0.5s ease-out;
+    }
 
-/*
- * Animate newly added rows
- */
-.week-row-animate {
-  animation: none;
-}
-@keyframes slideInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideInDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.week-row-animate.append-animate {
-  animation: slideInUp 0.3s ease-out forwards;
-}
-.week-row-animate.prepend-animate {
-  animation: slideInDown 0.3s ease-out forwards;
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-/*
- * Calendar day cells
- */
+    /*
+     * "Timeless" logo/link styling
+     */
+    a.timeless {
+      font-size: 137%;
+      text-decoration: none;
+      background: linear-gradient(to bottom, #E0E0E0, #CFE7FF);
+      box-shadow: var(--shadow);
+      color: #000;
+      padding: 3px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    a.timeless:hover {
+      background: linear-gradient(to bottom, #D0D0FF, #B0C0E7);
+    }
+    a.timeless:active {
+      color: #FFF;
+      background: linear-gradient(to bottom, #909090, #707070);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transform: translateY(2px);
+    }
+
+    /*
+     * Button styling
+     */
+    a.button, button {
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: none;
+      background: white;
+      color: #444;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin: 0 5px;
+      transition: all 0.3s;
+      position: relative;
+      text-decoration: none;
+      display: inline-block;
+      line-height: 15px;
+    }
+    a.button:hover, button:hover {
+      background: #f8f9fa;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    body.dark-mode a.button, body.dark-mode button {
+      background: #3a3a3a;
+      color: #cbd5e0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    body.dark-mode a.button:hover, body.dark-mode button:hover {
+      background: #4a4a4a;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /*
+     * Tooltip for buttons
+     */
+    .button::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 50%; right: 105%;
+      transform: translateY(-50%);
+      background-color: #333;
+      color: #fff;
+      padding: 5px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 1000;
+    }
+    .button:hover::after {
+      opacity: 1;
+      transform: translateY(-50%) translateX(-5px);
+    }
+
+    /*
+     * Date picker input styling
+     */
+    input[type="date"] {
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      padding: 6px 12px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+    body.dark-mode input[type="date"] {
+      background: #2d2d2d;
+      border-color: #4a4a4a;
+      color: #cbd5e0;
+    }
+
+    /*
+     * Help overlay styling
+     */
+    #help {
+      display: none;
+      position: fixed;
+      left: 0; right: 0;
+      bottom: 0; top: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 2000;
+    }
+    #help div {
+      text-align: right;
+      margin: 150px auto;
+      width: 400px;
+      height: auto;
+      padding: 20px;
+      color: black;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      background: white;
+    }
+    #help ul {
+      margin: 0;
+      padding: 0 0 20px 20px;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    /*
+     * Main calendar table styling (card-style day cells)
+     */
+    #calendar {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      table-layout: fixed;
+      border-spacing: 3px;
+      border: none;
+    }
+
 #calendar td {
   padding: 12px 16px;
   border-radius: 10px;
   border: none;
+  background: transparent; /* changed from var(--bg-primary) */
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
   margin: 2px;
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
@@ -315,1458 +314,1271 @@ body.dark-mode input[type="date"] {
   position: relative;
 }
 
-/*
- * Hover effect
- */
-#calendar td:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
-  background-color: rgba(0,0,0,0.02);
-}
-
-/* Turn off pointer and hover styles for .extra cells */
-#calendar td.extra {
-  cursor: default;
-}
-
-#calendar td.extra:hover {
-  transform: none;
-  box-shadow: none;
-  background-color: transparent;
-}
-
-/*
- * Additional style for keyboard-focused cell
- * so user sees which day is selected
- */
-.keyboard-focus {
-  outline: 2px solid #38b2ac; /* tealy accent color */
-  outline-offset: -2px;
-  z-index: 999;
-}
-
-/*
- * Dark mode cell styling
- */
-body.dark-mode #calendar td {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-body.dark-mode #calendar td:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
-  background-color: rgba(255,255,255,0.05);
-}
-
-/*
- * Weekend styling
- */
-#calendar td.weekend {
-  background: linear-gradient(to bottom right, var(--weekend-gradient-from), var(--weekend-gradient-to));
-}
-
-/*
- * Alternating month shading
- */
-#calendar td.shaded {
-  background: var(--shaded-month);
-}
-
-/*
- * "month-boundary" row => subtle top border
- */
-tr.month-boundary td:not(.extra) {
-  border-top: 2px solid var(--month-boundary) !important;
-}
-
-/*
- * Today's cell with pulse
- */
-@keyframes pulseToday {
-  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-  70% { box-shadow: 0 0 10px 20px rgba(220, 38, 38, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-}
-#calendar td.today {
-  background: linear-gradient(135deg, var(--today-gradient-from) 0%, var(--today-gradient-to) 100%);
-  transform: scale(1.03);
-  z-index: 10;
-  color: #FFF;
-  font-weight: 600;
-  animation: pulseToday 2s infinite;
-}
-
-/*
- * Date text inside day cells
- */
-#calendar td.today span {
-  color: white;
-  background-color: rgba(0,0,0,0.2);
-  padding: 2px 5px;
-  border-radius: 4px;
-  display: inline-block;
-  margin-bottom: 8px;
-}
-
-/*
- * Month label in rightmost column
- */
-#calendar td.extra {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px;
-  line-height: 1.2;
-  color: #555;
-  opacity: 0.8;
-  font-weight: 400;
-  padding: 0 0 0 15px;
-  vertical-align: middle;
-  box-shadow: none;
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  width: 120px;
-  text-align: left;
-  border: none;
-  cursor: auto;
-  min-height: var(--cell-min-height);
-  height: var(--cell-min-height);
-}
-#calendar td.extra:hover {
-  opacity: 1;
-  transform: translateY(0) scale(1.02);
-}
-body.dark-mode #calendar td.extra {
-  color: #aaa;
-}
-
-/*
- * Date display
- */
-#calendar td span {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  display: block;
-  margin-bottom: 10px;
-  font-family: 'Fira Code', monospace;
-  color: #666;
-}
-body.dark-mode #calendar td span {
-  color: #aaa;
-}
-
-/*
- * Clicked-day animation
- */
-.clicked-day {
-  box-shadow: 0 0 0 3px rgba(80,160,255,0.5) !important;
-  animation: clickedHighlight 0.5s forwards;
-}
-@keyframes clickedHighlight {
-  0% { box-shadow: 0 0 0 3px rgba(80,160,255,0.5); }
-  100% { box-shadow: none; }
-}
-
-/*
- * Date range selection
- */
-.selected-range-start, .selected-range-end {
-  background-color: rgba(66,153,225,0.6) !important;
-  position: relative;
-}
-.selected-range-day {
-  background-color: rgba(66,153,225,0.2) !important;
-}
-.selected-range-start:after {
-  content: "Start";
-  position: absolute;
-  top: 5px; left: 5px;
-  font-size: 10px;
-  padding: 2px 4px;
-  background-color: #4299e1;
-  color: white;
-  border-radius: 3px;
-}
-.selected-range-end:after {
-  content: "End";
-  position: absolute;
-  top: 5px; left: 5px;
-  font-size: 10px;
-  padding: 2px 4px;
-  background-color: #4299e1;
-  color: white;
-  border-radius: 3px;
-}
-
-/*
- * Loading spinner
- */
-.loading {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  display: none;
-}
-.loading.active {
-  display: block;
-}
-.loading:after {
-  content: "";
-  display: block;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 4px solid #ddd;
-  border-top-color: #666;
-  animation: spin 1s infinite linear;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-body.dark-mode .loading:after {
-  border-color: #444;
-  border-top-color: #bbb;
-}
-
-/*
- * Notes/tasks textarea
- */
-textarea {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-  padding: 8px;
-  border-radius: 8px;
-  background-color: rgba(255,255,255,0.85);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(0,0,0,0.1);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  transition: background 0.3s, box-shadow 0.3s;
-  color: #333;
-  width: 100%;
-  margin: 0 0 8px 0;
-  min-height: 24px;
-  line-height: 1.4;
-  resize: none;
-  box-sizing: border-box;
-  display: block;
-  overflow: hidden;
-  white-space: normal;
-  height: auto;
-}
-textarea:focus {
-  background-color: rgba(255,255,255,0.95);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  outline: none;
-}
-body.dark-mode textarea {
-  background-color: rgba(45,55,72,0.85);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #cbd5e0;
-}
-body.dark-mode textarea:focus {
-  background-color: rgba(45,55,72,0.95);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-/*
- * Special styling for textareas in today's cell
- */
-#calendar td.today textarea {
-  background-color: rgba(255,255,255,0.9);
-  color: #333;
-  border: 1px solid rgba(255,255,255,0.3);
-}
-
-/*
- * Special styling for textareas in shaded cells
- */
-td.shaded textarea {
-  background-color: rgba(255,255,255,0.8);
-}
-body.dark-mode td.shaded textarea {
-  background-color: rgba(60,70,90,0.8);
-}
-
-/*
- * Dot for current system day if not "today"
- */
-.current-day-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #38b2ac, #4fd1c5);
-  box-shadow: 0 0 0 2px rgba(56,178,172,0.3);
-  margin-left: 5px;
-  vertical-align: middle;
-}
-
-/*
- * Accessibility: focus outlines
- */
-textarea:focus, button:focus, a:focus, input:focus {
-  outline: 2px solid #4299e1;
-  outline-offset: 2px;
-}
-body.dark-mode textarea:focus,
-body.dark-mode button:focus,
-body.dark-mode a:focus,
-body.dark-mode input:focus {
-  outline-color: #63b3ed;
-}
-
-/*
- * Toast notification
- */
-#toast-container {
-  position: fixed;
-  bottom: 20px; right: 20px;
-  z-index: 9999;
-}
-.toast {
-  background-color: rgba(0,0,0,0.8);
-  color: white;
-  padding: 10px 15px;
-  border-radius: 4px;
-  margin-top: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-body.dark-mode .toast {
-  background-color: rgba(255,255,255,0.2);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-}
-
-/*
- * Year view overlay
- */
-#yearViewContainer {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: white;
-  z-index: 2000;
-  overflow: auto;
-  padding: 20px;
-}
-body.dark-mode #yearViewContainer {
-  background: #222;
-}
-
-#yearViewGrid {
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.month-grid {
-  text-align: center;
-}
-.month-grid h3 {
-  margin-bottom: 10px;
-}
-.month-grid table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.month-grid th, .month-grid td {
-  padding: 3px;
-  text-align: center;
-}
-
-/*
- * Responsive styling
- */
-@media (max-width: 1000px) {
-  #calendar {
-    width: 100%;
-    max-width: 960px;
-  }
-  #header {
-    flex-direction: column;
-    height: auto;
-    padding: 10px;
-  }
-  #header>div {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  #calendarContainer {
-    margin-top: 140px;
-  }
-  #yearViewGrid {
-    grid-template-columns: repeat(3,1fr);
-  }
-}
-@media (max-width:768px) {
-  #calendar td {
-    padding: 8px;
-  }
-  #header span:not(:first-child) {
-    display: none;
-  }
-  #yearViewGrid {
-    grid-template-columns: repeat(2,1fr);
-  }
-}
-@media (max-width:480px) {
-  #yearViewGrid {
-    grid-template-columns: repeat(1,1fr);
-  }
-}
-
-/*
- * Print styles
- */
-@media print {
-  #header, #help, .loading, button, .yearViewContainer, #stickyMonthHeader {
-    display: none !important;
-  }
-  #calendarContainer {
-    margin-top: 0;
-  }
-  #calendar {
-    width: 100%;
-  }
-  #calendar td {
-    box-shadow: none;
-    border: 1px solid #ddd;
-  }
-  #calendar td.today {
-    background: none !important;
-    color: black !important;
-    transform: none !important;
-    animation: none !important;
-    border: 2px solid #e53e3e !important;
-  }
-  #calendar td.today span {
-    color: black !important;
-    background: none !important;
-  }
-  #calendar td.weekend, #calendar td.shaded {
-    background: none !important;
-    border: 1px solid #ddd;
-  }
-  #calendar td.weekend {
-    background-color: #f8f9fa !important;
-  }
-  @page {
-    size: landscape;
-    margin: 1cm;
-  }
-}
-
-/*
- * Hide file input (for load button)
- */
-#fileInput {
-  display: none;
-}
+    #calendar td:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
+      background-color: rgba(0,0,0,0.02);
+    }
+    #calendar td.extra {
+      cursor: default;
+    }
+    #calendar td.extra:hover {
+      transform: none;
+      box-shadow: none;
+      background-color: transparent;
+    }
+    .keyboard-focus {
+      outline: 2px solid #38b2ac;
+      outline-offset: -2px;
+      z-index: 999;
+    }
+    body.dark-mode #calendar td {
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    body.dark-mode #calendar td:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+      background-color: rgba(255,255,255,0.05);
+    }
+    #calendar td.weekend {
+      background: linear-gradient(to bottom right, var(--weekend-gradient-from), var(--weekend-gradient-to));
+    }
+    #calendar td.shaded {
+      background: var(--shaded-month);
+    }
+    tr.month-boundary td:not(.extra) {
+      border-top: 2px solid var(--month-boundary) !important;
+    }
+    @keyframes pulseToday {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+      70% { box-shadow: 0 0 10px 20px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    #calendar td.today {
+      background: linear-gradient(135deg, var(--today-gradient-from) 0%, var(--today-gradient-to) 100%);
+      transform: scale(1.03);
+      z-index: 10;
+      color: #FFF;
+      font-weight: 600;
+      animation: pulseToday 2s infinite;
+    }
+    #calendar td.today span {
+      color: white;
+      background-color: rgba(0,0,0,0.2);
+      padding: 2px 5px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    #calendar td.extra {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      line-height: 1.2;
+      color: #555;
+      opacity: 0.8;
+      font-weight: 400;
+      padding: 0 0 0 15px;
+      vertical-align: middle;
+      box-shadow: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      width: 120px;
+      text-align: left;
+      border: none;
+      cursor: auto;
+      min-height: var(--cell-min-height);
+      height: var(--cell-min-height);
+    }
+    #calendar td.extra:hover {
+      opacity: 1;
+      transform: translateY(0) scale(1.02);
+    }
+    body.dark-mode #calendar td.extra {
+      color: #aaa;
+    }
+    #calendar td span {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 10px;
+      font-family: 'Fira Code', monospace;
+      color: #666;
+    }
+    body.dark-mode #calendar td span {
+      color: #aaa;
+    }
+    .clicked-day {
+      box-shadow: 0 0 0 3px rgba(80,160,255,0.5) !important;
+      animation: clickedHighlight 0.5s forwards;
+    }
+    @keyframes clickedHighlight {
+      0% { box-shadow: 0 0 0 3px rgba(80,160,255,0.5); }
+      100% { box-shadow: none; }
+    }
+    .selected-range-start, .selected-range-end {
+      background-color: rgba(66,153,225,0.6) !important;
+      position: relative;
+    }
+    .selected-range-day {
+      background-color: rgba(66,153,225,0.2) !important;
+    }
+    .selected-range-start:after {
+      content: "Start";
+      position: absolute;
+      top: 5px; left: 5px;
+      font-size: 10px;
+      padding: 2px 4px;
+      background-color: #4299e1;
+      color: white;
+      border-radius: 3px;
+    }
+    .selected-range-end:after {
+      content: "End";
+      position: absolute;
+      top: 5px; left: 5px;
+      font-size: 10px;
+      padding: 2px 4px;
+      background-color: #4299e1;
+      color: white;
+      border-radius: 3px;
+    }
+    .loading {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+    .loading.active {
+      display: block;
+    }
+    .loading:after {
+      content: "";
+      display: block;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 4px solid #ddd;
+      border-top-color: #666;
+      animation: spin 1s infinite linear;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    body.dark-mode .loading:after {
+      border-color: #444;
+      border-top-color: #bbb;
+    }
+    textarea {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      padding: 8px;
+      border-radius: 8px;
+      background-color: rgba(255,255,255,0.85);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: background 0.3s, box-shadow 0.3s;
+      color: #333;
+      width: 100%;
+      margin: 0 0 8px 0;
+      min-height: 24px;
+      line-height: 1.4;
+      resize: none;
+      box-sizing: border-box;
+      display: block;
+      overflow: hidden;
+      white-space: normal;
+      height: auto;
+    }
+    textarea:focus {
+      background-color: rgba(255,255,255,0.95);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      outline: none;
+    }
+    body.dark-mode textarea {
+      background-color: rgba(45,55,72,0.85);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #cbd5e0;
+    }
+    body.dark-mode textarea:focus {
+      background-color: rgba(45,55,72,0.95);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    #calendar td.today textarea {
+      background-color: rgba(255,255,255,0.9);
+      color: #333;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    td.shaded textarea {
+      background-color: rgba(255,255,255,0.8);
+    }
+    body.dark-mode td.shaded textarea {
+      background-color: rgba(60,70,90,0.8);
+    }
+    .current-day-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38b2ac, #4fd1c5);
+      box-shadow: 0 0 0 2px rgba(56,178,172,0.3);
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+    textarea:focus, button:focus, a:focus, input:focus {
+      outline: 2px solid #4299e1;
+      outline-offset: 2px;
+    }
+    body.dark-mode textarea:focus,
+    body.dark-mode button:focus,
+    body.dark-mode a:focus,
+    body.dark-mode input:focus {
+      outline-color: #63b3ed;
+    }
+    #toast-container {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      z-index: 9999;
+    }
+    .toast {
+      background-color: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    body.dark-mode .toast {
+      background-color: rgba(255,255,255,0.2);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+    #yearViewContainer {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: white;
+      z-index: 2000;
+      overflow: auto;
+      padding: 20px;
+    }
+    body.dark-mode #yearViewContainer {
+      background: #222;
+    }
+    #yearViewGrid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .month-grid {
+      text-align: center;
+    }
+    .month-grid h3 {
+      margin-bottom: 10px;
+    }
+    .month-grid table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .month-grid th, .month-grid td {
+      padding: 3px;
+      text-align: center;
+    }
+    @media (max-width: 1000px) {
+      #calendar {
+        width: 100%;
+        max-width: 960px;
+      }
+      #header {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+      }
+      #header > div {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      #calendarContainer {
+        margin-top: 140px;
+      }
+      #yearViewGrid {
+        grid-template-columns: repeat(3,1fr);
+      }
+    }
+    @media (max-width:768px) {
+      #calendar td {
+        padding: 8px;
+      }
+      #header span:not(:first-child) {
+        display: none;
+      }
+      #yearViewGrid {
+        grid-template-columns: repeat(2,1fr);
+      }
+    }
+    @media (max-width:480px) {
+      #yearViewGrid {
+        grid-template-columns: repeat(1,1fr);
+      }
+    }
+    @media print {
+      #header, #help, .loading, button, .yearViewContainer, #stickyMonthHeader {
+        display: none !important;
+      }
+      #calendarContainer {
+        margin-top: 0;
+      }
+      #calendar {
+        width: 100%;
+      }
+      #calendar td {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+      #calendar td.today {
+        background: none !important;
+        color: black !important;
+        transform: none !important;
+        animation: none !important;
+        border: 2px solid #e53e3e !important;
+      }
+      #calendar td.today span {
+        color: black !important;
+        background: none !important;
+      }
+      #calendar td.weekend, #calendar td.shaded {
+        background: none !important;
+        border: 1px solid #ddd;
+      }
+      #calendar td.weekend {
+        background-color: #f8f9fa !important;
+      }
+      @page {
+        size: landscape;
+        margin: 1cm;
+      }
+    }
+    #fileInput {
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <!-- Parallax background -->
+  <div class="parallax-bg"></div>
 
-<!-- Fixed header -->
-<div id="header">
-  <a href="/" class="timeless" aria-label="Timeless Calendar Home">Timeless</a>
-  <span>🪐</span>
-  <div>
-    <span>Timeless: The Infinite Calendar ✨</span>
-    <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">🌙</a>
-    <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">📥</a>
-    <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">💾</a>
-    <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">📅</a>
-    <a href="#" class="button" onclick="showYearView()" data-tooltip="Year View">📆</a>
-    <a href="#" class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">📏</a>
-    <a href="#" class="button" onclick="shouldLoadOrExport()" data-tooltip="Sync with Cloud">🔄</a>
-    <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">ℹ️</a>
-    <input type="file" id="fileInput" onchange="loadDataFromFile()" />
+  <!-- Fixed header with mini-calendar widget -->
+  <div id="header">
+    <a href="/" class="timeless" aria-label="Timeless Calendar Home">Timeless</a>
+    <div id="miniCalendar"></div>
+    <span>🪐</span>
+    <div>
+      <span>Timeless: The Infinite Calendar ✨</span>
+      <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">🌙</a>
+      <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">📥</a>
+      <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">💾</a>
+      <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">📅</a>
+      <a href="#" class="button" onclick="showYearView()" data-tooltip="Year View">📆</a>
+      <a href="#" class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">📏</a>
+      <a href="#" class="button" onclick="shouldLoadOrExport()" data-tooltip="Sync with Cloud">🔄</a>
+      <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">ℹ️</a>
+      <input type="file" id="fileInput" onchange="loadDataFromFile()" />
 
-    <span>Jump to date:</span>
-    <input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31" />
-    <button onclick="jumpToDate()" aria-label="Go to selected date">Go</button>
-    <button onclick="undoLastChange()" aria-label="Undo last change">Undo</button>
+      <span>Jump to date:</span>
+      <input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31" />
+      <button onclick="jumpToDate()" aria-label="Go to selected date">Go</button>
+      <button onclick="undoLastChange()" aria-label="Undo last change">Undo</button>
+    </div>
   </div>
-</div>
 
-<!-- Sticky month heading that updates as you scroll -->
-<div id="stickyMonthHeader"></div>
+  <!-- Sticky month heading -->
+  <div id="stickyMonthHeader"></div>
 
-<!-- Help overlay -->
-<div id="help">
-  <div>
-    <ul>
-      <li>Click on a day to add a note (Shift+Enter for multi-line, Enter to save)</li>
-      <li>To delete a note, just delete its text</li>
-      <li>Press <code>↑</code> or <code>↓</code> to scroll normally</li>
-      <li>Press <code>t</code> to jump to Today</li>
-      <li>Press <code>Ctrl+D</code> to toggle dark mode</li>
-      <li>Use the Date Range button (📏) to select a range of dates</li>
-      <li>Press <code>?</code> to toggle this help overlay</li>
-      <li>Press <code>Esc</code> to close overlays or cancel range selection</li>
-      <li>Press <code>g</code> to focus the "Jump to date" field</li>
-      <li>Press <code>y</code> to toggle Year View</li>
-      <li>Press <code>←</code> or <code>→</code> to move day by day</li>
-      <li>Press <code>Enter</code> to add event to the currently highlighted day</li>
-      <li>Press <code>Alt+↓</code> to jump one month forward</li>
-      <li>Press <code>Ctrl+Z</code> or <code>z</code> to undo last change</li>
-    </ul>
-    <a href="#" onclick="hideHelp()">Close</a>
+  <!-- Help overlay -->
+  <div id="help">
+    <div>
+      <ul>
+        <li>Click on a day to add a note (Shift+Enter for multi-line, Enter to save)</li>
+        <li>To delete a note, just delete its text</li>
+        <li>Press <code>↑</code> or <code>↓</code> to scroll normally</li>
+        <li>Press <code>t</code> to jump to Today</li>
+        <li>Press <code>Ctrl+D</code> to toggle dark mode</li>
+        <li>Use the Date Range button (📏) to select a range of dates</li>
+        <li>Press <code>?</code> to toggle this help overlay</li>
+        <li>Press <code>Esc</code> to close overlays or cancel range selection</li>
+        <li>Press <code>g</code> to focus the "Jump to date" field</li>
+        <li>Press <code>y</code> to toggle Year View</li>
+        <li>Press <code>←</code> or <code>→</code> to move day by day</li>
+        <li>Press <code>Enter</code> to add an event to the currently highlighted day</li>
+        <li>Press <code>Alt+↓</code> to jump one month forward</li>
+        <li>Press <code>Ctrl+Z</code> or <code>z</code> to undo last change</li>
+        <li>Press <code>Ctrl+Shift+Z</code> to redo last change</li>
+      </ul>
+      <a href="#" onclick="hideHelp()">Close</a>
+    </div>
   </div>
-</div>
 
-<!-- Loading spinner -->
-<div class="loading" id="loadingIndicator"></div>
+  <!-- Loading spinner -->
+  <div class="loading" id="loadingIndicator"></div>
 
-<!-- Main calendar container -->
-<div id="calendarContainer">
-  <div id="top-sentinel"></div>
-  <table id="calendar"></table>
-  <div id="bottom-sentinel"></div>
-</div>
-
-<!-- Year view overlay -->
-<div id="yearViewContainer">
-  <div style="text-align:center; margin-bottom:20px;">
-    <h2 id="yearViewTitle">2023 at a Glance</h2>
-    <button onclick="hideYearView()">Close</button>
+  <!-- Main calendar container -->
+  <div id="calendarContainer">
+    <div id="top-sentinel"></div>
+    <table id="calendar"></table>
+    <div id="bottom-sentinel"></div>
   </div>
-  <div id="yearViewGrid"></div>
-</div>
 
-<script>
-/***************************
- * Timeless: The Infinitely Scrolling Calendar
- *
- * Keyboard Navigation Enhanced with:
- *  - Esc: Close overlays or cancel range selection
- *  - ?: Toggle help overlay
- *  - Ctrl+Z or z: Undo
- *  - y: Toggle year view
- *  - g: Focus jump-to-date
- *  - Left/Right: move day by day
- *  - Enter: add event to the currently highlighted day
- *  - Alt+Down: jump one month forward
- *  - t: jump to today
- *  - Ctrl+D: toggle dark mode
- ***************************/
+  <!-- Year view overlay -->
+  <div id="yearViewContainer">
+    <div style="text-align:center; margin-bottom:20px;">
+      <h2 id="yearViewTitle">2023 at a Glance</h2>
+      <button onclick="hideYearView()">Close</button>
+    </div>
+    <div id="yearViewGrid"></div>
+  </div>
 
-/*******
- * CORE VARIABLES & STATE
- *******/
-let systemToday = new Date(); // real system date
-let todayDate;                // "selected" today in the calendar
-let calendarTableElement;
-let firstDate, lastDate;
+  <script>
+    /***************************
+     * Timeless: The Infinitely Scrolling Calendar
+     *
+     * Enhancements:
+     *  - Redo functionality (Ctrl+Shift+Z)
+     *  - Enhanced animations (smoother transitions & parallax background)
+     *  - Modern UI (card-style cells, updated overlays/tooltips)
+     *  - Interactive mini-calendar overview in header
+     ***************************/
 
-// Undo stack
-let undoStack = [];
-const MAX_UNDO = 5;
+    /******* CORE VARIABLES & STATE *******/
+    let systemToday = new Date();
+    let todayDate;
+    let calendarTableElement;
+    let firstDate, lastDate;
 
-// Range selection
-let rangeStart = null;
-let rangeEnd = null;
-let isSelectingRange = false;
+    // Undo/Redo stacks
+    let undoStack = [];
+    const MAX_UNDO = 5;
+    let redoStack = [];
 
-// Animation class
-const ROW_ANIMATION_CLASS = 'week-row-animate';
+    // Range selection
+    let rangeStart = null;
+    let rangeEnd = null;
+    let isSelectingRange = false;
 
-// Day & month names
-const daysOfWeek = ["Mon","Tues","Wed","Thur","Fri","Sat","Sun"];
-const months = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December"
-];
-const shortMonths = [
-  "Jan","Feb","Mar","Apr","May","Jun",
-  "Jul","Aug","Sep","Oct","Nov","Dec"
-];
+    // Animation class for new rows
+    const ROW_ANIMATION_CLASS = 'week-row-animate';
 
-// Smooth scroll variables
-let startTime, startY, goalY;
+    // Day & month names
+    const daysOfWeek = ["Mon","Tues","Wed","Thur","Fri","Sat","Sun"];
+    const months = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+    const shortMonths = [
+      "Jan","Feb","Mar","Apr","May","Jun",
+      "Jul","Aug","Sep","Oct","Nov","Dec"
+    ];
 
-// Currently visible month (for sticky header)
-let currentVisibleMonth = '';
+    // Smooth scroll variables
+    let startTime, startY, goalY;
 
-// ** Keyboard focus date (for left/right arrows & Enter key) **
-let keyboardFocusDate = null;
+    // Currently visible month for sticky header
+    let currentVisibleMonth = '';
 
-/*******
- * UTILITY & HELPERS
- *******/
-/* Re-usable throttle */
-function throttle(func, delay) {
-  let lastCall = 0;
-  return function(...args) {
-    const now = Date.now();
-    if (now - lastCall >= delay) {
-      lastCall = now;
-      func.apply(this, args);
-    }
-  };
-}
+    // Keyboard focus date for arrow navigation
+    let keyboardFocusDate = null;
 
-/* Re-usable debounce */
-function debounce(fn, wait) {
-  let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn.apply(this, args), wait);
-  };
-}
-
-/* Show/hide help overlay */
-function showHelp() {
-  document.getElementById("help").style.display = "block";
-}
-function hideHelp() {
-  document.getElementById("help").style.display = "none";
-}
-
-/* Show/hide year view */
-function showYearView() {
-  const year = todayDate.getFullYear();
-  document.getElementById('yearViewTitle').textContent = `${year} at a Glance`;
-  const container = document.getElementById('yearViewGrid');
-  container.innerHTML = '';
-
-  // ... existing code to build year view ...
-  buildYearView(year, container);
-
-  document.getElementById('yearViewContainer').style.display = 'block';
-}
-function hideYearView() {
-  document.getElementById('yearViewContainer').style.display = 'none';
-}
-
-/*******
- * LOADING SPINNER
- *******/
-function showLoading() {
-  document.getElementById('loadingIndicator').classList.add('active');
-}
-function hideLoading() {
-  document.getElementById('loadingIndicator').classList.remove('active');
-}
-
-/*******
- * TOAST NOTIFICATIONS
- *******/
-function showToast(message, duration=3000) {
-  let toastContainer = document.getElementById('toast-container');
-  if (!toastContainer) {
-    toastContainer = document.createElement('div');
-    toastContainer.id = 'toast-container';
-    document.body.appendChild(toastContainer);
-  }
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = message;
-  toastContainer.appendChild(toast);
-
-  // Fade in
-  requestAnimationFrame(() => { toast.style.opacity = '1'; });
-
-  // Fade out
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => {
-      if (toastContainer.contains(toast)) {
-        toastContainer.removeChild(toast);
-      }
-    }, 300);
-  }, duration);
-}
-
-/*******
- * SCROLL & POSITION
- *******/
-function documentScrollTop() {
-  return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
-}
-function documentScrollHeight() {
-  return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-}
-
-/* Smooth scroll easing curve */
-function curve(x) {
-  return (x < 0.5) ? (4 * x*x*x) : (1 - 4*(1 - x)*(1 - x)*(1 - x));
-}
-
-/* Smooth scroll step */
-function scrollAnimation() {
-  const percent = (new Date() - startTime) / 1000;
-  if (percent > 1) {
-    window.scrollTo(0, goalY);
-    hideLoading();
-  } else {
-    const newY = Math.round(startY + (goalY - startY)*curve(percent));
-    window.scrollTo(0, newY);
-    setTimeout(scrollAnimation, 10);
-  }
-}
-
-/* Center an element in the viewport */
-function scrollPositionForElement(element) {
-  let y = element.offsetTop;
-  let node = element;
-  while (node.offsetParent && node.offsetParent !== document.body) {
-    node = node.offsetParent;
-    y += node.offsetTop;
-  }
-  const clientHeight = element.clientHeight;
-  return y - (window.innerHeight - clientHeight)/2;
-}
-
-/*******
- * DARK MODE
- *******/
-function toggleDarkMode() {
-  document.body.classList.toggle("dark-mode");
-  if (document.body.classList.contains("dark-mode")) {
-    localStorage.setItem("darkMode", "enabled");
-    showToast("Dark mode enabled");
-  } else {
-    localStorage.setItem("darkMode", "disabled");
-    showToast("Light mode enabled");
-  }
-}
-
-/*******
- * UNDO
- *******/
-function pushUndoState() {
-  const snapshot = {};
-  for (const key in localStorage) {
-    if (localStorage.hasOwnProperty(key)) {
-      snapshot[key] = localStorage[key];
-    }
-  }
-  undoStack.push(JSON.stringify(snapshot));
-  if (undoStack.length > MAX_UNDO) {
-    undoStack.shift();
-  }
-}
-function undoLastChange() {
-  if (!undoStack.length) {
-    showToast("No undo history available");
-    return;
-  }
-  const lastSnap = undoStack.pop();
-  if (!lastSnap) return;
-
-  // restore localStorage from snapshot
-  localStorage.clear();
-  const data = JSON.parse(lastSnap);
-  for (const k in data) {
-    localStorage.setItem(k, data[k]);
-  }
-  loadCalendarAroundDate(todayDate);
-  showToast("Changes undone successfully");
-}
-
-/*******
- * TEXTAREA
- *******/
-function recalculateHeight(itemId) {
-  const ta = document.getElementById(itemId);
-  if (!ta) return;
-  ta.style.height = "0";
-  const sh = ta.scrollHeight;
-  ta.style.height = (sh + 5) + "px";
-}
-
-function recalculateAllHeights() {
-  const textareas = document.querySelectorAll('textarea');
-  textareas.forEach(ta => recalculateHeight(ta.id));
-}
-
-/* Save note text to localStorage */
-function storeValueForItemId(itemId) {
-  pushUndoState();
-  const ta = document.getElementById(itemId);
-  if (!ta) return;
-  const parentId = ta.parentNode.id;
-  localStorage[itemId] = ta.value;
-
-  // reference in parent
-  const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
-  if (!parentIds.includes(itemId)) {
-    parentIds.push(itemId);
-    localStorage[parentId] = parentIds;
-  }
-  // ISO date
-  const iso = parseDateFromId(parentId);
-  if (iso) localStorage[iso] = ta.value;
-  localStorage.setItem("lastSavedTimestamp", Date.now());
-}
-
-/* Remove note from localStorage if empty */
-function removeValueForItemId(itemId) {
-  pushUndoState();
-  delete localStorage[itemId];
-  const ta = document.getElementById(itemId);
-  if (!ta) return;
-  const parentId = ta.parentNode.id;
-  if (localStorage[parentId]) {
-    let arr = localStorage[parentId].split(",");
-    arr = arr.filter(id => id !== itemId);
-    if (arr.length) {
-      localStorage[parentId] = arr;
-    } else {
-      delete localStorage[parentId];
-    }
-  }
-  const iso = parseDateFromId(parentId);
-  if (iso && localStorage[iso]) {
-    delete localStorage[iso];
-  }
-}
-
-/* Keydown in note: SHIFT+Enter => newline, Enter => save */
-function noteKeyDownHandler(e) {
-  recalculateHeight(this.id);
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    storeValueForItemId(this.id);
-    this.blur();
-    return false;
-  } else {
-    if (!this.debouncedSave) {
-      this.debouncedSave = debounce(() => storeValueForItemId(this.id), 1000);
-    }
-    this.debouncedSave();
-  }
-}
-
-/* onBlur => if empty, remove note item */
-function noteBlurHandler() {
-  if (!this.value.trim()) {
-    removeValueForItemId(this.id);
-    this.parentNode.removeChild(this);
-  }
-}
-
-/* Create note textarea */
-function generateItem(parentId, itemId) {
-  const cell = document.getElementById(parentId);
-  if (!cell) return null;
-  const ta = document.createElement("textarea");
-  ta.id = itemId;
-  ta.onkeydown = noteKeyDownHandler;
-  ta.onblur = noteBlurHandler;
-  ta.spellcheck = false;
-  cell.appendChild(ta);
-  return ta;
-}
-
-/* Retrieve items for a cell from localStorage */
-function lookupItemsForParentId(parentId, callback) {
-  if (localStorage[parentId]) {
-    const ids = localStorage[parentId].split(",");
-    const items = [];
-    ids.forEach(it => {
-      const val = localStorage[it];
-      if (val !== undefined) {
-        items.push({ itemId: it, itemValue: val });
-      }
-    });
-    callback(items);
-  }
-}
-
-/*******
- * RENDERING DAYS
- *******/
-function generateDay(dayCell, date) {
-  const isWeekend = (date.getDay()===0 || date.getDay()===6);
-  if (isWeekend) dayCell.classList.add("weekend");
-
-  const isShaded = (date.getMonth() % 2 === 1);
-  if (isShaded) dayCell.classList.add("shaded");
-
-  const isToday = (
-    date.getFullYear()===todayDate.getFullYear() &&
-    date.getMonth()===todayDate.getMonth() &&
-    date.getDate()===todayDate.getDate()
-  );
-  if (isToday) {
-    dayCell.classList.add("today");
-  }
-
-  const isCurrentSystemDate = (
-    date.getFullYear()===systemToday.getFullYear() &&
-    date.getMonth()===systemToday.getMonth() &&
-    date.getDate()===systemToday.getDate()
-  );
-
-  dayCell.id = idForDate(date);
-  dayCell.innerHTML = `
-    <span>
-      ${daysOfWeek[getAdjustedDayIndex(date)]}
-      ${shortMonths[date.getMonth()]}
-      ${date.getDate()}
-      ${isCurrentSystemDate&&!isToday ? '<div class="current-day-dot"></div>' : ''}
-    </span>
-  `;
-  // Load existing notes
-  lookupItemsForParentId(dayCell.id, items => {
-    items.forEach(it => {
-      const note = generateItem(dayCell.id, it.itemId);
-      if (note) {
-        note.value = it.itemValue;
-        recalculateHeight(note.id);
-      }
-    });
-  });
-}
-
-/*******
- * MONTH ROWS
- *******/
-function prependWeek() {
-  const row = calendarTableElement.insertRow(0);
-  animateRowInsertion(row, 'prepend');
-
-  let isMonthBoundary = false;
-
-  do {
-    firstDate.setDate(firstDate.getDate()-1);
-    if (firstDate.getDate()===1) {
-      isMonthBoundary = true;
-    }
-    const cell = row.insertCell(0);
-    generateDay(cell, new Date(firstDate));
-  } while(getAdjustedDayIndex(firstDate)!==0);
-
-  if (isMonthBoundary) row.classList.add('month-boundary');
-  row.dataset.monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
-}
-
-function appendWeek() {
-  const row = calendarTableElement.insertRow(-1);
-  animateRowInsertion(row, 'append');
-
-  let isMonthBoundary = false;
-  const rowStart = new Date(lastDate);
-  rowStart.setDate(rowStart.getDate()+1);
-  const rowMonthName = months[rowStart.getMonth()] + " " + rowStart.getFullYear();
-
-  do {
-    lastDate.setDate(lastDate.getDate()+1);
-    if (lastDate.getDate()===1) {
-      isMonthBoundary=true;
-    }
-    const cell = row.insertCell(-1);
-    generateDay(cell, new Date(lastDate));
-  } while(getAdjustedDayIndex(lastDate)!==6);
-
-  if (isMonthBoundary) row.classList.add('month-boundary');
-
-  // Rightmost month label
-  const extra = row.insertCell(-1);
-  extra.className = "extra";
-  if (isMonthBoundary) {
-    extra.innerHTML = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
-  } else {
-    extra.innerHTML = "";
-  }
-  row.dataset.monthName = rowMonthName;
-}
-
-/*******
- * STICKY HEADER
- *******/
-function updateStickyMonthHeader() {
-  const rows = document.querySelectorAll('#calendar tr');
-  const headerOffset = document.getElementById('header').offsetHeight + 30;
-
-  let visMonth = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-    if (rect.top>=headerOffset && rect.top<=window.innerHeight) {
-      visMonth = row.dataset.monthName;
-      break;
-    }
-    if (rect.top<headerOffset && rect.bottom>headerOffset) {
-      visMonth = row.dataset.monthName;
-      break;
-    }
-  }
-
-  const sticky = document.getElementById('stickyMonthHeader');
-  if (visMonth && visMonth!==currentVisibleMonth) {
-    currentVisibleMonth = visMonth;
-    sticky.textContent = visMonth;
-    sticky.style.display = 'block';
-  }
-}
-
-/*******
- * YEAR VIEW HELPER
- *******/
-function buildYearView(year, container) {
-  for (let m=0; m<12; m++) {
-    const div = document.createElement('div');
-    div.className='month-grid';
-    const h3 = document.createElement('h3');
-    h3.textContent=months[m];
-    div.appendChild(h3);
-
-    const table = document.createElement('table');
-    table.style.width='100%';
-    table.style.borderCollapse='collapse';
-
-    // day-of-week header
-    const headerRow = document.createElement('tr');
-    for(let i=0; i<7; i++) {
-      const th = document.createElement('th');
-      th.textContent=daysOfWeek[i].charAt(0);
-      th.style.padding='3px';
-      th.style.textAlign='center';
-      headerRow.appendChild(th);
-    }
-    table.appendChild(headerRow);
-
-    const firstDay=new Date(year, m,1);
-    let dayOfWeek=getAdjustedDayIndex(firstDay);
-    const daysInMonth=new Date(year,m+1,0).getDate();
-    let day=1;
-    let row = document.createElement('tr');
-
-    // empty cells
-    for(let k=0; k<dayOfWeek; k++){
-      const emptyCell=document.createElement('td');
-      emptyCell.style.padding='3px';
-      emptyCell.style.textAlign='center';
-      row.appendChild(emptyCell);
-    }
-    // fill days
-    while(day<=daysInMonth) {
-      if(dayOfWeek===7){
-        table.appendChild(row);
-        row=document.createElement('tr');
-        dayOfWeek=0;
-      }
-      const td=document.createElement('td');
-      td.textContent=day;
-      td.style.padding='3px';
-      td.style.textAlign='center';
-
-      const currentDate=new Date(year,m,day);
-      if (currentDate.getTime()===todayDate.setHours(0,0,0,0)){
-        td.style.backgroundColor='#e53e3e';
-        td.style.color='white';
-        td.style.borderRadius='50%';
-      }
-      const dateId=`${m}_${day}_${year}`;
-      if (localStorage[dateId]) {
-        td.style.fontWeight='bold';
-        td.style.textDecoration='underline';
-      }
-      td.style.cursor='pointer';
-      td.onclick=()=>{
-        hideYearView();
-        todayDate=new Date(year,m,day);
-        loadCalendarAroundDate(todayDate);
-        smoothScrollToToday();
+    /******* UTILITY & HELPERS *******/
+    function throttle(func, delay) {
+      let lastCall = 0;
+      return function(...args) {
+        const now = Date.now();
+        if (now - lastCall >= delay) {
+          lastCall = now;
+          func.apply(this, args);
+        }
       };
-      row.appendChild(td);
-      day++;
-      dayOfWeek++;
     }
-    if(row.hasChildNodes()) {
-      table.appendChild(row);
+
+    function debounce(fn, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), wait);
+      };
     }
-    div.appendChild(table);
-    container.appendChild(div);
-  }
-}
 
-/*******
- * LOAD CALENDAR
- *******/
-function loadCalendarAroundDate(seedDate) {
-  showLoading();
-  calendarTableElement.innerHTML = "";
-  firstDate = new Date(seedDate);
-
-  // find start of week
-  while (getAdjustedDayIndex(firstDate)!==0) {
-    firstDate.setDate(firstDate.getDate()-1);
-  }
-  lastDate = new Date(firstDate);
-  lastDate.setDate(lastDate.getDate()-1);
-
-  // add initial
-  appendWeek();
-  // fill viewport
-  while (documentScrollHeight() <= window.innerHeight) {
-    prependWeek();
-    appendWeek();
-  }
-
-  setTimeout(()=>{
-    scrollToToday();
-    recalculateAllHeights();
-    updateStickyMonthHeader();
-  },50);
-}
-
-/*******
- * KEYBOARD FOCUS LOGIC
- *******/
-/*
- * Highlight the keyboard-focused day in the UI
- */
-function highlightKeyboardFocusedDay() {
-  // remove old highlight
-  document.querySelectorAll('.keyboard-focus').forEach(el => {
-    el.classList.remove('keyboard-focus');
-  });
-  // if we have a date
-  if (!keyboardFocusDate) return;
-
-  const cellId = idForDate(keyboardFocusDate);
-  const cell = document.getElementById(cellId);
-  if (cell) {
-    cell.classList.add('keyboard-focus');
-  }
-}
-
-/*
- * Step day by delta (±1). Then highlight & possibly scroll
- */
-function stepDay(delta) {
-  if (!keyboardFocusDate) {
-    // if we haven't set a date for keyboardFocus, start with 'todayDate'
-    keyboardFocusDate = new Date(todayDate || systemToday);
-  }
-  keyboardFocusDate.setDate(keyboardFocusDate.getDate()+delta);
-
-  // re-load so it's visible
-  loadCalendarAroundDate(keyboardFocusDate);
-
-  // after load, highlight it
-  setTimeout(()=>{
-    highlightKeyboardFocusedDay();
-    // optionally scroll to that day
-    const cell = document.getElementById(idForDate(keyboardFocusDate));
-    if (cell) {
-      goalY = scrollPositionForElement(cell);
-      startY = documentScrollTop();
-      startTime = new Date();
-      if (goalY!==startY) setTimeout(scrollAnimation, 10);
+    function showHelp() {
+      document.getElementById("help").style.display = "block";
     }
-  },300);
-}
-
-/*
- * Create a new event in the currently keyboard-focused day,
- * just like a user clicked on the cell
- */
-function createEventInFocusedDay() {
-  if (!keyboardFocusDate) {
-    showToast("No day is selected");
-    return;
-  }
-  const cellId = idForDate(keyboardFocusDate);
-  const cell = document.getElementById(cellId);
-  if (!cell) {
-    showToast("Focused day not visible");
-    return;
-  }
-  // same logic as "click" on that cell
-  cell.classList.add("clicked-day");
-  setTimeout(()=> cell.classList.remove("clicked-day"),500);
-
-  const itemId = nextItemId();
-  const note = generateItem(cellId, itemId);
-  if (note) {
-    recalculateHeight(note.id);
-    storeValueForItemId(note.id);
-    note.focus();
-  }
-}
-
-/*******
- * KEYBOARD NAV
- *******/
-/*
- * Additional shortcuts:
- *  - Esc => close overlays
- *  - ? => toggle help
- *  - z or Ctrl+Z => undo
- *  - y => toggle year view
- *  - g => focus jumpDate
- *  - ArrowLeft/ArrowRight => step day
- *  - Alt+Down => jumpOneMonthForward
- *  - Enter => create event in focused day
- */
-document.addEventListener("keydown",(e)=>{
-  // if typing in input/textarea, ignore
-  if(e.target && (
-     e.target.tagName.toLowerCase()==="textarea" ||
-     e.target.tagName.toLowerCase()==="input"
-  )) {
-    return;
-  }
-
-  // ESC => close overlays or cancel range
-  if(e.key==="Escape") {
-    // help?
-    if(document.getElementById("help").style.display==="block") {
-      hideHelp(); return;
+    function hideHelp() {
+      document.getElementById("help").style.display = "none";
     }
-    // yearview?
-    if(document.getElementById("yearViewContainer").style.display==="block") {
-      hideYearView(); return;
+
+    function showYearView() {
+      const year = todayDate.getFullYear();
+      document.getElementById('yearViewTitle').textContent = `${year} at a Glance`;
+      const container = document.getElementById('yearViewGrid');
+      container.innerHTML = '';
+      buildYearView(year, container);
+      document.getElementById('yearViewContainer').style.display = 'block';
     }
-    // range?
-    if(isSelectingRange) {
-      clearRangeSelection();
-      isSelectingRange=false;
-      showToast("Range selection cancelled");
-      return;
+    function hideYearView() {
+      document.getElementById('yearViewContainer').style.display = 'none';
     }
-  }
-  // ? => toggle help
-  else if(e.key==="?") {
-    e.preventDefault();
-    const helpElem = document.getElementById("help");
-    if(helpElem.style.display==="block") hideHelp();
-    else showHelp();
-  }
-  // z or Z => undo
-  else if(e.key==="z"||e.key==="Z") {
-    // if user pressed Ctrl+Z or plain z => undo
-    if(e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      undoLastChange();
-    } else {
-      // plain z => also do undo
-      e.preventDefault();
-      undoLastChange();
+
+    function showLoading() {
+      document.getElementById('loadingIndicator').classList.add('active');
     }
-  }
-  // y => toggle year view
-  else if(e.key==="y"||e.key==="Y") {
-    e.preventDefault();
-    const yv=document.getElementById("yearViewContainer");
-    if(yv.style.display==="block") hideYearView();
-    else showYearView();
-  }
-  // g => focus jump date
-  else if(e.key==="g"||e.key==="G") {
-    e.preventDefault();
-    const j = document.getElementById("jumpDate");
-    if(j) j.focus();
-  }
-  // ArrowLeft => step day -1
-  else if(e.key==="ArrowLeft") {
-    e.preventDefault();
-    stepDay(-1);
-  }
-  // ArrowRight => step day +1
-  else if(e.key==="ArrowRight") {
-    e.preventDefault();
-    stepDay(+1);
-  }
-  // Alt+Down => jumpOneMonthForward
-  else if(e.key==="ArrowDown" && e.altKey) {
-    e.preventDefault();
-    jumpOneMonthForward();
-  }
-  // Enter => create event in focused day
-  else if(e.key==="Enter") {
-    e.preventDefault();
-    createEventInFocusedDay();
-  }
-  // t => jump to systemToday
-  else if(e.key==="t"|| e.key==="T") {
-    todayDate=new Date(systemToday);
-    loadCalendarAroundDate(todayDate);
-  }
-  // Ctrl+D => toggle dark
-  else if((e.ctrlKey|| e.metaKey)&& e.key==="d" && !e.shiftKey && !e.altKey) {
-    e.preventDefault();
-    toggleDarkMode();
-  }
-});
-
-/*******
- * JUMP 1 MONTH
- *******/
-function jumpOneMonthForward() {
-  if(!currentVisibleMonth) return;
-  const [monthName,yearStr] = currentVisibleMonth.split(" ");
-  if(!monthName || !yearStr) return;
-  let y= parseInt(yearStr,10) || new Date().getFullYear();
-  const mIdx = months.indexOf(monthName);
-  if(mIdx===-1) return;
-
-  let nm = mIdx+1;
-  if(nm>11){ nm=0; y++; }
-  const nextDate = new Date(y,nm,1);
-  smoothScrollToDate(nextDate);
-}
-
-function smoothScrollToDate(dateObj){
-  showLoading();
-  loadCalendarAroundDate(dateObj);
-  setTimeout(()=>{
-    const el=document.getElementById(idForDate(dateObj));
-    if(!el){ hideLoading(); return; }
-    goalY=scrollPositionForElement(el);
-    startY=documentScrollTop();
-    startTime=new Date();
-    if(goalY!==startY) setTimeout(scrollAnimation,10);
-    else hideLoading();
-  },200);
-}
-
-/*******
- * MISC
- *******/
-function jumpToDate() {
-  const val=document.getElementById("jumpDate").value;
-  if(!val) return;
-  showLoading();
-  const [yyyy, mm, dd] = val.split("-");
-  const jumpDateObj=new Date(yyyy, mm-1, dd);
-  todayDate=jumpDateObj;
-  loadCalendarAroundDate(todayDate);
-  setTimeout(()=>smoothScrollToToday(),300);
-}
-
-/* Next item ID */
-function nextItemId() {
-  localStorage.nextId=localStorage.nextId ? parseInt(localStorage.nextId)+1:0;
-  return "item"+ localStorage.nextId;
-}
-
-/*******
- * RANGE
- *******/
-function toggleRangeSelection() {
-  isSelectingRange=!isSelectingRange;
-  if(!isSelectingRange) {
-    clearRangeSelection();
-  }
-  showToast(isSelectingRange? "Select range start date":"Range selection cancelled");
-}
-function clearRangeSelection(){
-  document.querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
-    .forEach(el=> el.classList.remove('selected-range-start','selected-range-end','selected-range-day'));
-  rangeStart=null; rangeEnd=null;
-}
-
-/*******
- * DATA PERSISTENCE
- *******/
-// your existing loadDataFromFile, downloadLocalStorageData, etc.
-// unchanged...
-
-/*******
- * INIT
- *******/
-window.onload=function(){
-  calendarTableElement=document.getElementById("calendar");
-  todayDate=new Date(systemToday);
-  loadCalendarAroundDate(todayDate);
-
-  // IntersectionObserver or fallback
-  if('IntersectionObserver' in window) {
-    setupScrollObservers();
-  } else {
-    setInterval(checkInfiniteScroll,100);
-  }
-
-  // set jump date => today's date
-  const j=document.getElementById("jumpDate");
-  if(j){
-    const sys=new Date();
-    j.value = sys.getFullYear()+"-"
-      +String(sys.getMonth()+1).padStart(2,'0')+"-"
-      +String(sys.getDate()).padStart(2,'0');
-  }
-
-  // dark mode if enabled
-  if(localStorage.getItem("darkMode")==="enabled"){
-    document.body.classList.add("dark-mode");
-  }
-
-  // fix note heights after load
-  setTimeout(recalculateAllHeights,100);
-
-  // sticky header on scroll
-  window.addEventListener('scroll', throttle(updateStickyMonthHeader,100));
-
-  // init sticky header
-  updateStickyMonthHeader();
-};
-
-/*******
- * SCROLL OBSERVERS
- *******/
-function setupScrollObservers(){
-  const opts={rootMargin:'200px'};
-  const topObs=new IntersectionObserver((entries)=>{
-    if(entries[0].isIntersecting){
-      const oldH=documentScrollHeight();
-      for(let i=0;i<8;i++)prependWeek();
-      window.scrollBy(0, documentScrollHeight()-oldH);
-      recalculateAllHeights();
-      updateStickyMonthHeader();
+    function hideLoading() {
+      document.getElementById('loadingIndicator').classList.remove('active');
     }
-  },opts);
-  const botObs=new IntersectionObserver((entries)=>{
-    if(entries[0].isIntersecting){
-      for(let i=0;i<8;i++)appendWeek();
-      recalculateAllHeights();
-      updateStickyMonthHeader();
-    }
-  },opts);
-  topObs.observe(document.getElementById('top-sentinel'));
-  botObs.observe(document.getElementById('bottom-sentinel'));
 
-  // also check system day changes
-  setInterval(()=>{
-    const newSys=new Date();
-    if(newSys.toDateString()!==systemToday.toDateString()){
-      systemToday=newSys;
-      if(!document.querySelector('.current-day-dot')){
-        location.reload();
+    function showToast(message, duration = 3000) {
+      let toastContainer = document.getElementById('toast-container');
+      if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        document.body.appendChild(toastContainer);
+      }
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      requestAnimationFrame(() => { toast.style.opacity = '1'; });
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          if (toastContainer.contains(toast)) {
+            toastContainer.removeChild(toast);
+          }
+        }, 300);
+      }, duration);
+    }
+
+    function documentScrollTop() {
+      return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+    }
+    function documentScrollHeight() {
+      return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    }
+    function curve(x) {
+      return (x < 0.5) ? (4 * x*x*x) : (1 - 4*(1 - x)*(1 - x)*(1 - x));
+    }
+    function scrollAnimation() {
+      const percent = (new Date() - startTime) / 1000;
+      if (percent > 1) {
+        window.scrollTo(0, goalY);
+        hideLoading();
+      } else {
+        const newY = Math.round(startY + (goalY - startY)*curve(percent));
+        window.scrollTo(0, newY);
+        setTimeout(scrollAnimation, 10);
       }
     }
-  },60000);
-}
-
-/*******
- * INFINITE SCROLL FALLBACK
- *******/
-function checkInfiniteScroll() {
-  // near top => prepend
-  if(documentScrollTop()<200){
-    const oldH=documentScrollHeight();
-    for(let i=0;i<8;i++)prependWeek();
-    window.scrollBy(0, documentScrollHeight()-oldH);
-    recalculateAllHeights();
-  }
-  // near bottom => append
-  else if(documentScrollTop()>documentScrollHeight()-window.innerHeight-200){
-    for(let i=0;i<8;i++)appendWeek();
-    recalculateAllHeights();
-  }
-
-  // check day changes
-  const newSys=new Date();
-  if(newSys.toDateString()!==systemToday.toDateString()){
-    systemToday=newSys;
-    if(!document.querySelector('.current-day-dot')){
-      location.reload();
+    function scrollPositionForElement(element) {
+      let y = element.offsetTop;
+      let node = element;
+      while (node.offsetParent && node.offsetParent !== document.body) {
+        node = node.offsetParent;
+        y += node.offsetTop;
+      }
+      const clientHeight = element.clientHeight;
+      return y - (window.innerHeight - clientHeight) / 2;
     }
+    function scrollToToday() {
+      const elem = document.getElementById(idForDate(todayDate));
+      if (elem) {
+        window.scrollTo(0, scrollPositionForElement(elem));
+      }
+      hideLoading();
+    }
+
+    /******* DARK MODE *******/
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("darkMode", "enabled");
+        showToast("Dark mode enabled");
+      } else {
+        localStorage.setItem("darkMode", "disabled");
+        showToast("Light mode enabled");
+      }
+    }
+
+    /******* UNDO/REDO *******/
+    function pushUndoState() {
+      // Clear redoStack on new action
+      redoStack = [];
+      const snapshot = {};
+      for (const key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          snapshot[key] = localStorage[key];
+        }
+      }
+      undoStack.push(JSON.stringify(snapshot));
+      if (undoStack.length > MAX_UNDO) {
+        undoStack.shift();
+      }
+    }
+
+    function undoLastChange() {
+      if (!undoStack.length) {
+        showToast("No undo history available");
+        return;
+      }
+      // Save current state for redo
+      const currentSnapshot = {};
+      for (const key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          currentSnapshot[key] = localStorage[key];
+        }
+      }
+      redoStack.push(JSON.stringify(currentSnapshot));
+
+      const lastSnap = undoStack.pop();
+      if (!lastSnap) return;
+      localStorage.clear();
+      const data = JSON.parse(lastSnap);
+      for (const k in data) {
+        localStorage.setItem(k, data[k]);
+      }
+      loadCalendarAroundDate(todayDate);
+      showToast("Undo applied");
+    }
+
+    function redoLastChange() {
+      if (!redoStack.length) {
+        showToast("No redo history available");
+        return;
+      }
+      const nextState = redoStack.pop();
+      pushUndoState();
+      localStorage.clear();
+      const data = JSON.parse(nextState);
+      for (const k in data) {
+        localStorage.setItem(k, data[k]);
+      }
+      loadCalendarAroundDate(todayDate);
+      showToast("Redo applied");
+    }
+
+    /******* TEXTAREA / NOTES *******/
+    function recalculateHeight(itemId) {
+      const ta = document.getElementById(itemId);
+      if (!ta) return;
+      ta.style.height = "0";
+      const sh = ta.scrollHeight;
+      ta.style.height = (sh + 5) + "px";
+    }
+    function recalculateAllHeights() {
+      const textareas = document.querySelectorAll('textarea');
+      textareas.forEach(ta => recalculateHeight(ta.id));
+    }
+    function storeValueForItemId(itemId) {
+      pushUndoState();
+      const ta = document.getElementById(itemId);
+      if (!ta) return;
+      const parentId = ta.parentNode.id;
+      localStorage[itemId] = ta.value;
+      const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
+      if (!parentIds.includes(itemId)) {
+        parentIds.push(itemId);
+        localStorage[parentId] = parentIds;
+      }
+      const iso = parseDateFromId(parentId);
+      if (iso) localStorage[iso] = ta.value;
+      localStorage.setItem("lastSavedTimestamp", Date.now());
+    }
+    function removeValueForItemId(itemId) {
+      pushUndoState();
+      delete localStorage[itemId];
+      const ta = document.getElementById(itemId);
+      if (!ta) return;
+      const parentId = ta.parentNode.id;
+      if (localStorage[parentId]) {
+        let arr = localStorage[parentId].split(",");
+        arr = arr.filter(id => id !== itemId);
+        if (arr.length) {
+          localStorage[parentId] = arr;
+        } else {
+          delete localStorage[parentId];
+        }
+      }
+      const iso = parseDateFromId(parentId);
+      if (iso && localStorage[iso]) {
+        delete localStorage[iso];
+      }
+    }
+    function noteKeyDownHandler(e) {
+      recalculateHeight(this.id);
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        storeValueForItemId(this.id);
+        this.blur();
+        return false;
+      } else {
+        if (!this.debouncedSave) {
+          this.debouncedSave = debounce(() => storeValueForItemId(this.id), 1000);
+        }
+        this.debouncedSave();
+      }
+    }
+    function noteBlurHandler() {
+      if (!this.value.trim()) {
+        removeValueForItemId(this.id);
+        this.parentNode.removeChild(this);
+      }
+    }
+    function generateItem(parentId, itemId) {
+      const cell = document.getElementById(parentId);
+      if (!cell) return null;
+      const ta = document.createElement("textarea");
+      ta.id = itemId;
+      ta.onkeydown = noteKeyDownHandler;
+      ta.onblur = noteBlurHandler;
+      ta.spellcheck = false;
+      cell.appendChild(ta);
+      return ta;
+    }
+    function lookupItemsForParentId(parentId, callback) {
+      if (localStorage[parentId]) {
+        const ids = localStorage[parentId].split(",");
+        const items = [];
+        ids.forEach(it => {
+          const val = localStorage[it];
+          if (val !== undefined) {
+            items.push({ itemId: it, itemValue: val });
+          }
+        });
+        callback(items);
+      }
+    }
+
+    /******* RENDERING DAYS *******/
+    function generateDay(dayCell, date) {
+      const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+      if (isWeekend) dayCell.classList.add("weekend");
+      const isShaded = (date.getMonth() % 2 === 1);
+      if (isShaded) dayCell.classList.add("shaded");
+      const isToday = (
+        date.getFullYear() === todayDate.getFullYear() &&
+        date.getMonth() === todayDate.getMonth() &&
+        date.getDate() === todayDate.getDate()
+      );
+      if (isToday) {
+        dayCell.classList.add("today");
+      }
+      const isCurrentSystemDate = (
+        date.getFullYear() === systemToday.getFullYear() &&
+        date.getMonth() === systemToday.getMonth() &&
+        date.getDate() === systemToday.getDate()
+      );
+      dayCell.id = idForDate(date);
+      dayCell.innerHTML = `
+        <span>
+          ${daysOfWeek[getAdjustedDayIndex(date)]}
+          ${shortMonths[date.getMonth()]}
+          ${date.getDate()}
+          ${isCurrentSystemDate && !isToday ? '<div class="current-day-dot"></div>' : ''}
+        </span>
+      `;
+      lookupItemsForParentId(dayCell.id, items => {
+        items.forEach(it => {
+          const note = generateItem(dayCell.id, it.itemId);
+          if (note) {
+            note.value = it.itemValue;
+            recalculateHeight(note.id);
+          }
+        });
+      });
+    }
+
+    /******* MONTH ROWS *******/
+    function prependWeek() {
+      const row = calendarTableElement.insertRow(0);
+      animateRowInsertion(row, 'prepend');
+      let isMonthBoundary = false;
+      do {
+        firstDate.setDate(firstDate.getDate() - 1);
+        if (firstDate.getDate() === 1) {
+          isMonthBoundary = true;
+        }
+        const cell = row.insertCell(0);
+        generateDay(cell, new Date(firstDate));
+      } while(getAdjustedDayIndex(firstDate) !== 0);
+      if (isMonthBoundary) row.classList.add('month-boundary');
+      row.dataset.monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+    }
+    function appendWeek() {
+      const row = calendarTableElement.insertRow(-1);
+      animateRowInsertion(row, 'append');
+      let isMonthBoundary = false;
+      const rowStart = new Date(lastDate);
+      rowStart.setDate(rowStart.getDate() + 1);
+      const rowMonthName = months[rowStart.getMonth()] + " " + rowStart.getFullYear();
+      do {
+        lastDate.setDate(lastDate.getDate() + 1);
+        if (lastDate.getDate() === 1) {
+          isMonthBoundary = true;
+        }
+        const cell = row.insertCell(-1);
+        generateDay(cell, new Date(lastDate));
+      } while(getAdjustedDayIndex(lastDate) !== 6);
+      if (isMonthBoundary) row.classList.add('month-boundary');
+      const extra = row.insertCell(-1);
+      extra.className = "extra";
+      if (isMonthBoundary) {
+        extra.innerHTML = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+      } else {
+        extra.innerHTML = "";
+      }
+      row.dataset.monthName = rowMonthName;
+    }
+
+    /******* STICKY HEADER *******/
+    function updateStickyMonthHeader() {
+      const rows = document.querySelectorAll('#calendar tr');
+      const headerOffset = document.getElementById('header').offsetHeight + 30;
+      let visMonth = null;
+      for (const row of rows) {
+        const rect = row.getBoundingClientRect();
+        if (rect.top >= headerOffset && rect.top <= window.innerHeight) {
+          visMonth = row.dataset.monthName;
+          break;
+        }
+        if (rect.top < headerOffset && rect.bottom > headerOffset) {
+          visMonth = row.dataset.monthName;
+          break;
+        }
+      }
+      const sticky = document.getElementById('stickyMonthHeader');
+      if (visMonth && visMonth !== currentVisibleMonth) {
+        currentVisibleMonth = visMonth;
+        sticky.textContent = visMonth;
+        sticky.style.display = 'block';
+      }
+    }
+
+    /******* YEAR VIEW HELPER *******/
+    function buildYearView(year, container) {
+      for (let m = 0; m < 12; m++) {
+        const div = document.createElement('div');
+        div.className = 'month-grid';
+        const h3 = document.createElement('h3');
+        h3.textContent = months[m];
+        div.appendChild(h3);
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        const headerRow = document.createElement('tr');
+        for (let i = 0; i < 7; i++) {
+          const th = document.createElement('th');
+          th.textContent = daysOfWeek[i].charAt(0);
+          th.style.padding = '3px';
+          th.style.textAlign = 'center';
+          headerRow.appendChild(th);
+        }
+        table.appendChild(headerRow);
+        const firstDay = new Date(year, m, 1);
+        let dayOfWeek = getAdjustedDayIndex(firstDay);
+        const daysInMonth = new Date(year, m + 1, 0).getDate();
+        let day = 1;
+        let row = document.createElement('tr');
+        for (let k = 0; k < dayOfWeek; k++) {
+          const emptyCell = document.createElement('td');
+          emptyCell.style.padding = '3px';
+          emptyCell.style.textAlign = 'center';
+          row.appendChild(emptyCell);
+        }
+        while(day <= daysInMonth) {
+          if (dayOfWeek === 7) {
+            table.appendChild(row);
+            row = document.createElement('tr');
+            dayOfWeek = 0;
+          }
+          const td = document.createElement('td');
+          td.textContent = day;
+          td.style.padding = '3px';
+          td.style.textAlign = 'center';
+          const currentDate = new Date(year, m, day);
+          if (currentDate.getTime() === todayDate.setHours(0,0,0,0)) {
+            td.style.backgroundColor = '#e53e3e';
+            td.style.color = 'white';
+            td.style.borderRadius = '50%';
+          }
+          const dateId = `${m}_${day}_${year}`;
+          if (localStorage[dateId]) {
+            td.style.fontWeight = 'bold';
+            td.style.textDecoration = 'underline';
+          }
+          td.style.cursor = 'pointer';
+          td.onclick = () => {
+            hideYearView();
+            todayDate = new Date(year, m, day);
+            loadCalendarAroundDate(todayDate);
+            smoothScrollToToday();
+          };
+          row.appendChild(td);
+          day++;
+          dayOfWeek++;
+        }
+        if (row.hasChildNodes()) {
+          table.appendChild(row);
+        }
+        div.appendChild(table);
+        container.appendChild(div);
+      }
+    }
+
+    /******* MINI-CALENDAR (Interactive Overview) *******/
+// Updated buildMiniCalendar function with month header and transparent cells
+function buildMiniCalendar() {
+  const mini = document.getElementById("miniCalendar");
+  if (!mini) return;
+  mini.innerHTML = "";
+
+  // Create a header showing the current month and year
+  const monthHeader = document.createElement("div");
+  monthHeader.textContent = months[todayDate.getMonth()] + " " + todayDate.getFullYear();
+  monthHeader.style.textAlign = "center";
+  monthHeader.style.fontSize = "12px";
+  monthHeader.style.fontWeight = "bold";
+  monthHeader.style.marginBottom = "5px";
+  mini.appendChild(monthHeader);
+
+  // Create the grid for days of the week and dates
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "repeat(7, 20px)";
+  grid.style.gridGap = "2px";
+
+  // Day of week header row
+  for (let i = 0; i < 7; i++) {
+    const dayCell = document.createElement("div");
+    dayCell.textContent = daysOfWeek[i].charAt(0);
+    dayCell.style.fontSize = "10px";
+    dayCell.style.textAlign = "center";
+    grid.appendChild(dayCell);
   }
+
+  // Determine offset for the first day
+  const firstDay = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+  let startDay = firstDay.getDay();
+  startDay = startDay === 0 ? 7 : startDay;
+  const offset = startDay - 1;
+  for (let i = 0; i < offset; i++) {
+    const empty = document.createElement("div");
+    grid.appendChild(empty);
+  }
+
+  // Create cells for each day; cells are transparent to show the dot grid
+  const daysInMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement("div");
+    cell.textContent = d;
+    cell.style.fontSize = "10px";
+    cell.style.textAlign = "center";
+    cell.style.cursor = "pointer";
+    cell.style.padding = "2px";
+    cell.style.borderRadius = "3px";
+    cell.style.backgroundColor = "transparent";  // Transparent background
+    if (d === todayDate.getDate()) {
+      cell.style.backgroundColor = "#e53e3e";
+      cell.style.color = "#fff";
+    }
+    cell.addEventListener("click", () => {
+      todayDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), d);
+      loadCalendarAroundDate(todayDate);
+      smoothScrollToToday();
+    });
+    grid.appendChild(cell);
+  }
+  mini.appendChild(grid);
 }
-</script>
+
+    function updateMiniCalendar() {
+      buildMiniCalendar();
+    }
+
+    /******* KEYBOARD FOCUS LOGIC *******/
+    function highlightKeyboardFocusedDay() {
+      document.querySelectorAll('.keyboard-focus').forEach(el => {
+        el.classList.remove('keyboard-focus');
+      });
+      if (!keyboardFocusDate) return;
+      const cellId = idForDate(keyboardFocusDate);
+      const cell = document.getElementById(cellId);
+      if (cell) {
+        cell.classList.add('keyboard-focus');
+      }
+    }
+    function stepDay(delta) {
+      if (!keyboardFocusDate) {
+        keyboardFocusDate = new Date(todayDate || systemToday);
+      }
+      keyboardFocusDate.setDate(keyboardFocusDate.getDate() + delta);
+      loadCalendarAroundDate(keyboardFocusDate);
+      setTimeout(() => {
+        highlightKeyboardFocusedDay();
+        const cell = document.getElementById(idForDate(keyboardFocusDate));
+        if (cell) {
+          goalY = scrollPositionForElement(cell);
+          startY = documentScrollTop();
+          startTime = new Date();
+          if (goalY !== startY) setTimeout(scrollAnimation, 10);
+        }
+      }, 300);
+    }
+    function createEventInFocusedDay() {
+      if (!keyboardFocusDate) {
+        showToast("No day is selected");
+        return;
+      }
+      const cellId = idForDate(keyboardFocusDate);
+      const cell = document.getElementById(cellId);
+      if (!cell) {
+        showToast("Focused day not visible");
+        return;
+      }
+      cell.classList.add("clicked-day");
+      setTimeout(() => cell.classList.remove("clicked-day"), 500);
+      const itemId = nextItemId();
+      const note = generateItem(cellId, itemId);
+      if (note) {
+        recalculateHeight(note.id);
+        storeValueForItemId(note.id);
+        note.focus();
+      }
+    }
+
+    /******* KEYBOARD NAVIGATION *******/
+    document.addEventListener("keydown", (e) => {
+      if (e.target && (e.target.tagName.toLowerCase() === "textarea" || e.target.tagName.toLowerCase() === "input"))
+        return;
+      if (e.key === "Escape") {
+        if (document.getElementById("help").style.display === "block") { hideHelp(); return; }
+        if (document.getElementById("yearViewContainer").style.display === "block") { hideYearView(); return; }
+        if (isSelectingRange) { clearRangeSelection(); isSelectingRange = false; showToast("Range selection cancelled"); return; }
+      }
+      else if (e.key === "?") {
+        e.preventDefault();
+        const helpElem = document.getElementById("help");
+        if (helpElem.style.display === "block") hideHelp(); else showHelp();
+      }
+      else if (e.key === "z" || e.key === "Z") {
+        if (e.ctrlKey || e.metaKey) { e.preventDefault(); undoLastChange(); }
+        else { e.preventDefault(); undoLastChange(); }
+      }
+      // Redo shortcut: Ctrl+Shift+Z
+      else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "Z" || e.key === "z")) {
+        e.preventDefault();
+        redoLastChange();
+      }
+      else if (e.key === "y" || e.key === "Y") {
+        e.preventDefault();
+        const yv = document.getElementById("yearViewContainer");
+        if (yv.style.display === "block") hideYearView(); else showYearView();
+      }
+      else if (e.key === "g" || e.key === "G") {
+        e.preventDefault();
+        const j = document.getElementById("jumpDate");
+        if (j) j.focus();
+      }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); stepDay(-1); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); stepDay(1); }
+      else if (e.key === "ArrowDown" && e.altKey) { e.preventDefault(); jumpOneMonthForward(); }
+      else if (e.key === "Enter") { e.preventDefault(); createEventInFocusedDay(); }
+      else if (e.key === "t" || e.key === "T") { todayDate = new Date(systemToday); loadCalendarAroundDate(todayDate); }
+      else if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) { e.preventDefault(); toggleDarkMode(); }
+    });
+
+    /******* JUMP 1 MONTH *******/
+    function jumpOneMonthForward() {
+      if (!currentVisibleMonth) return;
+      const [monthName, yearStr] = currentVisibleMonth.split(" ");
+      if (!monthName || !yearStr) return;
+      let y = parseInt(yearStr, 10) || new Date().getFullYear();
+      const mIdx = months.indexOf(monthName);
+      if (mIdx === -1) return;
+      let nm = mIdx + 1;
+      if (nm > 11) { nm = 0; y++; }
+      const nextDate = new Date(y, nm, 1);
+      smoothScrollToDate(nextDate);
+    }
+    function smoothScrollToDate(dateObj) {
+      showLoading();
+      loadCalendarAroundDate(dateObj);
+      setTimeout(() => {
+        const el = document.getElementById(idForDate(dateObj));
+        if (!el) { hideLoading(); return; }
+        goalY = scrollPositionForElement(el);
+        startY = documentScrollTop();
+        startTime = new Date();
+        if (goalY !== startY) setTimeout(scrollAnimation, 10); else hideLoading();
+      }, 200);
+    }
+
+    /******* MISC *******/
+    function jumpToDate() {
+      const val = document.getElementById("jumpDate").value;
+      if (!val) return;
+      showLoading();
+      const [yyyy, mm, dd] = val.split("-");
+      const jumpDateObj = new Date(yyyy, mm - 1, dd);
+      todayDate = jumpDateObj;
+      loadCalendarAroundDate(todayDate);
+      setTimeout(() => smoothScrollToToday(), 300);
+    }
+    function nextItemId() {
+      localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
+      return "item" + localStorage.nextId;
+    }
+
+    /******* RANGE SELECTION *******/
+    function toggleRangeSelection() {
+      isSelectingRange = !isSelectingRange;
+      if (!isSelectingRange) { clearRangeSelection(); }
+      showToast(isSelectingRange ? "Select range start date" : "Range selection cancelled");
+    }
+    function clearRangeSelection() {
+      document.querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
+        .forEach(el => el.classList.remove('selected-range-start','selected-range-end','selected-range-day'));
+      rangeStart = null;
+      rangeEnd = null;
+    }
+
+    /******* CALENDAR INITIALIZATION *******/
+    function loadCalendarAroundDate(seedDate) {
+      showLoading();
+      calendarTableElement.innerHTML = "";
+      firstDate = new Date(seedDate);
+      while (getAdjustedDayIndex(firstDate) !== 0) {
+        firstDate.setDate(firstDate.getDate() - 1);
+      }
+      lastDate = new Date(firstDate);
+      lastDate.setDate(lastDate.getDate() - 1);
+      appendWeek();
+      while (documentScrollHeight() <= window.innerHeight) {
+        prependWeek();
+        appendWeek();
+      }
+      setTimeout(() => {
+        scrollToToday();
+        recalculateAllHeights();
+        updateStickyMonthHeader();
+        updateMiniCalendar();
+      }, 50);
+    }
+
+    /******* PARALLAX BACKGROUND ON SCROLL *******/
+    window.addEventListener("scroll", throttle(() => {
+      const parallax = document.querySelector(".parallax-bg");
+      if (parallax) {
+        parallax.style.transform = "translateY(" + (documentScrollTop() * 0.5) + "px)";
+      }
+    }, 20));
+
+    /******* INTERSECTION OBSERVERS *******/
+    function setupScrollObservers() {
+      const opts = { rootMargin: '200px' };
+      const topObs = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          const oldH = documentScrollHeight();
+          for (let i = 0; i < 8; i++) prependWeek();
+          window.scrollBy(0, documentScrollHeight() - oldH);
+          recalculateAllHeights();
+          updateStickyMonthHeader();
+        }
+      }, opts);
+      const botObs = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          for (let i = 0; i < 8; i++) appendWeek();
+          recalculateAllHeights();
+          updateStickyMonthHeader();
+        }
+      }, opts);
+      topObs.observe(document.getElementById('top-sentinel'));
+      botObs.observe(document.getElementById('bottom-sentinel'));
+      setInterval(() => {
+        const newSys = new Date();
+        if (newSys.toDateString() !== systemToday.toDateString()) {
+          systemToday = newSys;
+          if (!document.querySelector('.current-day-dot')) {
+            location.reload();
+          }
+        }
+      }, 60000);
+    }
+    function checkInfiniteScroll() {
+      if (documentScrollTop() < 200) {
+        const oldH = documentScrollHeight();
+        for (let i = 0; i < 8; i++) prependWeek();
+        window.scrollBy(0, documentScrollHeight() - oldH);
+        recalculateAllHeights();
+      }
+      else if (documentScrollTop() > documentScrollHeight() - window.innerHeight - 200) {
+        for (let i = 0; i < 8; i++) appendWeek();
+        recalculateAllHeights();
+      }
+      const newSys = new Date();
+      if (newSys.toDateString() !== systemToday.toDateString()) {
+        systemToday = newSys;
+        if (!document.querySelector('.current-day-dot')) {
+          location.reload();
+        }
+      }
+    }
+
+    /******* HELPER FUNCTIONS *******/
+    function idForDate(date) {
+      return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
+    }
+    function parseDateFromId(idStr) {
+      const parts = idStr.split("_");
+      if (parts.length !== 3) return null;
+      const [month, day, year] = parts.map(Number);
+      return `${year.toString().padStart(4,"0")}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    }
+    function getAdjustedDayIndex(date) {
+      const day = date.getDay();
+      return (day === 0) ? 6 : day - 1;
+    }
+    function animateRowInsertion(row, direction = 'append') {
+      row.classList.add(ROW_ANIMATION_CLASS);
+      if (direction === 'append') {
+        row.classList.add('append-animate');
+      } else {
+        row.classList.add('prepend-animate');
+      }
+      row.addEventListener('animationend', () => {
+        row.classList.remove(ROW_ANIMATION_CLASS, 'append-animate', 'prepend-animate');
+      }, { once: true });
+    }
+
+    /******* INITIALIZATION *******/
+    window.onload = function() {
+      calendarTableElement = document.getElementById("calendar");
+      todayDate = new Date(systemToday);
+      loadCalendarAroundDate(todayDate);
+      if ('IntersectionObserver' in window) {
+        setupScrollObservers();
+      } else {
+        setInterval(checkInfiniteScroll, 100);
+      }
+      const j = document.getElementById("jumpDate");
+      if (j) {
+        const sys = new Date();
+        j.value = sys.getFullYear() + "-" + String(sys.getMonth()+1).padStart(2, '0') + "-" + String(sys.getDate()).padStart(2, '0');
+      }
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.body.classList.add("dark-mode");
+      }
+      setTimeout(recalculateAllHeights, 100);
+      window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
+      updateStickyMonthHeader();
+    };
+  </script>
 </body>
 </html>
