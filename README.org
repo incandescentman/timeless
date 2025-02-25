@@ -110,6 +110,46 @@ The "Jump to Date" field now has a practical range:
 ~<input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31">~
 - Keeps navigation user-friendly while allowing customization. 🎯📌
 
+
+** Expanded Mini-Calendar Overview
+
+- *Multi-Month Display:* The mini-calendar now shows the previous, current, and next months in a vertically stacked layout.
+- *Clear Month Headers:* Each mini-calendar section includes a header indicating the month and year.
+- *Quick Navigation:* Clicking on any day in these mini-calendars instantly navigates you to that date in the main calendar.
+
+** Enhanced Keyboard Navigation
+
+- *Arrow Key Precision:* Left and right arrow keys now move day by day---crossing week boundaries seamlessly without skipping any dates.
+- *Enter Key for New Entries:* Pressing Enter on the currently highlighted day creates a new note.
+- *Delete Key Functionality:* Pressing Delete while a day is highlighted deletes all entries for that day (with a confirmation prompt), making it easy to manage entries using just the keyboard.
+- *Escape Key in Textareas:* When editing a note, pressing Escape cancels the editing session (by blurring the field).
+
+** Improved Mouse Interaction
+
+- *Single-Click Entry Creation:* Clicking on any empty space within a day cell creates a new note.
+- *Single-Click to Edit:* Clicking on an existing note focuses the textarea for editing.
+- *Restored Classic Behavior:* These changes restore the familiar mouse-based interactions alongside the new keyboard shortcuts.
+
+** Refined Visual and UI Effects
+
+- *Timeless Button Redesign:* The "Timeless" button has been updated with a modern gradient, increased padding, rounded corners, and smooth hover/active effects.
+- *Smooth Animations & Transitions:*
+ - Calendar cells now have refined hover effects with a slight scale-up and deeper shadow.
+ - A subtle ripple effect provides immediate feedback when a cell is clicked.
+ - The overall scrolling animations have been smoothed out for a more polished experience.
+- *Glassmorphism for Notes:* Note textareas now use a semi-transparent background with a blur filter to create a modern frosted-glass look.
+- *Animated Dot Grid Background:* The dot grid background has a slow, subtle movement to add depth without distraction.
+
+** Undo/Redo Functionality
+
+- *Undo Support:* Use Ctrl+Z (or plain "z") to undo the last change.
+- *Redo Support:* Use Ctrl+Shift+Z or Ctrl+Y to redo the last undone change.
+- *Enhanced Editing Control:* These features offer better control during extensive note editing and calendar updates.
+
+** Additional Enhancements
+
+- *Mouse & Keyboard Harmony:* Both mouse interactions and keyboard shortcuts work together seamlessly for adding, editing, and navigating calendar entries.
+- *Infinite Scroll & Responsive Design:* The calendar supports infinite scrolling and adapts smoothly across different devices.
 * Getting Started
 ** Non-expert users
 Simply visit: [[https://incandescentman.github.io/timeless/][Timeless: The Infinitely Scrolling Calendar 🌏🚀]]
