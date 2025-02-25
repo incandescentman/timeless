@@ -1774,6 +1774,153 @@ function noteKeyDownHandler(e) {
     /*** FILE IMPORT/EXPORT, etc. ***/
     /* Keep your existing loadDataFromFile(), downloadLocalStorageData(), shouldLoadOrExport(), etc. */
     /* not shown here for brevity, but re-insert your code in these placeholders. */
+/**
+ * FILE PERSISTENCE
+ **/
+function downloadLocalStorageData() {
+  showLoading();
+  const data = {};
+  for (const key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+  const anchor = document.createElement("a");
+  anchor.setAttribute("href", dataStr);
+  anchor.setAttribute("download", "calendar_data.json");
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => {
+    hideLoading();
+    showToast("Calendar data downloaded");
+  }, 300);
+}
+
+function loadDataFromFile() {
+  showLoading();
+  const input = document.getElementById("fileInput");
+  if (!input.files.length) {
+    showToast("Please select a file to load");
+    hideLoading();
+    return;
+  }
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          localStorage.setItem(key, data[key]);
+        }
+      }
+      showToast("Data loaded successfully!");
+      location.reload();
+    } catch {
+      hideLoading();
+      showToast("Invalid file format. Please select a valid JSON file.");
+    }
+  };
+  reader.onerror = () => {
+    hideLoading();
+    showToast("There was an error reading the file!");
+  };
+  reader.readAsText(file);
+}
+
+/* For cloud sync (Web File System API). */
+async function shouldLoadOrExport() {
+  showLoading();
+  try {
+    const handle = await window.showDirectoryPicker();
+    const fileHandle = await handle.getFileHandle("calendar_data.json",{create:false});
+    const file = await fileHandle.getFile();
+    const contents = await file.text();
+    const data = JSON.parse(contents);
+
+    const fileTimestamp = data.lastSavedTimestamp;
+    const localTimestamp = localStorage.getItem("lastSavedTimestamp");
+
+    if (fileTimestamp && (!localTimestamp || fileTimestamp>localTimestamp)) {
+      // local is older => backup local then load from file
+      downloadBackupStorageData();
+      await loadDataFromFileHandle(fileHandle);
+      location.reload();
+    } else {
+      // local is newer => export
+      await exportToFileHandle(fileHandle);
+      hideLoading();
+    }
+  } catch(err) {
+    hideLoading();
+    if (err.name === "AbortError") {
+      console.log("User cancelled file/directory selection");
+    } else {
+      console.error("Error syncing data:", err);
+      showToast("Error syncing calendar data. See console for details.");
+    }
+  }
+}
+function downloadBackupStorageData() {
+  showLoading();
+  const data = {};
+  for (const key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+  const anchor = document.createElement("a");
+  anchor.setAttribute("href", dataStr);
+  anchor.setAttribute("download", "calendar_data_backup.json");
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => {
+    hideLoading();
+    showToast("Calendar data backup created", 5000);
+  }, 300);
+}
+async function loadDataFromFileHandle(fileHandle) {
+  try {
+    const file = await fileHandle.getFile();
+    const contents = await file.text();
+    const data = JSON.parse(contents);
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        localStorage.setItem(key, data[key]);
+      }
+    }
+    showToast("Loaded calendar data from file");
+  } catch(err) {
+    hideLoading();
+    console.error("Error loading data from file:", err);
+    showToast("Error loading calendar data");
+  }
+}
+async function exportToFileHandle(fileHandle) {
+  try {
+    const writable = await fileHandle.createWritable();
+    const data = {};
+    for (const key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        data[key] = localStorage.getItem(key);
+      }
+    }
+    data.lastSavedTimestamp = Date.now();
+    await writable.write(JSON.stringify(data));
+    await writable.close();
+    showToast("Saved calendar data to file");
+  } catch(err) {
+    hideLoading();
+    console.error("Error saving data to file:", err);
+    showToast("Error saving calendar data");
+  }
+}
+
+
   </script>
 </body>
 </html>
