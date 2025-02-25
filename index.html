@@ -371,6 +371,15 @@ tr.month-boundary td:not(.extra) {
   border-top: 2px solid var(--month-boundary) !important;
 }
 
+/* Make month boundaries more obvious in dark mode */
+body.dark-mode tr.month-boundary td:not(.extra) {
+  border-top: 2px solid var(--month-boundary) !important;
+  /* Add subtle background gradient for month transitions */
+  background-image: linear-gradient(to bottom,
+                   rgba(255,255,255,0.05) 0%,
+                   transparent 50%);
+}
+
 /*
  * Today's cell with pulse
  */
