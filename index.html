@@ -346,7 +346,7 @@
       font-family: 'Playfair Display', serif;
       font-size: 22px;
       line-height: 1.2;
-      color: #555;
+      color: #000;
       opacity: 0.8;
       font-weight: 400;
       padding: 0 0 0 15px;
@@ -669,9 +669,9 @@
     <div>
       <span>Timeless: The Infinite Calendar ✨</span>
       <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">🌙</a>
-      <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">📥</a>
-      <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Load Calendar Data">💾</a>
-      <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">📅</a>
+<a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">📥</a>
+<a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data"> 💾</a>
+<a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">📅</a>
       <a href="#" class="button" onclick="showYearView()" data-tooltip="Year View">📆</a>
       <a href="#" class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">📏</a>
       <a href="#" class="button" onclick="shouldLoadOrExport()" data-tooltip="Sync with Cloud">🔄</a>
@@ -1652,7 +1652,7 @@
       section.style.marginBottom = "10px";
       section.style.padding = "5px";
       section.style.borderRadius = "5px";
-      if (highlightCurrent) { section.style.border = "2px solid #e53e3e"; }
+
       const monthHeader = document.createElement("div");
       monthHeader.textContent = months[month] + " " + year;
       monthHeader.style.textAlign = "center";
