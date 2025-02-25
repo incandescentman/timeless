@@ -262,8 +262,10 @@ body.dark-mode input[type="date"] {
 /*
  * Main calendar table styling
  */
+
 #calendar {
-  width: 960px;
+  width: 90%; /* 90% of the viewport/container */
+  max-width: 1200px;
   margin: 0 auto;
   table-layout: fixed;
   border-spacing: 3px;
@@ -303,9 +305,9 @@ body.dark-mode input[type="date"] {
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
   text-align: right;
   vertical-align: top;
-  width: 120px;
+width: 150px; /* or even more */
   min-height: var(--cell-min-height);
-  height: var(--cell-min-height);
+   height: var(--cell-min-height);
   cursor: pointer;
   box-sizing: border-box;
   word-wrap: break-word;
@@ -1456,16 +1458,35 @@ document.addEventListener('click', (evt) => {
 /****
  * KEYBOARD NAV
  ****/
+
 document.addEventListener("keydown", (e) => {
-  if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
-  if (e.key === "ArrowUp") {
-    window.scrollBy(0, -window.innerHeight/3);
-  } else if (e.key === "ArrowDown") {
-    window.scrollBy(0, window.innerHeight/3);
-  } else if (e.key === "t" || e.key === "T") {
+  if (e.target && e.target.tagName.toLowerCase() === "textarea") {
+    // If focus is in a textarea, let it handle arrow keys
+    return;
+  }
+
+  // 1) Let normal Up/Down pass through to the browser
+  //    (so it scrolls line-by-line or page-by-page in a normal way)
+  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    // Do nothing => default browser behavior
+    return;
+  }
+
+  // 2) Implement "Alt+Down" => jump to next month
+  if (e.key === "ArrowDown" && e.altKey) {
+    e.preventDefault(); // stop the browser from default arrow scrolling
+    jumpOneMonthForward();
+    return;
+  }
+
+  // 3) "T" => Jump to today
+  if (e.key === "t" || e.key === "T") {
     todayDate = new Date(systemToday);
     loadCalendarAroundDate(todayDate);
-  } else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !e.shiftKey && !e.altKey) {
+  }
+
+  // 4) Ctrl+D => Toggle dark mode
+  else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !e.shiftKey && !e.altKey) {
     e.preventDefault();
     toggleDarkMode();
   }
@@ -1474,7 +1495,63 @@ document.addEventListener("keydown", (e) => {
 /****
  * JUMP & LOAD
  ****/
-function jumpToDate() {
+
+function jumpOneMonthForward() {
+  // Parse currentVisibleMonth => "MonthName Year"
+  // e.g. "March 2025"
+  if (!currentVisibleMonth) return;
+
+  const parts = currentVisibleMonth.split(" ");
+  if (parts.length < 2) return;
+
+  const monthName = parts[0];
+  const year = parseInt(parts[1], 10) || new Date().getFullYear();
+
+  // Convert month name to index 0..11
+  const monthIndex = months.indexOf(monthName);
+  if (monthIndex === -1) return;
+
+  // Next month => increment
+  let nextMonth = monthIndex + 1;
+  let nextYear = year;
+  if (nextMonth > 11) {
+    nextMonth = 0;
+    nextYear++;
+  }
+
+  // We'll jump to the 1st of nextMonth in nextYear
+  const nextDate = new Date(nextYear, nextMonth, 1);
+
+  // Smooth scroll to that date
+  smoothScrollToDate(nextDate);
+}
+
+// Reuse your existing smooth scroll logic, but for an arbitrary date
+function smoothScrollToDate(someDate) {
+  showLoading();
+
+  // Ensure that date is loaded in the calendar; if not, might need to
+  // expand the calendar a bit, e.g. by calling loadCalendarAroundDate
+  // or something similar. But if your infinite scroll is active,
+  // eventually it should fill. For safety:
+  loadCalendarAroundDate(someDate);
+
+  // Then actually do the scroll
+  setTimeout(() => {
+    const elem = document.getElementById(idForDate(someDate));
+    if (!elem) {
+      hideLoading();
+      return;
+    }
+    goalY = scrollPositionForElement(elem);
+    startY = documentScrollTop();
+    startTime = new Date();
+    if (goalY !== startY) setTimeout(scrollAnimation, 10);
+    else hideLoading();
+  }, 200);
+}
+
+ function jumpToDate() {
   const val = document.getElementById("jumpDate")?.value;
   if (!val) return;
   showLoading();
