@@ -18,11 +18,45 @@
  * CSS Variables for consistent theming
  */
 :root {
- --border-width: 1px;
- --border-color: black;
- --header-height: 27px;
- --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
- --cell-min-height: 120px;
+--border-width: 1px;
+--border-color: black;
+--header-height: 27px;
+--shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+--cell-min-height: 120px;
+
+ /* Light mode colors */
+--bg-primary: white;
+--bg-pattern: #e2e8f0;
+--text-primary: black;
+--weekend-gradient-from: #f8f9fa;
+--weekend-gradient-to: #e9ecef;
+--shaded-month: #CFE7FF;
+--today-gradient-from: rgba(229, 62, 62, 0.9);
+--today-gradient-to: rgba(197, 48, 48, 0.9);
+--month-boundary: #aaa;
+--header-gradient-from: #f8f9fa;
+--header-gradient-to: #e9ecef;
+--month-heading-bg: white;
+--month-heading-text: #333;
+}
+
+/*
+ * Dark mode colors
+ */
+body.dark-mode {
+ --bg-primary: #222;
+ --bg-pattern: rgba(255, 255, 255, 0.05);
+ --text-primary: #eee;
+ --weekend-gradient-from: #303542;
+ --weekend-gradient-to: #232731;
+ --shaded-month: #2a2a2a;
+ --today-gradient-from: rgba(229, 62, 62, 0.8);
+ --today-gradient-to: rgba(197, 48, 48, 0.8);
+ --month-boundary: #555;
+ --header-gradient-from: #2c3e50;
+ --header-gradient-to: #1a1a2e;
+ --month-heading-bg: #2c2c2c;
+ --month-heading-text: #ddd;
 }
 
 /*
@@ -32,28 +66,18 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-  background: white;
-  color: black;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   transition: background-color 0.5s, color 0.5s;
-  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+  background-image: radial-gradient(var(--bg-pattern) 1px, transparent 1px);
   background-size: 20px 20px;
-}
-
-/*
- * Dark mode styles
- * - Adjusted to #222 for a subtler effect
- */
-body.dark-mode {
-  background: #222;
-  color: #eee;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
 /*
  * Fixed header bar styling
  */
 #header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--header-gradient-from) 0%, var(--header-gradient-to) 100%);
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   border-bottom: none;
   display: flex;
@@ -68,35 +92,26 @@ body.dark-mode {
 }
 
 /*
- * Dark mode header styling
- */
-body.dark-mode #header {
-  background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
-}
-
-/*
  * A second fixed bar for the current month heading
  * Sits below #header
  */
 #stickyMonthHeader {
-  position: sticky;
-  top: calc(var(--header-height) + 10px);
+  position: fixed;
+top: calc(var(--header-height) + 20px);
   left: 0;
   width: 100%;
   font-family: 'Playfair Display', serif;
   font-size: 20px;
   font-weight: 600;
   padding: 5px 20px;
-  background: #fff;
-  color: #333;
+  background: var(--month-heading-bg);
+  color: var(--month-heading-text);
   z-index: 998; /* Just below the main header */
   display: none; /* Becomes visible once we have a month name */
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-body.dark-mode #stickyMonthHeader {
-  background: #2c2c2c;
-  color: #ddd;
+  text-align: center;
+  border-radius: 0 0 4px 4px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 /*
@@ -259,13 +274,21 @@ body.dark-mode input[type="date"] {
  * Animate newly added rows
  */
 .week-row-animate {
-  opacity: 0;
-  transform: translateY(20px);
+  animation: none;
 }
-.week-row-animate.entering {
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-  transform: translateY(0);
-  opacity: 1;
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.week-row-animate.append-animate {
+  animation: slideInUp 0.3s ease-out forwards;
+}
+.week-row-animate.prepend-animate {
+  animation: slideInDown 0.3s ease-out forwards;
 }
 
 /*
@@ -313,33 +336,24 @@ body.dark-mode #calendar td:hover {
 
 /*
  * Weekend styling (Saturday/Sunday)
- * Slightly different in dark mode
+ * Using CSS variables for gradient colors
  */
 #calendar td.weekend {
-  background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
-}
-body.dark-mode #calendar td.weekend {
-  background: linear-gradient(to bottom right, #303542, #232731);
+  background: linear-gradient(to bottom right, var(--weekend-gradient-from), var(--weekend-gradient-to));
 }
 
 /*
  * Alternating month shading
  */
 #calendar td.shaded {
-  background: #CFE7FF;
-}
-body.dark-mode #calendar td.shaded {
-  background: #2a2a2a;
+  background: var(--shaded-month);
 }
 
 /*
  * "month-boundary" row => subtle top border
  */
-.month-boundary {
-  border-top: 2px solid #aaa !important;
-}
-body.dark-mode .month-boundary {
-  border-top: 2px solid #555 !important;
+tr.month-boundary td {
+  border-top: 2px solid var(--month-boundary) !important;
 }
 
 /*
@@ -351,7 +365,7 @@ body.dark-mode .month-boundary {
   100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
 }
 #calendar td.today {
-  background: linear-gradient(135deg, rgba(229,62,62,0.9) 0%, rgba(197,48,48,0.9) 100%);
+  background: linear-gradient(135deg, var(--today-gradient-from) 0%, var(--today-gradient-to) 100%);
   transform: scale(1.03);
   z-index: 10;
   color: #FFF;
@@ -610,7 +624,7 @@ body.dark-mode .toast {
   padding: 20px;
 }
 body.dark-mode #yearViewContainer {
-  background: #111;
+  background: #222;
 }
 
 #yearViewGrid {
@@ -790,7 +804,7 @@ body.dark-mode #yearViewContainer {
 </div>
 
 <script>
-/***************************
+/**************
  * Timeless: The Infinitely Scrolling Calendar
  * Incorporating requested enhancements:
  *  1) Sticky Month Headings
@@ -799,11 +813,11 @@ body.dark-mode #yearViewContainer {
  *  4) Improved dark-mode palette
  *  5) Debounce over setTimeout for auto-save
  *  6) More descriptive variable names
- ***************************/
+ **************/
 
-/*******
+/****
  * CORE VARIABLES & STATE
- *******/
+ ****/
 let systemToday = new Date(); // current real system date
 let todayDate;                // "selected" today in the calendar
 let calendarTableElement;
@@ -835,23 +849,28 @@ const shortMonths = [
 // For smooth scrolling
 let startTime, startY, goalY;
 
-/*******
+// Current visible month (for sticky header)
+let currentVisibleMonth = '';
+
+/****
  * UTILITY
- *******/
+ ****/
+
 /* Adds a fade/slide animation to a newly inserted row. */
 function animateRowInsertion(row, direction = 'append') {
   row.classList.add(ROW_ANIMATION_CLASS);
-  requestAnimationFrame(() => {
-    // Force reflow so we can transition from initial state
-    // to final state
-    row.getBoundingClientRect();
-    row.classList.add('entering');
 
-    // Remove classes after transition ends
-    row.addEventListener('transitionend', () => {
-      row.classList.remove(ROW_ANIMATION_CLASS, 'entering');
-    }, { once: true });
-  });
+  // Add the appropriate animation class based on direction
+  if (direction === 'append') {
+    row.classList.add('append-animate');
+  } else {
+    row.classList.add('prepend-animate');
+  }
+
+  // Remove animation classes after animation completes
+  row.addEventListener('animationend', () => {
+    row.classList.remove(ROW_ANIMATION_CLASS, 'append-animate', 'prepend-animate');
+  }, { once: true });
 }
 
 /* Standard throttle to limit function calls. */
@@ -932,9 +951,9 @@ function hideLoading() {
   document.getElementById('loadingIndicator').classList.remove('active');
 }
 
-/*******
+/****
  * DARK MODE
- *******/
+ ****/
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
   if (document.body.classList.contains("dark-mode")) {
@@ -946,9 +965,9 @@ function toggleDarkMode() {
   }
 }
 
-/*******
+/****
  * UNDO STACK
- *******/
+ ****/
 function pushUndoState() {
   const snapshot = {};
   for (const key in localStorage) {
@@ -981,9 +1000,9 @@ function undoLastChange() {
   showToast("Changes undone successfully");
 }
 
-/*******
+/****
  * SCROLL & POSITION
- *******/
+ ****/
 /* Current scroll position. */
 function documentScrollTop() {
   return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
@@ -1045,15 +1064,19 @@ function smoothScrollToToday() {
   else hideLoading();
 }
 
-/*******
+/****
  * TEXTAREA / NOTES
- *******/
+ ****/
 /* Recompute textarea height based on content. */
 function recalculateHeight(itemId) {
   const noteTextarea = document.getElementById(itemId);
   if (!noteTextarea) return;
+
+  // Reset height to accurately measure content
   noteTextarea.style.height = "0";
   const scrollHeight = noteTextarea.scrollHeight;
+
+  // Set new height with a little padding to avoid clipping
   noteTextarea.style.height = (scrollHeight + 5) + "px";
 }
 
@@ -1164,9 +1187,9 @@ function lookupItemsForParentId(parentId, callback) {
   }
 }
 
-/*******
+/****
  * CALENDAR RENDER
- *******/
+ ****/
 function generateDay(dayCell, date) {
   // weekend?
   const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
@@ -1217,25 +1240,31 @@ function generateDay(dayCell, date) {
 /* Generate the next row on top. */
 function prependWeek() {
   const weekRow = calendarTableElement.insertRow(0);
+
   // We'll animate newly inserted rows
   animateRowInsertion(weekRow, 'prepend');
 
+  // Track if this row starts a new month
+  let isMonthBoundary = false;
   let monthName = "";
+
   do {
     firstDate.setDate(firstDate.getDate() - 1);
     // if day is 1 => new month
     if (firstDate.getDate() === 1) {
       monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+      isMonthBoundary = true;
     }
     const dayCell = weekRow.insertCell(0);
     generateDay(dayCell, new Date(firstDate));
   } while (getAdjustedDayIndex(firstDate) !== 0);
 
-  // If day is 1 => mark row as boundary
-  if (firstDate.getDate() === 1) {
+  // If this is the first day of a month, mark the row
+  if (isMonthBoundary) {
     weekRow.classList.add('month-boundary');
   }
-  // Store month name for sticky heading logic (first day in row)
+
+  // Store month name for sticky heading
   weekRow.dataset.monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
 }
 
@@ -1244,62 +1273,86 @@ function appendWeek() {
   const weekRow = calendarTableElement.insertRow(-1);
   animateRowInsertion(weekRow, 'append');
 
+  // Track if this row starts a new month
+  let isMonthBoundary = false;
   let monthName = "";
+
+  // First cell's date will be used to determine the row's month
+  const rowStartDate = new Date(lastDate);
+  rowStartDate.setDate(rowStartDate.getDate() + 1);
+  const rowMonthName = months[rowStartDate.getMonth()] + " " + rowStartDate.getFullYear();
+
   do {
     lastDate.setDate(lastDate.getDate() + 1);
     if (lastDate.getDate() === 1) {
       monthName = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+      isMonthBoundary = true;
     }
     const dayCell = weekRow.insertCell(-1);
     generateDay(dayCell, new Date(lastDate));
   } while (getAdjustedDayIndex(lastDate) !== 6);
 
-  // If day is 1 => mark row as boundary
-  if (lastDate.getDate() === 1) {
+  // If the week crosses a month boundary, mark it
+  if (isMonthBoundary) {
     weekRow.classList.add('month-boundary');
   }
-  // Rightmost month label
-  const extra = weekRow.insertCell(-1);
-  extra.className = "extra";
-  extra.innerHTML = monthName;
 
-  // Also store monthName for sticky heading (first day in row)
-  // The row might cross months, but we store the month of the first day
-  // Actually we can get it from lastDate
-  const rowMonthName = months[(lastDate.getMonth())] + " " + lastDate.getFullYear();
+// Rightmost month label logic
+const extra = weekRow.insertCell(-1);
+extra.className = "extra";
+
+if (isMonthBoundary) {
+  extra.innerHTML = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+} else {
+  extra.innerHTML = "";
+}
+
+  // Store month name for sticky heading
   weekRow.dataset.monthName = rowMonthName;
 }
 
-/*******
+/****
  * STICKY MONTH HEADER
- *******/
+ ****/
 /*
  * On scroll, figure out which row is at the top of the viewport
  * and display that row's month name in #stickyMonthHeader.
  */
 function updateStickyMonthHeader() {
   const rows = document.querySelectorAll('#calendar tr');
-  let topRow = null;
-  let minOffset = Infinity;
 
-  rows.forEach(row => {
+  // Offset from top to account for the fixed header
+  const headerOffset = document.getElementById('header').offsetHeight + 30;
+
+  let visibleMonth = null;
+
+  // Find the first row that's visible in the viewport
+  for (const row of rows) {
     const rect = row.getBoundingClientRect();
-    if (rect.top >= 0 && rect.top < minOffset) {
-      minOffset = rect.top;
-      topRow = row;
+    // Check if the top of the row is in the viewport, accounting for header
+    if (rect.top >= headerOffset && rect.top <= window.innerHeight) {
+      visibleMonth = row.dataset.monthName;
+      break;
     }
-  });
+    // Also consider rows that are partially visible (top is above viewport but bottom is visible)
+    if (rect.top < headerOffset && rect.bottom > headerOffset) {
+      visibleMonth = row.dataset.monthName;
+      break;
+    }
+  }
 
+  // Update the sticky header if we found a visible month
   const stickyHeader = document.getElementById('stickyMonthHeader');
-  if (topRow && topRow.dataset.monthName) {
-    stickyHeader.textContent = topRow.dataset.monthName;
+  if (visibleMonth && visibleMonth !== currentVisibleMonth) {
+    currentVisibleMonth = visibleMonth;
+    stickyHeader.textContent = visibleMonth;
     stickyHeader.style.display = 'block';
   }
 }
 
-/*******
+/****
  * RANGE SELECTION
- *******/
+ ****/
 function toggleRangeSelection() {
   isSelectingRange = !isSelectingRange;
   if (!isSelectingRange) {
@@ -1361,9 +1414,9 @@ function highlightDaysInRange() {
   }
 }
 
-/*******
+/****
  * CLICK HANDLERS
- *******/
+ ****/
 document.addEventListener('click', (evt) => {
   const dayCell = evt.target.closest("td");
   if (!dayCell || !dayCell.id || !dayCell.id.includes("_")) return;
@@ -1387,9 +1440,9 @@ document.addEventListener('click', (evt) => {
   }
 });
 
-/*******
+/****
  * KEYBOARD NAV
- *******/
+ ****/
 document.addEventListener("keydown", (e) => {
   if (e.target && e.target.tagName.toLowerCase() === "textarea") return;
   if (e.key === "ArrowUp") {
@@ -1405,9 +1458,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/*******
+/****
  * JUMP & LOAD
- *******/
+ ****/
 function jumpToDate() {
   const val = document.getElementById("jumpDate")?.value;
   if (!val) return;
@@ -1425,9 +1478,9 @@ function nextItemId() {
   return "item" + localStorage.nextId;
 }
 
-/*******
+/****
  * INFINITE SCROLL
- *******/
+ ****/
 function checkInfiniteScroll() {
   // near top => prepend
   if (documentScrollTop() < 200) {
@@ -1453,9 +1506,9 @@ function checkInfiniteScroll() {
   }
 }
 
-/*******
+/****
  * YEAR VIEW
- *******/
+ ****/
 function showYearView() {
   const year = todayDate.getFullYear();
   document.getElementById('yearViewTitle').textContent = `${year} at a Glance`;
@@ -1552,9 +1605,9 @@ function hideYearView() {
   document.getElementById('yearViewContainer').style.display = 'none';
 }
 
-/*******
- * RANGE
- *******/
+/****
+ * CALENDAR INITIALIZATION
+ ****/
 function loadCalendarAroundDate(seedDate) {
   showLoading();
   calendarTableElement.innerHTML = "";
@@ -1579,12 +1632,14 @@ function loadCalendarAroundDate(seedDate) {
   setTimeout(() => {
     scrollToToday();
     recalculateAllHeights();
+    // Initial month header update
+    updateStickyMonthHeader();
   }, 50);
 }
 
-/*******
+/****
  * UI CONTROLS
- *******/
+ ****/
 function showHelp() {
   document.getElementById("help").style.display = "block";
 }
@@ -1592,9 +1647,9 @@ function hideHelp() {
   document.getElementById("help").style.display = "none";
 }
 
-/*******
+/****
  * FILE PERSISTENCE
- *******/
+ ****/
 function downloadLocalStorageData() {
   showLoading();
   const data = {};
@@ -1738,9 +1793,9 @@ async function exportToFileHandle(fileHandle) {
   }
 }
 
-/*******
+/****
  * INIT
- *******/
+ ****/
 window.onload = function() {
   calendarTableElement = document.getElementById("calendar");
   todayDate = new Date(systemToday);
@@ -1769,7 +1824,10 @@ window.onload = function() {
   setTimeout(recalculateAllHeights, 100);
 
   // listen for scroll => update sticky month
-  window.addEventListener('scroll', throttle(updateStickyMonthHeader, 50));
+  window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
+
+  // Initial call to set the sticky header
+  updateStickyMonthHeader();
 };
 
 /* IntersectionObservers for infinite scroll if available. */
@@ -1782,6 +1840,7 @@ function setupScrollObservers() {
       for (let i=0; i<8; i++) prependWeek();
       window.scrollBy(0, documentScrollHeight() - oldHeight);
       recalculateAllHeights();
+      updateStickyMonthHeader();
     }
   }, options);
 
@@ -1789,6 +1848,7 @@ function setupScrollObservers() {
     if (entries[0].isIntersecting) {
       for (let i=0; i<8; i++) appendWeek();
       recalculateAllHeights();
+      updateStickyMonthHeader();
     }
   }, options);
 
