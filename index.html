@@ -323,6 +323,19 @@ body.dark-mode input[type="date"] {
   background-color: rgba(0,0,0,0.02);
 }
 
+/* Turn off pointer and hover styles for .extra cells */
+#calendar td.extra {
+  cursor: default;
+  /* or 'text' if you want the I-beam cursor */
+}
+
+#calendar td.extra:hover {
+  transform: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+
 /*
  * Dark mode cell styling
  */
@@ -352,7 +365,7 @@ body.dark-mode #calendar td:hover {
 /*
  * "month-boundary" row => subtle top border
  */
-tr.month-boundary td {
+tr.month-boundary td:not(.extra) {
   border-top: 2px solid var(--month-boundary) !important;
 }
 
