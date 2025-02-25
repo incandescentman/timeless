@@ -142,27 +142,31 @@
     }
 
     /* Logo styling */
-    a.timeless {
-      font-size: 137%;
-      text-decoration: none;
-      background: linear-gradient(to bottom, #E0E0E0, #CFE7FF);
-      box-shadow: var(--shadow);
-      color: #000;
-      padding: 3px 10px;
-      border-radius: 4px;
-      display: inline-block;
-      transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
-      margin: 10px 0;
-    }
-    a.timeless:hover {
-      background: linear-gradient(to bottom, #D0D0FF, #B0C0E7);
-    }
-    a.timeless:active {
-      color: #FFF;
-      background: linear-gradient(to bottom, #909090, #707070);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-      transform: translateY(2px);
-    }
+a.timeless {
+  font-size: 150%;  /* Increased for prominence */
+  text-decoration: none;
+  background: linear-gradient(45deg, #f0f0ff, #b0d4ff);  /* A fresh, subtle gradient */
+  color: #1a1a1a;
+  padding: 8px 16px;  /* More generous padding */
+  border-radius: 8px; /* More rounded corners */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: inline-block;
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+a.timeless:hover {
+  transform: scale(1.05);  /* Slight enlargement on hover */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  background: linear-gradient(45deg, #e0e0ff, #a0c4ff);
+}
+a.timeless:active {
+  transform: scale(0.98);  /* A subtle press-down effect */
+  background: linear-gradient(45deg, #909090, #707070);
+  color: #fff;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
 
     /* Button styling */
     a.button, button {
@@ -665,7 +669,7 @@
   <div id="header">
     <a href="/" class="timeless" aria-label="Timeless Calendar Home">Timeless</a>
     <div id="miniCalendar"></div>
-    <span>🪐</span>
+
     <div>
       <span>Timeless: The Infinite Calendar ✨</span>
       <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">🌙</a>
