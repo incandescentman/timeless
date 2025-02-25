@@ -83,7 +83,9 @@
       background: linear-gradient(135deg, rgba(200,200,255,0.3), rgba(240,240,255,0.3));
       background-attachment: fixed;
       z-index: -1;
-    }
+pointer-events: none;
+}
+
 
     /*
      * Fixed header bar styling
@@ -1353,46 +1355,114 @@ function buildMiniCalendar() {
       }
     }
 
-    /******* KEYBOARD NAVIGATION *******/
-    document.addEventListener("keydown", (e) => {
-      if (e.target && (e.target.tagName.toLowerCase() === "textarea" || e.target.tagName.toLowerCase() === "input"))
-        return;
-      if (e.key === "Escape") {
-        if (document.getElementById("help").style.display === "block") { hideHelp(); return; }
-        if (document.getElementById("yearViewContainer").style.display === "block") { hideYearView(); return; }
-        if (isSelectingRange) { clearRangeSelection(); isSelectingRange = false; showToast("Range selection cancelled"); return; }
-      }
-      else if (e.key === "?") {
-        e.preventDefault();
-        const helpElem = document.getElementById("help");
-        if (helpElem.style.display === "block") hideHelp(); else showHelp();
-      }
-      else if (e.key === "z" || e.key === "Z") {
-        if (e.ctrlKey || e.metaKey) { e.preventDefault(); undoLastChange(); }
-        else { e.preventDefault(); undoLastChange(); }
-      }
-      // Redo shortcut: Ctrl+Shift+Z
-      else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "Z" || e.key === "z")) {
-        e.preventDefault();
-        redoLastChange();
-      }
-      else if (e.key === "y" || e.key === "Y") {
-        e.preventDefault();
-        const yv = document.getElementById("yearViewContainer");
-        if (yv.style.display === "block") hideYearView(); else showYearView();
-      }
-      else if (e.key === "g" || e.key === "G") {
-        e.preventDefault();
-        const j = document.getElementById("jumpDate");
-        if (j) j.focus();
-      }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); stepDay(-1); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); stepDay(1); }
-      else if (e.key === "ArrowDown" && e.altKey) { e.preventDefault(); jumpOneMonthForward(); }
-      else if (e.key === "Enter") { e.preventDefault(); createEventInFocusedDay(); }
-      else if (e.key === "t" || e.key === "T") { todayDate = new Date(systemToday); loadCalendarAroundDate(todayDate); }
-      else if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) { e.preventDefault(); toggleDarkMode(); }
-    });
+/**** KEYBOARD NAVIGATION ****/
+document.addEventListener("keydown", (e) => {
+  // If typing in a textarea or input, let them have arrow keys, etc.
+  if (e.target && (e.target.tagName.toLowerCase() === "textarea" ||
+                   e.target.tagName.toLowerCase() === "input")) {
+    return;
+  }
+
+  // Esc => close overlays or range selection
+  if (e.key === "Escape") {
+    if (document.getElementById("help").style.display === "block") {
+      hideHelp();
+      return;
+    }
+    if (document.getElementById("yearViewContainer").style.display === "block") {
+      hideYearView();
+      return;
+    }
+    if (isSelectingRange) {
+      clearRangeSelection();
+      isSelectingRange = false;
+      showToast("Range selection cancelled");
+      return;
+    }
+  }
+
+  // ? => toggle help
+  else if (e.key === "?") {
+    e.preventDefault();
+    const helpElem = document.getElementById("help");
+    if (helpElem.style.display === "block") hideHelp();
+    else showHelp();
+  }
+
+  // Ctrl+Z => undo (or just Z => also undo)
+  else if (e.key === "z" || e.key === "Z") {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      undoLastChange();
+    } else {
+      e.preventDefault();
+      undoLastChange();
+    }
+  }
+
+  // Ctrl+Shift+Z => redo
+  else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "Z" || e.key === "z")) {
+    e.preventDefault();
+    redoLastChange();
+  }
+
+  // ** Additional: Ctrl+Y => redo
+  else if ((e.ctrlKey || e.metaKey) && (e.key === "y" || e.key === "Y")) {
+    e.preventDefault();
+    redoLastChange();
+  }
+
+  // "y" => toggle year view (no Ctrl, no Shift)
+  else if (e.key === "y" || e.key === "Y") {
+    e.preventDefault();
+    const yv = document.getElementById("yearViewContainer");
+    if (yv.style.display === "block") hideYearView();
+    else showYearView();
+  }
+
+  // "g" => focus jumpDate
+  else if (e.key === "g" || e.key === "G") {
+    e.preventDefault();
+    const j = document.getElementById("jumpDate");
+    if (j) j.focus();
+  }
+
+  // Left arrow => move day -1
+  else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    stepDay(-1);
+  }
+
+  // Right arrow => move day +1
+  else if (e.key === "ArrowRight") {
+    e.preventDefault();
+    stepDay(1);
+  }
+
+  // Alt+Down => jumpOneMonthForward
+  else if (e.key === "ArrowDown" && e.altKey) {
+    e.preventDefault();
+    jumpOneMonthForward();
+  }
+
+  // Enter => create event in focused day
+  else if (e.key === "Enter") {
+    e.preventDefault();
+    createEventInFocusedDay();
+  }
+
+  // t => jump to system today
+  else if (e.key === "t" || e.key === "T") {
+    todayDate = new Date(systemToday);
+    loadCalendarAroundDate(todayDate);
+  }
+
+  // Ctrl+D => toggle dark mode
+  else if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
+    e.preventDefault();
+    toggleDarkMode();
+  }
+});
 
     /******* JUMP 1 MONTH *******/
     function jumpOneMonthForward() {
