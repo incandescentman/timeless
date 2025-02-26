@@ -1346,23 +1346,38 @@
         cell.classList.add('keyboard-focus');
       }
     }
-    function stepDay(delta) {
+
+   function stepDay(delta) {
       if (!keyboardFocusDate) {
-        keyboardFocusDate = new Date(todayDate || systemToday);
+         keyboardFocusDate = new Date(todayDate || systemToday);
       }
       keyboardFocusDate.setDate(keyboardFocusDate.getDate() + delta);
-      loadCalendarAroundDate(keyboardFocusDate);
-      setTimeout(() => {
-        highlightKeyboardFocusedDay();
-        const cell = document.getElementById(idForDate(keyboardFocusDate));
-        if (cell) {
-          goalY = scrollPositionForElement(cell);
-          startY = documentScrollTop();
-          startTime = new Date();
-          if (goalY!==startY) setTimeout(scrollAnimation, 10);
-        }
-      }, 300);
-    }
+      const cell = document.getElementById(idForDate(keyboardFocusDate));
+      if (cell) {
+         // If the cell is already rendered, update focus and scroll smoothly.
+         highlightKeyboardFocusedDay();
+         goalY = scrollPositionForElement(cell);
+         startY = documentScrollTop();
+         startTime = new Date();
+         if (goalY !== startY) {
+            scrollAnimation();
+         }
+      } else {
+         // If not rendered, re-load the calendar around the new date.
+         loadCalendarAroundDate(keyboardFocusDate);
+         setTimeout(() => {
+            highlightKeyboardFocusedDay();
+            const newCell = document.getElementById(idForDate(keyboardFocusDate));
+            if (newCell) {
+               goalY = scrollPositionForElement(newCell);
+               startY = documentScrollTop();
+               startTime = new Date();
+               if (goalY !== startY) scrollAnimation();
+            }
+         }, 300);
+      }
+   }
+
     function createEventInFocusedDay() {
       if (!keyboardFocusDate) {
         showToast("No day is selected");
@@ -1480,7 +1495,7 @@
           e.preventDefault();
           createEventInFocusedDay();
           break;
-        case "Delete":
+        case "Backspace":
           e.preventDefault();
           deleteEntriesForFocusedDay();
           break;
