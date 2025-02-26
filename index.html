@@ -42,9 +42,7 @@
    --weekend-gradient-from: #f0f5f9;
       --weekend-gradient-to: #d9e2ec;
       --shaded-month: #e6f7ff;
-      --today-gradient-from: rgba(229, 62, 62, 0.9);
-      --today-gradient-to: rgba(197, 48, 48, 0.9);
-      --month-boundary: #bbb;
+       --month-boundary: #bbb;
       --header-gradient-from: transparent;
    --header-gradient-to: transparent;
    --header-solid-bg: rgba(255,255,255,0.95);
@@ -315,16 +313,16 @@
       z-index: 2000;
       backdrop-filter: blur(5px);
     }
-    #help div {
-      text-align: right;
-      margin: 150px auto;
-      width: 500px;
-      padding: 30px;
-      color: black;
-      border-radius: 15px;
-      box-shadow: var(--shadow);
-      background: white;
-    }
+#help div {
+  text-align: right;
+  margin: 50px auto;  /* Reduced top margin */
+  width: 500px;
+  padding: 30px;
+  color: black;
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+  background: white;
+}
     #help ul {
       margin: 0;
       padding: 0 0 20px 20px;
@@ -817,15 +815,21 @@
       opacity: 1;
     }
 
-    .command-wrapper {
-      width: 500px;
-      max-width: 90%;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-      overflow: hidden;
-      animation: dropIn 0.3s ease-out;
-    }
+.command-wrapper {
+  width: 500px;
+  max-width: 90%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  overflow: hidden;
+  animation: dropIn 0.3s ease-out;
+  min-height: 500px;  /* Increase this value as needed */
+}
+
+.command-list {
+  max-height: 600px;  /* Increase from 400px if necessary */
+  overflow-y: auto;
+}
 
     body.dark-mode .command-wrapper {
       background: #333;
@@ -2696,17 +2700,21 @@ document.addEventListener("keydown", (e) => {
         prependWeek();
         appendWeek();
       }
-      setTimeout(() => {
-        container.classList.remove('loading-calendar');
-        scrollToToday();
-        recalculateAllHeights();
-        updateStickyMonthHeader();
-        updateMiniCalendar();
-        if (keyboardFocusDate) {
-          highlightKeyboardFocusedDay();
-        }
-      }, 50);
+
+       setTimeout(() => {
+          container.classList.remove('loading-calendar');
+          scrollToToday();
+          recalculateAllHeights();
+          updateStickyMonthHeader();
+          updateMiniCalendar();  // <-- Add this back in!
+          if (keyboardFocusDate) {
+             highlightKeyboardFocusedDay();
+          }
+       }, 50);
+
     }
+
+
 
     /* PARALLAX BACKGROUND ON SCROLL */
     window.addEventListener("scroll", throttle(() => {
