@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Timeless: The Infinite Calendar</title>
-
   <!-- Import fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,64 +11,60 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Fira+Code:wght@400;700&display=swap"
     rel="stylesheet"
   />
-
   <style>
     /* CSS Variables for consistent theming */
     :root {
-    --today-gradient-from: rgba(229, 62, 62, 0.9);
-    --today-gradient-to: rgba(197, 48, 48, 0.9);
-   --border-width: 1px;
-   --border-color: black;
-   --header-height: 27px;
-   --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-   --cell-min-height: 120px;
-
+     --today-gradient-from: rgba(229, 62, 62, 0.9);
+     --today-gradient-to: rgba(197, 48, 48, 0.9);
+     --border-width: 1px;
+     --border-color: black;
+     --header-height: 27px;
+     --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+     --cell-min-height: 120px;
       /* Color Palette for Light Mode */
-   --color-primary: #4361ee;
-   --color-secondary: #ff6b6b;
-   --color-success: #2ecc71;
-   --color-info: #3498db;
-   --color-warning: #f39c12;
-   --color-danger: #e74c3c;
-   --color-light: #f8f9fa;
-   --color-dark: #343a40;
-
-     /* Semantic color variables */
-   --bg-primary: #f8f9fa;
-   --bg-pattern: #e0e5ec;
-   --text-primary: #333;
-   --accent: var(--color-primary);
-   --weekend-gradient-from: #f0f5f9;
-      --weekend-gradient-to: #d9e2ec;
-      --shaded-month: #e6f7ff;
-       --month-boundary: #bbb;
-      --header-gradient-from: transparent;
-   --header-gradient-to: transparent;
-   --header-solid-bg: rgba(255,255,255,0.95);
-   --month-heading-bg: rgba(255,255,255,0.95);
-   --month-heading-text: #333;
-
+     --color-primary: #4361ee;
+     --color-secondary: #ff6b6b;
+     --color-success: #2ecc71;
+     --color-info: #3498db;
+     --color-warning: #f39c12;
+     --color-danger: #e74c3c;
+     --color-light: #f8f9fa;
+     --color-dark: #343a40;
+      /* Semantic color variables */
+     --bg-primary: #f8f9fa;
+     --bg-pattern: #e0e5ec;
+     --text-primary: #333;
+     --accent: var(--color-primary);
+     --weekend-gradient-from: #f0f5f9;
+     --weekend-gradient-to: #d9e2ec;
+     --shaded-month: #e6f7ff;
+     --month-boundary: #bbb;
+     --header-gradient-from: transparent;
+     --header-gradient-to: transparent;
+     --header-solid-bg: rgba(255,255,255,0.95);
+     --month-heading-bg: rgba(255,255,255,0.95);
+     --month-heading-text: #333;
       /* Typography */
-   --font-month-heading: 'Playfair Display', serif;
-   --font-day-number: 'Fira Code', monospace;
+     --font-month-heading: 'Playfair Display', serif;
+     --font-day-number: 'Fira Code', monospace;
     }
 
     /* Dark mode colors */
     body.dark-mode {
-   --bg-primary: #222;
-   --bg-pattern: rgba(255,255,255,0.05);
-   --text-primary: #eee;
-   --weekend-gradient-from: #303542;
-   --weekend-gradient-to: #232731;
-   --shaded-month: #2a2a2a;
-   --today-gradient-from: rgba(229, 62, 62, 0.8);
-   --today-gradient-to: rgba(197, 48, 48, 0.8);
-   --month-boundary: #555;
-   --header-gradient-from: #2c3e50;
-   --header-gradient-to: #1a1a2e;
-   --header-solid-bg: rgba(40, 40, 40, 0.95);
-   --month-heading-bg: #2c2c2c;
-   --month-heading-text: #ddd;
+     --bg-primary: #222;
+     --bg-pattern: rgba(255,255,255,0.05);
+     --text-primary: #eee;
+     --weekend-gradient-from: #303542;
+     --weekend-gradient-to: #232731;
+     --shaded-month: #2a2a2a;
+     --today-gradient-from: rgba(229, 62, 62, 0.8);
+     --today-gradient-to: rgba(197, 48, 48, 0.8);
+     --month-boundary: #555;
+     --header-gradient-from: #2c3e50;
+     --header-gradient-to: #1a1a2e;
+     --header-solid-bg: rgba(40, 40, 40, 0.95);
+     --month-heading-bg: #2c2c2c;
+     --month-heading-text: #ddd;
     }
 
     /* Base styles + animated dot grid background */
@@ -197,9 +192,9 @@
       left: 0;
       width: 100%;
       font-family: var(--font-month-heading);
-      font-size: 32px; /* Increased from 20px */
+      font-size: 32px;
       font-weight: 600;
-      padding: 15px 20px; /* Increased padding for more whitespace */
+      padding: 15px 20px;
       background: var(--month-heading-bg);
       color: var(--month-heading-text);
       z-index: 998;
@@ -313,16 +308,16 @@
       z-index: 2000;
       backdrop-filter: blur(5px);
     }
-#help div {
-  text-align: right;
-  margin: 50px auto;  /* Reduced top margin */
-  width: 500px;
-  padding: 30px;
-  color: black;
-  border-radius: 15px;
-  box-shadow: var(--shadow);
-  background: white;
-}
+    #help div {
+      text-align: right;
+      margin: 50px auto;
+      width: 500px;
+      padding: 30px;
+      color: black;
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      background: white;
+    }
     #help ul {
       margin: 0;
       padding: 0 0 20px 20px;
@@ -385,8 +380,8 @@
       border-radius: 10px;
       padding: 1px;
       background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
+     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+     -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events: none;
     }
@@ -505,7 +500,6 @@
     body.dark-mode #calendar td .day-label {
       color: #aaa;
     }
-
     #calendar td .day-number {
       font-family: var(--font-day-number);
       font-size: 18px;
@@ -533,7 +527,6 @@
       animation: selectDay 0.3s ease-out;
       box-shadow: 0 0 0 2px var(--accent);
     }
-
     /* Ripple effect on cell click with refined animation */
     @keyframes ripple {
       from { transform: scale(0); opacity: 0.6; }
@@ -810,37 +803,31 @@
       transition: opacity 0.3s ease;
       backdrop-filter: blur(3px);
     }
-
     #command-palette.active {
       opacity: 1;
     }
-
-.command-wrapper {
-  width: 500px;
-  max-width: 90%;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  overflow: hidden;
-  animation: dropIn 0.3s ease-out;
-  min-height: 500px;  /* Increase this value as needed */
-}
-
-.command-list {
-  max-height: 600px;  /* Increase from 400px if necessary */
-  overflow-y: auto;
-}
-
+    .command-wrapper {
+      width: 500px;
+      max-width: 90%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      overflow: hidden;
+      animation: dropIn 0.3s ease-out;
+      min-height: 500px;
+    }
+    .command-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
     body.dark-mode .command-wrapper {
       background: #333;
       color: #fff;
     }
-
     @keyframes dropIn {
       from { transform: translateY(-20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-
     #command-input {
       width: 100%;
       border: none;
@@ -851,16 +838,13 @@
       background: transparent;
       color: inherit;
     }
-
     body.dark-mode #command-input {
       border-bottom-color: #555;
     }
-
     .command-list {
       max-height: 400px;
       overflow-y: auto;
     }
-
     .command-item {
       display: flex;
       align-items: center;
@@ -868,26 +852,21 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-
     .command-item:hover, .command-item.active {
       background: #f5f5f5;
     }
-
     body.dark-mode .command-item:hover,
     body.dark-mode .command-item.active {
       background: #444;
     }
-
     .command-icon {
       flex: 0 0 30px;
       font-size: 18px;
     }
-
     .command-name {
       flex: 1;
       text-align: left;
     }
-
     .command-shortcut {
       background: #eee;
       padding: 2px 6px;
@@ -895,11 +874,9 @@
       font-size: 12px;
       font-family: var(--font-day-number);
     }
-
     body.dark-mode .command-shortcut {
       background: #555;
     }
-
     /* Quick date popup */
     .quick-date-popup {
       position: fixed;
@@ -913,17 +890,14 @@
       z-index: 3000;
       animation: scaleIn 0.2s ease-out;
     }
-
     body.dark-mode .quick-date-popup {
       background: #333;
       color: white;
     }
-
     @keyframes scaleIn {
       from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
       to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     }
-
     #quick-date-input {
       width: 280px;
       padding: 10px;
@@ -933,27 +907,23 @@
       background: transparent;
       color: inherit;
     }
-
     body.dark-mode #quick-date-input {
       border-color: #555;
     }
-
     .quick-date-examples {
       margin-top: 8px;
       font-size: 12px;
       color: #777;
     }
-
     body.dark-mode .quick-date-examples {
       color: #aaa;
     }
 
     /* Multi-select styles */
     body.multi-select-mode {
-      outline: 4px solid #9c27b0; /* Different color than keyboard-nav-active */
+      outline: 4px solid #9c27b0;
       outline-offset: -4px;
     }
-
     #calendar td.multi-selected {
       background-color: rgba(156, 39, 176, 0.3) !important;
       box-shadow: 0 0 0 2px #9c27b0;
@@ -965,15 +935,12 @@
     textarea[value^="[priority:high]"] {
       border-left: 4px solid #e53e3e !important;
     }
-
     textarea[value^="[priority:medium]"] {
       border-left: 4px solid #f39c12 !important;
     }
-
     textarea[value^="[priority:low]"] {
       border-left: 4px solid #2ecc71 !important;
     }
-
     textarea[value^="✓ "] {
       text-decoration: line-through;
       opacity: 0.7;
@@ -982,13 +949,12 @@
     /* Responsive adjustments */
     @media (max-width: 1200px) {
       #miniCalendar {
-        display: none; /* Hide on smaller screens */
+        display: none;
       }
       #calendar {
         width: 95%;
       }
     }
-
     @media (max-width: 1000px) {
       #calendar {
         width: 100%;
@@ -1014,10 +980,10 @@
     }
     @media (max-width:768px) {
       :root {
-      --cell-min-height: 100px; /* Slightly smaller on mobile */
+       --cell-min-height: 100px;
       }
       #stickyMonthHeader {
-        font-size: 24px; /* Smaller header on mobile */
+        font-size: 24px;
       }
       #calendar td {
         padding: 8px;
@@ -1073,7 +1039,6 @@
         margin: 1cm;
       }
     }
-
     #fileInput {
       display: none;
     }
@@ -1150,7 +1115,6 @@
         </svg>
       </a>
       <input type="file" id="fileInput" onchange="loadDataFromFile()" />
-
       <span>Jump to date:</span>
       <input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31" />
       <button onclick="jumpToDate()" aria-label="Go to selected date">Go</button>
@@ -1165,13 +1129,10 @@
   <div id="help">
     <div>
       <ul>
-        <!-- New Keyboard Controls -->
         <li>Press <code>⌘+K</code> or <code>/</code> to open command palette with all available actions</li>
         <li>Press <code>d</code> to quickly jump to a specific date with natural language ("tomorrow", "next friday")</li>
         <li>Press <code>m</code> to enter multi-day selection mode, then use arrow keys and <code>Space</code> to select days</li>
         <li>In multi-select mode: <code>Ctrl+C</code> to clear all notes, <code>Ctrl+N</code> to add a note to all selected days</li>
-
-        <!-- Original keyboard controls -->
         <li>Click on a day (empty space) to add a note (Shift+Enter for multi-line, Enter to save)</li>
         <li>Click on an existing note to focus/edit it</li>
         <li>Press <code>i</code> to toggle keyboard navigation mode (arrow keys then move day-by-day)</li>
@@ -1189,8 +1150,6 @@
         <li>Press <code>Alt+↓</code> to jump one month forward</li>
         <li>Press <code>Ctrl+Z</code> or <code>z</code> to undo last change</li>
         <li>Press <code>Ctrl+Shift+Z</code> or <code>Ctrl+Y</code> to redo last change</li>
-
-        <!-- Note editing shortcuts -->
         <li><strong>When editing notes:</strong> <code>Ctrl+B</code> for bold, <code>Ctrl+I</code> for italic</li>
         <li><code>Ctrl+1/2/3</code> to set high/medium/low priority, <code>Ctrl+D</code> to mark as done</li>
         <li><code>Ctrl+H</code> to insert a hashtag</li>
@@ -1219,51 +1178,35 @@
   </div>
 
   <script>
-    /****
+    /*
      * Timeless: The Infinitely Scrolling Calendar
-     ****/
+     */
 
     /* CORE VARIABLES & STATE */
     let systemToday = new Date();
     let todayDate;
     let calendarTableElement;
     let firstDate, lastDate;
-
-    // Undo/Redo
     let undoStack = [];
     let redoStack = [];
     const MAX_UNDO = 5;
-
-    // Range selection
     let rangeStart = null;
     let rangeEnd = null;
     let isSelectingRange = false;
-
-    // For row animations
     const ROW_ANIMATION_CLASS = 'week-row-animate';
-
-    // Days & months
     const daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
     const months = [
       "January","February","March","April","May","June",
       "July","August","September","October","November","December"
     ];
     const shortMonths = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
-
-    // For smooth scrolling
     let startTime, startY, goalY;
-
-    // Sticky month
     let currentVisibleMonth = '';
-
-    // Keyboard navigation date
     let keyboardFocusDate = null;
-
-    // Multi-day selection
     let selectedDays = [];
     let isMultiSelectMode = false;
 
-    /* UTILITY & HELPERS */
+    /* UTILITY FUNCTIONS */
     function throttle(func, delay) {
       let lastCall = 0;
       return function(...args) {
@@ -1274,7 +1217,6 @@
         }
       };
     }
-
     function debounce(fn, wait) {
       let timeout;
       return function(...args) {
@@ -1282,23 +1224,10 @@
         timeout = setTimeout(() => fn.apply(this, args), wait);
       };
     }
-
-    function showHelp() {
-      document.getElementById("help").style.display = "block";
-    }
-    function hideHelp() {
-      document.getElementById("help").style.display = "none";
-    }
-
-    /* LOADING SPINNER */
-    function showLoading() {
-      document.getElementById('loadingIndicator').classList.add('active');
-    }
-    function hideLoading() {
-      document.getElementById('loadingIndicator').classList.remove('active');
-    }
-
-    /* TOAST NOTIFICATIONS */
+    function showHelp() { document.getElementById("help").style.display = "block"; }
+    function hideHelp() { document.getElementById("help").style.display = "none"; }
+    function showLoading() { document.getElementById('loadingIndicator').classList.add('active'); }
+    function hideLoading() { document.getElementById('loadingIndicator').classList.remove('active'); }
     function showToast(message, duration=3000) {
       let toastContainer = document.getElementById('toast-container');
       if (!toastContainer) {
@@ -1310,43 +1239,24 @@
       toast.className = 'toast';
       toast.textContent = message;
       toastContainer.appendChild(toast);
-
       requestAnimationFrame(() => { toast.style.opacity = '1'; });
       setTimeout(() => {
         toast.style.opacity = '0';
-        setTimeout(() => {
-          if (toastContainer.contains(toast)) {
-            toastContainer.removeChild(toast);
-          }
-        }, 300);
+        setTimeout(() => { if (toastContainer.contains(toast)) toastContainer.removeChild(toast); }, 300);
       }, duration);
     }
-
-    /* SCROLL & POSITION */
-    function documentScrollTop() {
-      return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
-    }
-    function documentScrollHeight() {
-      return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-    }
-
-    function curve(x) {
-      // cubic ease
-      return (x < 0.5) ? (4 * x*x*x) : (1 - 4*(1 - x)*(1 - x)*(1 - x));
-    }
-
+    function documentScrollTop() { return Math.max(document.body.scrollTop, document.documentElement.scrollTop); }
+    function documentScrollHeight() { return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); }
+    function curve(x) { return (x < 0.5) ? (4 * x*x*x) : (1 - 4*(1 - x)*(1 - x)*(1 - x)); }
     function scrollAnimation() {
       const percent = (new Date() - startTime) / 1000;
-      if (percent > 1) {
-        window.scrollTo(0, goalY);
-        hideLoading();
-      } else {
+      if (percent > 1) { window.scrollTo(0, goalY); hideLoading(); }
+      else {
         const newY = Math.round(startY + (goalY - startY)*curve(percent));
         window.scrollTo(0, newY);
         setTimeout(scrollAnimation, 10);
       }
     }
-
     function scrollPositionForElement(element) {
       let y = element.offsetTop;
       let node = element;
@@ -1357,7 +1267,6 @@
       const clientHeight = element.clientHeight;
       return y - (window.innerHeight - clientHeight) / 2;
     }
-
     function scrollToToday() {
       const elem = document.getElementById(idForDate(todayDate));
       if (elem) {
@@ -1365,7 +1274,6 @@
       }
       hideLoading();
     }
-
     function smoothScrollToToday() {
       showLoading();
       const elem = document.getElementById(idForDate(todayDate));
@@ -1379,20 +1287,11 @@
       if (goalY !== startY) setTimeout(scrollAnimation, 10);
       else hideLoading();
     }
-
-    /* DARK MODE */
     function toggleDarkMode() {
       document.body.classList.toggle("dark-mode");
-      if (document.body.classList.contains("dark-mode")) {
-        localStorage.setItem("darkMode", "enabled");
-        showToast("Dark mode enabled");
-      } else {
-        localStorage.setItem("darkMode", "disabled");
-        showToast("Light mode enabled");
-      }
+      localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+      showToast(document.body.classList.contains("dark-mode") ? "Dark mode enabled" : "Light mode enabled");
     }
-
-    /* UNDO/REDO */
     function pushUndoState() {
       // Clear redo stack on new action
       redoStack = [];
@@ -1420,7 +1319,6 @@
         }
       }
       redoStack.push(JSON.stringify(currentSnapshot));
-
       const lastSnap = undoStack.pop();
       if (!lastSnap) return;
       localStorage.clear();
@@ -1446,18 +1344,14 @@
       loadCalendarAroundDate(todayDate);
       showToast("Redo applied");
     }
-
-    /* TEXTAREA / NOTES */
     function recalculateHeight(itemId) {
       const ta = document.getElementById(itemId);
       if (!ta) return;
       ta.style.height = "0";
-      const sh = ta.scrollHeight;
-      ta.style.height = (sh + 5) + "px";
+      ta.style.height = (ta.scrollHeight + 5) + "px";
     }
     function recalculateAllHeights() {
-      const textareas = document.querySelectorAll('textarea');
-      textareas.forEach(ta => recalculateHeight(ta.id));
+      document.querySelectorAll('textarea').forEach(ta => recalculateHeight(ta.id));
     }
     function storeValueForItemId(itemId) {
       pushUndoState();
@@ -1465,28 +1359,24 @@
       if (!ta) return;
       const parentId = ta.parentNode.id;
       localStorage[itemId] = ta.value;
-
       const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
       if (!parentIds.includes(itemId)) {
         parentIds.push(itemId);
         localStorage[parentId] = parentIds;
       }
       const iso = parseDateFromId(parentId);
-      if (iso) localStorage[iso] = ta.value;
+      if (iso) {
+        localStorage[iso] = ta.value;
+      }
       localStorage.setItem("lastSavedTimestamp", Date.now());
-
-      // Process tags
       processNoteTags(ta);
     }
-
     function processNoteTags(textarea) {
-      // Remove any existing tags
       const parent = textarea.parentNode;
       const existingTags = parent.querySelector('.note-tags');
       if (existingTags) {
         parent.removeChild(existingTags);
       }
-
       const text = textarea.value;
       const tagPattern = /#(\w+)/g;
       const tags = [];
@@ -1494,7 +1384,6 @@
       while ((match = tagPattern.exec(text)) !== null) {
         tags.push(match[1]);
       }
-
       if (tags.length) {
         const tagsContainer = document.createElement('div');
         tagsContainer.className = 'note-tags';
@@ -1507,7 +1396,6 @@
         textarea.parentNode.insertBefore(tagsContainer, textarea);
       }
     }
-
     function removeValueForItemId(itemId) {
       pushUndoState();
       delete localStorage[itemId];
@@ -1528,45 +1416,41 @@
         delete localStorage[iso];
       }
     }
-
     function noteKeyDownHandler(e) {
       recalculateHeight(this.id);
-
-      // Handle keyboard shortcuts
       if (e.ctrlKey || e.metaKey) {
         switch(e.key) {
-          case 'b': // Bold text (wrap with *)
+          case 'b':
             e.preventDefault();
             wrapTextSelection(this, '*', '*');
             break;
-          case 'i': // Italic text (wrap with *)
+          case 'i':
             e.preventDefault();
             wrapTextSelection(this, '*', '*');
             break;
-          case '1': // Mark as high priority
+          case '1':
             e.preventDefault();
             addTaskPriority(this, 'high');
             break;
-          case '2': // Mark as medium priority
+          case '2':
             e.preventDefault();
             addTaskPriority(this, 'medium');
             break;
-          case '3': // Mark as low priority
+          case '3':
             e.preventDefault();
             addTaskPriority(this, 'low');
             break;
-          case 'd': // Toggle done (overrides global Ctrl+D for toggle dark mode)
+          case 'd':
             e.preventDefault();
             toggleTaskDone(this);
             break;
-          case 'h': // Add hashtag
+          case 'h':
             e.preventDefault();
             insertHashtag(this);
             break;
         }
         return;
       }
-
       if (e.key === "Escape") {
         e.preventDefault();
         this.blur();
@@ -1584,59 +1468,37 @@
         this.debouncedSave();
       }
     }
-
     function wrapTextSelection(textarea, prefix, suffix) {
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const selectedText = textarea.value.substring(start, end);
       const beforeText = textarea.value.substring(0, start);
       const afterText = textarea.value.substring(end);
-
       textarea.value = beforeText + prefix + selectedText + suffix + afterText;
-
-      // Put cursor after the inserted content
       textarea.selectionStart = textarea.selectionEnd = end + prefix.length + suffix.length;
-
-      // Save the change
       storeValueForItemId(textarea.id);
     }
-
     function addTaskPriority(textarea, priority) {
-      // Remove any existing priority tags
-      let text = textarea.value.replace(/\[priority:(high|medium|low)\]/g, '').trim();
-
-      // Add the priority tag at the beginning
-      textarea.value = `[priority:${priority}] ${text}`;
-
-      // Save the change
+      // remove existing [priority:xx], add new
+      textarea.value = textarea.value.replace(/\[priority:(high|medium|low)\]/g, '').trim();
+      textarea.value = `[priority:${priority}] ` + textarea.value;
       storeValueForItemId(textarea.id);
     }
-
     function toggleTaskDone(textarea) {
       if (textarea.value.startsWith('✓ ')) {
         textarea.value = textarea.value.substring(2);
       } else {
         textarea.value = '✓ ' + textarea.value;
       }
-
-      // Save the change
       storeValueForItemId(textarea.id);
     }
-
     function insertHashtag(textarea) {
-      // Get cursor position
       const pos = textarea.selectionStart;
-
-      // Insert hashtag at cursor position
       const beforeText = textarea.value.substring(0, pos);
       const afterText = textarea.value.substring(pos);
-
       textarea.value = beforeText + '#' + afterText;
-
-      // Position cursor after hashtag
       textarea.selectionStart = textarea.selectionEnd = pos + 1;
     }
-
     function noteBlurHandler() {
       if (!this.value.trim()) {
         removeValueForItemId(this.id);
@@ -1667,15 +1529,15 @@
         callback(items);
       }
     }
-
-    /* RENDERING DAYS */
     function generateDay(dayCell, date) {
       const isWeekend = (date.getDay()===0 || date.getDay()===6);
-      if (isWeekend) dayCell.classList.add("weekend");
-
+      if (isWeekend) {
+        dayCell.classList.add("weekend");
+      }
       const isShaded = (date.getMonth() % 2 === 1);
-      if (isShaded) dayCell.classList.add("shaded");
-
+      if (isShaded) {
+        dayCell.classList.add("shaded");
+      }
       const isToday = (
         date.getFullYear()===todayDate.getFullYear() &&
         date.getMonth()===todayDate.getMonth() &&
@@ -1684,19 +1546,10 @@
       if (isToday) {
         dayCell.classList.add("today");
       }
-
-      const isCurrentSystemDate = (
-        date.getFullYear()===systemToday.getFullYear() &&
-        date.getMonth()===systemToday.getMonth() &&
-        date.getDate()===systemToday.getDate()
-      );
-
       dayCell.id = idForDate(date);
-      dayCell.innerHTML = `
-        <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]} ${shortMonths[date.getMonth()]}</span>
-        <span class="day-number">${date.getDate()}</span>
-        ${isCurrentSystemDate && !isToday ? '<div class="current-day-dot"></div>' : ''}
-      `;
+      // Insert a day label & day number
+      dayCell.innerHTML = `<span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+                           <span class="day-number">${date.getDate()}</span>`;
       lookupItemsForParentId(dayCell.id, items => {
         items.forEach(it => {
           const note = generateItem(dayCell.id, it.itemId);
@@ -1709,97 +1562,183 @@
       });
     }
 
-    /* MONTH ROWS */
+    /* BUILDING THE MINI-CALENDAR WITHOUT FORCING 42 CELLS */
+    function buildMiniCalendar() {
+      const mini = document.getElementById("miniCalendar");
+      if (!mini) return;
+      mini.innerHTML = "";
+      const currentMonth = todayDate.getMonth();
+      const currentYear = todayDate.getFullYear();
+      let prevMonth = currentMonth - 1, prevYear = currentYear;
+      if (prevMonth < 0) {
+        prevMonth = 11;
+        prevYear = currentYear - 1;
+      }
+      let nextMonth = currentMonth + 1, nextYear = currentYear;
+      if (nextMonth > 11) {
+        nextMonth = 0;
+        nextYear = currentYear + 1;
+      }
+      buildMiniCalendarForMonth(mini, prevYear, prevMonth, false);
+      buildMiniCalendarForMonth(mini, currentYear, currentMonth, true);
+      buildMiniCalendarForMonth(mini, nextYear, nextMonth, false);
+    }
+
+    function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
+      const section = document.createElement("div");
+      section.style.marginBottom = "10px";
+      section.style.padding = "5px";
+      section.style.borderRadius = "5px";
+
+      // (REMOVED minHeight = "130px";)
+
+      const monthHeader = document.createElement("div");
+      monthHeader.textContent = months[month] + " " + year;
+      monthHeader.style.textAlign = "center";
+      monthHeader.style.fontSize = "12px";
+      monthHeader.style.fontWeight = "bold";
+      monthHeader.style.marginBottom = "5px";
+      section.appendChild(monthHeader);
+
+      const grid = document.createElement("div");
+      grid.style.display = "grid";
+      grid.style.gridTemplateColumns = "repeat(7, 20px)";
+      grid.style.gridGap = "2px";
+
+      // Days of week header (M T W T F S S)
+      for (let i = 0; i < 7; i++) {
+        const dayCell = document.createElement("div");
+        dayCell.textContent = daysOfWeek[i].charAt(0);
+        dayCell.style.fontSize = '10px';
+        dayCell.style.textAlign = 'center';
+        grid.appendChild(dayCell);
+      }
+
+      const firstDay = new Date(year, month, 1);
+      let startDay = firstDay.getDay();
+      startDay = (startDay === 0) ? 7 : startDay;
+      const offset = startDay - 1;
+
+      // Create empty cells for any offset at start
+      for (let i = 0; i < offset; i++) {
+        const empty = document.createElement("div");
+        grid.appendChild(empty);
+      }
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Only create as many cells as needed for the actual days:
+      for (let d = 1; d <= daysInMonth; d++) {
+        const cell = document.createElement("div");
+        cell.style.fontSize = '10px';
+        cell.style.textAlign = 'center';
+        cell.style.cursor = 'pointer';
+        cell.style.padding = '2px';
+        cell.style.borderRadius = '3px';
+
+        cell.textContent = d;
+        if (highlightCurrent && d === todayDate.getDate()) {
+          cell.style.backgroundColor = '#e53e3e';
+          cell.style.color = '#fff';
+        }
+        const dayNum = d;
+        cell.addEventListener("click", () => {
+          todayDate = new Date(year, month, dayNum);
+          loadCalendarAroundDate(todayDate);
+          smoothScrollToToday();
+        });
+        grid.appendChild(cell);
+      }
+
+      section.appendChild(grid);
+      container.appendChild(section);
+    }
+
+    /* APPENDING/PREPENDING WEEKS */
     function prependWeek() {
       const row = calendarTableElement.insertRow(0);
       animateRowInsertion(row, 'prepend');
       let isMonthBoundary = false;
       do {
-        firstDate.setDate(firstDate.getDate()-1);
-        if (firstDate.getDate()===1) { isMonthBoundary=true; }
+        firstDate.setDate(firstDate.getDate() - 1);
+        if (firstDate.getDate() === 1) {
+          isMonthBoundary = true;
+        }
         const cell = row.insertCell(0);
         generateDay(cell, new Date(firstDate));
-      } while(getAdjustedDayIndex(firstDate)!==0);
-      if (isMonthBoundary) row.classList.add('month-boundary');
+      } while (getAdjustedDayIndex(firstDate) !== 0);
+      if (isMonthBoundary) {
+        row.classList.add('month-boundary');
+      }
       row.dataset.monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
     }
+
     function appendWeek() {
       const row = calendarTableElement.insertRow(-1);
       animateRowInsertion(row, 'append');
       let isMonthBoundary = false;
       const rowStart = new Date(lastDate);
-      rowStart.setDate(rowStart.getDate()+1);
+      rowStart.setDate(rowStart.getDate() + 1);
       const rowMonthName = months[rowStart.getMonth()] + " " + rowStart.getFullYear();
+
       do {
-        lastDate.setDate(lastDate.getDate()+1);
-        if (lastDate.getDate()===1) { isMonthBoundary=true; }
+        lastDate.setDate(lastDate.getDate() + 1);
+        if (lastDate.getDate() === 1) {
+          isMonthBoundary = true;
+        }
         const cell = row.insertCell(-1);
         generateDay(cell, new Date(lastDate));
-      } while(getAdjustedDayIndex(lastDate)!==6);
-      if (isMonthBoundary) row.classList.add('month-boundary');
+      } while (getAdjustedDayIndex(lastDate) !== 6);
+
+      if (isMonthBoundary) {
+        row.classList.add('month-boundary');
+      }
       const extra = row.insertCell(-1);
       extra.className = "extra";
-      if (isMonthBoundary) {
-        extra.innerHTML = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
-      } else {
-        extra.innerHTML = "";
-      }
+      extra.innerHTML = isMonthBoundary ? (months[lastDate.getMonth()] + " " + lastDate.getFullYear()) : "";
       row.dataset.monthName = rowMonthName;
     }
 
-    /* STICKY HEADER */
     function updateStickyMonthHeader() {
       const rows = document.querySelectorAll('#calendar tr');
       const headerOffset = document.getElementById('header').offsetHeight + 30;
       let visMonth = null;
       for (const row of rows) {
         const rect = row.getBoundingClientRect();
-        if (rect.top >= headerOffset && rect.top <= window.innerHeight) {
-          visMonth = row.dataset.monthName;
-          break;
-        }
-        if (rect.top < headerOffset && rect.bottom > headerOffset) {
+        if (
+          (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+          (rect.top < headerOffset && rect.bottom > headerOffset)
+        ) {
           visMonth = row.dataset.monthName;
           break;
         }
       }
       const sticky = document.getElementById('stickyMonthHeader');
-      if (visMonth && visMonth!==currentVisibleMonth) {
+      if (visMonth && visMonth !== currentVisibleMonth) {
         currentVisibleMonth = visMonth;
         sticky.textContent = visMonth;
         sticky.style.display = 'block';
       }
     }
 
-    /* COMMAND PALETTE */
     function showCommandPalette() {
-      // Create the command palette if it doesn't exist
       let palette = document.getElementById('command-palette');
       if (!palette) {
         palette = document.createElement('div');
         palette.id = 'command-palette';
         palette.innerHTML = `
           <div class="command-wrapper">
-            <input type="text" placeholder="Type a command or search..." id="command-input" autofocus />
+            <input type="text" id="command-input" placeholder="Type a command..." />
             <div class="command-list"></div>
-          </div>
-        `;
+          </div>`;
         document.body.appendChild(palette);
-
-        // Set up the command input event listeners
         const input = document.getElementById('command-input');
         input.addEventListener('input', filterCommands);
         input.addEventListener('keydown', handleCommandNavigation);
       }
-
-      // Populate commands list
       populateCommands();
-
-      // Show the palette with animation
       palette.style.display = 'flex';
       setTimeout(() => palette.classList.add('active'), 10);
-
-      // Focus the input
       document.getElementById('command-input').focus();
     }
 
@@ -1807,14 +1746,13 @@
       const palette = document.getElementById('command-palette');
       if (palette) {
         palette.classList.remove('active');
-        setTimeout(() => palette.style.display = 'none', 300);
+        setTimeout(() => (palette.style.display = 'none'), 300);
       }
     }
 
     function populateCommands() {
       const commandList = document.querySelector('.command-list');
       commandList.innerHTML = '';
-
       const commands = [
         { icon: '📅', name: 'Go to today', shortcut: 'T', action: () => { todayDate = new Date(systemToday); loadCalendarAroundDate(todayDate); } },
         { icon: '🔍', name: 'Jump to date', shortcut: 'G', action: () => document.getElementById('jumpDate').focus() },
@@ -1830,16 +1768,15 @@
         { icon: '💾', name: 'Download calendar data', shortcut: '', action: downloadLocalStorageData },
         { icon: '📥', name: 'Import calendar data', shortcut: '', action: () => document.getElementById('fileInput').click() },
         { icon: '📝', name: 'Enter multi-day edit mode', shortcut: 'M', action: toggleMultiSelectMode },
-        { icon: '📋', name: 'Quick date entry', shortcut: 'D', action: showQuickDateInput },
+        { icon: '📋', name: 'Quick date entry', shortcut: 'D', action: showQuickDateInput }
       ];
-
       commands.forEach(command => {
         const item = document.createElement('div');
         item.className = 'command-item';
         item.innerHTML = `
           <div class="command-icon">${command.icon}</div>
           <div class="command-name">${command.name}</div>
-          ${command.shortcut ? `<div class="command-shortcut">${command.shortcut}</div>` : ''}
+          <div class="command-shortcut">${command.shortcut}</div>
         `;
         item.addEventListener('click', () => {
           command.action();
@@ -1852,14 +1789,9 @@
     function filterCommands(e) {
       const query = e.target.value.toLowerCase();
       const items = document.querySelectorAll('.command-item');
-
       items.forEach(item => {
         const name = item.querySelector('.command-name').textContent.toLowerCase();
-        if (name.includes(query)) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
-        }
+        item.style.display = name.includes(query) ? 'flex' : 'none';
       });
     }
 
@@ -1869,20 +1801,23 @@
       );
       const activeItem = document.querySelector('.command-item.active');
       const activeIndex = activeItem ? items.indexOf(activeItem) : -1;
-
-      switch(e.key) {
+      switch (e.key) {
         case 'Escape':
           e.preventDefault();
           hideCommandPalette();
           break;
         case 'ArrowDown':
           e.preventDefault();
-          if (activeItem) activeItem.classList.remove('active');
+          if (activeItem) {
+            activeItem.classList.remove('active');
+          }
           items[(activeIndex + 1) % items.length]?.classList.add('active');
           break;
         case 'ArrowUp':
           e.preventDefault();
-          if (activeItem) activeItem.classList.remove('active');
+          if (activeItem) {
+            activeItem.classList.remove('active');
+          }
           items[(activeIndex - 1 + items.length) % items.length]?.classList.add('active');
           break;
         case 'Enter':
@@ -1896,25 +1831,17 @@
       }
     }
 
-    /* QUICK DATE INPUT */
     function showQuickDateInput() {
-      // Create a popup for quick date entry
       const popup = document.createElement('div');
       popup.className = 'quick-date-popup';
       popup.innerHTML = `
-        <div>
-          <input type="text" id="quick-date-input" placeholder="e.g., 2023-12-25 or Dec 25" />
-          <div class="quick-date-examples">
-            Type a date in any format: "tomorrow", "next friday", "dec 25", etc.
-          </div>
-        </div>
+        <input type="text" id="quick-date-input" placeholder="Try 'tomorrow' or 'March 15'..." />
+        <div class="quick-date-examples">Press Enter to confirm, Esc to close</div>
       `;
       document.body.appendChild(popup);
-
       const input = document.getElementById('quick-date-input');
       input.focus();
-
-      input.addEventListener('keydown', (e) => {
+      input.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
           const dateText = input.value.trim();
           tryParseAndJumpToDate(dateText);
@@ -1928,15 +1855,11 @@
     function tryParseAndJumpToDate(dateText) {
       try {
         let targetDate;
-
-        // Try built-in date parsing
         const parsedDate = new Date(dateText);
         if (!isNaN(parsedDate.getTime())) {
           targetDate = parsedDate;
         } else {
-          // Handle relative dates
           const today = new Date();
-
           if (dateText.toLowerCase() === 'today') {
             targetDate = today;
           } else if (dateText.toLowerCase() === 'tomorrow') {
@@ -1949,20 +1872,15 @@
             const dayName = dateText.toLowerCase().substring(5);
             targetDate = getNextDayOfWeek(dayName);
           } else {
-            // Try Month Day format (e.g., "Dec 25")
             const monthDayMatch = dateText.match(/(\w+)\s+(\d+)/);
             if (monthDayMatch) {
               const monthName = monthDayMatch[1];
               const day = parseInt(monthDayMatch[2]);
-
-              // Find month index
               const monthIndex = months.findIndex(m =>
                 m.toLowerCase().startsWith(monthName.toLowerCase())
               );
-
               if (monthIndex >= 0 && day > 0 && day <= 31) {
                 targetDate = new Date(today.getFullYear(), monthIndex, day);
-                // If date is in the past, assume next year
                 if (targetDate < today) {
                   targetDate.setFullYear(today.getFullYear() + 1);
                 }
@@ -1970,7 +1888,6 @@
             }
           }
         }
-
         if (targetDate) {
           todayDate = targetDate;
           loadCalendarAroundDate(todayDate);
@@ -1987,13 +1904,13 @@
     function getNextDayOfWeek(dayName) {
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const dayIndex = dayNames.findIndex(d => d.startsWith(dayName.toLowerCase()));
-
       if (dayIndex >= 0) {
         const today = new Date();
         const todayIndex = today.getDay();
         let daysUntilNext = dayIndex - todayIndex;
-        if (daysUntilNext <= 0) daysUntilNext += 7;
-
+        if (daysUntilNext <= 0) {
+          daysUntilNext += 7;
+        }
         const nextDay = new Date(today);
         nextDay.setDate(today.getDate() + daysUntilNext);
         return nextDay;
@@ -2001,7 +1918,7 @@
       return null;
     }
 
-    /* MULTI-DAY SELECTION */
+    /* MULTI SELECT MODE */
     function toggleMultiSelectMode() {
       isMultiSelectMode = !isMultiSelectMode;
       if (isMultiSelectMode) {
@@ -2019,56 +1936,42 @@
         showToast("Multi-select mode disabled");
       }
     }
-
     function toggleDaySelection() {
       if (!keyboardFocusDate || !isMultiSelectMode) return;
-
-      const selectedIndex = selectedDays.findIndex(date =>
-        date.getFullYear() === keyboardFocusDate.getFullYear() &&
-        date.getMonth() === keyboardFocusDate.getMonth() &&
-        date.getDate() === keyboardFocusDate.getDate()
+      const selectedIndex = selectedDays.findIndex(
+        date =>
+          date.getFullYear() === keyboardFocusDate.getFullYear() &&
+          date.getMonth() === keyboardFocusDate.getMonth() &&
+          date.getDate() === keyboardFocusDate.getDate()
       );
-
       if (selectedIndex >= 0) {
-        // Deselect
         selectedDays.splice(selectedIndex, 1);
       } else {
-        // Select
         selectedDays.push(new Date(keyboardFocusDate));
       }
-
       updateMultiDaySelection();
     }
-
     function updateMultiDaySelection() {
-      // Clear all selections first
-      document.querySelectorAll('.multi-selected').forEach(el =>
-        el.classList.remove('multi-selected')
-      );
-
-      // Apply selection to visible days
+      document.querySelectorAll('.multi-selected').forEach(el => el.classList.remove('multi-selected'));
       selectedDays.forEach(date => {
         const cell = document.getElementById(idForDate(date));
-        if (cell) cell.classList.add('multi-selected');
+        if (cell) {
+          cell.classList.add('multi-selected');
+        }
       });
     }
-
     function clearMultiDaySelection() {
-      document.querySelectorAll('.multi-selected').forEach(el =>
-        el.classList.remove('multi-selected')
-      );
+      document.querySelectorAll('.multi-selected').forEach(el => el.classList.remove('multi-selected'));
       selectedDays = [];
     }
-
     function performBatchAction(action) {
       if (!isMultiSelectMode || selectedDays.length === 0) {
         showToast("No days selected for batch action");
         return;
       }
-
-      switch(action) {
+      switch (action) {
         case 'clear':
-          if (confirm(`Are you sure you want to clear all entries for ${selectedDays.length} selected day(s)?`)) {
+          if (confirm("Are you sure you want to clear all notes for selected days?")) {
             let count = 0;
             selectedDays.forEach(date => {
               const cellId = idForDate(date);
@@ -2082,7 +1985,7 @@
                 });
               }
             });
-            showToast(`Cleared ${count} entries from ${selectedDays.length} days`);
+            showToast("Cleared notes on " + count + " items.");
           }
           break;
         case 'add':
@@ -2102,15 +2005,15 @@
                 }
               }
             });
-            showToast(`Added note to ${selectedDays.length} days`);
+            showToast("Added note to selected days");
           }
           break;
       }
     }
 
-    /* YEAR VIEW HELPER */
+    /* YEAR VIEW */
     function buildYearView(year, container) {
-      for (let m=0; m<12; m++) {
+      for (let m = 0; m < 12; m++) {
         const div = document.createElement('div');
         div.className = 'month-grid';
         const h3 = document.createElement('h3');
@@ -2120,7 +2023,7 @@
         table.style.width = '100%';
         table.style.borderCollapse = 'collapse';
         const headerRow = document.createElement('tr');
-        for (let i=0; i<7; i++) {
+        for (let i = 0; i < 7; i++) {
           const th = document.createElement('th');
           th.textContent = daysOfWeek[i].charAt(0);
           th.style.padding = '3px';
@@ -2130,39 +2033,39 @@
         table.appendChild(headerRow);
         const firstDay = new Date(year, m, 1);
         let dayOfWeek = getAdjustedDayIndex(firstDay);
-        const daysInMonth = new Date(year, m+1, 0).getDate();
+        const daysInMonth = new Date(year, m + 1, 0).getDate();
         let day = 1;
         let row = document.createElement('tr');
-        for (let k=0; k<dayOfWeek; k++) {
+        for (let k = 0; k < dayOfWeek; k++) {
           const emptyCell = document.createElement('td');
-          emptyCell.style.padding='3px';
+          emptyCell.style.padding = '3px';
           row.appendChild(emptyCell);
         }
-        while (day<=daysInMonth) {
-          if (dayOfWeek===7) {
+        while (day <= daysInMonth) {
+          if (dayOfWeek === 7) {
             table.appendChild(row);
             row = document.createElement('tr');
-            dayOfWeek=0;
+            dayOfWeek = 0;
           }
           const td = document.createElement('td');
-          td.textContent=day;
-          td.style.padding='3px';
-          td.style.textAlign='center';
-          const currentDate=new Date(year,m,day);
-          if (currentDate.getTime()===todayDate.setHours(0,0,0,0)) {
-            td.style.backgroundColor='#e53e3e';
-            td.style.color='white';
-            td.style.borderRadius='50%';
+          td.textContent = day;
+          td.style.padding = '3px';
+          td.style.textAlign = 'center';
+          const currentDate = new Date(year, m, day);
+          if (currentDate.getTime() === todayDate.setHours(0, 0, 0, 0)) {
+            td.style.backgroundColor = '#e53e3e';
+            td.style.color = 'white';
+            td.style.borderRadius = '50%';
           }
-          const dateId=`${m}_${day}_${year}`;
+          const dateId = `${m}_${day}_${year}`;
           if (localStorage[dateId]) {
-            td.style.fontWeight='bold';
-            td.style.textDecoration='underline';
+            td.style.fontWeight = 'bold';
+            td.style.textDecoration = 'underline';
           }
-          td.style.cursor='pointer';
-          td.onclick=()=>{
+          td.style.cursor = 'pointer';
+          td.onclick = () => {
             hideYearView();
-            todayDate=new Date(year,m,day);
+            todayDate = new Date(year, m, day);
             loadCalendarAroundDate(todayDate);
             smoothScrollToToday();
           };
@@ -2180,7 +2083,7 @@
 
     function showYearView() {
       const year = todayDate.getFullYear();
-      document.getElementById('yearViewTitle').textContent = `${year} at a Glance`;
+      document.getElementById('yearViewTitle').textContent = year;
       const container = document.getElementById('yearViewGrid');
       container.innerHTML = '';
       buildYearView(year, container);
@@ -2191,85 +2094,7 @@
       document.getElementById('yearViewContainer').style.display = 'none';
     }
 
-    /* MINI-CALENDAR */
-    function buildMiniCalendar() {
-      const mini = document.getElementById("miniCalendar");
-      if (!mini) return;
-      mini.innerHTML = "";
-      const currentMonth = todayDate.getMonth();
-      const currentYear = todayDate.getFullYear();
-      let prevMonth = currentMonth - 1, prevYear = currentYear;
-      if (prevMonth<0) { prevMonth=11; prevYear=currentYear-1; }
-      let nextMonth = currentMonth+1, nextYear = currentYear;
-      if (nextMonth>11) { nextMonth=0; nextYear=currentYear+1; }
-      buildMiniCalendarForMonth(mini, prevYear, prevMonth, false);
-      buildMiniCalendarForMonth(mini, currentYear, currentMonth, true);
-      buildMiniCalendarForMonth(mini, nextYear, nextMonth, false);
-    }
-
-
-    function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
-      const section = document.createElement("div");
-      section.style.marginBottom = "10px";
-      section.style.padding = "5px";
-      section.style.borderRadius = "5px";
-      const monthHeader = document.createElement("div");
-      monthHeader.textContent = months[month] + " " + year;
-      monthHeader.style.textAlign = "center";
-      monthHeader.style.fontSize = "12px";
-      monthHeader.style.fontWeight = "bold";
-      monthHeader.style.marginBottom = "5px";
-      section.appendChild(monthHeader);
-      const grid = document.createElement("div");
-      grid.style.display = "grid";
-      grid.style.gridTemplateColumns = "repeat(7, 20px)";
-      grid.style.gridGap = "2px";
-      for (let i=0; i<7; i++) {
-        const dayCell = document.createElement("div");
-        dayCell.textContent = daysOfWeek[i].charAt(0);
-        dayCell.style.fontSize='10px';
-        dayCell.style.textAlign='center';
-        grid.appendChild(dayCell);
-      }
-      const firstDay = new Date(year, month, 1);
-      let startDay = firstDay.getDay();
-      startDay = (startDay===0) ? 7 : startDay;
-      const offset = startDay - 1;
-      for (let i=0; i<offset; i++) {
-        const empty = document.createElement("div");
-        grid.appendChild(empty);
-      }
-      const daysInMonth = new Date(year, month+1, 0).getDate();
-      for (let d=1; d<=daysInMonth; d++) {
-        const cell = document.createElement("div");
-        cell.textContent = d;
-        cell.style.fontSize='10px';
-        cell.style.textAlign='center';
-        cell.style.cursor='pointer';
-        cell.style.padding='2px';
-        cell.style.borderRadius='3px';
-        cell.style.backgroundColor='transparent';
-        if (highlightCurrent && d===todayDate.getDate()) {
-          cell.style.backgroundColor='#e53e3e';
-          cell.style.color='#fff';
-        }
-        cell.addEventListener("click", ()=>{
-          todayDate=new Date(year,month,d);
-          loadCalendarAroundDate(todayDate);
-          smoothScrollToToday();
-        });
-        grid.appendChild(cell);
-      }
-      section.appendChild(grid);
-      container.appendChild(section);
-    }
-
-
-    function updateMiniCalendar() {
-      buildMiniCalendar();
-    }
-
-    /* KEYBOARD FOCUS LOGIC */
+    /* KEYBOARD NAVIGATION LOGIC */
     function toggleKeyboardNavMode() {
       if (!keyboardFocusDate) {
         keyboardFocusDate = new Date(todayDate || systemToday);
@@ -2283,7 +2108,6 @@
         showToast("Keyboard navigation mode deactivated");
       }
     }
-
     function highlightKeyboardFocusedDay() {
       document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
       if (!keyboardFocusDate) return;
@@ -2293,38 +2117,34 @@
         cell.classList.add('keyboard-focus');
       }
     }
-
-   function stepDay(delta) {
+    function stepDay(delta) {
       if (!keyboardFocusDate) {
-         keyboardFocusDate = new Date(todayDate || systemToday);
+        keyboardFocusDate = new Date(todayDate || systemToday);
       }
       keyboardFocusDate.setDate(keyboardFocusDate.getDate() + delta);
       const cell = document.getElementById(idForDate(keyboardFocusDate));
       if (cell) {
-         // If the cell is already rendered, update focus and scroll smoothly.
-         highlightKeyboardFocusedDay();
-         goalY = scrollPositionForElement(cell);
-         startY = documentScrollTop();
-         startTime = new Date();
-         if (goalY !== startY) {
-            scrollAnimation();
-         }
+        highlightKeyboardFocusedDay();
+        goalY = scrollPositionForElement(cell);
+        startY = documentScrollTop();
+        startTime = new Date();
+        if (goalY !== startY) {
+          scrollAnimation();
+        }
       } else {
-         // If not rendered, re-load the calendar around the new date.
-         loadCalendarAroundDate(keyboardFocusDate);
-         setTimeout(() => {
-            highlightKeyboardFocusedDay();
-            const newCell = document.getElementById(idForDate(keyboardFocusDate));
-            if (newCell) {
-               goalY = scrollPositionForElement(newCell);
-               startY = documentScrollTop();
-               startTime = new Date();
-               if (goalY !== startY) scrollAnimation();
-            }
-         }, 300);
+        loadCalendarAroundDate(keyboardFocusDate);
+        setTimeout(() => {
+          highlightKeyboardFocusedDay();
+          const newCell = document.getElementById(idForDate(keyboardFocusDate));
+          if (newCell) {
+            goalY = scrollPositionForElement(newCell);
+            startY = documentScrollTop();
+            startTime = new Date();
+            if (goalY !== startY) scrollAnimation();
+          }
+        }, 300);
       }
-   }
-
+    }
     function createEventInFocusedDay() {
       if (!keyboardFocusDate) {
         showToast("No day is selected");
@@ -2337,7 +2157,7 @@
         return;
       }
       cell.classList.add("clicked-day");
-      setTimeout(()=>cell.classList.remove("clicked-day"), 500);
+      setTimeout(() => cell.classList.remove("clicked-day"), 500);
       const itemId = nextItemId();
       const note = generateItem(cellId, itemId);
       if (note) {
@@ -2371,186 +2191,181 @@
       }
     }
 
-document.addEventListener("keydown", (e) => {
-  if (e.target && (e.target.tagName.toLowerCase() === "textarea" ||
-                   e.target.tagName.toLowerCase() === "input")) {
-    return;
-  }
-
-  // Command palette with ⌘K or /
-  if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
-    e.preventDefault();
-    showCommandPalette();
-    return;
-  }
-
-  // Quick date input
-  if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    e.preventDefault();
-    showQuickDateInput();
-    return;
-  }
-
-  // Multi-select mode
-  if (e.key === 'm') {
-    e.preventDefault();
-    toggleMultiSelectMode();
-    return;
-  }
-
-  // In multi-select mode
-  if (isMultiSelectMode) {
-    if (e.key === ' ') { // Space to toggle selection
-      e.preventDefault();
-      toggleDaySelection();
-      return;
-    } else if (e.key === 'c' && e.ctrlKey) { // Ctrl+C to clear selected days
-      e.preventDefault();
-      performBatchAction('clear');
-      return;
-    } else if (e.key === 'n' && e.ctrlKey) { // Ctrl+N to add note to selected days
-      e.preventDefault();
-      performBatchAction('add');
-      return;
-    }
-  }
-
-  // Rest of your existing keyboard handler...
-  switch (e.key) {
-    case "Escape":
-      if (document.getElementById("help").style.display === "block") {
-        hideHelp();
+    document.addEventListener("keydown", e => {
+      if (
+        e.target &&
+        (e.target.tagName.toLowerCase() === "textarea" || e.target.tagName.toLowerCase() === "input")
+      ) {
         return;
       }
-      if (document.getElementById("yearViewContainer").style.display === "block") {
-        hideYearView();
+      // Command palette shortcuts:
+      if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
+        e.preventDefault();
+        showCommandPalette();
         return;
       }
-      if (isSelectingRange) {
-        clearRangeSelection();
-        isSelectingRange = false;
-        showToast("Range selection cancelled");
+      // Quick date popup
+      if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        showQuickDateInput();
         return;
       }
-      // Also exit keyboard navigation mode if active
-      if (keyboardFocusDate) {
-        keyboardFocusDate = null;
-        document.body.classList.remove('keyboard-nav-active');
-        document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
-        showToast("Keyboard navigation mode deactivated");
+      // Multi-select
+      if (e.key === 'm') {
+        e.preventDefault();
+        toggleMultiSelectMode();
+        return;
       }
-      break;
-    case "?":
-      e.preventDefault();
-      const helpElem = document.getElementById("help");
-      (helpElem.style.display === "block") ? hideHelp() : showHelp();
-      break;
-    case "i":
-      e.preventDefault();
-      toggleKeyboardNavMode();
-      break;
-    case "q":
-    case "Q":
-      if (keyboardFocusDate) {
-        e.preventDefault();
-        keyboardFocusDate = null;
-        document.body.classList.remove('keyboard-nav-active');
-        document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
-        showToast("Keyboard navigation mode deactivated");
+      if (isMultiSelectMode) {
+        if (e.key === ' ') {
+          e.preventDefault();
+          toggleDaySelection();
+          return;
+        } else if (e.key === 'c' && e.ctrlKey) {
+          e.preventDefault();
+          performBatchAction('clear');
+          return;
+        } else if (e.key === 'n' && e.ctrlKey) {
+          e.preventDefault();
+          performBatchAction('add');
+          return;
+        }
       }
-      break;
-    case "z":
-    case "Z":
-      if (e.ctrlKey && e.shiftKey) {
-        e.preventDefault();
-        redoLastChange();
-      } else if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        undoLastChange();
-      } else {
-        e.preventDefault();
-        undoLastChange();
+      switch (e.key) {
+        case "Escape":
+          if (document.getElementById("help").style.display === "block") {
+            hideHelp();
+            return;
+          }
+          if (document.getElementById("yearViewContainer").style.display === "block") {
+            hideYearView();
+            return;
+          }
+          if (isSelectingRange) {
+            clearRangeSelection();
+            isSelectingRange = false;
+            showToast("Range selection cancelled");
+            return;
+          }
+          if (keyboardFocusDate) {
+            keyboardFocusDate = null;
+            document.body.classList.remove('keyboard-nav-active');
+            document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
+            showToast("Keyboard navigation mode deactivated");
+          }
+          break;
+        case "?":
+          e.preventDefault();
+          const helpElem = document.getElementById("help");
+          helpElem.style.display === "block" ? hideHelp() : showHelp();
+          break;
+        case "i":
+          e.preventDefault();
+          toggleKeyboardNavMode();
+          break;
+        case "q":
+        case "Q":
+          if (keyboardFocusDate) {
+            e.preventDefault();
+            keyboardFocusDate = null;
+            document.body.classList.remove('keyboard-nav-active');
+            document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
+            showToast("Keyboard navigation mode deactivated");
+          }
+          break;
+        case "z":
+        case "Z":
+          if (e.ctrlKey && e.shiftKey) {
+            e.preventDefault();
+            redoLastChange();
+          } else if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            undoLastChange();
+          } else {
+            e.preventDefault();
+            undoLastChange();
+          }
+          break;
+        case "y":
+        case "Y":
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            redoLastChange();
+          } else {
+            e.preventDefault();
+            const yv = document.getElementById("yearViewContainer");
+            yv.style.display === "block" ? hideYearView() : showYearView();
+          }
+          break;
+        case "g":
+        case "G":
+          e.preventDefault();
+          const jump = document.getElementById("jumpDate");
+          if (jump) {
+            jump.focus();
+          }
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          stepDay(-1);
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          stepDay(1);
+          break;
+        case "ArrowUp":
+          if (e.altKey) {
+            e.preventDefault();
+            jumpOneMonthBackward();
+          } else if (keyboardFocusDate) {
+            e.preventDefault();
+            stepDay(-7);
+          }
+          break;
+        case "ArrowDown":
+          if (e.altKey) {
+            e.preventDefault();
+            jumpOneMonthForward();
+          } else if (keyboardFocusDate) {
+            e.preventDefault();
+            stepDay(7);
+          }
+          break;
+        case "Enter":
+          e.preventDefault();
+          createEventInFocusedDay();
+          break;
+        case "Delete":
+        case "Backspace":
+          e.preventDefault();
+          deleteEntriesForFocusedDay();
+          break;
+        case "t":
+        case "T":
+          todayDate = new Date(systemToday);
+          loadCalendarAroundDate(todayDate);
+          break;
+        default:
+          if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
+            e.preventDefault();
+            toggleDarkMode();
+          }
+          break;
       }
-      break;
-    case "y":
-    case "Y":
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        redoLastChange();
-      } else {
-        e.preventDefault();
-        const yv = document.getElementById("yearViewContainer");
-        (yv.style.display === "block") ? hideYearView() : showYearView();
-      }
-      break;
-    case "g":
-    case "G":
-      e.preventDefault();
-      const jump = document.getElementById("jumpDate");
-      if (jump) jump.focus();
-      break;
-    case "ArrowLeft":
-      e.preventDefault();
-      stepDay(-1);
-      break;
-    case "ArrowRight":
-      e.preventDefault();
-      stepDay(1);
-      break;
-    case "ArrowUp":
-      if (e.altKey) {
-        e.preventDefault();
-        jumpOneMonthBackward();
-      } else if (keyboardFocusDate) {
-        e.preventDefault();
-        stepDay(-7);
-      }
-      break;
-    case "ArrowDown":
-      if (e.altKey) {
-        e.preventDefault();
-        jumpOneMonthForward();
-      } else if (keyboardFocusDate) {
-        e.preventDefault();
-        stepDay(7);
-      }
-      break;
-    case "Enter":
-      e.preventDefault();
-      createEventInFocusedDay();
-      break;
-    case "Delete":
-    case "Backspace":
-      e.preventDefault();
-      deleteEntriesForFocusedDay();
-      break;
-    case "t":
-    case "T":
-      todayDate = new Date(systemToday);
-      loadCalendarAroundDate(todayDate);
-      break;
-    default:
-      if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
-        e.preventDefault();
-        toggleDarkMode();
-      }
-      break;
-  }
-});
+    });
 
-    /* SINGLE-CLICK HANDLER FOR NEW NOTES */
-    document.addEventListener("click", (evt) => {
+    document.addEventListener("click", evt => {
       const dayCell = evt.target.closest("td");
-      if (!dayCell || !dayCell.id || dayCell.classList.contains("extra")) return;
+      if (!dayCell || !dayCell.id || dayCell.classList.contains("extra")) {
+        return;
+      }
       if (evt.target.tagName.toLowerCase() === "textarea") {
         return;
       }
-
       if (isSelectingRange) {
         handleRangeSelection(dayCell);
         return;
       }
-
       dayCell.classList.add("clicked-day");
       setTimeout(() => dayCell.classList.remove("clicked-day"), 500);
       const itemId = nextItemId();
@@ -2562,33 +2377,36 @@ document.addEventListener("keydown", (e) => {
       }
     });
 
-    /* JUMP MONTHS */
     function jumpOneMonthForward() {
       if (!currentVisibleMonth) return;
       const [monthName, yearStr] = currentVisibleMonth.split(" ");
       if (!monthName || !yearStr) return;
       let y = parseInt(yearStr, 10) || new Date().getFullYear();
       const mIdx = months.indexOf(monthName);
-      if (mIdx===-1) return;
-      let nm = mIdx+1;
-      if (nm>11) { nm=0; y++; }
+      if (mIdx === -1) return;
+      let nm = mIdx + 1;
+      if (nm > 11) {
+        nm = 0;
+        y++;
+      }
       const nextDate = new Date(y, nm, 1);
       smoothScrollToDate(nextDate);
     }
-
     function jumpOneMonthBackward() {
       if (!currentVisibleMonth) return;
       const [monthName, yearStr] = currentVisibleMonth.split(" ");
       if (!monthName || !yearStr) return;
       let y = parseInt(yearStr, 10) || new Date().getFullYear();
       const mIdx = months.indexOf(monthName);
-      if (mIdx===-1) return;
-      let pm = mIdx-1;
-      if (pm<0) { pm=11; y--; }
+      if (mIdx === -1) return;
+      let pm = mIdx - 1;
+      if (pm < 0) {
+        pm = 11;
+        y--;
+      }
       const prevDate = new Date(y, pm, 1);
       smoothScrollToDate(prevDate);
     }
-
     function smoothScrollToDate(dateObj) {
       showLoading();
       loadCalendarAroundDate(dateObj);
@@ -2601,7 +2419,7 @@ document.addEventListener("keydown", (e) => {
         goalY = scrollPositionForElement(el);
         startY = documentScrollTop();
         startTime = new Date();
-        if (goalY!==startY) setTimeout(scrollAnimation, 10);
+        if (goalY !== startY) setTimeout(scrollAnimation, 10);
         else hideLoading();
       }, 200);
     }
@@ -2614,32 +2432,29 @@ document.addEventListener("keydown", (e) => {
       }
       showToast(isSelectingRange ? "Select range start date" : "Range selection cancelled");
     }
-
     function clearRangeSelection() {
-      document.querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
-        .forEach(el => el.classList.remove('selected-range-start','selected-range-end','selected-range-day'));
+      document
+        .querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
+        .forEach(el => el.classList.remove('selected-range-start', 'selected-range-end', 'selected-range-day'));
       rangeStart = null;
       rangeEnd = null;
     }
-
     function handleRangeSelection(dayCell) {
       const dateId = dayCell.id;
       if (!dateId) return;
       const [month, day, year] = dateId.split('_').map(Number);
       const selectedDate = new Date(year, month, day);
-
       if (!rangeStart) {
         rangeStart = selectedDate;
         dayCell.classList.add('selected-range-start');
         showToast("Select range end date");
       } else if (!rangeEnd) {
         if (selectedDate < rangeStart) {
-          // swap
           rangeEnd = rangeStart;
           rangeStart = selectedDate;
           document.querySelector('.selected-range-start')?.classList.remove('selected-range-start');
           dayCell.classList.add('selected-range-start');
-          // also mark the old start as end
+          // Mark the old start as range-end
           document.querySelectorAll('td').forEach(cell => {
             if (cell.id === idForDate(rangeEnd)) {
               cell.classList.add('selected-range-end');
@@ -2654,7 +2469,6 @@ document.addEventListener("keydown", (e) => {
         isSelectingRange = false;
       }
     }
-
     function highlightDaysInRange() {
       if (!rangeStart || !rangeEnd) return;
       const curDate = new Date(rangeStart);
@@ -2662,118 +2476,115 @@ document.addEventListener("keydown", (e) => {
         curDate.setDate(curDate.getDate() + 1);
         const dayId = idForDate(curDate);
         const dayCell = document.getElementById(dayId);
-        if (dayCell &&
-           !dayCell.classList.contains('selected-range-start') &&
-           !dayCell.classList.contains('selected-range-end')) {
+        if (
+          dayCell &&
+          !dayCell.classList.contains('selected-range-start') &&
+          !dayCell.classList.contains('selected-range-end')
+        ) {
           dayCell.classList.add('selected-range-day');
         }
       }
     }
 
-    /* MISC */
+    /* JUMP TO DATE */
     function jumpToDate() {
       const val = document.getElementById("jumpDate").value;
       if (!val) return;
       showLoading();
       const [yyyy, mm, dd] = val.split("-");
-      const jumpDateObj = new Date(yyyy, mm-1, dd);
+      const jumpDateObj = new Date(yyyy, mm - 1, dd);
       todayDate = jumpDateObj;
       loadCalendarAroundDate(todayDate);
-      setTimeout(()=>smoothScrollToToday(), 300);
+      setTimeout(() => smoothScrollToToday(), 300);
     }
     function nextItemId() {
-      localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId)+1 : 0;
-      return "item"+ localStorage.nextId;
+      localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
+      return "item" + localStorage.nextId;
     }
 
-    /* CALENDAR INITIALIZATION */
+    /* LOADING THE CALENDAR */
+    const throttledUpdateMiniCalendar = throttle(buildMiniCalendar, 300);
+    let lastMiniCalendarMonth = null;
 
-const throttledUpdateMiniCalendar = throttle(updateMiniCalendar, 300);
+    function loadCalendarAroundDate(seedDate) {
+      showLoading();
+      const container = document.getElementById('calendarContainer');
+      container.classList.add('loading-calendar');
+      calendarTableElement.innerHTML = "";
+      firstDate = new Date(seedDate);
+      while (getAdjustedDayIndex(firstDate) !== 0) {
+        firstDate.setDate(firstDate.getDate() - 1);
+      }
+      lastDate = new Date(firstDate);
+      lastDate.setDate(lastDate.getDate() - 1);
+      appendWeek();
 
+      function loadBatch() {
+        let batchCount = 0;
+        while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
+          prependWeek();
+          appendWeek();
+          batchCount++;
+        }
+        if (documentScrollHeight() <= window.innerHeight) {
+          setTimeout(loadBatch, 0);
+        } else {
+          container.classList.remove('loading-calendar');
+          scrollToToday();
+          recalculateAllHeights();
+          updateStickyMonthHeader();
 
-// Declare a variable outside to track the currently built mini-calendar month.
-let lastMiniCalendarMonth = null;
+          // Only rebuild mini-calendar if month changed:
+          if (todayDate.getMonth() !== lastMiniCalendarMonth) {
+            buildMiniCalendar();
+            lastMiniCalendarMonth = todayDate.getMonth();
+          }
 
-
-function loadCalendarAroundDate(seedDate) {
-  showLoading();
-  const container = document.getElementById('calendarContainer');
-  container.classList.add('loading-calendar');
-
-  // Clear the current calendar content
-  calendarTableElement.innerHTML = "";
-
-  // Set firstDate to the beginning of the week containing seedDate
-  firstDate = new Date(seedDate);
-  while (getAdjustedDayIndex(firstDate) !== 0) {
-    firstDate.setDate(firstDate.getDate() - 1);
-  }
-
-  // Set lastDate as the day before firstDate
-  lastDate = new Date(firstDate);
-  lastDate.setDate(lastDate.getDate() - 1);
-
-  // Append one week at the bottom
-  appendWeek();
-
-  // Prepend and append weeks until the scroll height exceeds the viewport
-  while (documentScrollHeight() <= window.innerHeight) {
-    prependWeek();
-    appendWeek();
-  }
-
-  setTimeout(() => {
-    container.classList.remove('loading-calendar');
-    scrollToToday();
-    recalculateAllHeights();
-    updateStickyMonthHeader();
-
-    // Only update the mini-calendar if the month has changed.
-    if (todayDate.getMonth() !== lastMiniCalendarMonth) {
-      updateMiniCalendar();
-      lastMiniCalendarMonth = todayDate.getMonth();
+          if (keyboardFocusDate) {
+            highlightKeyboardFocusedDay();
+          }
+          hideLoading();
+        }
+      }
+      loadBatch();
     }
 
-    if (keyboardFocusDate) {
-      highlightKeyboardFocusedDay();
-    }
-  }, 50);
-}
-
-
-
-    /* PARALLAX BACKGROUND ON SCROLL */
     window.addEventListener("scroll", throttle(() => {
       const parallax = document.querySelector(".parallax-bg");
       if (parallax) {
-        parallax.style.transform = "translateY(" + (documentScrollTop() * 0.5) + "px)";
+        parallax.style.transform = "translateY(" + documentScrollTop() * 0.5 + "px)";
       }
     }, 20));
 
-    /* INTERSECTION OBSERVERS (Infinite Scroll) */
     function setupScrollObservers() {
       const opts = { rootMargin: '200px' };
-      const topObs = new IntersectionObserver((entries) => {
+      const topObs = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
           const oldH = documentScrollHeight();
-          for (let i=0; i<8; i++) prependWeek();
+          for (let i = 0; i < 8; i++) {
+            prependWeek();
+          }
           window.scrollBy(0, documentScrollHeight() - oldH);
           recalculateAllHeights();
           updateStickyMonthHeader();
         }
       }, opts);
-      const botObs = new IntersectionObserver((entries) => {
+      const botObs = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
-          for (let i=0; i<8; i++) appendWeek();
+          for (let i = 0; i < 8; i++) {
+            appendWeek();
+          }
           recalculateAllHeights();
           updateStickyMonthHeader();
         }
       }, opts);
       topObs.observe(document.getElementById('top-sentinel'));
       botObs.observe(document.getElementById('bottom-sentinel'));
+
+      // Check system date changes once a minute
       setInterval(() => {
         const newSys = new Date();
-        if (newSys.toDateString()!==systemToday.toDateString()) {
+        if (newSys.toDateString() !== systemToday.toDateString()) {
           systemToday = newSys;
           if (!document.querySelector('.current-day-dot')) {
             location.reload();
@@ -2781,75 +2592,90 @@ function loadCalendarAroundDate(seedDate) {
         }
       }, 60000);
     }
+
     function checkInfiniteScroll() {
-      if (documentScrollTop()<200) {
+      if (documentScrollTop() < 200) {
         const oldH = documentScrollHeight();
-        for (let i=0; i<8; i++) prependWeek();
-        window.scrollBy(0, documentScrollHeight()-oldH);
+        for (let i = 0; i < 8; i++) {
+          prependWeek();
+        }
+        window.scrollBy(0, documentScrollHeight() - oldH);
         recalculateAllHeights();
-      } else if (documentScrollTop() > documentScrollHeight()-window.innerHeight-200) {
-        for (let i=0; i<8; i++) appendWeek();
+      } else if (
+        documentScrollTop() >
+        documentScrollHeight() - window.innerHeight - 200
+      ) {
+        for (let i = 0; i < 8; i++) {
+          appendWeek();
+        }
         recalculateAllHeights();
       }
       const newSys = new Date();
-      if (newSys.toDateString()!==systemToday.toDateString()) {
-        systemToday=newSys;
+      if (newSys.toDateString() !== systemToday.toDateString()) {
+        systemToday = newSys;
         if (!document.querySelector('.current-day-dot')) {
           location.reload();
         }
       }
     }
 
-    /* HELPER FUNCTIONS */
     function idForDate(date) {
       return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
     }
     function parseDateFromId(idStr) {
       const parts = idStr.split("_");
-      if (parts.length!==3) return null;
+      if (parts.length !== 3) return null;
       const [month, day, year] = parts.map(Number);
-      return `${year.toString().padStart(4,"0")}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     }
     function getAdjustedDayIndex(date) {
       const day = date.getDay();
-      return (day===0) ? 6 : day-1;
+      return day === 0 ? 6 : day - 1;
     }
-    function animateRowInsertion(row, direction='append') {
+    function animateRowInsertion(row, direction = 'append') {
       row.classList.add(ROW_ANIMATION_CLASS);
-      if (direction==='append') {
-        row.classList.add('append-animate');
-      } else {
-        row.classList.add('prepend-animate');
-      }
-      row.addEventListener('animationend', () => {
-        row.classList.remove(ROW_ANIMATION_CLASS, 'append-animate', 'prepend-animate');
-      }, { once: true });
+      row.classList.add(direction === 'append' ? 'append-animate' : 'prepend-animate');
+      row.addEventListener(
+        'animationend',
+        () => {
+          row.classList.remove(ROW_ANIMATION_CLASS, 'append-animate', 'prepend-animate');
+        },
+        { once: true }
+      );
     }
 
-    /* INIT */
     window.onload = function() {
       calendarTableElement = document.getElementById("calendar");
       todayDate = new Date(systemToday);
       loadCalendarAroundDate(todayDate);
+
       if ('IntersectionObserver' in window) {
         setupScrollObservers();
       } else {
+        // fallback
         setInterval(checkInfiniteScroll, 100);
       }
+
       const j = document.getElementById("jumpDate");
       if (j) {
         const sys = new Date();
-        j.value = sys.getFullYear() + "-"
-                + String(sys.getMonth()+1).padStart(2,'0') + "-"
-                + String(sys.getDate()).padStart(2,'0');
+        j.value =
+          sys.getFullYear() +
+          "-" +
+          String(sys.getMonth() + 1).padStart(2, '0') +
+          "-" +
+          String(sys.getDate()).padStart(2, '0');
       }
-      if (localStorage.getItem("darkMode")==="enabled") {
+
+      if (localStorage.getItem("darkMode") === "enabled") {
         document.body.classList.add("dark-mode");
       }
+
       setTimeout(recalculateAllHeights, 100);
+
       window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
       updateStickyMonthHeader();
-      // Sticky header background toggle on scroll
+
       window.addEventListener('scroll', () => {
         const header = document.getElementById('header');
         if (window.scrollY > 50) {
@@ -2860,7 +2686,6 @@ function loadCalendarAroundDate(seedDate) {
       });
     };
 
-    /* FILE IMPORT/EXPORT, etc. */
     function downloadLocalStorageData() {
       showLoading();
       const data = {};
@@ -2918,13 +2743,13 @@ function loadCalendarAroundDate(seedDate) {
       showLoading();
       try {
         const handle = await window.showDirectoryPicker();
-        const fileHandle = await handle.getFileHandle("calendar_data.json",{create:false});
+        const fileHandle = await handle.getFileHandle("calendar_data.json", { create: false });
         const file = await fileHandle.getFile();
         const contents = await file.text();
         const data = JSON.parse(contents);
         const fileTimestamp = data.lastSavedTimestamp;
         const localTimestamp = localStorage.getItem("lastSavedTimestamp");
-        if (fileTimestamp && (!localTimestamp || fileTimestamp>localTimestamp)) {
+        if (fileTimestamp && (!localTimestamp || fileTimestamp > localTimestamp)) {
           downloadBackupStorageData();
           await loadDataFromFileHandle(fileHandle);
           location.reload();
@@ -2932,7 +2757,7 @@ function loadCalendarAroundDate(seedDate) {
           await exportToFileHandle(fileHandle);
           hideLoading();
         }
-      } catch(err) {
+      } catch (err) {
         hideLoading();
         if (err.name === "AbortError") {
           console.log("User cancelled file/directory selection");
@@ -2973,7 +2798,7 @@ function loadCalendarAroundDate(seedDate) {
           }
         }
         showToast("Loaded calendar data from file");
-      } catch(err) {
+      } catch (err) {
         hideLoading();
         console.error("Error loading data from file:", err);
         showToast("Error loading calendar data");
@@ -2992,7 +2817,7 @@ function loadCalendarAroundDate(seedDate) {
         await writable.write(JSON.stringify(data));
         await writable.close();
         showToast("Saved calendar data to file");
-      } catch(err) {
+      } catch (err) {
         hideLoading();
         console.error("Error saving data to file:", err);
         showToast("Error saving calendar data");
