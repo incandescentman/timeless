@@ -154,7 +154,7 @@
     #miniCalendar {
       position: fixed;
       left: 10px;
-      top: 50%;
+      top: 54%;
       transform: translateY(-50%);
       padding: 10px;
       border-radius: 5px;
@@ -162,16 +162,16 @@
       box-shadow: none;
     }
 
-    /* Sticky month header with modern typography */
+    /* Sticky month header with enlarged font and extra padding */
     #stickyMonthHeader {
       position: fixed;
       top: calc(var(--header-height) + 20px);
       left: 0;
       width: 100%;
       font-family: var(--font-month-heading);
-      font-size: 20px;
+      font-size: 32px; /* Increased from 20px */
       font-weight: 600;
-      padding: 5px 20px;
+      padding: 15px 20px; /* Increased padding for more whitespace */
       background: var(--month-heading-bg);
       color: var(--month-heading-text);
       z-index: 998;
@@ -714,7 +714,7 @@
   <div id="header">
     <div id="miniCalendar"></div>
     <div>
-      <span><strong>Timeless:</strong> The Infinite Calendar 🪐✨ </span>
+      <span class="brand"><strong>Timeless:</strong> The Infinite Calendar 🪐✨ </span>
       <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">🌙</a>
       <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">📥</a>
       <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">💾</a>
@@ -804,12 +804,12 @@
     const ROW_ANIMATION_CLASS = 'week-row-animate';
 
     // Days & months
-    const daysOfWeek = ["Mon","Tues","Wed","Thur","Fri","Sat","Sun"];
+    const daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
     const months = [
       "January","February","March","April","May","June",
       "July","August","September","October","November","December"
     ];
-    const shortMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const shortMonths = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
 
     // For smooth scrolling
     let startTime, startY, goalY;
