@@ -2690,46 +2690,55 @@ document.addEventListener("keydown", (e) => {
 
 const throttledUpdateMiniCalendar = throttle(updateMiniCalendar, 300);
 
+
+// Declare a variable outside to track the currently built mini-calendar month.
+let lastMiniCalendarMonth = null;
+
+
 function loadCalendarAroundDate(seedDate) {
-   showLoading();
-   const container = document.getElementById('calendarContainer');
-   container.classList.add('loading-calendar');
-   calendarTableElement.innerHTML = "";
-   firstDate = new Date(seedDate);
-   while (getAdjustedDayIndex(firstDate) !== 0) {
-       firstDate.setDate(firstDate.getDate()-1);
-   }
-   lastDate = new Date(firstDate);
-   lastDate.setDate(lastDate.getDate()-1);
-   appendWeek();
-   while (documentScrollHeight() <= window.innerHeight) {
-       prependWeek();
-       appendWeek();
-   }
-   setTimeout(() => {
-       container.classList.remove('loading-calendar');
-       scrollToToday();
-       recalculateAllHeights();
-       updateStickyMonthHeader();
-       throttledUpdateMiniCalendar();
-       if (keyboardFocusDate) {
-           highlightKeyboardFocusedDay();
-       }
-   }, 50);
-}
+  showLoading();
+  const container = document.getElementById('calendarContainer');
+  container.classList.add('loading-calendar');
 
-       setTimeout(() => {
-          container.classList.remove('loading-calendar');
-          scrollToToday();
-          recalculateAllHeights();
-          updateStickyMonthHeader();
-          updateMiniCalendar();  // <-- Add this back in!
-          if (keyboardFocusDate) {
-             highlightKeyboardFocusedDay();
-          }
-       }, 50);
+  // Clear the current calendar content
+  calendarTableElement.innerHTML = "";
 
+  // Set firstDate to the beginning of the week containing seedDate
+  firstDate = new Date(seedDate);
+  while (getAdjustedDayIndex(firstDate) !== 0) {
+    firstDate.setDate(firstDate.getDate() - 1);
+  }
+
+  // Set lastDate as the day before firstDate
+  lastDate = new Date(firstDate);
+  lastDate.setDate(lastDate.getDate() - 1);
+
+  // Append one week at the bottom
+  appendWeek();
+
+  // Prepend and append weeks until the scroll height exceeds the viewport
+  while (documentScrollHeight() <= window.innerHeight) {
+    prependWeek();
+    appendWeek();
+  }
+
+  setTimeout(() => {
+    container.classList.remove('loading-calendar');
+    scrollToToday();
+    recalculateAllHeights();
+    updateStickyMonthHeader();
+
+    // Only update the mini-calendar if the month has changed.
+    if (todayDate.getMonth() !== lastMiniCalendarMonth) {
+      updateMiniCalendar();
+      lastMiniCalendarMonth = todayDate.getMonth();
     }
+
+    if (keyboardFocusDate) {
+      highlightKeyboardFocusedDay();
+    }
+  }, 50);
+}
 
 
 
