@@ -16,49 +16,63 @@
   <style>
     /* CSS Variables for consistent theming */
     :root {
-     --border-width: 1px;
-     --border-color: black;
-     --header-height: 27px;
-     --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-     --cell-min-height: 120px;
-
-      /* Modern Pastel Palette for Light Mode */
-     --bg-primary: #f8f9fa;
-     --bg-pattern: #e0e5ec;
-     --text-primary: #333;
-     --accent: #ff6f61;
-     --weekend-gradient-from: #f0f5f9;
-     --weekend-gradient-to: #d9e2ec;
-     --shaded-month: #e6f7ff;
      --today-gradient-from: rgba(229, 62, 62, 0.9);
      --today-gradient-to: rgba(197, 48, 48, 0.9);
-     --month-boundary: #bbb;
-     --header-gradient-from: transparent;
-     --header-gradient-to: transparent;
-     --header-solid-bg: rgba(255,255,255,0.95);
-     --month-heading-bg: rgba(255,255,255,0.95);
-     --month-heading-text: #333;
+    --border-width: 1px;
+    --border-color: black;
+    --header-height: 27px;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --cell-min-height: 120px;
+
+      /* Color Palette for Light Mode */
+    --color-primary: #4361ee;
+    --color-secondary: #ff6b6b;
+    --color-success: #2ecc71;
+    --color-info: #3498db;
+    --color-warning: #f39c12;
+    --color-danger: #e74c3c;
+    --color-light: #f8f9fa;
+    --color-dark: #343a40;
+
+     /* Semantic color variables */
+    --bg-primary: #f8f9fa;
+    --bg-pattern: #e0e5ec;
+    --text-primary: #333;
+    --accent: var(--color-primary);
+    --weekend-gradient-from: #f0f5f9;
+    --weekend-gradient-to: #d9e2ec;
+    --shaded-month: #e6f7ff;
+    --today-gradient-from: var(--color-danger);
+    --today-gradient-from-rgb: 231, 76, 60;
+    --today-gradient-to: rgba(231, 76, 60, 0.8);
+    --month-boundary: #bbb;
+    --header-gradient-from: transparent;
+    --header-gradient-to: transparent;
+    --header-solid-bg: rgba(255,255,255,0.95);
+    --month-heading-bg: rgba(255,255,255,0.95);
+    --month-heading-text: #333;
 
       /* Typography */
-     --font-month-heading: 'Playfair Display', serif;
-     --font-day-number: 'Fira Code', monospace;
+    --font-month-heading: 'Playfair Display', serif;
+    --font-day-number: 'Fira Code', monospace;
     }
 
     /* Dark mode colors */
     body.dark-mode {
-     --bg-primary: #222;
-     --bg-pattern: rgba(255,255,255,0.05);
-     --text-primary: #eee;
-     --weekend-gradient-from: #303542;
-     --weekend-gradient-to: #232731;
-     --shaded-month: #2a2a2a;
-     --today-gradient-from: rgba(229, 62, 62, 0.8);
-     --today-gradient-to: rgba(197, 48, 48, 0.8);
-     --month-boundary: #555;
-     --header-gradient-from: #2c3e50;
-     --header-gradient-to: #1a1a2e;
-     --month-heading-bg: #2c2c2c;
-     --month-heading-text: #ddd;
+    --bg-primary: #222;
+    --bg-pattern: rgba(255,255,255,0.05);
+    --text-primary: #eee;
+    --weekend-gradient-from: #303542;
+    --weekend-gradient-to: #232731;
+    --shaded-month: #2a2a2a;
+    --today-gradient-from: rgba(229, 62, 62, 0.8);
+    --today-gradient-to: rgba(197, 48, 48, 0.8);
+    --month-boundary: #555;
+    --header-gradient-from: #2c3e50;
+    --header-gradient-to: #1a1a2e;
+    --header-solid-bg: rgba(40, 40, 40, 0.95);
+    --month-heading-bg: #2c2c2c;
+    --month-heading-text: #ddd;
     }
 
     /* Base styles + animated dot grid background */
@@ -76,6 +90,23 @@
     @keyframes moveGrid {
       from { background-position: 0 0; }
       to   { background-position: 20px 20px; }
+    }
+
+    /* Custom scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
     }
 
     /* Parallax background element with subtle overlay */
@@ -186,6 +217,11 @@
     #calendarContainer {
       margin-top: 100px;
       animation: fadeIn 0.5s ease-out;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    #calendarContainer.loading-calendar {
+      opacity: 0.7;
+      transform: scale(0.98);
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -221,6 +257,17 @@
     body.dark-mode a.button:hover, body.dark-mode button:hover {
       background: #4a4a4a;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    /* Button icons */
+    .button svg.icon {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      vertical-align: middle;
+    }
+    .button:hover svg.icon {
+      transform: rotate(15deg) scale(1.1);
     }
 
     /* Tooltip styling for buttons */
@@ -267,14 +314,15 @@
       bottom: 0; top: 0;
       background: rgba(0,0,0,0.75);
       z-index: 2000;
+      backdrop-filter: blur(5px);
     }
     #help div {
       text-align: right;
       margin: 150px auto;
-      width: 400px;
-      padding: 20px;
+      width: 500px;
+      padding: 30px;
       color: black;
-      border-radius: 10px;
+      border-radius: 15px;
       box-shadow: var(--shadow);
       background: white;
     }
@@ -282,7 +330,25 @@
       margin: 0;
       padding: 0 0 20px 20px;
       text-align: left;
-      line-height: 1.5;
+      line-height: 1.6;
+    }
+    #help a {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.2s ease-in-out;
+    }
+    #help a:hover {
+      background: #3250d4;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    body.dark-mode #help div {
+      background: #333;
+      color: #eee;
     }
 
     /* Main calendar table styling (transparent card-like cells) */
@@ -299,7 +365,7 @@
       border-radius: 10px;
       border: none;
       background: transparent;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       margin: 2px;
       transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
       text-align: right;
@@ -313,10 +379,26 @@
       white-space: normal;
       overflow: visible;
       position: relative;
+      transform: perspective(1000px) translateZ(0);
+    }
+    #calendar td::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 10px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
+     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+     -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    body.dark-mode #calendar td::before {
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
     }
     #calendar td:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 6px 12px rgba(255,111,97,0.5);
+      transform: perspective(1000px) translateZ(10px) translateY(-3px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.15);
       background-color: rgba(0,0,0,0.03);
       filter: drop-shadow(0 0 4px var(--accent));
     }
@@ -346,13 +428,29 @@
     #calendar td.shaded {
       background: var(--shaded-month);
     }
+    tr.month-boundary {
+      position: relative;
+    }
     tr.month-boundary td:not(.extra) {
       border-top: 2px solid var(--month-boundary) !important;
     }
+    tr.month-boundary::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--month-boundary), transparent);
+      animation: shineEffect 2s infinite;
+    }
+    @keyframes shineEffect {
+      0% { opacity: 0.2; transform: translateX(-100%); }
+      50% { opacity: 1; transform: translateX(0); }
+      100% { opacity: 0.2; transform: translateX(100%); }
+    }
     @keyframes pulseToday {
-      0% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); }
-      70% { box-shadow: 0 0 10px 20px rgba(220,38,38,0); }
-      100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+      0% { box-shadow: 0 0 0 0 rgba(var(--today-gradient-from-rgb), 0.4); }
+      50% { box-shadow: 0 0 15px 10px rgba(var(--today-gradient-from-rgb), 0.2); }
+      100% { box-shadow: 0 0 0 0 rgba(var(--today-gradient-from-rgb), 0); }
     }
     #calendar td.today {
       background: linear-gradient(135deg, var(--today-gradient-from) 0%, var(--today-gradient-to) 100%);
@@ -360,7 +458,7 @@
       z-index: 10;
       color: #FFF;
       font-weight: 600;
-      animation: pulseToday 2s infinite;
+      animation: pulseToday 3s ease-in-out infinite;
     }
     #calendar td.today span {
       color: white;
@@ -395,26 +493,48 @@
     body.dark-mode #calendar td.extra {
       color: #aaa;
     }
-    #calendar td span {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
+
+    /* Date display (day label and number) */
+    #calendar td .day-label {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+      opacity: 0.6;
       display: block;
-      margin-bottom: 10px;
-      font-family: 'Fira Code', monospace;
+      margin-bottom: 4px;
+      font-family: 'Inter', sans-serif;
       color: #666;
     }
-    body.dark-mode #calendar td span {
+    body.dark-mode #calendar td .day-label {
       color: #aaa;
     }
-    /* Separate styling for numerical day */
+
     #calendar td .day-number {
       font-family: var(--font-day-number);
-      font-size: 16px;
+      font-size: 18px;
       font-weight: bold;
+      color: rgba(0,0,0,0.7);
       display: block;
-      margin-top: 4px;
-      color: inherit;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+    }
+    #calendar td:hover .day-number {
+      color: var(--accent);
+      transform: scale(1.1);
+    }
+    body.dark-mode #calendar td .day-number {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Day selection animation */
+    @keyframes selectDay {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    #calendar td.selected {
+      animation: selectDay 0.3s ease-out;
+      box-shadow: 0 0 0 2px var(--accent);
     }
 
     /* Ripple effect on cell click with refined animation */
@@ -481,12 +601,15 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      border: 4px solid #ddd;
+      border: 3px solid #ddd;
       border-top-color: #666;
-      animation: spin 1s infinite linear;
+      box-shadow: 0 0 15px rgba(255,111,97,0.5);
+      animation: spin 1s infinite ease-in-out;
     }
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      100% { transform: rotate(360deg); }
     }
     body.dark-mode .loading:after {
       border-color: #444;
@@ -542,6 +665,27 @@
       background-color: rgba(60,70,90,0.8);
     }
 
+    /* Tags for notes */
+    .note-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .note-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background-color: rgba(var(--today-gradient-from-rgb), 0.1);
+      color: var(--accent);
+      cursor: pointer;
+    }
+    body.dark-mode .note-tag {
+      background-color: rgba(255,255,255,0.1);
+      color: #63b3ed;
+    }
+
+    /* Current day indicator */
     .current-day-dot {
       display: inline-block;
       width: 8px;
@@ -553,6 +697,7 @@
       vertical-align: middle;
     }
 
+    /* Focus styles */
     textarea:focus, button:focus, a:focus, input:focus {
       outline: 2px solid #4299e1;
       outline-offset: 2px;
@@ -571,18 +716,30 @@
       z-index: 9999;
     }
     .toast {
-      background-color: rgba(0,0,0,0.8);
+      background-color: rgba(50,50,50,0.85);
+      backdrop-filter: blur(5px);
       color: white;
-      padding: 10px 15px;
-      border-radius: 4px;
+      padding: 12px 18px;
+      border-radius: 8px;
       margin-top: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       opacity: 0;
       transition: opacity 0.3s ease;
+      animation: slideInRight 0.3s ease-out;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
     body.dark-mode .toast {
       background-color: rgba(255,255,255,0.2);
       box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+    /* Keyboard navigation mode indication */
+    body.keyboard-nav-active {
+      outline: 4px solid var(--accent);
+      outline-offset: -4px;
     }
 
     /* Year view overlay */
@@ -593,7 +750,8 @@
       background: white;
       z-index: 2000;
       overflow: auto;
-      padding: 20px;
+      padding: 30px;
+      animation: fadeIn 0.3s ease;
     }
     body.dark-mode #yearViewContainer {
       background: #222;
@@ -601,16 +759,29 @@
     #yearViewGrid {
       display: grid;
       grid-template-columns: repeat(4,1fr);
-      gap: 20px;
+      gap: 30px;
       max-width: 1200px;
       margin: 0 auto;
     }
     .month-grid {
       text-align: center;
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .month-grid:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    body.dark-mode .month-grid {
+      background: rgba(40,40,40,0.6);
     }
     .month-grid h3 {
       margin-bottom: 10px;
       font-family: var(--font-month-heading);
+      color: var(--accent);
     }
     .month-grid table {
       width: 100%;
@@ -620,8 +791,21 @@
       padding: 3px;
       text-align: center;
     }
+    .month-grid td:hover {
+      background: rgba(var(--today-gradient-from-rgb), 0.1);
+      border-radius: 50%;
+    }
 
     /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      #miniCalendar {
+        display: none; /* Hide on smaller screens */
+      }
+      #calendar {
+        width: 95%;
+      }
+    }
+
     @media (max-width: 1000px) {
       #calendar {
         width: 100%;
@@ -646,6 +830,12 @@
       }
     }
     @media (max-width:768px) {
+      :root {
+       --cell-min-height: 100px; /* Slightly smaller on mobile */
+      }
+      #stickyMonthHeader {
+        font-size: 24px; /* Smaller header on mobile */
+      }
       #calendar td {
         padding: 8px;
       }
@@ -664,7 +854,7 @@
 
     /* Print styles */
     @media print {
-      #header, #help, .loading, button, .yearViewContainer, #stickyMonthHeader {
+      #header, #help, .loading, button, .yearViewContainer, #stickyMonthHeader, #miniCalendar {
         display: none !important;
       }
       #calendarContainer {
@@ -715,14 +905,67 @@
     <div id="miniCalendar"></div>
     <div>
       <span class="brand"><strong>Timeless:</strong> The Infinite Calendar 🪐✨ </span>
-      <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">🌙</a>
-      <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">📥</a>
-      <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">💾</a>
-      <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">📅</a>
-      <a href="#" class="button" onclick="showYearView()" data-tooltip="Year View">📆</a>
-      <a href="#" class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">📏</a>
-      <a href="#" class="button" onclick="shouldLoadOrExport()" data-tooltip="Sync with Cloud">🔄</a>
-      <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">ℹ️</a>
+      <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="currentColor"/>
+        </svg>
+      </a>
+      <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M12 12v4" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 14l2 2l2 -2" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </a>
+      <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M12 12v-4" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 10l2 -2l2 2" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </a>
+      <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">
+        <svg class="icon" viewBox="0 0 24 24">
+          <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M16 3v4" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 3v4" stroke="currentColor" stroke-width="2"/>
+          <path d="M4 11h16" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 16m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" fill="currentColor"/>
+        </svg>
+      </a>
+      <a href="#" class="button" onclick="showYearView()" data-tooltip="Year View">
+        <svg class="icon" viewBox="0 0 24 24">
+          <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+          <line x1="8" y1="9" x2="8" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="12" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="12" y1="13" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="12" y1="17" x2="12" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="17" x2="16" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <a href="#" class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none"/>
+        </svg>
+      </a>
+      <a href="#" class="button" onclick="shouldLoadOrExport()" data-tooltip="Sync with Cloud">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M7 16a4 4 0 0 1 -4 -4a5 5 0 0 1 .3 -1.5a4 4 0 0 1 -1.3 -2.5a5 5 0 0 1 5 -5h9c3 0 5 1.343 5 3a3 3 0 0 1 -3 3h-3.5" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M14 16l3 -3l3 3" stroke="currentColor" stroke-width="2"/>
+          <path d="M17 13v9" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </a>
+      <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">
+        <svg class="icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
+          <line x1="12" y1="17" x2="12" y2="17.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 13.5v-1.5a2 2 0 1 1 2 -2" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </a>
       <input type="file" id="fileInput" onchange="loadDataFromFile()" />
 
       <span>Jump to date:</span>
@@ -735,32 +978,31 @@
   <!-- Sticky month heading -->
   <div id="stickyMonthHeader"></div>
 
-<!-- Help overlay -->
-<!-- Help overlay -->
-<div id="help">
-  <div>
-    <ul>
-      <li>Click on a day (empty space) to add a note (Shift+Enter for multi-line, Enter to save)</li>
-      <li>Click on an existing note to focus/edit it</li>
-      <li>Press <code>i</code> to toggle keyboard navigation mode (arrow keys then move day-by-day)</li>
-      <li>When in keyboard navigation mode, press <code>↑</code> or <code>↓</code> to move vertically by one week; otherwise they scroll normally</li>
-      <li>Press <code>←</code> or <code>→</code> to move day by day (no skipping!)</li>
-      <li>Press <code>Enter</code> to add an event to the currently highlighted day</li>
-      <li>Press <code>Delete</code> to delete all entries on the highlighted day</li>
-      <li>Press <code>t</code> to jump to Today</li>
-      <li>Press <code>Ctrl+D</code> to toggle dark mode</li>
-      <li>Use the Date Range button (📏) to select a range of dates</li>
-      <li>Press <code>?</code> to toggle this help overlay</li>
-      <li>Press <code>Esc</code> to close overlays or cancel range selection (and exit keyboard navigation mode)</li>
-      <li>Press <code>g</code> to focus the "Jump to date" field</li>
-      <li>Press <code>y</code> to toggle Year View</li>
-      <li>Press <code>Alt+↓</code> to jump one month forward</li>
-      <li>Press <code>Ctrl+Z</code> or <code>z</code> to undo last change</li>
-      <li>Press <code>Ctrl+Shift+Z</code> or <code>Ctrl+Y</code> to redo last change</li>
-    </ul>
-    <a href="#" onclick="hideHelp()">Close</a>
+  <!-- Help overlay -->
+  <div id="help">
+    <div>
+      <ul>
+        <li>Click on a day (empty space) to add a note (Shift+Enter for multi-line, Enter to save)</li>
+        <li>Click on an existing note to focus/edit it</li>
+        <li>Press <code>i</code> to toggle keyboard navigation mode (arrow keys then move day-by-day)</li>
+        <li>When in keyboard navigation mode, press <code>↑</code> or <code>↓</code> to move vertically by one week; otherwise they scroll normally</li>
+        <li>Press <code>←</code> or <code>→</code> to move day by day (no skipping!)</li>
+        <li>Press <code>Enter</code> to add an event to the currently highlighted day</li>
+        <li>Press <code>Delete</code> to delete all entries on the highlighted day</li>
+        <li>Press <code>t</code> to jump to Today</li>
+        <li>Press <code>Ctrl+D</code> to toggle dark mode</li>
+        <li>Use the Date Range button (📏) to select a range of dates</li>
+        <li>Press <code>?</code> to toggle this help overlay</li>
+        <li>Press <code>Esc</code> to close overlays or cancel range selection (and exit keyboard navigation mode)</li>
+        <li>Press <code>g</code> to focus the "Jump to date" field</li>
+        <li>Press <code>y</code> to toggle Year View</li>
+        <li>Press <code>Alt+↓</code> to jump one month forward</li>
+        <li>Press <code>Ctrl+Z</code> or <code>z</code> to undo last change</li>
+        <li>Press <code>Ctrl+Shift+Z</code> or <code>Ctrl+Y</code> to redo last change</li>
+      </ul>
+      <a href="#" onclick="hideHelp()">Close</a>
+    </div>
   </div>
-</div>
 
   <!-- Loading spinner -->
   <div class="loading" id="loadingIndicator"></div>
@@ -782,11 +1024,11 @@
   </div>
 
   <script>
-    /*************
+    /*******
      * Timeless: The Infinitely Scrolling Calendar
-     *************/
+     *******/
 
-    /** CORE VARIABLES & STATE **/
+    /* CORE VARIABLES & STATE */
     let systemToday = new Date();
     let todayDate;
     let calendarTableElement;
@@ -822,7 +1064,7 @@
     // Keyboard navigation date
     let keyboardFocusDate = null;
 
-    /** UTILITY & HELPERS **/
+    /* UTILITY & HELPERS */
     function throttle(func, delay) {
       let lastCall = 0;
       return function(...args) {
@@ -849,7 +1091,7 @@
       document.getElementById("help").style.display = "none";
     }
 
-    /** LOADING SPINNER **/
+    /* LOADING SPINNER */
     function showLoading() {
       document.getElementById('loadingIndicator').classList.add('active');
     }
@@ -857,7 +1099,7 @@
       document.getElementById('loadingIndicator').classList.remove('active');
     }
 
-    /** TOAST NOTIFICATIONS **/
+    /* TOAST NOTIFICATIONS */
     function showToast(message, duration=3000) {
       let toastContainer = document.getElementById('toast-container');
       if (!toastContainer) {
@@ -881,7 +1123,7 @@
       }, duration);
     }
 
-    /** SCROLL & POSITION **/
+    /* SCROLL & POSITION */
     function documentScrollTop() {
       return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
     }
@@ -925,7 +1167,21 @@
       hideLoading();
     }
 
-    /** DARK MODE **/
+    function smoothScrollToToday() {
+      showLoading();
+      const elem = document.getElementById(idForDate(todayDate));
+      if (!elem) {
+        hideLoading();
+        return;
+      }
+      goalY = scrollPositionForElement(elem);
+      startY = documentScrollTop();
+      startTime = new Date();
+      if (goalY !== startY) setTimeout(scrollAnimation, 10);
+      else hideLoading();
+    }
+
+    /* DARK MODE */
     function toggleDarkMode() {
       document.body.classList.toggle("dark-mode");
       if (document.body.classList.contains("dark-mode")) {
@@ -937,7 +1193,7 @@
       }
     }
 
-    /** UNDO/REDO **/
+    /* UNDO/REDO */
     function pushUndoState() {
       // Clear redo stack on new action
       redoStack = [];
@@ -992,7 +1248,7 @@
       showToast("Redo applied");
     }
 
-    /** TEXTAREA / NOTES **/
+    /* TEXTAREA / NOTES */
     function recalculateHeight(itemId) {
       const ta = document.getElementById(itemId);
       if (!ta) return;
@@ -1019,7 +1275,40 @@
       const iso = parseDateFromId(parentId);
       if (iso) localStorage[iso] = ta.value;
       localStorage.setItem("lastSavedTimestamp", Date.now());
+
+      // Process tags
+      processNoteTags(ta);
     }
+
+    function processNoteTags(textarea) {
+      // Remove any existing tags
+      const parent = textarea.parentNode;
+      const existingTags = parent.querySelector('.note-tags');
+      if (existingTags) {
+        parent.removeChild(existingTags);
+      }
+
+      const text = textarea.value;
+      const tagPattern = /#(\w+)/g;
+      const tags = [];
+      let match;
+      while ((match = tagPattern.exec(text)) !== null) {
+        tags.push(match[1]);
+      }
+
+      if (tags.length) {
+        const tagsContainer = document.createElement('div');
+        tagsContainer.className = 'note-tags';
+        tags.forEach(tag => {
+          const tagSpan = document.createElement('span');
+          tagSpan.className = 'note-tag';
+          tagSpan.textContent = '#' + tag;
+          tagsContainer.appendChild(tagSpan);
+        });
+        textarea.parentNode.insertBefore(tagsContainer, textarea);
+      }
+    }
+
     function removeValueForItemId(itemId) {
       pushUndoState();
       delete localStorage[itemId];
@@ -1092,7 +1381,7 @@
       }
     }
 
-    /** RENDERING DAYS **/
+    /* RENDERING DAYS */
     function generateDay(dayCell, date) {
       const isWeekend = (date.getDay()===0 || date.getDay()===6);
       if (isWeekend) dayCell.classList.add("weekend");
@@ -1127,12 +1416,13 @@
           if (note) {
             note.value = it.itemValue;
             recalculateHeight(note.id);
+            processNoteTags(note);
           }
         });
       });
     }
 
-    /** MONTH ROWS **/
+    /* MONTH ROWS */
     function prependWeek() {
       const row = calendarTableElement.insertRow(0);
       animateRowInsertion(row, 'prepend');
@@ -1170,7 +1460,7 @@
       row.dataset.monthName = rowMonthName;
     }
 
-    /** STICKY HEADER **/
+    /* STICKY HEADER */
     function updateStickyMonthHeader() {
       const rows = document.querySelectorAll('#calendar tr');
       const headerOffset = document.getElementById('header').offsetHeight + 30;
@@ -1194,7 +1484,7 @@
       }
     }
 
-    /** YEAR VIEW HELPER **/
+    /* YEAR VIEW HELPER */
     function buildYearView(year, container) {
       for (let m=0; m<12; m++) {
         const div = document.createElement('div');
@@ -1264,7 +1554,20 @@
       }
     }
 
-    /** MINI-CALENDAR **/
+    function showYearView() {
+      const year = todayDate.getFullYear();
+      document.getElementById('yearViewTitle').textContent = `${year} at a Glance`;
+      const container = document.getElementById('yearViewGrid');
+      container.innerHTML = '';
+      buildYearView(year, container);
+      document.getElementById('yearViewContainer').style.display = 'block';
+    }
+
+    function hideYearView() {
+      document.getElementById('yearViewContainer').style.display = 'none';
+    }
+
+    /* MINI-CALENDAR */
     function buildMiniCalendar() {
       const mini = document.getElementById("miniCalendar");
       if (!mini) return;
@@ -1338,7 +1641,21 @@
       buildMiniCalendar();
     }
 
-    /** KEYBOARD FOCUS LOGIC **/
+    /* KEYBOARD FOCUS LOGIC */
+    function toggleKeyboardNavMode() {
+      if (!keyboardFocusDate) {
+        keyboardFocusDate = new Date(todayDate || systemToday);
+        document.body.classList.add('keyboard-nav-active');
+        showToast("Keyboard navigation mode activated (press i to exit)");
+        highlightKeyboardFocusedDay();
+      } else {
+        keyboardFocusDate = null;
+        document.body.classList.remove('keyboard-nav-active');
+        document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
+        showToast("Keyboard navigation mode deactivated");
+      }
+    }
+
     function highlightKeyboardFocusedDay() {
       document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
       if (!keyboardFocusDate) return;
@@ -1450,6 +1767,7 @@ document.addEventListener("keydown", (e) => {
       // Also exit keyboard navigation mode if active
       if (keyboardFocusDate) {
         keyboardFocusDate = null;
+        document.body.classList.remove('keyboard-nav-active');
         document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
         showToast("Keyboard navigation mode deactivated");
       }
@@ -1461,30 +1779,24 @@ document.addEventListener("keydown", (e) => {
       break;
     case "i":
       e.preventDefault();
-      if (!keyboardFocusDate) {
-        // Enter keyboard navigation mode:
-        keyboardFocusDate = new Date(todayDate || systemToday);
-        highlightKeyboardFocusedDay();
-        showToast("Keyboard navigation mode activated");
-      } else {
-        // Exit keyboard navigation mode:
-        keyboardFocusDate = null;
-        document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
-        showToast("Keyboard navigation mode deactivated");
-      }
+      toggleKeyboardNavMode();
       break;
     case "q":
     case "Q":
       if (keyboardFocusDate) {
         e.preventDefault();
         keyboardFocusDate = null;
+        document.body.classList.remove('keyboard-nav-active');
         document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
         showToast("Keyboard navigation mode deactivated");
       }
       break;
     case "z":
     case "Z":
-      if (e.ctrlKey || e.metaKey) {
+      if (e.ctrlKey && e.shiftKey) {
+        e.preventDefault();
+        redoLastChange();
+      } else if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         undoLastChange();
       } else {
@@ -1518,7 +1830,10 @@ document.addEventListener("keydown", (e) => {
       stepDay(1);
       break;
     case "ArrowUp":
-      if (keyboardFocusDate) {
+      if (e.altKey) {
+        e.preventDefault();
+        jumpOneMonthBackward();
+      } else if (keyboardFocusDate) {
         e.preventDefault();
         stepDay(-7);
       }
@@ -1536,6 +1851,7 @@ document.addEventListener("keydown", (e) => {
       e.preventDefault();
       createEventInFocusedDay();
       break;
+    case "Delete":
     case "Backspace":
       e.preventDefault();
       deleteEntriesForFocusedDay();
@@ -1554,13 +1870,19 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-    /** SINGLE-CLICK HANDLER FOR NEW NOTES **/
+    /* SINGLE-CLICK HANDLER FOR NEW NOTES */
     document.addEventListener("click", (evt) => {
       const dayCell = evt.target.closest("td");
       if (!dayCell || !dayCell.id || dayCell.classList.contains("extra")) return;
       if (evt.target.tagName.toLowerCase() === "textarea") {
         return;
       }
+
+      if (isSelectingRange) {
+        handleRangeSelection(dayCell);
+        return;
+      }
+
       dayCell.classList.add("clicked-day");
       setTimeout(() => dayCell.classList.remove("clicked-day"), 500);
       const itemId = nextItemId();
@@ -1572,7 +1894,7 @@ document.addEventListener("keydown", (e) => {
       }
     });
 
-    /** JUMP 1 MONTH **/
+    /* JUMP MONTHS */
     function jumpOneMonthForward() {
       if (!currentVisibleMonth) return;
       const [monthName, yearStr] = currentVisibleMonth.split(" ");
@@ -1585,6 +1907,20 @@ document.addEventListener("keydown", (e) => {
       const nextDate = new Date(y, nm, 1);
       smoothScrollToDate(nextDate);
     }
+
+    function jumpOneMonthBackward() {
+      if (!currentVisibleMonth) return;
+      const [monthName, yearStr] = currentVisibleMonth.split(" ");
+      if (!monthName || !yearStr) return;
+      let y = parseInt(yearStr, 10) || new Date().getFullYear();
+      const mIdx = months.indexOf(monthName);
+      if (mIdx===-1) return;
+      let pm = mIdx-1;
+      if (pm<0) { pm=11; y--; }
+      const prevDate = new Date(y, pm, 1);
+      smoothScrollToDate(prevDate);
+    }
+
     function smoothScrollToDate(dateObj) {
       showLoading();
       loadCalendarAroundDate(dateObj);
@@ -1602,7 +1938,71 @@ document.addEventListener("keydown", (e) => {
       }, 200);
     }
 
-    /** MISC **/
+    /* RANGE SELECTION */
+    function toggleRangeSelection() {
+      isSelectingRange = !isSelectingRange;
+      if (!isSelectingRange) {
+        clearRangeSelection();
+      }
+      showToast(isSelectingRange ? "Select range start date" : "Range selection cancelled");
+    }
+
+    function clearRangeSelection() {
+      document.querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
+        .forEach(el => el.classList.remove('selected-range-start','selected-range-end','selected-range-day'));
+      rangeStart = null;
+      rangeEnd = null;
+    }
+
+    function handleRangeSelection(dayCell) {
+      const dateId = dayCell.id;
+      if (!dateId) return;
+      const [month, day, year] = dateId.split('_').map(Number);
+      const selectedDate = new Date(year, month, day);
+
+      if (!rangeStart) {
+        rangeStart = selectedDate;
+        dayCell.classList.add('selected-range-start');
+        showToast("Select range end date");
+      } else if (!rangeEnd) {
+        if (selectedDate < rangeStart) {
+          // swap
+          rangeEnd = rangeStart;
+          rangeStart = selectedDate;
+          document.querySelector('.selected-range-start')?.classList.remove('selected-range-start');
+          dayCell.classList.add('selected-range-start');
+          // also mark the old start as end
+          document.querySelectorAll('td').forEach(cell => {
+            if (cell.id === idForDate(rangeEnd)) {
+              cell.classList.add('selected-range-end');
+            }
+          });
+        } else {
+          rangeEnd = selectedDate;
+          dayCell.classList.add('selected-range-end');
+        }
+        highlightDaysInRange();
+        showToast(`Selected: ${rangeStart.toDateString()} to ${rangeEnd.toDateString()}`);
+        isSelectingRange = false;
+      }
+    }
+
+    function highlightDaysInRange() {
+      if (!rangeStart || !rangeEnd) return;
+      const curDate = new Date(rangeStart);
+      while (curDate < rangeEnd) {
+        curDate.setDate(curDate.getDate() + 1);
+        const dayId = idForDate(curDate);
+        const dayCell = document.getElementById(dayId);
+        if (dayCell &&
+           !dayCell.classList.contains('selected-range-start') &&
+           !dayCell.classList.contains('selected-range-end')) {
+          dayCell.classList.add('selected-range-day');
+        }
+      }
+    }
+
+    /* MISC */
     function jumpToDate() {
       const val = document.getElementById("jumpDate").value;
       if (!val) return;
@@ -1618,24 +2018,12 @@ document.addEventListener("keydown", (e) => {
       return "item"+ localStorage.nextId;
     }
 
-    /** RANGE SELECTION **/
-    function toggleRangeSelection() {
-      isSelectingRange = !isSelectingRange;
-      if (!isSelectingRange) {
-        clearRangeSelection();
-      }
-      showToast(isSelectingRange ? "Select range start date" : "Range selection cancelled");
-    }
-    function clearRangeSelection() {
-      document.querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
-        .forEach(el => el.classList.remove('selected-range-start','selected-range-end','selected-range-day'));
-      rangeStart = null;
-      rangeEnd = null;
-    }
-
-    /** CALENDAR INITIALIZATION **/
+    /* CALENDAR INITIALIZATION */
     function loadCalendarAroundDate(seedDate) {
       showLoading();
+      const container = document.getElementById('calendarContainer');
+      container.classList.add('loading-calendar');
+
       calendarTableElement.innerHTML = "";
       firstDate = new Date(seedDate);
       while (getAdjustedDayIndex(firstDate)!==0) {
@@ -1649,14 +2037,18 @@ document.addEventListener("keydown", (e) => {
         appendWeek();
       }
       setTimeout(() => {
+        container.classList.remove('loading-calendar');
         scrollToToday();
         recalculateAllHeights();
         updateStickyMonthHeader();
         updateMiniCalendar();
+        if (keyboardFocusDate) {
+          highlightKeyboardFocusedDay();
+        }
       }, 50);
     }
 
-    /** PARALLAX BACKGROUND ON SCROLL **/
+    /* PARALLAX BACKGROUND ON SCROLL */
     window.addEventListener("scroll", throttle(() => {
       const parallax = document.querySelector(".parallax-bg");
       if (parallax) {
@@ -1664,7 +2056,7 @@ document.addEventListener("keydown", (e) => {
       }
     }, 20));
 
-    /** INTERSECTION OBSERVERS (Infinite Scroll) **/
+    /* INTERSECTION OBSERVERS (Infinite Scroll) */
     function setupScrollObservers() {
       const opts = { rootMargin: '200px' };
       const topObs = new IntersectionObserver((entries) => {
@@ -1714,7 +2106,7 @@ document.addEventListener("keydown", (e) => {
       }
     }
 
-    /** HELPER FUNCTIONS **/
+    /* HELPER FUNCTIONS */
     function idForDate(date) {
       return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
     }
@@ -1740,7 +2132,7 @@ document.addEventListener("keydown", (e) => {
       }, { once: true });
     }
 
-    /** INIT **/
+    /* INIT */
     window.onload = function() {
       calendarTableElement = document.getElementById("calendar");
       todayDate = new Date(systemToday);
@@ -1774,7 +2166,7 @@ document.addEventListener("keydown", (e) => {
       });
     };
 
-    /** FILE IMPORT/EXPORT, etc. **/
+    /* FILE IMPORT/EXPORT, etc. */
     function downloadLocalStorageData() {
       showLoading();
       const data = {};
