@@ -16,62 +16,62 @@
   <style>
     /* CSS Variables for consistent theming */
     :root {
-     --today-gradient-from: rgba(229, 62, 62, 0.9);
-     --today-gradient-to: rgba(197, 48, 48, 0.9);
-    --border-width: 1px;
-    --border-color: black;
-    --header-height: 27px;
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    --cell-min-height: 120px;
+    --today-gradient-from: rgba(229, 62, 62, 0.9);
+    --today-gradient-to: rgba(197, 48, 48, 0.9);
+   --border-width: 1px;
+   --border-color: black;
+   --header-height: 27px;
+   --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+   --cell-min-height: 120px;
 
       /* Color Palette for Light Mode */
-    --color-primary: #4361ee;
-    --color-secondary: #ff6b6b;
-    --color-success: #2ecc71;
-    --color-info: #3498db;
-    --color-warning: #f39c12;
-    --color-danger: #e74c3c;
-    --color-light: #f8f9fa;
-    --color-dark: #343a40;
+   --color-primary: #4361ee;
+   --color-secondary: #ff6b6b;
+   --color-success: #2ecc71;
+   --color-info: #3498db;
+   --color-warning: #f39c12;
+   --color-danger: #e74c3c;
+   --color-light: #f8f9fa;
+   --color-dark: #343a40;
 
      /* Semantic color variables */
-    --bg-primary: #f8f9fa;
-    --bg-pattern: #e0e5ec;
-    --text-primary: #333;
-    --accent: var(--color-primary);
-    --weekend-gradient-from: #f0f5f9;
-       --weekend-gradient-to: #d9e2ec;
-       --shaded-month: #e6f7ff;
-       --today-gradient-from: rgba(229, 62, 62, 0.9);
-       --today-gradient-to: rgba(197, 48, 48, 0.9);
-       --month-boundary: #bbb;
-       --header-gradient-from: transparent;
-    --header-gradient-to: transparent;
-    --header-solid-bg: rgba(255,255,255,0.95);
-    --month-heading-bg: rgba(255,255,255,0.95);
-    --month-heading-text: #333;
+   --bg-primary: #f8f9fa;
+   --bg-pattern: #e0e5ec;
+   --text-primary: #333;
+   --accent: var(--color-primary);
+   --weekend-gradient-from: #f0f5f9;
+      --weekend-gradient-to: #d9e2ec;
+      --shaded-month: #e6f7ff;
+      --today-gradient-from: rgba(229, 62, 62, 0.9);
+      --today-gradient-to: rgba(197, 48, 48, 0.9);
+      --month-boundary: #bbb;
+      --header-gradient-from: transparent;
+   --header-gradient-to: transparent;
+   --header-solid-bg: rgba(255,255,255,0.95);
+   --month-heading-bg: rgba(255,255,255,0.95);
+   --month-heading-text: #333;
 
       /* Typography */
-    --font-month-heading: 'Playfair Display', serif;
-    --font-day-number: 'Fira Code', monospace;
+   --font-month-heading: 'Playfair Display', serif;
+   --font-day-number: 'Fira Code', monospace;
     }
 
     /* Dark mode colors */
     body.dark-mode {
-    --bg-primary: #222;
-    --bg-pattern: rgba(255,255,255,0.05);
-    --text-primary: #eee;
-    --weekend-gradient-from: #303542;
-    --weekend-gradient-to: #232731;
-    --shaded-month: #2a2a2a;
-    --today-gradient-from: rgba(229, 62, 62, 0.8);
-    --today-gradient-to: rgba(197, 48, 48, 0.8);
-    --month-boundary: #555;
-    --header-gradient-from: #2c3e50;
-    --header-gradient-to: #1a1a2e;
-    --header-solid-bg: rgba(40, 40, 40, 0.95);
-    --month-heading-bg: #2c2c2c;
-    --month-heading-text: #ddd;
+   --bg-primary: #222;
+   --bg-pattern: rgba(255,255,255,0.05);
+   --text-primary: #eee;
+   --weekend-gradient-from: #303542;
+   --weekend-gradient-to: #232731;
+   --shaded-month: #2a2a2a;
+   --today-gradient-from: rgba(229, 62, 62, 0.8);
+   --today-gradient-to: rgba(197, 48, 48, 0.8);
+   --month-boundary: #555;
+   --header-gradient-from: #2c3e50;
+   --header-gradient-to: #1a1a2e;
+   --header-solid-bg: rgba(40, 40, 40, 0.95);
+   --month-heading-bg: #2c2c2c;
+   --month-heading-text: #ddd;
     }
 
     /* Base styles + animated dot grid background */
@@ -387,8 +387,8 @@
       border-radius: 10px;
       padding: 1px;
       background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
-     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-     -webkit-mask-composite: xor;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events: none;
     }
@@ -795,6 +795,186 @@
       border-radius: 50%;
     }
 
+    /* Command palette */
+    #command-palette {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 3000;
+      display: none;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 100px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(3px);
+    }
+
+    #command-palette.active {
+      opacity: 1;
+    }
+
+    .command-wrapper {
+      width: 500px;
+      max-width: 90%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      overflow: hidden;
+      animation: dropIn 0.3s ease-out;
+    }
+
+    body.dark-mode .command-wrapper {
+      background: #333;
+      color: #fff;
+    }
+
+    @keyframes dropIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    #command-input {
+      width: 100%;
+      border: none;
+      padding: 16px;
+      font-size: 16px;
+      border-bottom: 1px solid #eee;
+      outline: none;
+      background: transparent;
+      color: inherit;
+    }
+
+    body.dark-mode #command-input {
+      border-bottom-color: #555;
+    }
+
+    .command-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .command-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .command-item:hover, .command-item.active {
+      background: #f5f5f5;
+    }
+
+    body.dark-mode .command-item:hover,
+    body.dark-mode .command-item.active {
+      background: #444;
+    }
+
+    .command-icon {
+      flex: 0 0 30px;
+      font-size: 18px;
+    }
+
+    .command-name {
+      flex: 1;
+      text-align: left;
+    }
+
+    .command-shortcut {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: var(--font-day-number);
+    }
+
+    body.dark-mode .command-shortcut {
+      background: #555;
+    }
+
+    /* Quick date popup */
+    .quick-date-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      z-index: 3000;
+      animation: scaleIn 0.2s ease-out;
+    }
+
+    body.dark-mode .quick-date-popup {
+      background: #333;
+      color: white;
+    }
+
+    @keyframes scaleIn {
+      from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    #quick-date-input {
+      width: 280px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: transparent;
+      color: inherit;
+    }
+
+    body.dark-mode #quick-date-input {
+      border-color: #555;
+    }
+
+    .quick-date-examples {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    body.dark-mode .quick-date-examples {
+      color: #aaa;
+    }
+
+    /* Multi-select styles */
+    body.multi-select-mode {
+      outline: 4px solid #9c27b0; /* Different color than keyboard-nav-active */
+      outline-offset: -4px;
+    }
+
+    #calendar td.multi-selected {
+      background-color: rgba(156, 39, 176, 0.3) !important;
+      box-shadow: 0 0 0 2px #9c27b0;
+      transform: scale(1.03);
+      z-index: 5;
+    }
+
+    /* Note priority styling */
+    textarea[value^="[priority:high]"] {
+      border-left: 4px solid #e53e3e !important;
+    }
+
+    textarea[value^="[priority:medium]"] {
+      border-left: 4px solid #f39c12 !important;
+    }
+
+    textarea[value^="[priority:low]"] {
+      border-left: 4px solid #2ecc71 !important;
+    }
+
+    textarea[value^="✓ "] {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 1200px) {
       #miniCalendar {
@@ -830,7 +1010,7 @@
     }
     @media (max-width:768px) {
       :root {
-       --cell-min-height: 100px; /* Slightly smaller on mobile */
+      --cell-min-height: 100px; /* Slightly smaller on mobile */
       }
       #stickyMonthHeader {
         font-size: 24px; /* Smaller header on mobile */
@@ -981,6 +1161,13 @@
   <div id="help">
     <div>
       <ul>
+        <!-- New Keyboard Controls -->
+        <li>Press <code>⌘+K</code> or <code>/</code> to open command palette with all available actions</li>
+        <li>Press <code>d</code> to quickly jump to a specific date with natural language ("tomorrow", "next friday")</li>
+        <li>Press <code>m</code> to enter multi-day selection mode, then use arrow keys and <code>Space</code> to select days</li>
+        <li>In multi-select mode: <code>Ctrl+C</code> to clear all notes, <code>Ctrl+N</code> to add a note to all selected days</li>
+
+        <!-- Original keyboard controls -->
         <li>Click on a day (empty space) to add a note (Shift+Enter for multi-line, Enter to save)</li>
         <li>Click on an existing note to focus/edit it</li>
         <li>Press <code>i</code> to toggle keyboard navigation mode (arrow keys then move day-by-day)</li>
@@ -998,6 +1185,11 @@
         <li>Press <code>Alt+↓</code> to jump one month forward</li>
         <li>Press <code>Ctrl+Z</code> or <code>z</code> to undo last change</li>
         <li>Press <code>Ctrl+Shift+Z</code> or <code>Ctrl+Y</code> to redo last change</li>
+
+        <!-- Note editing shortcuts -->
+        <li><strong>When editing notes:</strong> <code>Ctrl+B</code> for bold, <code>Ctrl+I</code> for italic</li>
+        <li><code>Ctrl+1/2/3</code> to set high/medium/low priority, <code>Ctrl+D</code> to mark as done</li>
+        <li><code>Ctrl+H</code> to insert a hashtag</li>
       </ul>
       <a href="#" onclick="hideHelp()">Close</a>
     </div>
@@ -1023,9 +1215,9 @@
   </div>
 
   <script>
-    /*******
+    /****
      * Timeless: The Infinitely Scrolling Calendar
-     *******/
+     ****/
 
     /* CORE VARIABLES & STATE */
     let systemToday = new Date();
@@ -1062,6 +1254,10 @@
 
     // Keyboard navigation date
     let keyboardFocusDate = null;
+
+    // Multi-day selection
+    let selectedDays = [];
+    let isMultiSelectMode = false;
 
     /* UTILITY & HELPERS */
     function throttle(func, delay) {
@@ -1331,6 +1527,42 @@
 
     function noteKeyDownHandler(e) {
       recalculateHeight(this.id);
+
+      // Handle keyboard shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 'b': // Bold text (wrap with *)
+            e.preventDefault();
+            wrapTextSelection(this, '*', '*');
+            break;
+          case 'i': // Italic text (wrap with *)
+            e.preventDefault();
+            wrapTextSelection(this, '*', '*');
+            break;
+          case '1': // Mark as high priority
+            e.preventDefault();
+            addTaskPriority(this, 'high');
+            break;
+          case '2': // Mark as medium priority
+            e.preventDefault();
+            addTaskPriority(this, 'medium');
+            break;
+          case '3': // Mark as low priority
+            e.preventDefault();
+            addTaskPriority(this, 'low');
+            break;
+          case 'd': // Toggle done (overrides global Ctrl+D for toggle dark mode)
+            e.preventDefault();
+            toggleTaskDone(this);
+            break;
+          case 'h': // Add hashtag
+            e.preventDefault();
+            insertHashtag(this);
+            break;
+        }
+        return;
+      }
+
       if (e.key === "Escape") {
         e.preventDefault();
         this.blur();
@@ -1347,6 +1579,58 @@
         }
         this.debouncedSave();
       }
+    }
+
+    function wrapTextSelection(textarea, prefix, suffix) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = textarea.value.substring(start, end);
+      const beforeText = textarea.value.substring(0, start);
+      const afterText = textarea.value.substring(end);
+
+      textarea.value = beforeText + prefix + selectedText + suffix + afterText;
+
+      // Put cursor after the inserted content
+      textarea.selectionStart = textarea.selectionEnd = end + prefix.length + suffix.length;
+
+      // Save the change
+      storeValueForItemId(textarea.id);
+    }
+
+    function addTaskPriority(textarea, priority) {
+      // Remove any existing priority tags
+      let text = textarea.value.replace(/\[priority:(high|medium|low)\]/g, '').trim();
+
+      // Add the priority tag at the beginning
+      textarea.value = `[priority:${priority}] ${text}`;
+
+      // Save the change
+      storeValueForItemId(textarea.id);
+    }
+
+    function toggleTaskDone(textarea) {
+      if (textarea.value.startsWith('✓ ')) {
+        textarea.value = textarea.value.substring(2);
+      } else {
+        textarea.value = '✓ ' + textarea.value;
+      }
+
+      // Save the change
+      storeValueForItemId(textarea.id);
+    }
+
+    function insertHashtag(textarea) {
+      // Get cursor position
+      const pos = textarea.selectionStart;
+
+      // Insert hashtag at cursor position
+      const beforeText = textarea.value.substring(0, pos);
+      const afterText = textarea.value.substring(pos);
+
+      textarea.value = beforeText + '#' + afterText;
+
+      // Position cursor after hashtag
+      textarea.selectionStart = textarea.selectionEnd = pos + 1;
     }
 
     function noteBlurHandler() {
@@ -1480,6 +1764,343 @@
         currentVisibleMonth = visMonth;
         sticky.textContent = visMonth;
         sticky.style.display = 'block';
+      }
+    }
+
+    /* COMMAND PALETTE */
+    function showCommandPalette() {
+      // Create the command palette if it doesn't exist
+      let palette = document.getElementById('command-palette');
+      if (!palette) {
+        palette = document.createElement('div');
+        palette.id = 'command-palette';
+        palette.innerHTML = `
+          <div class="command-wrapper">
+            <input type="text" placeholder="Type a command or search..." id="command-input" autofocus />
+            <div class="command-list"></div>
+          </div>
+        `;
+        document.body.appendChild(palette);
+
+        // Set up the command input event listeners
+        const input = document.getElementById('command-input');
+        input.addEventListener('input', filterCommands);
+        input.addEventListener('keydown', handleCommandNavigation);
+      }
+
+      // Populate commands list
+      populateCommands();
+
+      // Show the palette with animation
+      palette.style.display = 'flex';
+      setTimeout(() => palette.classList.add('active'), 10);
+
+      // Focus the input
+      document.getElementById('command-input').focus();
+    }
+
+    function hideCommandPalette() {
+      const palette = document.getElementById('command-palette');
+      if (palette) {
+        palette.classList.remove('active');
+        setTimeout(() => palette.style.display = 'none', 300);
+      }
+    }
+
+    function populateCommands() {
+      const commandList = document.querySelector('.command-list');
+      commandList.innerHTML = '';
+
+      const commands = [
+        { icon: '📅', name: 'Go to today', shortcut: 'T', action: () => { todayDate = new Date(systemToday); loadCalendarAroundDate(todayDate); } },
+        { icon: '🔍', name: 'Jump to date', shortcut: 'G', action: () => document.getElementById('jumpDate').focus() },
+        { icon: '🌙', name: 'Toggle dark mode', shortcut: 'Ctrl+D', action: toggleDarkMode },
+        { icon: '📆', name: 'Show year view', shortcut: 'Y', action: showYearView },
+        { icon: '↔️', name: 'Select date range', shortcut: 'R', action: toggleRangeSelection },
+        { icon: '⌨️', name: 'Toggle keyboard navigation', shortcut: 'I', action: toggleKeyboardNavMode },
+        { icon: '↩️', name: 'Undo last change', shortcut: 'Z', action: undoLastChange },
+        { icon: '↪️', name: 'Redo last change', shortcut: 'Ctrl+Shift+Z', action: redoLastChange },
+        { icon: '⬇️', name: 'Next month', shortcut: 'Alt+↓', action: jumpOneMonthForward },
+        { icon: '⬆️', name: 'Previous month', shortcut: 'Alt+↑', action: jumpOneMonthBackward },
+        { icon: '❓', name: 'Show help', shortcut: '?', action: showHelp },
+        { icon: '💾', name: 'Download calendar data', shortcut: '', action: downloadLocalStorageData },
+        { icon: '📥', name: 'Import calendar data', shortcut: '', action: () => document.getElementById('fileInput').click() },
+        { icon: '📝', name: 'Enter multi-day edit mode', shortcut: 'M', action: toggleMultiSelectMode },
+        { icon: '📋', name: 'Quick date entry', shortcut: 'D', action: showQuickDateInput },
+      ];
+
+      commands.forEach(command => {
+        const item = document.createElement('div');
+        item.className = 'command-item';
+        item.innerHTML = `
+          <div class="command-icon">${command.icon}</div>
+          <div class="command-name">${command.name}</div>
+          ${command.shortcut ? `<div class="command-shortcut">${command.shortcut}</div>` : ''}
+        `;
+        item.addEventListener('click', () => {
+          command.action();
+          hideCommandPalette();
+        });
+        commandList.appendChild(item);
+      });
+    }
+
+    function filterCommands(e) {
+      const query = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('.command-item');
+
+      items.forEach(item => {
+        const name = item.querySelector('.command-name').textContent.toLowerCase();
+        if (name.includes(query)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    function handleCommandNavigation(e) {
+      const items = Array.from(document.querySelectorAll('.command-item')).filter(
+        item => item.style.display !== 'none'
+      );
+      const activeItem = document.querySelector('.command-item.active');
+      const activeIndex = activeItem ? items.indexOf(activeItem) : -1;
+
+      switch(e.key) {
+        case 'Escape':
+          e.preventDefault();
+          hideCommandPalette();
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if (activeItem) activeItem.classList.remove('active');
+          items[(activeIndex + 1) % items.length]?.classList.add('active');
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (activeItem) activeItem.classList.remove('active');
+          items[(activeIndex - 1 + items.length) % items.length]?.classList.add('active');
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (activeItem) {
+            activeItem.click();
+          } else if (items.length > 0) {
+            items[0].click();
+          }
+          break;
+      }
+    }
+
+    /* QUICK DATE INPUT */
+    function showQuickDateInput() {
+      // Create a popup for quick date entry
+      const popup = document.createElement('div');
+      popup.className = 'quick-date-popup';
+      popup.innerHTML = `
+        <div>
+          <input type="text" id="quick-date-input" placeholder="e.g., 2023-12-25 or Dec 25" />
+          <div class="quick-date-examples">
+            Type a date in any format: "tomorrow", "next friday", "dec 25", etc.
+          </div>
+        </div>
+      `;
+      document.body.appendChild(popup);
+
+      const input = document.getElementById('quick-date-input');
+      input.focus();
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const dateText = input.value.trim();
+          tryParseAndJumpToDate(dateText);
+          document.body.removeChild(popup);
+        } else if (e.key === 'Escape') {
+          document.body.removeChild(popup);
+        }
+      });
+    }
+
+    function tryParseAndJumpToDate(dateText) {
+      try {
+        let targetDate;
+
+        // Try built-in date parsing
+        const parsedDate = new Date(dateText);
+        if (!isNaN(parsedDate.getTime())) {
+          targetDate = parsedDate;
+        } else {
+          // Handle relative dates
+          const today = new Date();
+
+          if (dateText.toLowerCase() === 'today') {
+            targetDate = today;
+          } else if (dateText.toLowerCase() === 'tomorrow') {
+            targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + 1);
+          } else if (dateText.toLowerCase() === 'yesterday') {
+            targetDate = new Date(today);
+            targetDate.setDate(today.getDate() - 1);
+          } else if (dateText.toLowerCase().startsWith('next ')) {
+            const dayName = dateText.toLowerCase().substring(5);
+            targetDate = getNextDayOfWeek(dayName);
+          } else {
+            // Try Month Day format (e.g., "Dec 25")
+            const monthDayMatch = dateText.match(/(\w+)\s+(\d+)/);
+            if (monthDayMatch) {
+              const monthName = monthDayMatch[1];
+              const day = parseInt(monthDayMatch[2]);
+
+              // Find month index
+              const monthIndex = months.findIndex(m =>
+                m.toLowerCase().startsWith(monthName.toLowerCase())
+              );
+
+              if (monthIndex >= 0 && day > 0 && day <= 31) {
+                targetDate = new Date(today.getFullYear(), monthIndex, day);
+                // If date is in the past, assume next year
+                if (targetDate < today) {
+                  targetDate.setFullYear(today.getFullYear() + 1);
+                }
+              }
+            }
+          }
+        }
+
+        if (targetDate) {
+          todayDate = targetDate;
+          loadCalendarAroundDate(todayDate);
+          smoothScrollToToday();
+        } else {
+          showToast("Couldn't understand that date format");
+        }
+      } catch (e) {
+        showToast("Invalid date format");
+        console.error(e);
+      }
+    }
+
+    function getNextDayOfWeek(dayName) {
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const dayIndex = dayNames.findIndex(d => d.startsWith(dayName.toLowerCase()));
+
+      if (dayIndex >= 0) {
+        const today = new Date();
+        const todayIndex = today.getDay();
+        let daysUntilNext = dayIndex - todayIndex;
+        if (daysUntilNext <= 0) daysUntilNext += 7;
+
+        const nextDay = new Date(today);
+        nextDay.setDate(today.getDate() + daysUntilNext);
+        return nextDay;
+      }
+      return null;
+    }
+
+    /* MULTI-DAY SELECTION */
+    function toggleMultiSelectMode() {
+      isMultiSelectMode = !isMultiSelectMode;
+      if (isMultiSelectMode) {
+        if (!keyboardFocusDate) {
+          keyboardFocusDate = new Date(todayDate || systemToday);
+          highlightKeyboardFocusedDay();
+        }
+        selectedDays = [new Date(keyboardFocusDate)];
+        document.body.classList.add('multi-select-mode');
+        showToast("Multi-select mode enabled. Press Space to select/deselect days.");
+        updateMultiDaySelection();
+      } else {
+        document.body.classList.remove('multi-select-mode');
+        clearMultiDaySelection();
+        showToast("Multi-select mode disabled");
+      }
+    }
+
+    function toggleDaySelection() {
+      if (!keyboardFocusDate || !isMultiSelectMode) return;
+
+      const selectedIndex = selectedDays.findIndex(date =>
+        date.getFullYear() === keyboardFocusDate.getFullYear() &&
+        date.getMonth() === keyboardFocusDate.getMonth() &&
+        date.getDate() === keyboardFocusDate.getDate()
+      );
+
+      if (selectedIndex >= 0) {
+        // Deselect
+        selectedDays.splice(selectedIndex, 1);
+      } else {
+        // Select
+        selectedDays.push(new Date(keyboardFocusDate));
+      }
+
+      updateMultiDaySelection();
+    }
+
+    function updateMultiDaySelection() {
+      // Clear all selections first
+      document.querySelectorAll('.multi-selected').forEach(el =>
+        el.classList.remove('multi-selected')
+      );
+
+      // Apply selection to visible days
+      selectedDays.forEach(date => {
+        const cell = document.getElementById(idForDate(date));
+        if (cell) cell.classList.add('multi-selected');
+      });
+    }
+
+    function clearMultiDaySelection() {
+      document.querySelectorAll('.multi-selected').forEach(el =>
+        el.classList.remove('multi-selected')
+      );
+      selectedDays = [];
+    }
+
+    function performBatchAction(action) {
+      if (!isMultiSelectMode || selectedDays.length === 0) {
+        showToast("No days selected for batch action");
+        return;
+      }
+
+      switch(action) {
+        case 'clear':
+          if (confirm(`Are you sure you want to clear all entries for ${selectedDays.length} selected day(s)?`)) {
+            let count = 0;
+            selectedDays.forEach(date => {
+              const cellId = idForDate(date);
+              const cell = document.getElementById(cellId);
+              if (cell) {
+                const notes = cell.querySelectorAll("textarea");
+                notes.forEach(note => {
+                  removeValueForItemId(note.id);
+                  note.remove();
+                  count++;
+                });
+              }
+            });
+            showToast(`Cleared ${count} entries from ${selectedDays.length} days`);
+          }
+          break;
+        case 'add':
+          const noteText = prompt("Enter note for all selected days:");
+          if (noteText && noteText.trim()) {
+            pushUndoState();
+            selectedDays.forEach(date => {
+              const cellId = idForDate(date);
+              const cell = document.getElementById(cellId);
+              if (cell) {
+                const itemId = nextItemId();
+                const note = generateItem(cellId, itemId);
+                if (note) {
+                  note.value = noteText;
+                  storeValueForItemId(note.id);
+                  recalculateHeight(note.id);
+                }
+              }
+            });
+            showToast(`Added note to ${selectedDays.length} days`);
+          }
+          break;
       }
     }
 
@@ -1747,6 +2368,46 @@ document.addEventListener("keydown", (e) => {
                    e.target.tagName.toLowerCase() === "input")) {
     return;
   }
+
+  // Command palette with ⌘K or /
+  if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
+    e.preventDefault();
+    showCommandPalette();
+    return;
+  }
+
+  // Quick date input
+  if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    e.preventDefault();
+    showQuickDateInput();
+    return;
+  }
+
+  // Multi-select mode
+  if (e.key === 'm') {
+    e.preventDefault();
+    toggleMultiSelectMode();
+    return;
+  }
+
+  // In multi-select mode
+  if (isMultiSelectMode) {
+    if (e.key === ' ') { // Space to toggle selection
+      e.preventDefault();
+      toggleDaySelection();
+      return;
+    } else if (e.key === 'c' && e.ctrlKey) { // Ctrl+C to clear selected days
+      e.preventDefault();
+      performBatchAction('clear');
+      return;
+    } else if (e.key === 'n' && e.ctrlKey) { // Ctrl+N to add note to selected days
+      e.preventDefault();
+      performBatchAction('add');
+      return;
+    }
+  }
+
+  // Rest of your existing keyboard handler...
   switch (e.key) {
     case "Escape":
       if (document.getElementById("help").style.display === "block") {
