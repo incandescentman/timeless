@@ -1116,6 +1116,14 @@ top: 120px;
           <path d="M17 13v9" stroke="currentColor" stroke-width="2"/>
         </svg>
       </a>
+
+
+<a href="#" class="button" onclick="downloadOrgEvents()" data-tooltip="Download as Text">
+  <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
+  </svg>
+</a>
+
       <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">
         <svg class="icon" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -1152,6 +1160,8 @@ top: 120px;
         <li>Press <code>t</code> to jump to Today</li>
         <li>Press <code>Ctrl+D</code> to toggle dark mode</li>
         <li>Use the Date Range button (📏) to select a range of dates</li>
+        <li>
+          Press <kbd>Shift+D</kbd> to download upcoming events as text</li>
         <li>Press <code>?</code> to toggle this help overlay</li>
         <li>Press <code>Esc</code> to close overlays or cancel range selection (and exit keyboard navigation mode)</li>
         <li>Press <code>g</code> to focus the "Jump to date" field</li>
@@ -2796,6 +2806,108 @@ top: 120px;
         showToast("Calendar data backup created", 5000);
       }, 300);
     }
+
+
+function downloadOrgEvents() {
+  // Define the export range: starting today to one month from today.
+  let startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
+  let endDate = new Date(startDate);
+  endDate.setMonth(endDate.getMonth() + 1);
+
+  // Start with an empty string for the event output.
+  let orgText = "";
+  let currentDate = new Date(startDate);
+  let currentMonthYear = "";
+
+  // Iterate day-by-day through the range.
+  while (currentDate <= endDate) {
+    // Get the cell id (using your existing idForDate function)
+    const cellId = idForDate(currentDate);
+    // Look up events stored under this cell's id.
+    const eventList = localStorage[cellId];
+    // Only output the date if there are events.
+    if (eventList) {
+      // If this date's month/year is new, output a new month header.
+      const monthYear = currentDate.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+      });
+      if (monthYear !== currentMonthYear) {
+        orgText += `* ${monthYear}\n`;
+        currentMonthYear = monthYear;
+      }
+
+      // Format the date in org-mode format: <YYYY-MM-DD DDD>
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const dayAbbr = currentDate.toLocaleDateString("en-US", { weekday: "short" });
+      const formattedDate = `<${year}-${month}-${day} ${dayAbbr}>`;
+
+      orgText += `** ${formattedDate}\n`;
+
+      // Get the stored event IDs (comma-separated) and list each event.
+      const eventIds = eventList.split(",");
+      eventIds.forEach(eventId => {
+        const eventText = localStorage[eventId];
+        if (eventText && eventText.trim() !== "") {
+          orgText += `- ${eventText.trim()}\n`;
+        }
+      });
+      orgText += "\n"; // Blank line after each day.
+    }
+    // Move to the next day.
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  // Append the settings block at the end.
+  orgText += `* settings :noexport:
+# Customize timestamp formats for this file
+# Local Variables:
+# org-time-stamp-custom-formats: ("%a %b %d" . "<%d/%m/%Y %a %H:%M>")
+# End:
+`;
+
+  // Create a Blob from the output text and trigger the download.
+  const blob = new Blob([orgText], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "timeless-calendar-events.org";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Org-mode events downloaded!");
+
+  // Also copy the output to the clipboard using the Clipboard API.
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(orgText)
+      .then(() => showToast("Org-mode events copied to clipboard!"))
+      .catch(err => console.error("Failed to copy to clipboard:", err));
+  } else {
+    // Fallback for insecure contexts.
+    let textArea = document.createElement("textarea");
+    textArea.value = orgText;
+    textArea.style.position = "fixed";
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand("copy");
+      showToast("Org-mode events copied to clipboard!");
+    } catch (err) {
+      console.error("Fallback: Unable to copy", err);
+    }
+    document.body.removeChild(textArea);
+  }
+}
+
+
     async function loadDataFromFileHandle(fileHandle) {
       try {
         const file = await fileHandle.getFile();

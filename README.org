@@ -198,6 +198,23 @@ What You've Enhanced & Suggestions for Further Improvements
 - The new keyboard navigation mode---toggled via the "i" key, with "q" (or Escape) to exit---provides a clear, dedicated mode for day-by-day navigation.
 - The visual indication (via a body outline) and toast messages make the mode change clear to users.
 
+Below is an example README section describing the new "Download Org-Mode Events" feature, along with an update to the help information:
+
+Download Org-Mode Events
+
+The new Download Org-Mode Events feature allows you to quickly export your upcoming events in a format that is compatible with Emacs Org-mode. When you click the download button, the calendar will scan for events starting from today through the next month and generate a plain text file named timeless-calendar-events.org. The export will include only those dates that have entries, and each date is formatted in the standard Org-mode timestamp style.
+
+Note: Dates with no events are omitted from the export.
+
+Additionally, when you download the events the output is automatically copied to the MacOS clipboard for easy pasting into your Org-mode files.
+
+How It Works
+ - Button: A new button with a download icon (an SVG icon is provided) is added to the header.
+ - Function: Clicking the button triggers the downloadOrgEvents() function, which gathers the event data, formats it according to the Org-mode structure described above, and then:
+ - Saves the output to a file named timeless-calendar-events.org.
+ - Copies the output text to your MacOS clipboard.
+
+By including this functionality, you can easily integrate your calendar events into your Org-mode workflow for better planning and task management.
 
 * Getting Started
 ** Non-expert users
