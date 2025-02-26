@@ -69,6 +69,8 @@
 
     /* Base styles + animated dot grid background */
     html, body {
+/* Completely disables horizontal scroll (the bottom scrollbar) */
+  overflow-x: hidden;
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
@@ -177,8 +179,8 @@
     #miniCalendar {
       position: fixed;
       left: 10px;
-      top: 54%;
-      transform: translateY(-50%);
+top: 120px;
+
       padding: 10px;
       border-radius: 5px;
       background: transparent;
@@ -426,14 +428,14 @@
     tr.month-boundary td:not(.extra) {
       border-top: 2px solid var(--month-boundary) !important;
     }
-    tr.month-boundary::after {
+   /* tr.month-boundary::after {
       content: '';
       position: absolute;
       left: 0; right: 0; top: 0;
       height: 2px;
       background: linear-gradient(90deg, transparent, var(--month-boundary), transparent);
       animation: shineEffect 2s infinite;
-    }
+      } */
     @keyframes shineEffect {
       0% { opacity: 0.2; transform: translateX(-100%); }
       50% { opacity: 1; transform: translateX(0); }
@@ -460,24 +462,31 @@
       display: inline-block;
       margin-bottom: 8px;
     }
-    #calendar td.extra {
-      font-family: var(--font-month-heading);
-      font-size: 22px;
-      line-height: 1.2;
-      color: #000;
-      opacity: 0.8;
-      font-weight: 400;
-      padding: 0 0 0 15px;
-      vertical-align: middle;
-      box-shadow: none;
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      width: 120px;
-      text-align: left;
-      border: none;
-      cursor: auto;
-      min-height: var(--cell-min-height);
-      height: var(--cell-min-height);
-    }
+#calendar td.extra {
+  font-family: var(--font-month-heading);
+  font-size: 22px;
+  line-height: 1.2;
+  color: #000;
+  opacity: 0.8;
+  font-weight: 400;
+  padding: 0 0 0 15px;
+  vertical-align: middle;
+  box-shadow: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+
+  /* Increase width (was 120px). */
+  width: 180px;
+
+  /* Force text to stay on one line. */
+  white-space: nowrap;
+
+  text-align: left;
+  border: none;
+  cursor: auto;
+  min-height: var(--cell-min-height);
+  height: var(--cell-min-height);
+}
+
     #calendar td.extra:hover {
       opacity: 1;
       transform: translateY(0) scale(1.02);
