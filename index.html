@@ -1473,6 +1473,15 @@ document.addEventListener("keydown", (e) => {
         showToast("Keyboard navigation mode deactivated");
       }
       break;
+    case "q":
+    case "Q":
+      if (keyboardFocusDate) {
+        e.preventDefault();
+        keyboardFocusDate = null;
+        document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
+        showToast("Keyboard navigation mode deactivated");
+      }
+      break;
     case "z":
     case "Z":
       if (e.ctrlKey || e.metaKey) {
