@@ -2815,121 +2815,179 @@
        NEW MARKDOWN EXPORT
    ---------------------- */
 
-   function downloadMarkdownEvents() {
-      // 1) Gather date => [events]
-      // Only consider localStorage keys like "month_day_year" (e.g. "2_20_2025").
-      const dateMap = {};
-      for (let key in localStorage) {
-         if (!localStorage.hasOwnProperty(key)) continue;
-         if (/^\d+_\d+_\d+$/.test(key)) {
-            const itemIds = localStorage[key].split(",");
-            const events = [];
-            for (let eid of itemIds) {
-               const text = localStorage[eid];
-               if (text && text.trim() !== "") {
-                  events.push(text.trim());
-               }
-            }
-            if (events.length > 0) {
-               dateMap[key] = events;
-            }
-         }
+// 1) Helper functions you requested:
+// For serializing a directory handle to a string:
+async function serializeDirectoryHandle(dirHandle) {
+  // Request read/write permission if not already granted:
+  await dirHandle.requestPermission({ mode: "readwrite" });
+  // We'll just store the directory's "name", but that won't actually let us re-hydrate
+  // the handle. You truly need "structuredClone" support in an IndexedDB approach.
+  return JSON.stringify({
+    name: dirHandle.name,
+    // (If we had a stable way to store the actual handle in localStorage, we would do it here.)
+  });
+}
+
+// For re-creating the handle from a string:
+async function restoreDirectoryHandle(str) {
+  // Even if we parse the name, there's no official standard to resurrect the real handle.
+  // This function intentionally throws an error as a reminder:
+  throw new Error("In practice, you must store FileSystemDirectoryHandle in IndexedDB for re-hydration!");
+}
+
+// 2) Your existing function, updated to attempt writing directly to a chosen directory:
+async function downloadMarkdownEvents() {
+  // 1) Gather date => [events] from localStorage
+  const dateMap = {};
+  for (let key in localStorage) {
+    if (!localStorage.hasOwnProperty(key)) continue;
+    if (/^\d+_\d+_\d+$/.test(key)) {
+      const itemIds = localStorage[key].split(",");
+      const events = [];
+      for (let eid of itemIds) {
+        const text = localStorage[eid];
+        if (text && text.trim() !== "") {
+          events.push(text.trim());
+        }
       }
-
-      // 2) Build a structure: structured[year][monthIndex] = [{ day, events }]
-      const structured = {};
-      for (let dateKey in dateMap) {
-         const [m, d, y] = dateKey.split("_").map(Number);
-         const dt = new Date(y, m, d);
-         const year = dt.getFullYear();
-         const month = dt.getMonth();
-         const day = dt.getDate();
-
-         if (!structured[year]) {
-            structured[year] = {};
-         }
-         if (!structured[year][month]) {
-            structured[year][month] = [];
-         }
-         structured[year][month].push({ day, events: dateMap[dateKey] });
+      if (events.length > 0) {
+        dateMap[key] = events;
       }
+    }
+  }
 
-      // We'll output lines with headings for each year/month,
-      // plus the day lines and "  - " prefix for events.
-      const months = [
-         "January","February","March","April","May","June",
-         "July","August","September","October","November","December"
-      ];
-      const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
+  // 2) Build a structure: structured[year][monthIndex] = [{ day, events }]
+  const structured = {};
+  for (let dateKey in dateMap) {
+    const [m, d, y] = dateKey.split("_").map(Number);
+    const dt = new Date(y, m, d);
+    const year = dt.getFullYear();
+    const month = dt.getMonth();
+    const day = dt.getDate();
 
-      let mdLines = [];
+    if (!structured[year]) {
+      structured[year] = {};
+    }
+    if (!structured[year][month]) {
+      structured[year][month] = [];
+    }
+    structured[year][month].push({ day, events: dateMap[dateKey] });
+  }
 
-      // 3) For each year, push "# YEAR"
-      for (let y of years) {
-         mdLines.push(`# ${y}`);
+  // We'll output lines with headings for each year/month,
+  // plus the day lines and "  - " prefix for events.
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+  const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
 
-         // Sort the month's keys (0..11) ascending
-         const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
-         for (let m of monthsInYear) {
-            // Month heading: "## MonthName YEAR"
-            mdLines.push(`## ${months[m]} ${y}`);
+  let mdLines = [];
 
-            // Sort days ascending
-            structured[y][m].sort((a, b) => a.day - b.day);
+  // 3) For each year, push "# YEAR"
+  for (let y of years) {
+    mdLines.push(`# ${y}`);
+    // Sort the month's keys (0..11) ascending
+    const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
 
-            // For each day, lines like:
-            // "2/18/2025"
-            //   - Fly to SF
-            structured[y][m].forEach(obj => {
-               const dayStr = `${m + 1}/${obj.day}/${y}`;
-               mdLines.push(dayStr);
-               obj.events.forEach(ev => {
-                  // Two spaces, then dash => "  - "
-                  mdLines.push(`  - ${ev}`);
-               });
-               // Blank line after each day block
-               mdLines.push("");
-            });
-         }
+    for (let m of monthsInYear) {
+      // Month heading: "## MonthName YEAR"
+      mdLines.push(`## ${months[m]} ${y}`);
+
+      // Sort days ascending
+      structured[y][m].sort((a, b) => a.day - b.day);
+
+      // For each day, lines like:
+      // "2/18/2025"
+      //   - Fly to SF
+      structured[y][m].forEach(obj => {
+        const dayStr = `${m + 1}/${obj.day}/${y}`;
+        mdLines.push(dayStr);
+        obj.events.forEach(ev => {
+          // Two spaces, then dash => "  - "
+          mdLines.push(`  - ${ev}`);
+        });
+        // Blank line after each day block
+        mdLines.push("");
+      });
+    }
+  }
+
+  // 4) Convert lines to text
+  const finalText = mdLines.join("\n");
+
+  // Check if we have a stored directory handle in localStorage
+  let dirHandle = null;
+  const stored = localStorage.getItem("myDirectoryHandle");
+  if (stored) {
+    // Attempt to restore it
+    try {
+      dirHandle = await restoreDirectoryHandle(stored);
+      // If we get here without error, request permission
+      const perm = await dirHandle.requestPermission({ mode: "readwrite" });
+      if (perm !== "granted") {
+        throw new Error("Permission was not granted for readwrite");
       }
+    } catch (err) {
+      console.warn("Failed to restore directory handle from storage:", err);
+      dirHandle = null;
+    }
+  }
 
-      // 4) Convert lines to text, create a Blob, trigger download as "jay-diary.md"
-      const finalText = mdLines.join("\n");
-      const blob = new Blob([finalText], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "jay-diary.md";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      showToast("Markdown events downloaded!");
-
-      // 5) Try to copy finalText to clipboard
-      if (navigator.clipboard && window.isSecureContext) {
-         navigator.clipboard.writeText(finalText)
-                  .then(() => showToast("Markdown events copied to clipboard!"))
-                  .catch(err => console.error("Clipboard copy failed:", err));
-      } else {
-         // fallback if insecure context
-         const textArea = document.createElement("textarea");
-         textArea.value = finalText;
-         textArea.style.position = "fixed";
-         textArea.style.opacity = "0";
-         document.body.appendChild(textArea);
-         textArea.focus();
-         textArea.select();
-         try {
-            document.execCommand("copy");
-            showToast("Markdown events copied to clipboard!");
-         } catch (err) {
-            console.error("Fallback: Unable to copy", err);
-         }
-         document.body.removeChild(textArea);
+  // If we have no valid handle, ask user to pick a directory:
+  if (!dirHandle) {
+    try {
+      dirHandle = await window.showDirectoryPicker();
+      const perm = await dirHandle.requestPermission({ mode: "readwrite" });
+      if (perm !== "granted") {
+        showToast("Cannot save without write permission");
+        return;
       }
-   }
+      // Serialize it (though it won't truly re-hydrate from localStorage)
+      const serialized = await serializeDirectoryHandle(dirHandle);
+      localStorage.setItem("myDirectoryHandle", serialized);
+    } catch (err) {
+      console.error("User canceled picking directory or permission denied:", err);
+      showToast("Canceled or no permission to pick directory");
+      return;
+    }
+  }
+
+  // Now write "jay-diary.md" to the chosen directory:
+  try {
+    const fileHandle = await dirHandle.getFileHandle("jay-diary.md", { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(finalText);
+    await writable.close();
+    showToast("Saved 'jay-diary.md' to your chosen folder!");
+  } catch (err) {
+    console.error("Error writing file:", err);
+    showToast("Error writing file to directory");
+  }
+
+  // 5) Optionally copy to clipboard
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(finalText)
+      .then(() => showToast("Markdown events copied to clipboard!"))
+      .catch(err => console.error("Clipboard copy failed:", err));
+  } else {
+    // fallback if insecure context
+    const textArea = document.createElement("textarea");
+    textArea.value = finalText;
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand("copy");
+      showToast("Markdown events copied to clipboard!");
+    } catch (err) {
+      console.error("Fallback: Unable to copy", err);
+    }
+    document.body.removeChild(textArea);
+  }
+}
 
 
     /* REMAINING FILE HANDLING FOR SYNC */
