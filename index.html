@@ -2931,64 +2931,68 @@ function downloadOrgEvents() {
 /*
  * Convert all events in localStorage to Emacs diary format lines.
  *
- * Returns a string containing all diary lines, e.g.:
- *   4/20/2012 Switch-over to new tabulation system
- *   apr. 25 Start tabulating annual results
- *   4/30 Results for April are due
- *   Friday Don't leave without backing up files
- */
+
 function buildDiaryExportText() {
-  let diaryLines = [];
+  // 1) Gather all date -> [events] in a dictionary
+  //    e.g. "1_5_2025" => ["Doctor's appt", "Pick up dry cleaning"]
+  let eventsByDate = {};
 
-  // We store daily events in localStorage with keys like `0_12_2025` => "list of item IDs"
-  // and then each item ID has the event text. So we gather them day by day.
-
-  // 1) Collect day-based events.
   for (const key in localStorage) {
     if (!localStorage.hasOwnProperty(key)) continue;
-
-    // Skip non-date keys like 'nextId' or 'lastSavedTimestamp'
+    // Skip non-date keys like "nextId", "lastSavedTimestamp", etc.
     if (!/^\d+_\d+_\d+$/.test(key)) continue;
 
-    // key is "month_day_year"
-    let [m, d, y] = key.split("_").map(Number);
-
-    // Get the item IDs for that day
-    const itemList = localStorage[key];
-    if (!itemList) continue;
-
-    const eventIds = itemList.split(",");
-    // For each event ID, fetch its text
-    eventIds.forEach(eventId => {
-      const eventText = localStorage[eventId];
-      if (eventText && eventText.trim() !== "") {
-        // Build a diary line in the simplest numeric style, e.g. "4/20/2025 My Event"
-        // or if you prefer month names, adapt the format below.
-        let line = `${m+1}/${d}/${y} ${eventText.trim()}`;
-        diaryLines.push(line);
+    const eventIds = localStorage[key].split(",");
+    const dayEvents = [];
+    eventIds.forEach(eid => {
+      const text = localStorage[eid];
+      if (text && text.trim() !== "") {
+        dayEvents.push(text.trim());
       }
     });
+    if (dayEvents.length > 0) {
+      eventsByDate[key] = dayEvents;
+    }
   }
 
-  // 2) If you store recurring events or wildcard events in localStorage,
-  //    you'll also build lines for them. E.g. "*/25 Bill pay day"
-  //    For now, let's skip that and handle purely day-based.
+  // 2) Convert those keys to real dates & sort
+  //    Each key is "month_day_year".
+  //    We'll store them as { dateObj, dateKey } so we can sort by dateObj.
+  let dateEntries = [];
+  for (let dateKey in eventsByDate) {
+    let [m, d, y] = dateKey.split("_").map(Number);
+    // JavaScript Date expects (year, zeroBasedMonth, day)
+    let dateObj = new Date(y, m, d);
+    dateEntries.push({ dateObj, dateKey });
+  }
 
-  // Sort lines so they appear in ascending chronological order
-  // (purely optional, but nice for reading).
-  // We can do a naive sort by y, then m, then d:
-  diaryLines.sort((a, b) => {
-    // a => "4/20/2012 some text"
-    // We'll parse out the first chunk
-    let dateA = a.match(/^(\d+)\/(\d+)\/(\d+)/);
-    let dateB = b.match(/^(\d+)\/(\d+)\/(\d+)/);
-    if (!dateA || !dateB) return 0; // if something doesn't parse
-    let [_, AM, AD, AY] = dateA.map(Number);
-    let [__, BM, BD, BY] = dateB.map(Number);
-    return (AY - BY) || (AM - BM) || (AD - BD);
+  dateEntries.sort((a, b) => a.dateObj - b.dateObj);
+
+  // 3) Build the output text in your desired format:
+  //    For each date, print "M/D/YYYY" on one line,
+  //    then each event prefixed by "- ", and a blank line after each block.
+  let lines = [];
+  dateEntries.forEach(entry => {
+    const dateObj = entry.dateObj;
+    let [month, day, year] = [
+      dateObj.getMonth() + 1,
+      dateObj.getDate(),
+      dateObj.getFullYear(),
+    ];
+
+    // Print date line: e.g. "2/20/2025"
+    lines.push(`${month}/${day}/${year}`);
+
+    // Print each event bullet
+    eventsByDate[entry.dateKey].forEach(ev => {
+      lines.push(`- ${ev}`);
+    });
+
+    // Blank line after each date block
+    lines.push("");
   });
 
-  return diaryLines.join("\n");
+  return lines.join("\n");
 }
 
 /*
