@@ -1124,6 +1124,13 @@ top: 120px;
   </svg>
 </a>
 
+<a href="#" class="button" onclick="exportToDiaryFile()" data-tooltip="Export Emacs Diary">
+  <svg class="icon" ...> ... </svg>
+</a>
+<a href="#" class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
+  <svg class="icon" ...> ... </svg>
+</a>
+
       <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">
         <svg class="icon" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -2914,6 +2921,296 @@ function downloadOrgEvents() {
       console.error("Fallback: Unable to copy", err);
     }
     document.body.removeChild(textArea);
+  }
+}
+
+
+/*
+ * Convert all events in localStorage to Emacs diary format lines.
+ *
+ * Returns a string containing all diary lines, e.g.:
+ *   4/20/2012 Switch-over to new tabulation system
+ *   apr. 25 Start tabulating annual results
+ *   4/30 Results for April are due
+ *   Friday Don't leave without backing up files
+ */
+function buildDiaryExportText() {
+  let diaryLines = [];
+
+  // We store daily events in localStorage with keys like `0_12_2025` => "list of item IDs"
+  // and then each item ID has the event text. So we gather them day by day.
+
+  // 1) Collect day-based events.
+  for (const key in localStorage) {
+    if (!localStorage.hasOwnProperty(key)) continue;
+
+    // Skip non-date keys like 'nextId' or 'lastSavedTimestamp'
+    if (!/^\d+_\d+_\d+$/.test(key)) continue;
+
+    // key is "month_day_year"
+    let [m, d, y] = key.split("_").map(Number);
+
+    // Get the item IDs for that day
+    const itemList = localStorage[key];
+    if (!itemList) continue;
+
+    const eventIds = itemList.split(",");
+    // For each event ID, fetch its text
+    eventIds.forEach(eventId => {
+      const eventText = localStorage[eventId];
+      if (eventText && eventText.trim() !== "") {
+        // Build a diary line in the simplest numeric style, e.g. "4/20/2025 My Event"
+        // or if you prefer month names, adapt the format below.
+        let line = `${m+1}/${d}/${y} ${eventText.trim()}`;
+        diaryLines.push(line);
+      }
+    });
+  }
+
+  // 2) If you store recurring events or wildcard events in localStorage,
+  //    you'll also build lines for them. E.g. "*/25 Bill pay day"
+  //    For now, let's skip that and handle purely day-based.
+
+  // Sort lines so they appear in ascending chronological order
+  // (purely optional, but nice for reading).
+  // We can do a naive sort by y, then m, then d:
+  diaryLines.sort((a, b) => {
+    // a => "4/20/2012 some text"
+    // We'll parse out the first chunk
+    let dateA = a.match(/^(\d+)\/(\d+)\/(\d+)/);
+    let dateB = b.match(/^(\d+)\/(\d+)\/(\d+)/);
+    if (!dateA || !dateB) return 0; // if something doesn't parse
+    let [_, AM, AD, AY] = dateA.map(Number);
+    let [__, BM, BD, BY] = dateB.map(Number);
+    return (AY - BY) || (AM - BM) || (AD - BD);
+  });
+
+  return diaryLines.join("\n");
+}
+
+/*
+ * Export Emacs diary format lines to a file on disk.
+ * For modern browsers supporting File System Access API,
+ * we can let the user pick or remember 'jay-diary.org'.
+ */
+async function exportToDiaryFile() {
+  try {
+    // 1) Build the diary text
+    const diaryText = buildDiaryExportText();
+
+    // 2) Use File System Access API (if supported)
+    const opts = {
+      suggestedName: "jay-diary.org",
+      types: [
+        {
+          description: "Emacs Diary Files",
+          accept: { "text/plain": [".org", ".txt"] }
+        }
+      ]
+    };
+
+    // Let user pick the file to overwrite:
+    const fileHandle = await window.showSaveFilePicker(opts);
+    const writable = await fileHandle.createWritable();
+    await writable.write(diaryText);
+    await writable.close();
+
+    showToast("Diary exported to " + fileHandle.name);
+  } catch (err) {
+    console.error("exportToDiaryFile error:", err);
+    showToast("Export canceled or failed");
+  }
+}
+
+/**
+ * Attempt to parse a single Emacs diary line.
+ * Returns an array of { date: Date, text: string }
+ * Because one diary line can generate multiple dates if it's weekly, wildcard, etc.
+ * For now, we only handle the simplest forms:
+ *   M/D[/YYYY] ...
+ *   monthName day[, year]
+ *   dayOfWeek  (for weekly events)
+ *   */D        (monthly on day D)
+ *   M/*        (every day in month M)
+ */
+function parseDiaryLine(line) {
+  line = line.trim();
+  if (!line) return [];
+
+
+  // 0) If line starts with '*', treat it as an org-mode heading. Skip it.
+  if (line.startsWith("*")) {
+    return [];
+  }
+
+  //   Now do the regular diary parsing checks:
+  //    (numeric dates, month names, wildcards, day-of-week, etc.)
+
+
+  // 1) Check numeric date with optional year: e.g. "4/20/2012"
+  let mdy = line.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\s+(.*)/i);
+  if (mdy) {
+    let [, M, D, Y, text] = mdy;
+    M = Number(M);
+    D = Number(D);
+    Y = Y ? Number(Y) : (new Date().getFullYear()); // if no year specified => this year
+    // Return a single date
+    let dt = new Date(Y, M - 1, D);
+    return [{ date: dt, text }];
+  }
+
+  // 2) Check for named month: e.g. "April 25, 2025 text" or "apr. 25 text"
+  let monthNameMatch = line.match(/^((jan|feb|mar|apr|may|jun|jul|aug|sept|sep|oct|nov|dec)\.?)(?:[a-z]*)?\s+(\d{1,2})(?:,\s*(\d{2,4}))?\s+(.*)/i);
+  if (monthNameMatch) {
+    let [, monthStr, , dayStr, yearStr, text] = monthNameMatch;
+    let M = parseMonthName(monthStr);
+    let D = Number(dayStr);
+    let Y = yearStr ? Number(yearStr) : (new Date().getFullYear());
+    let dt = new Date(Y, M - 1, D);
+    return [{ date: dt, text }];
+  }
+
+  // 3) Check for wildcard monthly form, e.g. "*/25 Something"
+  let wildcardDay = line.match(/^\*\/(\d{1,2})\s+(.*)/);
+  if (wildcardDay) {
+    // Means day of month = N, month = any
+    // You might decide to expand this for the next 3 months:
+    let dayNum = Number(wildcardDay[1]);
+    let text = wildcardDay[2];
+    // Generate a set of date expansions. For example, produce the next 3 months of events.
+    let results = [];
+    let now = new Date();
+    for (let i = 0; i < 3; i++) {
+      let Y = now.getFullYear();
+      let M = now.getMonth() + i; // expand i months ahead
+      let dateObj = new Date(Y, M, dayNum);
+      // skip if dayNum doesn't exist in that month
+      if (dateObj.getMonth() === (M % 12)) {
+        results.push({ date: dateObj, text });
+      }
+    }
+    return results;
+  }
+
+  // 4) Check for day-of-week (like "Friday Lunch with Bob")
+  //    We expand for the next 4 weeks or so.
+  let dayOfWeek = line.match(/^(monday|tuesday|tues|wednesday|thursday|thurs|friday|saturday|sunday)\s+(.*)/i);
+  if (dayOfWeek) {
+    let dayName = dayOfWeek[1].toLowerCase();
+    let text = dayOfWeek[2];
+    // Convert dayName to an integer (0=Sunday..6=Saturday).
+    let targetDow = parseDayOfWeek(dayName);
+    // Expand for next 4 or 5 weeks
+    let results = [];
+    let start = new Date();
+    for (let i = 0; i < 35; i++) {
+      let d = new Date(start);
+      d.setDate(d.getDate() + i);
+      if (d.getDay() === targetDow) {
+        results.push({ date: d, text });
+      }
+    }
+    return results;
+  }
+
+  // If no pattern matched, return empty. Or you could store it as raw text.
+  return [];
+}
+
+function parseMonthName(mStr) {
+  mStr = mStr.toLowerCase().replace(/\./, ''); // remove trailing dot
+  const months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","sept","oct","nov","dec"];
+  let idx = months.indexOf(mStr.substring(0,3));
+  return (idx >= 0) ? idx + 1 : 1; // default to January if unrecognized
+}
+
+function parseDayOfWeek(dow) {
+  // Convert e.g. 'monday' => 1, 'friday' => 5, etc. (0=Sunday in JS)
+  // We'll unify partial matches like "tues" => 2
+  dow = dow.slice(0,3);
+  let map = {
+    sun: 0, mon: 1, tue: 2, wed: 3,
+    thu: 4, fri: 5, sat: 6
+  };
+  if (map[dow] !== undefined) return map[dow];
+  return 0; // default Sunday
+}
+
+/*
+ * Reads an Emacs diary file from disk, parses each line, and updates localStorage.
+ * Overwrites existing events for matching dates, or appends new ones, depending on your preference.
+ */
+async function importFromDiaryFile() {
+  try {
+    showLoading();
+    const [handle] = await window.showOpenFilePicker({
+      multiple: false,
+      types: [
+        {
+          description: "Emacs Diary File",
+          accept: {"text/plain": [".org", ".txt", ".text"]}
+        }
+      ]
+    });
+
+    const file = await handle.getFile();
+    const text = await file.text();
+    const lines = text.split(/\r?\n/);
+
+    // We'll gather results in an in-memory map: dateKey => [event strings]
+    // where dateKey is "month_day_year" matching the Timeless code
+    let eventsByDate = {};
+
+    for (const line of lines) {
+      // parse the line
+      let parsed = parseDiaryLine(line);
+      // e.g. parsed = [ { date: Date(...), text: "some event" }, ...multiple? ]
+      for (let p of parsed) {
+        let dt = p.date;
+        let event = p.text.trim();
+        if (!event) continue;
+        let key = `${dt.getMonth()}_${dt.getDate()}_${dt.getFullYear()}`;
+
+        if (!eventsByDate[key]) {
+          eventsByDate[key] = [];
+        }
+        eventsByDate[key].push(event);
+      }
+    }
+
+    // Now we store them in localStorage.
+    // For each day key, we create new items with nextItemId() etc.
+    pushUndoState(); // so we can undo
+    for (let dateKey in eventsByDate) {
+      // Retrieve or init the list of item IDs
+      let existingItemIds = localStorage[dateKey] ? localStorage[dateKey].split(",") : [];
+      // Create new item IDs for these events
+      for (let text of eventsByDate[dateKey]) {
+        // If that exact text is already present, skip to avoid duplicates
+        let isDuplicate = false;
+        for (let itemId of existingItemIds) {
+          if (localStorage[itemId] && localStorage[itemId] === text) {
+            isDuplicate = true;
+            break;
+          }
+        }
+        if (!isDuplicate) {
+          let newId = nextItemId();
+          localStorage[newId] = text;
+          existingItemIds.push(newId);
+        }
+      }
+      localStorage[dateKey] = existingItemIds.join(",");
+    }
+
+    hideLoading();
+    showToast("Diary imported successfully");
+    // Then reload your calendar
+    loadCalendarAroundDate(todayDate);
+  } catch (err) {
+    hideLoading();
+    console.error("importFromDiaryFile error:", err);
+    showToast("Import canceled or failed");
   }
 }
 
