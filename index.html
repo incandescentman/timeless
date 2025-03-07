@@ -2812,115 +2812,119 @@
     /* ---------------------
        NEW MARKDOWN EXPORT
    ---------------------- */
-    function downloadMarkdownEvents() {
-      // Gather date => [events]
-      // We'll gather ALL events in localStorage that match the pattern "M_D_YYYY"
-      const dateMap = {};
-      for (let key in localStorage) {
-        if (!localStorage.hasOwnProperty(key)) continue;
-        // Only date-keys: e.g. "2_20_2025"
-        if (/^\d+_\d+_\d+$/.test(key)) {
-          const items = localStorage[key].split(",");
-          const events = [];
-          items.forEach(eid => {
-            const txt = localStorage[eid];
-            if (txt && txt.trim() !== "") {
-              events.push(txt.trim());
-            }
-          });
-          if (events.length > 0) {
-            dateMap[key] = events;
-          }
+
+function downloadMarkdownEvents() {
+  // Gather date => [events].
+  // We look for localStorage keys that match "M_D_YYYY" (month_day_year).
+  const dateMap = {};
+  for (let key in localStorage) {
+    if (!localStorage.hasOwnProperty(key)) continue;
+    // Only consider date-based keys like "2_20_2025".
+    if (/^\d+_\d+_\d+$/.test(key)) {
+      const items = localStorage[key].split(",");
+      const events = [];
+      items.forEach(eid => {
+        const txt = localStorage[eid];
+        if (txt && txt.trim() !== "") {
+          events.push(txt.trim());
         }
-      }
-
-      // Convert each key into a Date, group by year and month
-      // dateKey = "month_day_year"
-      const structured = {}; // structured[year][monthIndex] = [{ day, events[] }]
-      for (let dateKey in dateMap) {
-        const [m, d, y] = dateKey.split("_").map(Number);
-        const dt = new Date(y, m, d);
-        const year = dt.getFullYear();
-        const month = dt.getMonth(); // 0-based
-        const day = dt.getDate();
-        if (!structured[year]) {
-          structured[year] = {};
-        }
-        if (!structured[year][month]) {
-          structured[year][month] = [];
-        }
-        structured[year][month].push({ day, events: dateMap[dateKey] });
-      }
-
-      // Sort by month, then by day
-      const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
-
-      let mdLines = [];
-      for (let y of years) {
-        // Year heading: "# 2025"
-        mdLines.push(`# ${y}`);
-
-        // Month keys in ascending order
-        const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
-        for (let m of monthsInYear) {
-          const monthName = months[m];
-          // Month heading: "** February 2025"
-          mdLines.push(`** ${monthName} ${y}`);
-
-          // Sort days ascending
-          structured[y][m].sort((a, b) => a.day - b.day);
-          // For each day block:
-          structured[y][m].forEach(obj => {
-            const dayStr = `${m + 1}/${obj.day}/${y}`;
-            mdLines.push(dayStr);
-            // Each event
-            obj.events.forEach(ev => {
-              mdLines.push(`  - ${ev}`);
-            });
-            mdLines.push(""); // blank line after each date block
-          });
-        }
-      }
-
-      const finalText = mdLines.join("\n");
-
-      // Download as .md
-      const blob = new Blob([finalText], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "timeless-calendar-events.md";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("Markdown events downloaded!");
-
-      // Copy to clipboard
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(finalText)
-          .then(() => showToast("Markdown events copied to clipboard!"))
-          .catch(err => console.error("Failed to copy to clipboard:", err));
-      } else {
-        // fallback
-        let textArea = document.createElement("textarea");
-        textArea.value = finalText;
-        textArea.style.position = "fixed";
-        textArea.style.top = "0";
-        textArea.style.left = "0";
-        textArea.style.opacity = "0";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-          document.execCommand("copy");
-          showToast("Markdown events copied to clipboard!");
-        } catch (err) {
-          console.error("Fallback: Unable to copy", err);
-        }
-        document.body.removeChild(textArea);
+      });
+      if (events.length > 0) {
+        dateMap[key] = events;
       }
     }
+  }
+
+  // Build a structure: structured[year][monthIndex] = [{ day, events[] }]
+  const structured = {};
+  for (let dateKey in dateMap) {
+    const [m, d, y] = dateKey.split("_").map(Number);
+    const dt = new Date(y, m, d);
+    const year = dt.getFullYear();
+    const month = dt.getMonth(); // zero-based index
+    const day = dt.getDate();
+    if (!structured[year]) {
+      structured[year] = {};
+    }
+    if (!structured[year][month]) {
+      structured[year][month] = [];
+    }
+    structured[year][month].push({ day, events: dateMap[dateKey] });
+  }
+
+  // We'll sort all years ascending, then months ascending, then days ascending.
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+  const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
+  let mdLines = [];
+
+  for (let y of years) {
+    // Year heading: # 2025
+    mdLines.push(`# ${y}`);
+
+    // Sort the months in ascending order
+    const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
+    for (let m of monthsInYear) {
+      // Month heading: ** February 2025
+      mdLines.push(`** ${months[m]} ${y}`);
+
+      // Sort the days ascending
+      structured[y][m].sort((a, b) => a.day - b.day);
+      // For each day, e.g. "2/18/2025"
+      structured[y][m].forEach(obj => {
+        const dayStr = `${m + 1}/${obj.day}/${y}`;
+        mdLines.push(dayStr);
+        obj.events.forEach(ev => {
+          mdLines.push(`  - ${ev}`);
+        });
+        mdLines.push(""); // Blank line after each date
+      });
+    }
+  }
+
+  // Convert to text
+  const finalText = mdLines.join("\n");
+
+  // Create a Blob and trigger download as jay-diary.md
+  const blob = new Blob([finalText], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "jay-diary.md";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Show a toast and attempt to copy to clipboard
+  showToast("Markdown events downloaded!");
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(finalText)
+      .then(() => showToast("Markdown events copied to clipboard!"))
+      .catch(err => console.error("Clipboard copy failed:", err));
+  } else {
+    // Fallback for non-secure contexts
+    let textArea = document.createElement("textarea");
+    textArea.value = finalText;
+    textArea.style.position = "fixed";
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand("copy");
+      showToast("Markdown events copied to clipboard!");
+    } catch (err) {
+      console.error("Fallback: Unable to copy", err);
+    }
+    document.body.removeChild(textArea);
+  }
+}
+
 
     /* REMAINING FILE HANDLING FOR SYNC */
     async function loadDataFromFileHandle(fileHandle) {
@@ -2966,7 +2970,7 @@
         showLoading();
         const diaryText = buildDiaryExportText(); // existing diary format
         const fileOpts = {
-          suggestedName: "jay-diary.org",
+          suggestedName: "jay-diary.md",
           types: [
             {
               description: "Emacs Diary File",
