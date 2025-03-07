@@ -14,57 +14,57 @@
   <style>
     /* CSS Variables for consistent theming */
     :root {
-     --today-gradient-from: rgba(229, 62, 62, 0.9);
-     --today-gradient-to: rgba(197, 48, 48, 0.9);
-     --border-width: 1px;
-     --border-color: black;
-     --header-height: 27px;
-     --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-     --cell-min-height: 120px;
+    --today-gradient-from: rgba(229, 62, 62, 0.9);
+    --today-gradient-to: rgba(197, 48, 48, 0.9);
+    --border-width: 1px;
+    --border-color: black;
+    --header-height: 27px;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --cell-min-height: 120px;
       /* Color Palette for Light Mode */
-     --color-primary: #4361ee;
-     --color-secondary: #ff6b6b;
-     --color-success: #2ecc71;
-     --color-info: #3498db;
-     --color-warning: #f39c12;
-     --color-danger: #e74c3c;
-     --color-light: #f8f9fa;
-     --color-dark: #343a40;
+    --color-primary: #4361ee;
+    --color-secondary: #ff6b6b;
+    --color-success: #2ecc71;
+    --color-info: #3498db;
+    --color-warning: #f39c12;
+    --color-danger: #e74c3c;
+    --color-light: #f8f9fa;
+    --color-dark: #343a40;
       /* Semantic color variables */
-     --bg-primary: #f8f9fa;
-     --bg-pattern: #e0e5ec;
-     --text-primary: #333;
-     --accent: var(--color-primary);
-     --weekend-gradient-from: #f0f5f9;
-     --weekend-gradient-to: #d9e2ec;
-     --shaded-month: #e6f7ff;
-     --month-boundary: #bbb;
-     --header-gradient-from: transparent;
-     --header-gradient-to: transparent;
-     --header-solid-bg: rgba(255,255,255,0.95);
-     --month-heading-bg: rgba(255,255,255,0.95);
-     --month-heading-text: #333;
+    --bg-primary: #f8f9fa;
+    --bg-pattern: #e0e5ec;
+    --text-primary: #333;
+    --accent: var(--color-primary);
+    --weekend-gradient-from: #f0f5f9;
+    --weekend-gradient-to: #d9e2ec;
+    --shaded-month: #e6f7ff;
+    --month-boundary: #bbb;
+    --header-gradient-from: transparent;
+    --header-gradient-to: transparent;
+    --header-solid-bg: rgba(255,255,255,0.95);
+    --month-heading-bg: rgba(255,255,255,0.95);
+    --month-heading-text: #333;
       /* Typography */
-     --font-month-heading: 'Playfair Display', serif;
-     --font-day-number: 'Fira Code', monospace;
+    --font-month-heading: 'Playfair Display', serif;
+    --font-day-number: 'Fira Code', monospace;
     }
 
     /* Dark mode colors */
     body.dark-mode {
-     --bg-primary: #222;
-     --bg-pattern: rgba(255,255,255,0.05);
-     --text-primary: #eee;
-     --weekend-gradient-from: #303542;
-     --weekend-gradient-to: #232731;
-     --shaded-month: #2a2a2a;
-     --today-gradient-from: rgba(229, 62, 62, 0.8);
-     --today-gradient-to: rgba(197, 48, 48, 0.8);
-     --month-boundary: #555;
-     --header-gradient-from: #2c3e50;
-     --header-gradient-to: #1a1a2e;
-     --header-solid-bg: rgba(40, 40, 40, 0.95);
-     --month-heading-bg: #2c2c2c;
-     --month-heading-text: #ddd;
+    --bg-primary: #222;
+    --bg-pattern: rgba(255,255,255,0.05);
+    --text-primary: #eee;
+    --weekend-gradient-from: #303542;
+    --weekend-gradient-to: #232731;
+    --shaded-month: #2a2a2a;
+    --today-gradient-from: rgba(229, 62, 62, 0.8);
+    --today-gradient-to: rgba(197, 48, 48, 0.8);
+    --month-boundary: #555;
+    --header-gradient-from: #2c3e50;
+    --header-gradient-to: #1a1a2e;
+    --header-solid-bg: rgba(40, 40, 40, 0.95);
+    --month-heading-bg: #2c2c2c;
+    --month-heading-text: #ddd;
     }
 
     /* Base styles + animated dot grid background */
@@ -179,8 +179,7 @@
     #miniCalendar {
       position: fixed;
       left: 10px;
-top: 120px;
-
+      top: 120px;
       padding: 10px;
       border-radius: 5px;
       background: transparent;
@@ -382,8 +381,8 @@ top: 120px;
       border-radius: 10px;
       padding: 1px;
       background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
-     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-     -webkit-mask-composite: xor;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events: none;
     }
@@ -428,19 +427,7 @@ top: 120px;
     tr.month-boundary td:not(.extra) {
       border-top: 2px solid var(--month-boundary) !important;
     }
-   /* tr.month-boundary::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0; top: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--month-boundary), transparent);
-      animation: shineEffect 2s infinite;
-      } */
-    @keyframes shineEffect {
-      0% { opacity: 0.2; transform: translateX(-100%); }
-      50% { opacity: 1; transform: translateX(0); }
-      100% { opacity: 0.2; transform: translateX(100%); }
-    }
+
     @keyframes pulseToday {
       0% { box-shadow: 0 0 0 0 rgba(var(--today-gradient-from-rgb), 0.4); }
       50% { box-shadow: 0 0 15px 10px rgba(var(--today-gradient-from-rgb), 0.2); }
@@ -462,31 +449,25 @@ top: 120px;
       display: inline-block;
       margin-bottom: 8px;
     }
-#calendar td.extra {
-  font-family: var(--font-month-heading);
-  font-size: 22px;
-  line-height: 1.2;
-  color: #000;
-  opacity: 0.8;
-  font-weight: 400;
-  padding: 0 0 0 15px;
-  vertical-align: middle;
-  box-shadow: none;
-  transition: opacity 0.5s ease, transform 0.5s ease;
-
-  /* Increase width (was 120px). */
-  width: 180px;
-
-  /* Force text to stay on one line. */
-  white-space: nowrap;
-
-  text-align: left;
-  border: none;
-  cursor: auto;
-  min-height: var(--cell-min-height);
-  height: var(--cell-min-height);
-}
-
+    #calendar td.extra {
+      font-family: var(--font-month-heading);
+      font-size: 22px;
+      line-height: 1.2;
+      color: #000;
+      opacity: 0.8;
+      font-weight: 400;
+      padding: 0 0 0 15px;
+      vertical-align: middle;
+      box-shadow: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      width: 180px;
+      white-space: nowrap;
+      text-align: left;
+      border: none;
+      cursor: auto;
+      min-height: var(--cell-min-height);
+      height: var(--cell-min-height);
+    }
     #calendar td.extra:hover {
       opacity: 1;
       transform: translateY(0) scale(1.02);
@@ -536,7 +517,7 @@ top: 120px;
       animation: selectDay 0.3s ease-out;
       box-shadow: 0 0 0 2px var(--accent);
     }
-    /* Ripple effect on cell click with refined animation */
+    /* Ripple effect on cell click */
     @keyframes ripple {
       from { transform: scale(0); opacity: 0.6; }
       to   { transform: scale(2.5); opacity: 0; }
@@ -989,7 +970,7 @@ top: 120px;
     }
     @media (max-width:768px) {
       :root {
-       --cell-min-height: 100px;
+      --cell-min-height: 100px;
       }
       #stickyMonthHeader {
         font-size: 24px;
@@ -1117,23 +1098,21 @@ top: 120px;
         </svg>
       </a>
 
+      <!-- Export Emacs Diary (arrow UP) -->
+      <a href="#" class="button" onclick="exportToDiaryFile()" data-tooltip="Export Emacs Diary">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <!-- Arrow pointing upward, plus horizontal bar at the bottom -->
+          <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
+        </svg>
+      </a>
 
-
-<!-- Export Emacs Diary (arrow UP) -->
-<a href="#" class="button" onclick="exportToDiaryFile()" data-tooltip="Export Emacs Diary">
-  <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <!-- Arrow pointing upward, plus horizontal bar at the bottom -->
-    <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
-  </svg>
-</a>
-
-<!-- Import from Emacs Diary (arrow DOWN) -->
-<a href="#" class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
-  <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <!-- Exact vertical mirror of the above arrow, with the bar at the top -->
-    <path d="M12 8l4 4h-3v8h-2v-8H8l4-4zm-7-2h14v2H5v-2z"/>
-  </svg>
-</a>
+      <!-- Import from Emacs Diary (arrow DOWN) -->
+      <a href="#" class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <!-- Exact vertical mirror of the above arrow, with the bar at the top -->
+          <path d="M12 8l4 4h-3v8h-2v-8H8l4-4zm-7-2h14v2H5v-2z"/>
+        </svg>
+      </a>
       <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">
         <svg class="icon" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -1170,8 +1149,7 @@ top: 120px;
         <li>Press <code>t</code> to jump to Today</li>
         <li>Press <code>Ctrl+D</code> to toggle dark mode</li>
         <li>Use the Date Range button (📏) to select a range of dates</li>
-        <li>
-          Press <kbd>Shift+D</kbd> to download upcoming events as text</li>
+        <li>Press <kbd>Shift+D</kbd> to download upcoming events as Markdown</li>
         <li>Press <code>?</code> to toggle this help overlay</li>
         <li>Press <code>Esc</code> to close overlays or cancel range selection (and exit keyboard navigation mode)</li>
         <li>Press <code>g</code> to focus the "Jump to date" field</li>
@@ -1271,16 +1249,22 @@ top: 120px;
       requestAnimationFrame(() => { toast.style.opacity = '1'; });
       setTimeout(() => {
         toast.style.opacity = '0';
-        setTimeout(() => { if (toastContainer.contains(toast)) toastContainer.removeChild(toast); }, 300);
+        setTimeout(() => {
+          if (toastContainer.contains(toast)) toastContainer.removeChild(toast);
+        }, 300);
       }, duration);
     }
     function documentScrollTop() { return Math.max(document.body.scrollTop, document.documentElement.scrollTop); }
     function documentScrollHeight() { return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); }
-    function curve(x) { return (x < 0.5) ? (4 * x*x*x) : (1 - 4*(1 - x)*(1 - x)*(1 - x)); }
+    function curve(x) {
+      return (x < 0.5) ? (4 * x*x*x) : (1 - 4*(1 - x)*(1 - x)*(1 - x));
+    }
     function scrollAnimation() {
       const percent = (new Date() - startTime) / 1000;
-      if (percent > 1) { window.scrollTo(0, goalY); hideLoading(); }
-      else {
+      if (percent > 1) {
+        window.scrollTo(0, goalY);
+        hideLoading();
+      } else {
         const newY = Math.round(startY + (goalY - startY)*curve(percent));
         window.scrollTo(0, newY);
         setTimeout(scrollAnimation, 10);
@@ -1446,7 +1430,7 @@ top: 120px;
       }
     }
 
-   function noteKeyDownHandler(e) {
+    function noteKeyDownHandler(e) {
       recalculateHeight(this.id);
       if (e.ctrlKey || e.metaKey) {
         switch(e.key) {
@@ -1620,8 +1604,6 @@ top: 120px;
       section.style.padding = "5px";
       section.style.borderRadius = "5px";
 
-      // (REMOVED minHeight = "130px";)
-
       const monthHeader = document.createElement("div");
       monthHeader.textContent = months[month] + " " + year;
       monthHeader.style.textAlign = "center";
@@ -1656,8 +1638,6 @@ top: 120px;
       }
 
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      // Only create as many cells as needed for the actual days:
       for (let d = 1; d <= daysInMonth; d++) {
         const cell = document.createElement("div");
         cell.style.fontSize = '10px';
@@ -1679,7 +1659,6 @@ top: 120px;
         });
         grid.appendChild(cell);
       }
-
       section.appendChild(grid);
       container.appendChild(section);
     }
@@ -2221,177 +2200,180 @@ top: 120px;
       }
     }
 
-document.addEventListener("keydown", e => {
-  if (
-    e.target &&
-    (e.target.tagName.toLowerCase() === "textarea" || e.target.tagName.toLowerCase() === "input")
-  ) {
-    return;
-  }
-  // Command palette shortcuts:
-  if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
-    e.preventDefault();
-    showCommandPalette();
-    return;
-  }
-  // Quick date popup
-  if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    e.preventDefault();
-    showQuickDateInput();
-    return;
-  }
-  // Multi-select
-  if (e.key === 'm') {
-    e.preventDefault();
-    toggleMultiSelectMode();
-    return;
-  }
-  if (isMultiSelectMode) {
-    if (e.key === ' ') {
-      e.preventDefault();
-      toggleDaySelection();
-      return;
-    } else if (e.key === 'c' && e.ctrlKey) {
-      e.preventDefault();
-      performBatchAction('clear');
-      return;
-    } else if (e.key === 'n' && e.ctrlKey) {
-      e.preventDefault();
-      performBatchAction('add');
-      return;
-    }
-  }
-  // Check for Shift+D to download Org events
-  if (e.key === "D" && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
-    e.preventDefault();
-    downloadOrgEvents();
-    return;
-  }
-  switch (e.key) {
-    case "Escape":
-      if (document.getElementById("help").style.display === "block") {
-        hideHelp();
+    document.addEventListener("keydown", e => {
+      if (
+        e.target &&
+        (e.target.tagName.toLowerCase() === "textarea" || e.target.tagName.toLowerCase() === "input")
+      ) {
         return;
       }
-      if (document.getElementById("yearViewContainer").style.display === "block") {
-        hideYearView();
+      // Command palette shortcuts:
+      if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
+        e.preventDefault();
+        showCommandPalette();
         return;
       }
-      if (isSelectingRange) {
-        clearRangeSelection();
-        isSelectingRange = false;
-        showToast("Range selection cancelled");
+      // Quick date popup
+      if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        showQuickDateInput();
         return;
       }
-      if (keyboardFocusDate) {
-        keyboardFocusDate = null;
-        document.body.classList.remove('keyboard-nav-active');
-        document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
-        showToast("Keyboard navigation mode deactivated");
+      // Multi-select
+      if (e.key === 'm') {
+        e.preventDefault();
+        toggleMultiSelectMode();
+        return;
       }
-      break;
-    case "?":
-      e.preventDefault();
-      const helpElem = document.getElementById("help");
-      helpElem.style.display === "block" ? hideHelp() : showHelp();
-      break;
-    case "i":
-      e.preventDefault();
-      // Only activate keyboard navigation if not already active.
-      if (!document.body.classList.contains('keyboard-nav-active')) {
-        toggleKeyboardNavMode();
+      if (isMultiSelectMode) {
+        if (e.key === ' ') {
+          e.preventDefault();
+          toggleDaySelection();
+          return;
+        } else if (e.key === 'c' && e.ctrlKey) {
+          e.preventDefault();
+          performBatchAction('clear');
+          return;
+        } else if (e.key === 'n' && e.ctrlKey) {
+          e.preventDefault();
+          performBatchAction('add');
+          return;
+        }
       }
-      break;
-    case "q":
-    case "Q":
-      if (keyboardFocusDate) {
+
+      // NEW SHIFT+D => Download in Markdown:
+      if (e.key === "D" && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
         e.preventDefault();
-        keyboardFocusDate = null;
-        document.body.classList.remove('keyboard-nav-active');
-        document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
-        showToast("Keyboard navigation mode deactivated");
+        downloadMarkdownEvents();
+        return;
       }
-      break;
-    case "z":
-    case "Z":
-      if (e.ctrlKey && e.shiftKey) {
-        e.preventDefault();
-        redoLastChange();
-      } else if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        undoLastChange();
-      } else {
-        e.preventDefault();
-        undoLastChange();
+
+      switch (e.key) {
+        case "Escape":
+          if (document.getElementById("help").style.display === "block") {
+            hideHelp();
+            return;
+          }
+          if (document.getElementById("yearViewContainer").style.display === "block") {
+            hideYearView();
+            return;
+          }
+          if (isSelectingRange) {
+            clearRangeSelection();
+            isSelectingRange = false;
+            showToast("Range selection cancelled");
+            return;
+          }
+          if (keyboardFocusDate) {
+            keyboardFocusDate = null;
+            document.body.classList.remove('keyboard-nav-active');
+            document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
+            showToast("Keyboard navigation mode deactivated");
+          }
+          break;
+        case "?":
+          e.preventDefault();
+          const helpElem = document.getElementById("help");
+          helpElem.style.display === "block" ? hideHelp() : showHelp();
+          break;
+        case "i":
+          e.preventDefault();
+          // Only activate keyboard navigation if not already active.
+          if (!document.body.classList.contains('keyboard-nav-active')) {
+            toggleKeyboardNavMode();
+          }
+          break;
+        case "q":
+        case "Q":
+          if (keyboardFocusDate) {
+            e.preventDefault();
+            keyboardFocusDate = null;
+            document.body.classList.remove('keyboard-nav-active');
+            document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
+            showToast("Keyboard navigation mode deactivated");
+          }
+          break;
+        case "z":
+        case "Z":
+          if (e.ctrlKey && e.shiftKey) {
+            e.preventDefault();
+            redoLastChange();
+          } else if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            undoLastChange();
+          } else {
+            e.preventDefault();
+            undoLastChange();
+          }
+          break;
+        case "y":
+        case "Y":
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            redoLastChange();
+          } else {
+            e.preventDefault();
+            const yv = document.getElementById("yearViewContainer");
+            yv.style.display === "block" ? hideYearView() : showYearView();
+          }
+          break;
+        case "g":
+        case "G":
+          e.preventDefault();
+          const jump = document.getElementById("jumpDate");
+          if (jump) {
+            jump.focus();
+          }
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          stepDay(-1);
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          stepDay(1);
+          break;
+        case "ArrowUp":
+          if (e.altKey) {
+            e.preventDefault();
+            jumpOneMonthBackward();
+          } else if (keyboardFocusDate) {
+            e.preventDefault();
+            stepDay(-7);
+          }
+          break;
+        case "ArrowDown":
+          if (e.altKey) {
+            e.preventDefault();
+            jumpOneMonthForward();
+          } else if (keyboardFocusDate) {
+            e.preventDefault();
+            stepDay(7);
+          }
+          break;
+        case "Enter":
+          e.preventDefault();
+          createEventInFocusedDay();
+          break;
+        case "Delete":
+        case "Backspace":
+          e.preventDefault();
+          deleteEntriesForFocusedDay();
+          break;
+        case "t":
+        case "T":
+          todayDate = new Date(systemToday);
+          loadCalendarAroundDate(todayDate);
+          break;
+        default:
+          // Toggle dark mode with Ctrl+D
+          if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
+            e.preventDefault();
+            toggleDarkMode();
+          }
+          break;
       }
-      break;
-    case "y":
-    case "Y":
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        redoLastChange();
-      } else {
-        e.preventDefault();
-        const yv = document.getElementById("yearViewContainer");
-        yv.style.display === "block" ? hideYearView() : showYearView();
-      }
-      break;
-    case "g":
-    case "G":
-      e.preventDefault();
-      const jump = document.getElementById("jumpDate");
-      if (jump) {
-        jump.focus();
-      }
-      break;
-    case "ArrowLeft":
-      e.preventDefault();
-      stepDay(-1);
-      break;
-    case "ArrowRight":
-      e.preventDefault();
-      stepDay(1);
-      break;
-    case "ArrowUp":
-      if (e.altKey) {
-        e.preventDefault();
-        jumpOneMonthBackward();
-      } else if (keyboardFocusDate) {
-        e.preventDefault();
-        stepDay(-7);
-      }
-      break;
-    case "ArrowDown":
-      if (e.altKey) {
-        e.preventDefault();
-        jumpOneMonthForward();
-      } else if (keyboardFocusDate) {
-        e.preventDefault();
-        stepDay(7);
-      }
-      break;
-    case "Enter":
-      e.preventDefault();
-      createEventInFocusedDay();
-      break;
-    case "Delete":
-    case "Backspace":
-      e.preventDefault();
-      deleteEntriesForFocusedDay();
-      break;
-    case "t":
-    case "T":
-      todayDate = new Date(systemToday);
-      loadCalendarAroundDate(todayDate);
-      break;
-    default:
-      if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
-        e.preventDefault();
-        toggleDarkMode();
-      }
-      break;
-  }
-});
+    });
 
     document.addEventListener("click", evt => {
       const dayCell = evt.target.closest("td");
@@ -2827,409 +2809,120 @@ document.addEventListener("keydown", e => {
       }, 300);
     }
 
-
-function downloadOrgEvents() {
-  // Define the export range: starting today to one month from today.
-  let startDate = new Date();
-  startDate.setHours(0, 0, 0, 0);
-  let endDate = new Date(startDate);
-  endDate.setMonth(endDate.getMonth() + 1);
-
-  // Start with an empty string for the event output.
-  let orgText = "";
-  let currentDate = new Date(startDate);
-  let currentMonthYear = "";
-
-  // Iterate day-by-day through the range.
-  while (currentDate <= endDate) {
-    // Get the cell id (using your existing idForDate function)
-    const cellId = idForDate(currentDate);
-    // Look up events stored under this cell's id.
-    const eventList = localStorage[cellId];
-    // Only output the date if there are events.
-    if (eventList) {
-      // If this date's month/year is new, output a new month header.
-      const monthYear = currentDate.toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric"
-      });
-      if (monthYear !== currentMonthYear) {
-        orgText += `* ${monthYear}\n`;
-        currentMonthYear = monthYear;
-      }
-
-      // Format the date in org-mode format: <YYYY-MM-DD DDD>
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      const day = String(currentDate.getDate()).padStart(2, '0');
-      const dayAbbr = currentDate.toLocaleDateString("en-US", { weekday: "short" });
-      const formattedDate = `<${year}-${month}-${day} ${dayAbbr}>`;
-
-      orgText += `** ${formattedDate}\n`;
-
-      // Get the stored event IDs (comma-separated) and list each event.
-      const eventIds = eventList.split(",");
-      eventIds.forEach(eventId => {
-        const eventText = localStorage[eventId];
-        if (eventText && eventText.trim() !== "") {
-          orgText += `- ${eventText.trim()}\n`;
-        }
-      });
-      orgText += "\n"; // Blank line after each day.
-    }
-    // Move to the next day.
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  // Append the settings block at the end.
-  orgText += `* settings :noexport:
-# Customize timestamp formats for this file
-# Local Variables:
-# org-time-stamp-custom-formats: ("%a %b %d" . "<%d/%m/%Y %a %H:%M>")
-# End:
-`;
-
-  // Create a Blob from the output text and trigger the download.
-  const blob = new Blob([orgText], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "timeless-calendar-events.org";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast("Org-mode events downloaded!");
-
-  // Also copy the output to the clipboard using the Clipboard API.
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(orgText)
-      .then(() => showToast("Org-mode events copied to clipboard!"))
-      .catch(err => console.error("Failed to copy to clipboard:", err));
-  } else {
-    // Fallback for insecure contexts.
-    let textArea = document.createElement("textarea");
-    textArea.value = orgText;
-    textArea.style.position = "fixed";
-    textArea.style.top = "0";
-    textArea.style.left = "0";
-    textArea.style.opacity = "0";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try {
-      document.execCommand("copy");
-      showToast("Org-mode events copied to clipboard!");
-    } catch (err) {
-      console.error("Fallback: Unable to copy", err);
-    }
-    document.body.removeChild(textArea);
-  }
-}
-
-
-function buildDiaryExportText() {
-  // 1) Gather all date -> [events] in a dictionary
-  //    e.g. "1_5_2025" => ["Doctor's appt", "Pick up dry cleaning"]
-  let eventsByDate = {};
-
-  for (const key in localStorage) {
-    if (!localStorage.hasOwnProperty(key)) continue;
-    // Skip non-date keys like "nextId", "lastSavedTimestamp", etc.
-    if (!/^\d+_\d+_\d+$/.test(key)) continue;
-
-    const eventIds = localStorage[key].split(",");
-    const dayEvents = [];
-    eventIds.forEach(eid => {
-      const text = localStorage[eid];
-      if (text && text.trim() !== "") {
-        dayEvents.push(text.trim());
-      }
-    });
-    if (dayEvents.length > 0) {
-      eventsByDate[key] = dayEvents;
-    }
-  }
-
-  // 2) Convert those keys to real dates & sort
-  //    Each key is "month_day_year".
-  //    We'll store them as { dateObj, dateKey } so we can sort by dateObj.
-  let dateEntries = [];
-  for (let dateKey in eventsByDate) {
-    let [m, d, y] = dateKey.split("_").map(Number);
-    // JavaScript Date expects (year, zeroBasedMonth, day)
-    let dateObj = new Date(y, m, d);
-    dateEntries.push({ dateObj, dateKey });
-  }
-
-  dateEntries.sort((a, b) => a.dateObj - b.dateObj);
-
-  // 3) Build the output text in your desired format:
-  //    For each date, print "M/D/YYYY" on one line,
-  //    then each event prefixed by "- ", and a blank line after each block.
-  let lines = [];
-  dateEntries.forEach(entry => {
-    const dateObj = entry.dateObj;
-    let [month, day, year] = [
-      dateObj.getMonth() + 1,
-      dateObj.getDate(),
-      dateObj.getFullYear(),
-    ];
-
-    // Print date line: e.g. "2/20/2025"
-    lines.push(`${month}/${day}/${year}`);
-
-    // Print each event bullet
-    eventsByDate[entry.dateKey].forEach(ev => {
-      lines.push(`- ${ev}`);
-    });
-
-    // Blank line after each date block
-    lines.push("");
-  });
-
-  return lines.join("\n");
-}
-
-/*
- * Export Emacs diary format lines to a file on disk.
- * For modern browsers supporting File System Access API,
- * we can let the user pick or remember 'jay-diary.org'.
- */
-async function exportToDiaryFile() {
-  try {
-    showLoading();
-
-    const diaryText = buildDiaryExportText(); // new grouped format
-
-    // Use File System Access API (or some other approach)
-    const fileOpts = {
-      suggestedName: "jay-diary.org",
-      types: [
-        {
-          description: "Emacs Diary File",
-          accept: { "text/plain": [".org", ".txt"] }
-        }
-      ]
-    };
-    const fileHandle = await window.showSaveFilePicker(fileOpts);
-    const writable = await fileHandle.createWritable();
-    await writable.write(diaryText);
-    await writable.close();
-
-    hideLoading();
-    showToast("Diary exported successfully!");
-  } catch (err) {
-    hideLoading();
-    console.error("Export error:", err);
-    showToast("Export canceled or failed.");
-  }
-}
-
-/**
- * Attempt to parse a single Emacs diary line.
- * Returns an array of { date: Date, text: string }
- * Because one diary line can generate multiple dates if it's weekly, wildcard, etc.
- * For now, we only handle the simplest forms:
- *   M/D[/YYYY] ...
- *   monthName day[, year]
- *   dayOfWeek  (for weekly events)
-  */
-function parseDiaryLine(line) {
-  line = line.trim();
-  if (!line) return [];
-
-
-  // 0) If line starts with '*', treat it as an org-mode heading. Skip it.
-  if (line.startsWith("*")) {
-    return [];
-  }
-
-  //   Now do the regular diary parsing checks:
-  //    (numeric dates, month names, wildcards, day-of-week, etc.)
-
-
-  // 1) Check numeric date with optional year: e.g. "4/20/2012"
-  let mdy = line.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\s+(.*)/i);
-  if (mdy) {
-    let [, M, D, Y, text] = mdy;
-    M = Number(M);
-    D = Number(D);
-    Y = Y ? Number(Y) : (new Date().getFullYear()); // if no year specified => this year
-    // Return a single date
-    let dt = new Date(Y, M - 1, D);
-    return [{ date: dt, text }];
-  }
-
-  // 2) Check for named month: e.g. "April 25, 2025 text" or "apr. 25 text"
-  let monthNameMatch = line.match(/^((jan|feb|mar|apr|may|jun|jul|aug|sept|sep|oct|nov|dec)\.?)(?:[a-z]*)?\s+(\d{1,2})(?:,\s*(\d{2,4}))?\s+(.*)/i);
-  if (monthNameMatch) {
-    let [, monthStr, , dayStr, yearStr, text] = monthNameMatch;
-    let M = parseMonthName(monthStr);
-    let D = Number(dayStr);
-    let Y = yearStr ? Number(yearStr) : (new Date().getFullYear());
-    let dt = new Date(Y, M - 1, D);
-    return [{ date: dt, text }];
-  }
-
-  // 3) Check for wildcard monthly form, e.g. "*/25 Something"
-  let wildcardDay = line.match(/^\*\/(\d{1,2})\s+(.*)/);
-  if (wildcardDay) {
-    // Means day of month = N, month = any
-    // You might decide to expand this for the next 3 months:
-    let dayNum = Number(wildcardDay[1]);
-    let text = wildcardDay[2];
-    // Generate a set of date expansions. For example, produce the next 3 months of events.
-    let results = [];
-    let now = new Date();
-    for (let i = 0; i < 3; i++) {
-      let Y = now.getFullYear();
-      let M = now.getMonth() + i; // expand i months ahead
-      let dateObj = new Date(Y, M, dayNum);
-      // skip if dayNum doesn't exist in that month
-      if (dateObj.getMonth() === (M % 12)) {
-        results.push({ date: dateObj, text });
-      }
-    }
-    return results;
-  }
-
-  // 4) Check for day-of-week (like "Friday Lunch with Bob")
-  //    We expand for the next 4 weeks or so.
-  let dayOfWeek = line.match(/^(monday|tuesday|tues|wednesday|thursday|thurs|friday|saturday|sunday)\s+(.*)/i);
-  if (dayOfWeek) {
-    let dayName = dayOfWeek[1].toLowerCase();
-    let text = dayOfWeek[2];
-    // Convert dayName to an integer (0=Sunday..6=Saturday).
-    let targetDow = parseDayOfWeek(dayName);
-    // Expand for next 4 or 5 weeks
-    let results = [];
-    let start = new Date();
-    for (let i = 0; i < 35; i++) {
-      let d = new Date(start);
-      d.setDate(d.getDate() + i);
-      if (d.getDay() === targetDow) {
-        results.push({ date: d, text });
-      }
-    }
-    return results;
-  }
-
-  // If no pattern matched, return empty. Or you could store it as raw text.
-  return [];
-}
-
-function parseMonthName(mStr) {
-  mStr = mStr.toLowerCase().replace(/\./, ''); // remove trailing dot
-  const months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","sept","oct","nov","dec"];
-  let idx = months.indexOf(mStr.substring(0,3));
-  return (idx >= 0) ? idx + 1 : 1; // default to January if unrecognized
-}
-
-function parseDayOfWeek(dow) {
-  // Convert e.g. 'monday' => 1, 'friday' => 5, etc. (0=Sunday in JS)
-  // We'll unify partial matches like "tues" => 2
-  dow = dow.slice(0,3);
-  let map = {
-    sun: 0, mon: 1, tue: 2, wed: 3,
-    thu: 4, fri: 5, sat: 6
-  };
-  if (map[dow] !== undefined) return map[dow];
-  return 0; // default Sunday
-}
-
-/*
- * Reads an Emacs diary file from disk, parses each line, and updates localStorage.
- * Overwrites existing events for matching dates, or appends new ones, depending on your preference.
- */
-async function importFromDiaryFile() {
-  try {
-    showLoading();
-
-    // Let user pick the .org or text file
-    const [handle] = await window.showOpenFilePicker({
-      multiple: false,
-      types: [
-        {
-          description: "Emacs Diary File",
-          accept: { "text/plain": [".org", ".txt"] }
-        }
-      ]
-    });
-
-    const file = await handle.getFile();
-    const text = await file.text();
-    const lines = text.split(/\r?\n/);
-
-    // Regex to detect lines that are just "M/D/YYYY" with no trailing text
-    const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
-
-    let currentDateKey = null;
-    let eventsByDate = {};
-
-    for (const rawLine of lines) {
-      let line = rawLine.trim();
-
-      // Skip empty lines or headings like "* March 2025"
-      if (!line || line.startsWith("*")) {
-        continue;
-      }
-
-      // Check if line is a date line: "2/20/2025"
-      let match = line.match(dateRegex);
-      if (match) {
-        let [, M, D, Y] = match.map(Number);
-        // Timeless localStorage uses zero-based month in the key: "month_day_year"
-        // So we do (M-1) for the real date object.
-        let dateObj = new Date(Y, M - 1, D);
-        currentDateKey = `${dateObj.getMonth()}_${dateObj.getDate()}_${dateObj.getFullYear()}`;
-        if (!eventsByDate[currentDateKey]) {
-          eventsByDate[currentDateKey] = [];
-        }
-        continue;
-      }
-
-      // If line starts with "- ", treat it as an event for the current date
-      if (line.startsWith("-")) {
-        let eventText = line.replace(/^-+/, "").trim(); // remove leading "- " or "-- "
-        if (eventText && currentDateKey) {
-          eventsByDate[currentDateKey].push(eventText);
+    /* ---------------------
+       NEW MARKDOWN EXPORT
+   ---------------------- */
+    function downloadMarkdownEvents() {
+      // Gather date => [events]
+      // We'll gather ALL events in localStorage that match the pattern "M_D_YYYY"
+      const dateMap = {};
+      for (let key in localStorage) {
+        if (!localStorage.hasOwnProperty(key)) continue;
+        // Only date-keys: e.g. "2_20_2025"
+        if (/^\d+_\d+_\d+$/.test(key)) {
+          const items = localStorage[key].split(",");
+          const events = [];
+          items.forEach(eid => {
+            const txt = localStorage[eid];
+            if (txt && txt.trim() !== "") {
+              events.push(txt.trim());
+            }
+          });
+          if (events.length > 0) {
+            dateMap[key] = events;
+          }
         }
       }
-    }
 
-    // 3) Now store them in localStorage
-    pushUndoState(); // So we can undo if needed
+      // Convert each key into a Date, group by year and month
+      // dateKey = "month_day_year"
+      const structured = {}; // structured[year][monthIndex] = [{ day, events[] }]
+      for (let dateKey in dateMap) {
+        const [m, d, y] = dateKey.split("_").map(Number);
+        const dt = new Date(y, m, d);
+        const year = dt.getFullYear();
+        const month = dt.getMonth(); // 0-based
+        const day = dt.getDate();
+        if (!structured[year]) {
+          structured[year] = {};
+        }
+        if (!structured[year][month]) {
+          structured[year][month] = [];
+        }
+        structured[year][month].push({ day, events: dateMap[dateKey] });
+      }
 
-    for (let dateKey in eventsByDate) {
-      // Gather existing item IDs for that day
-      let existingIds = localStorage[dateKey] ? localStorage[dateKey].split(",") : [];
+      // Sort by month, then by day
+      const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
 
-      for (let text of eventsByDate[dateKey]) {
-        // Check if we already have this exact text to avoid duplicates
-        let isDuplicate = existingIds.some(id => localStorage[id] === text);
-        if (!isDuplicate) {
-          let newId = nextItemId();
-          localStorage[newId] = text;
-          existingIds.push(newId);
+      let mdLines = [];
+      for (let y of years) {
+        // Year heading: "# 2025"
+        mdLines.push(`# ${y}`);
+
+        // Month keys in ascending order
+        const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
+        for (let m of monthsInYear) {
+          const monthName = months[m];
+          // Month heading: "** February 2025"
+          mdLines.push(`** ${monthName} ${y}`);
+
+          // Sort days ascending
+          structured[y][m].sort((a, b) => a.day - b.day);
+          // For each day block:
+          structured[y][m].forEach(obj => {
+            const dayStr = `${m + 1}/${obj.day}/${y}`;
+            mdLines.push(dayStr);
+            // Each event
+            obj.events.forEach(ev => {
+              mdLines.push(`  - ${ev}`);
+            });
+            mdLines.push(""); // blank line after each date block
+          });
         }
       }
-      // Store the updated list of item IDs
-      localStorage[dateKey] = existingIds.join(",");
+
+      const finalText = mdLines.join("\n");
+
+      // Download as .md
+      const blob = new Blob([finalText], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "timeless-calendar-events.md";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("Markdown events downloaded!");
+
+      // Copy to clipboard
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(finalText)
+          .then(() => showToast("Markdown events copied to clipboard!"))
+          .catch(err => console.error("Failed to copy to clipboard:", err));
+      } else {
+        // fallback
+        let textArea = document.createElement("textarea");
+        textArea.value = finalText;
+        textArea.style.position = "fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          showToast("Markdown events copied to clipboard!");
+        } catch (err) {
+          console.error("Fallback: Unable to copy", err);
+        }
+        document.body.removeChild(textArea);
+      }
     }
 
-    hideLoading();
-    showToast("Diary imported successfully!");
-    loadCalendarAroundDate(todayDate);
-
-  } catch (err) {
-    hideLoading();
-    console.error("Import error:", err);
-    showToast("Import canceled or failed.");
-  }
-}
-
-
+    /* REMAINING FILE HANDLING FOR SYNC */
     async function loadDataFromFileHandle(fileHandle) {
       try {
         const file = await fileHandle.getFile();
@@ -3264,6 +2957,147 @@ async function importFromDiaryFile() {
         hideLoading();
         console.error("Error saving data to file:", err);
         showToast("Error saving calendar data");
+      }
+    }
+
+    /* EMACS DIARY IMPORT/EXPORT (unchanged from your existing code) */
+    async function exportToDiaryFile() {
+      try {
+        showLoading();
+        const diaryText = buildDiaryExportText(); // existing diary format
+        const fileOpts = {
+          suggestedName: "jay-diary.org",
+          types: [
+            {
+              description: "Emacs Diary File",
+              accept: { "text/plain": [".org", ".txt"] }
+            }
+          ]
+        };
+        const fileHandle = await window.showSaveFilePicker(fileOpts);
+        const writable = await fileHandle.createWritable();
+        await writable.write(diaryText);
+        await writable.close();
+
+        hideLoading();
+        showToast("Diary exported successfully!");
+      } catch (err) {
+        hideLoading();
+        console.error("Export error:", err);
+        showToast("Export canceled or failed.");
+      }
+    }
+
+    function buildDiaryExportText() {
+      // existing logic from your code
+      let eventsByDate = {};
+      for (const key in localStorage) {
+        if (!localStorage.hasOwnProperty(key)) continue;
+        if (!/^\d+_\d+_\d+$/.test(key)) continue;
+        const eventIds = localStorage[key].split(",");
+        const dayEvents = [];
+        eventIds.forEach(eid => {
+          const text = localStorage[eid];
+          if (text && text.trim() !== "") {
+            dayEvents.push(text.trim());
+          }
+        });
+        if (dayEvents.length > 0) {
+          eventsByDate[key] = dayEvents;
+        }
+      }
+
+      let dateEntries = [];
+      for (let dateKey in eventsByDate) {
+        let [m, d, y] = dateKey.split("_").map(Number);
+        let dateObj = new Date(y, m, d);
+        dateEntries.push({ dateObj, dateKey });
+      }
+      dateEntries.sort((a, b) => a.dateObj - b.dateObj);
+
+      let lines = [];
+      dateEntries.forEach(entry => {
+        const dateObj = entry.dateObj;
+        let [month, day, year] = [
+          dateObj.getMonth() + 1,
+          dateObj.getDate(),
+          dateObj.getFullYear(),
+        ];
+        lines.push(`${month}/${day}/${year}`);
+        eventsByDate[entry.dateKey].forEach(ev => {
+          lines.push(`- ${ev}`);
+        });
+        lines.push("");
+      });
+
+      return lines.join("\n");
+    }
+
+    async function importFromDiaryFile() {
+      try {
+        showLoading();
+        const [handle] = await window.showOpenFilePicker({
+          multiple: false,
+          types: [
+            {
+              description: "Emacs Diary File",
+              accept: { "text/plain": [".org", ".txt"] }
+            }
+          ]
+        });
+        const file = await handle.getFile();
+        const text = await file.text();
+        const lines = text.split(/\r?\n/);
+
+        const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+        let currentDateKey = null;
+        let eventsByDate = {};
+
+        for (const rawLine of lines) {
+          let line = rawLine.trim();
+          if (!line || line.startsWith("*")) {
+            continue;
+          }
+          let match = line.match(dateRegex);
+          if (match) {
+            let [, M, D, Y] = match.map(Number);
+            let dateObj = new Date(Y, M - 1, D);
+            currentDateKey = `${dateObj.getMonth()}_${dateObj.getDate()}_${dateObj.getFullYear()}`;
+            if (!eventsByDate[currentDateKey]) {
+              eventsByDate[currentDateKey] = [];
+            }
+            continue;
+          }
+          if (line.startsWith("-")) {
+            let eventText = line.replace(/^-+/, "").trim();
+            if (eventText && currentDateKey) {
+              eventsByDate[currentDateKey].push(eventText);
+            }
+          }
+        }
+
+        pushUndoState();
+        for (let dateKey in eventsByDate) {
+          let existingIds = localStorage[dateKey] ? localStorage[dateKey].split(",") : [];
+          for (let text of eventsByDate[dateKey]) {
+            let isDuplicate = existingIds.some(id => localStorage[id] === text);
+            if (!isDuplicate) {
+              let newId = nextItemId();
+              localStorage[newId] = text;
+              existingIds.push(newId);
+            }
+          }
+          localStorage[dateKey] = existingIds.join(",");
+        }
+
+        hideLoading();
+        showToast("Diary imported successfully!");
+        loadCalendarAroundDate(todayDate);
+
+      } catch (err) {
+        hideLoading();
+        console.error("Import error:", err);
+        showToast("Import canceled or failed.");
       }
     }
   </script>
