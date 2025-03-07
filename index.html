@@ -1118,17 +1118,25 @@ top: 120px;
       </a>
 
 
-<a href="#" class="button" onclick="downloadOrgEvents()" data-tooltip="Download as Text">
-  <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+
+<!-- For Export Emacs Diary (arrow up from box) -->
+<a href="#" class="button" onclick="exportToDiaryFile()" data-tooltip="Export Emacs Diary">
+<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
+
   </svg>
 </a>
 
-<a href="#" class="button" onclick="exportToDiaryFile()" data-tooltip="Export Emacs Diary">
-  <svg class="icon" ...> ... </svg>
-</a>
+<!-- For Import from Emacs Diary (arrow down into box) -->
 <a href="#" class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
-  <svg class="icon" ...> ... </svg>
+  <svg class="icon" viewBox="0 0 24 24">
+    <!-- Box shape -->
+    <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"
+          stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Arrow pointing down into the box -->
+    <path d="M12 12v4" stroke="currentColor" stroke-width="2"/>
+    <path d="M10 14l2 2l2 -2" stroke="currentColor" stroke-width="2"/>
+  </svg>
 </a>
 
       <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">
@@ -3030,9 +3038,7 @@ async function exportToDiaryFile() {
  *   M/D[/YYYY] ...
  *   monthName day[, year]
  *   dayOfWeek  (for weekly events)
- *   */D        (monthly on day D)
- *   M/*        (every day in month M)
- */
+  */
 function parseDiaryLine(line) {
   line = line.trim();
   if (!line) return [];
