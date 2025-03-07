@@ -3002,30 +3002,31 @@ function buildDiaryExportText() {
  */
 async function exportToDiaryFile() {
   try {
-    // 1) Build the diary text
-    const diaryText = buildDiaryExportText();
+    showLoading();
 
-    // 2) Use File System Access API (if supported)
-    const opts = {
+    const diaryText = buildDiaryExportText(); // new grouped format
+
+    // Use File System Access API (or some other approach)
+    const fileOpts = {
       suggestedName: "jay-diary.org",
       types: [
         {
-          description: "Emacs Diary Files",
+          description: "Emacs Diary File",
           accept: { "text/plain": [".org", ".txt"] }
         }
       ]
     };
-
-    // Let user pick the file to overwrite:
-    const fileHandle = await window.showSaveFilePicker(opts);
+    const fileHandle = await window.showSaveFilePicker(fileOpts);
     const writable = await fileHandle.createWritable();
     await writable.write(diaryText);
     await writable.close();
 
-    showToast("Diary exported to " + fileHandle.name);
+    hideLoading();
+    showToast("Diary exported successfully!");
   } catch (err) {
-    console.error("exportToDiaryFile error:", err);
-    showToast("Export canceled or failed");
+    hideLoading();
+    console.error("Export error:", err);
+    showToast("Export canceled or failed.");
   }
 }
 
@@ -3148,12 +3149,14 @@ function parseDayOfWeek(dow) {
 async function importFromDiaryFile() {
   try {
     showLoading();
+
+    // Let user pick the .org or text file
     const [handle] = await window.showOpenFilePicker({
       multiple: false,
       types: [
         {
           description: "Emacs Diary File",
-          accept: {"text/plain": [".org", ".txt", ".text"]}
+          accept: { "text/plain": [".org", ".txt"] }
         }
       ]
     });
@@ -3162,60 +3165,71 @@ async function importFromDiaryFile() {
     const text = await file.text();
     const lines = text.split(/\r?\n/);
 
-    // We'll gather results in an in-memory map: dateKey => [event strings]
-    // where dateKey is "month_day_year" matching the Timeless code
+    // Regex to detect lines that are just "M/D/YYYY" with no trailing text
+    const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+
+    let currentDateKey = null;
     let eventsByDate = {};
 
-    for (const line of lines) {
-      // parse the line
-      let parsed = parseDiaryLine(line);
-      // e.g. parsed = [ { date: Date(...), text: "some event" }, ...multiple? ]
-      for (let p of parsed) {
-        let dt = p.date;
-        let event = p.text.trim();
-        if (!event) continue;
-        let key = `${dt.getMonth()}_${dt.getDate()}_${dt.getFullYear()}`;
+    for (const rawLine of lines) {
+      let line = rawLine.trim();
 
-        if (!eventsByDate[key]) {
-          eventsByDate[key] = [];
+      // Skip empty lines or headings like "* March 2025"
+      if (!line || line.startsWith("*")) {
+        continue;
+      }
+
+      // Check if line is a date line: "2/20/2025"
+      let match = line.match(dateRegex);
+      if (match) {
+        let [, M, D, Y] = match.map(Number);
+        // Timeless localStorage uses zero-based month in the key: "month_day_year"
+        // So we do (M-1) for the real date object.
+        let dateObj = new Date(Y, M - 1, D);
+        currentDateKey = `${dateObj.getMonth()}_${dateObj.getDate()}_${dateObj.getFullYear()}`;
+        if (!eventsByDate[currentDateKey]) {
+          eventsByDate[currentDateKey] = [];
         }
-        eventsByDate[key].push(event);
+        continue;
+      }
+
+      // If line starts with "- ", treat it as an event for the current date
+      if (line.startsWith("-")) {
+        let eventText = line.replace(/^-+/, "").trim(); // remove leading "- " or "-- "
+        if (eventText && currentDateKey) {
+          eventsByDate[currentDateKey].push(eventText);
+        }
       }
     }
 
-    // Now we store them in localStorage.
-    // For each day key, we create new items with nextItemId() etc.
-    pushUndoState(); // so we can undo
+    // 3) Now store them in localStorage
+    pushUndoState(); // So we can undo if needed
+
     for (let dateKey in eventsByDate) {
-      // Retrieve or init the list of item IDs
-      let existingItemIds = localStorage[dateKey] ? localStorage[dateKey].split(",") : [];
-      // Create new item IDs for these events
+      // Gather existing item IDs for that day
+      let existingIds = localStorage[dateKey] ? localStorage[dateKey].split(",") : [];
+
       for (let text of eventsByDate[dateKey]) {
-        // If that exact text is already present, skip to avoid duplicates
-        let isDuplicate = false;
-        for (let itemId of existingItemIds) {
-          if (localStorage[itemId] && localStorage[itemId] === text) {
-            isDuplicate = true;
-            break;
-          }
-        }
+        // Check if we already have this exact text to avoid duplicates
+        let isDuplicate = existingIds.some(id => localStorage[id] === text);
         if (!isDuplicate) {
           let newId = nextItemId();
           localStorage[newId] = text;
-          existingItemIds.push(newId);
+          existingIds.push(newId);
         }
       }
-      localStorage[dateKey] = existingItemIds.join(",");
+      // Store the updated list of item IDs
+      localStorage[dateKey] = existingIds.join(",");
     }
 
     hideLoading();
-    showToast("Diary imported successfully");
-    // Then reload your calendar
+    showToast("Diary imported successfully!");
     loadCalendarAroundDate(todayDate);
+
   } catch (err) {
     hideLoading();
-    console.error("importFromDiaryFile error:", err);
-    showToast("Import canceled or failed");
+    console.error("Import error:", err);
+    showToast("Import canceled or failed.");
   }
 }
 
