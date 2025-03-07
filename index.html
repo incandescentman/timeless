@@ -1119,26 +1119,21 @@ top: 120px;
 
 
 
-<!-- For Export Emacs Diary (arrow up from box) -->
+<!-- Export Emacs Diary (arrow UP) -->
 <a href="#" class="button" onclick="exportToDiaryFile()" data-tooltip="Export Emacs Diary">
-<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <!-- Arrow pointing upward, plus horizontal bar at the bottom -->
     <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
-
   </svg>
 </a>
 
-<!-- For Import from Emacs Diary (arrow down into box) -->
+<!-- Import from Emacs Diary (arrow DOWN) -->
 <a href="#" class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
-  <svg class="icon" viewBox="0 0 24 24">
-    <!-- Box shape -->
-    <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"
-          stroke="currentColor" stroke-width="2" fill="none"/>
-    <!-- Arrow pointing down into the box -->
-    <path d="M12 12v4" stroke="currentColor" stroke-width="2"/>
-    <path d="M10 14l2 2l2 -2" stroke="currentColor" stroke-width="2"/>
+  <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <!-- Exact vertical mirror of the above arrow, with the bar at the top -->
+    <path d="M12 8l4 4h-3v8h-2v-8H8l4-4zm-7-2h14v2H5v-2z"/>
   </svg>
 </a>
-
       <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">
         <svg class="icon" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
