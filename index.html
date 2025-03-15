@@ -2258,7 +2258,16 @@ function showCommandPalette() {
       }
     }
 
-    document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
+  // If the palette is open, let the handleCommandNavigation code handle it
+  const palette = document.getElementById("command-palette");
+  if (palette && palette.classList.contains("active")) {
+    // Do nothing here; return early so we don't also intercept Escape
+    return;
+  }
+
+  // (otherwise do your existing global Esc logic, e.g. closing help, etc.)
+
       if (
         e.target &&
         (e.target.tagName.toLowerCase() === "textarea" || e.target.tagName.toLowerCase() === "input")
