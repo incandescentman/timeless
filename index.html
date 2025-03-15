@@ -1304,6 +1304,8 @@
       document.body.classList.toggle("dark-mode");
       localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
       showToast(document.body.classList.contains("dark-mode") ? "Dark mode enabled" : "Light mode enabled");
+  saveDataToServer();
+
     }
     function pushUndoState() {
       // Clear redo stack on new action
@@ -1338,6 +1340,9 @@
       const data = JSON.parse(lastSnap);
       for (const k in data) {
         localStorage.setItem(k, data[k]);
+
+  saveDataToServer();
+
       }
       loadCalendarAroundDate(todayDate);
       showToast("Undo applied");
@@ -1353,6 +1358,7 @@
       const data = JSON.parse(nextState);
       for (const k in data) {
         localStorage.setItem(k, data[k]);
+  saveDataToServer();
       }
       loadCalendarAroundDate(todayDate);
       showToast("Redo applied");
@@ -1382,6 +1388,7 @@
         localStorage[iso] = ta.value;
       }
       localStorage.setItem("lastSavedTimestamp", Date.now());
+  saveDataToServer();
       processNoteTags(ta);
     }
     function processNoteTags(textarea) {
@@ -2667,16 +2674,17 @@
       );
     }
 
-    window.onload = function() {
+   window.onload = async function() {
+      await loadDataFromServer();
       calendarTableElement = document.getElementById("calendar");
       todayDate = new Date(systemToday);
       loadCalendarAroundDate(todayDate);
 
       if ('IntersectionObserver' in window) {
-        setupScrollObservers();
+         setupScrollObservers();
       } else {
-        // fallback
-        setInterval(checkInfiniteScroll, 100);
+         // fallback
+         setInterval(checkInfiniteScroll, 100);
       }
 
       const j = document.getElementById("jumpDate");
@@ -2746,6 +2754,7 @@
           for (const key in data) {
             if (data.hasOwnProperty(key)) {
               localStorage.setItem(key, data[key]);
+  saveDataToServer();
             }
           }
           showToast("Data loaded successfully!");
@@ -2946,6 +2955,7 @@ async function downloadMarkdownEvents() {
       // Serialize it (though it won't truly re-hydrate from localStorage)
       const serialized = await serializeDirectoryHandle(dirHandle);
       localStorage.setItem("myDirectoryHandle", serialized);
+  saveDataToServer();
     } catch (err) {
       console.error("User canceled picking directory or permission denied:", err);
       showToast("Canceled or no permission to pick directory");
@@ -2999,6 +3009,7 @@ async function downloadMarkdownEvents() {
         for (const key in data) {
           if (data.hasOwnProperty(key)) {
             localStorage.setItem(key, data[key]);
+  saveDataToServer();
           }
         }
         showToast("Loaded calendar data from file");
@@ -3072,6 +3083,45 @@ async function downloadMarkdownEvents() {
 
       return lines.join("\n");
     }
+
+async function loadDataFromServer() {
+  try {
+    const response = await fetch('api.php');
+    const data = await response.json();
+
+    // Clear existing localStorage and populate from the fetched data
+    localStorage.clear();
+    for (let key in data) {
+      localStorage.setItem(key, data[key]);
+  saveDataToServer();
+    }
+    console.log("Loaded from server successfully");
+  } catch (err) {
+    console.error("Error loading from server:", err);
+  }
+}
+
+async function saveDataToServer() {
+  // Gather all localStorage data into an object
+  const allData = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    allData[key] = localStorage.getItem(key);
+  }
+
+  try {
+    const resp = await fetch('api.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(allData)
+    });
+    const result = await resp.json();
+    console.log("Server save result:", result);
+  } catch (err) {
+    console.error("Error saving to server:", err);
+  }
+}
+
 
     async function importFromDiaryFile() {
       try {
