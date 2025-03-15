@@ -2685,48 +2685,68 @@
       );
     }
 
-   window.onload = async function() {
-      await loadDataFromServer();
-      calendarTableElement = document.getElementById("calendar");
-      todayDate = new Date(systemToday);
-      loadCalendarAroundDate(todayDate);
+window.onload = async function() {
+  // 1. Load from server one time (could be optional)
+  await loadDataFromServer();
 
-      if ('IntersectionObserver' in window) {
-         setupScrollObservers();
-      } else {
-         // fallback
-         setInterval(checkInfiniteScroll, 100);
-      }
+  // 2. Once-a-day check
+  let lastPulledDate = localStorage.getItem("lastPulledDate") || "";
+  const todayString = new Date().toDateString();
+  if (lastPulledDate !== todayString) {
+    localStorage.setItem("lastPulledDate", todayString);
+    // Call pullUpdatesFromServer but skip the confirm
+    await pullUpdatesFromServer(false);
+  }
 
-      const j = document.getElementById("jumpDate");
-      if (j) {
-        const sys = new Date();
-        j.value =
-          sys.getFullYear() +
-          "-" +
-          String(sys.getMonth() + 1).padStart(2, '0') +
-          "-" +
-          String(sys.getDate()).padStart(2, '0');
-      }
+  // 3. Proceed as normal
+  calendarTableElement = document.getElementById("calendar");
+  todayDate = new Date(systemToday);
+  loadCalendarAroundDate(todayDate);
 
-      if (localStorage.getItem("darkMode") === "enabled") {
-        document.body.classList.add("dark-mode");
-      }
+  // 2) This sets up the infinite scrolling watchers
+  if ('IntersectionObserver' in window) {
+    setupScrollObservers();
+  } else {
+    setInterval(checkInfiniteScroll, 100);
+  }
 
-      setTimeout(recalculateAllHeights, 100);
+  // 3) Optionally auto-pull from server if we haven't yet today:
+  let lastPulledDate = localStorage.getItem("lastPulledDate") || "";
+  const todayString = new Date().toDateString();
+  if (lastPulledDate !== todayString) {
+    localStorage.setItem("lastPulledDate", todayString);
+    await pullUpdatesFromServer();  // or just call your function to load from server
+  }
 
-      window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
-      updateStickyMonthHeader();
+  // 4) Misc existing setup
+  const j = document.getElementById("jumpDate");
+  if (j) {
+    const sys = new Date();
+    j.value = sys.getFullYear() + "-" +
+              String(sys.getMonth() + 1).padStart(2, '0') + "-" +
+              String(sys.getDate()).padStart(2, '0');
+  }
 
-      window.addEventListener('scroll', () => {
-        const header = document.getElementById('header');
-        if (window.scrollY > 50) {
-          header.classList.add('solid');
-        } else {
-          header.classList.remove('solid');
-        }
-      });
-    };
+  if (localStorage.getItem("darkMode") === "enabled") {
+    document.body.classList.add("dark-mode");
+  }
+
+  setTimeout(recalculateAllHeights, 100);
+
+  window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
+  updateStickyMonthHeader();
+
+  window.addEventListener('scroll', () => {
+    const header = document.getElementById('header');
+    if (window.scrollY > 50) {
+      header.classList.add('solid');
+    } else {
+      header.classList.remove('solid');
+    }
+  });
+};
+
+
 
     function downloadLocalStorageData() {
       showLoading();
@@ -3164,14 +3184,17 @@ async function saveDataToServer() {
   }
 }
 
-async function pullUpdatesFromServer() {
-  const confirmed = confirm("Pull server data? This may overwrite your local changes if they're not saved.");
-  if (!confirmed) return;
+async function pullUpdatesFromServer(confirmNeeded = true) {
+  // If we still want a prompt for manual pulls:
+  if (confirmNeeded) {
+    const confirmed = confirm("Pull server data? This may overwrite local changes if they're not saved.");
+    if (!confirmed) return;
+  }
 
   showLoading();
   try {
+    // This might be 'api.php' or 'calendar_data.json' directly
     const response = await fetch('api.php');
-    // or fetch('calendar_data.json') if you're directly loading a JSON file
     const data = await response.json();
 
     // Overwrite localStorage
@@ -3180,10 +3203,8 @@ async function pullUpdatesFromServer() {
       localStorage.setItem(key, data[key]);
     }
 
-    // Reload the calendar (or call loadCalendarAroundDate())
     loadCalendarAroundDate(todayDate);
     showToast("Pulled latest data from server");
-
   } catch (err) {
     console.error("Error pulling from server:", err);
     showToast("Failed to pull updates from server");
