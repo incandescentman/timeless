@@ -1304,9 +1304,7 @@
       document.body.classList.toggle("dark-mode");
       localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
       showToast(document.body.classList.contains("dark-mode") ? "Dark mode enabled" : "Light mode enabled");
-  saveDataToServer();
-
-    }
+      }
     function pushUndoState() {
       // Clear redo stack on new action
       redoStack = [];
@@ -1340,9 +1338,6 @@
       const data = JSON.parse(lastSnap);
       for (const k in data) {
         localStorage.setItem(k, data[k]);
-
-  saveDataToServer();
-
       }
       loadCalendarAroundDate(todayDate);
       showToast("Undo applied");
@@ -1358,8 +1353,7 @@
       const data = JSON.parse(nextState);
       for (const k in data) {
         localStorage.setItem(k, data[k]);
-  saveDataToServer();
-      }
+        }
       loadCalendarAroundDate(todayDate);
       showToast("Redo applied");
     }
@@ -1388,8 +1382,7 @@
         localStorage[iso] = ta.value;
       }
       localStorage.setItem("lastSavedTimestamp", Date.now());
-  saveDataToServer();
-      processNoteTags(ta);
+        processNoteTags(ta);
     }
     function processNoteTags(textarea) {
       const parent = textarea.parentNode;
@@ -3091,9 +3084,10 @@ async function loadDataFromServer() {
 
     // Clear existing localStorage and populate from the fetched data
     localStorage.clear();
-    for (let key in data) {
-      localStorage.setItem(key, data[key]);
-  saveDataToServer();
+for (let key in data) {
+  localStorage.setItem(key, data[key]);
+}
+saveDataToServer(); // Just once at the end
     }
     console.log("Loaded from server successfully");
   } catch (err) {
