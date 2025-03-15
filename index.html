@@ -1090,7 +1090,7 @@
           <path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none"/>
         </svg>
       </a>
-      <a href="#" class="button" onclick="shouldLoadOrExport()" data-tooltip="Sync with Cloud">
+      <a href="#" class="button" onclick="pullUpdatesFromServer()" data-tooltip="Sync with Server">
         <svg class="icon" viewBox="0 0 24 24">
           <path d="M7 16a4 4 0 0 1 -4 -4a5 5 0 0 1 .3 -1.5a4 4 0 0 1 -1.3 -2.5a5 5 0 0 1 5 -5h9c3 0 5 1.343 5 3a3 3 0 0 1 -3 3h-3.5" stroke="currentColor" stroke-width="2" fill="none"/>
           <path d="M14 16l3 -3l3 3" stroke="currentColor" stroke-width="2"/>
@@ -3164,6 +3164,33 @@ async function saveDataToServer() {
   }
 }
 
+async function pullUpdatesFromServer() {
+  const confirmed = confirm("Pull server data? This may overwrite your local changes if they're not saved.");
+  if (!confirmed) return;
+
+  showLoading();
+  try {
+    const response = await fetch('api.php');
+    // or fetch('calendar_data.json') if you're directly loading a JSON file
+    const data = await response.json();
+
+    // Overwrite localStorage
+    localStorage.clear();
+    for (let key in data) {
+      localStorage.setItem(key, data[key]);
+    }
+
+    // Reload the calendar (or call loadCalendarAroundDate())
+    loadCalendarAroundDate(todayDate);
+    showToast("Pulled latest data from server");
+
+  } catch (err) {
+    console.error("Error pulling from server:", err);
+    showToast("Failed to pull updates from server");
+  } finally {
+    hideLoading();
+  }
+}
 
 
     async function importFromDiaryFile() {
