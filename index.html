@@ -2747,7 +2747,8 @@
           for (const key in data) {
             if (data.hasOwnProperty(key)) {
               localStorage.setItem(key, data[key]);
-  saveDataToServer();
+// Now call the *debounced* version:
+  debouncedServerSave();
             }
           }
           showToast("Data loaded successfully!");
@@ -2948,7 +2949,8 @@ async function downloadMarkdownEvents() {
       // Serialize it (though it won't truly re-hydrate from localStorage)
       const serialized = await serializeDirectoryHandle(dirHandle);
       localStorage.setItem("myDirectoryHandle", serialized);
-  saveDataToServer();
+// Now call the *debounced* version:
+  debouncedServerSave();
     } catch (err) {
       console.error("User canceled picking directory or permission denied:", err);
       showToast("Canceled or no permission to pick directory");
@@ -2993,6 +2995,22 @@ async function downloadMarkdownEvents() {
 }
 
 
+
+/*
+ * debounce(fn, delay)
+ * Returns a function that, when invoked repeatedly, calls `fn` only after
+ * no further calls occur for the given `delay` in milliseconds.
+ */
+function debounce(fn, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+
+
     /* REMAINING FILE HANDLING FOR SYNC */
     async function loadDataFromFileHandle(fileHandle) {
       try {
@@ -3002,7 +3020,8 @@ async function downloadMarkdownEvents() {
         for (const key in data) {
           if (data.hasOwnProperty(key)) {
             localStorage.setItem(key, data[key]);
-  saveDataToServer();
+// Now call the *debounced* version:
+  debouncedServerSave();
           }
         }
         showToast("Loaded calendar data from file");
@@ -3077,6 +3096,10 @@ async function downloadMarkdownEvents() {
       return lines.join("\n");
     }
 
+
+
+
+
 async function loadDataFromServer() {
   try {
     const response = await fetch('api.php');
@@ -3084,16 +3107,15 @@ async function loadDataFromServer() {
 
     // Clear existing localStorage and populate from the fetched data
     localStorage.clear();
-for (let key in data) {
-  localStorage.setItem(key, data[key]);
-}
-saveDataToServer(); // Just once at the end
+    for (let key in data) {
+      localStorage.setItem(key, data[key]);
     }
     console.log("Loaded from server successfully");
   } catch (err) {
     console.error("Error loading from server:", err);
   }
 }
+
 
 async function saveDataToServer() {
   // Gather all localStorage data into an object
@@ -3115,6 +3137,20 @@ async function saveDataToServer() {
     console.error("Error saving to server:", err);
   }
 }
+
+
+function debounce(fn, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// Then create a debounced wrapper:
+const debouncedServerSave = debounce(() => {
+  saveDataToServer();
+}, 2000);
 
 
     async function importFromDiaryFile() {
