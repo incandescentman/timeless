@@ -936,60 +936,70 @@
       opacity: 0.7;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 1200px) {
-      #miniCalendar {
-        display: none;
-      }
-      #calendar {
-        width: 95%;
-      }
-    }
-    @media (max-width: 1000px) {
-      #calendar {
-        width: 100%;
-        max-width: 960px;
-      }
-      #header {
-        flex-direction: column;
-        height: auto;
-        padding: 10px;
-      }
-      #header > div {
-        margin-top: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      #calendarContainer {
-        margin-top: 140px;
-      }
-      #yearViewGrid {
-        grid-template-columns: repeat(3,1fr);
-      }
-    }
-    @media (max-width:768px) {
-      :root {
-      --cell-min-height: 100px;
-      }
-      #stickyMonthHeader {
-        font-size: 24px;
-      }
-      #calendar td {
-        padding: 8px;
-      }
-      #header span:not(:first-child) {
-        display: none;
-      }
-      #yearViewGrid {
-        grid-template-columns: repeat(2,1fr);
-      }
-    }
-    @media (max-width:480px) {
-      #yearViewGrid {
-        grid-template-columns: repeat(1,1fr);
-      }
-    }
+
+/* Existing responsive adjustments replaced or refined */
+@media (max-width: 1200px) {
+  /* Hide the mini-calendar entirely on screens <1200px,
+     but you can narrow this further if you only want it hidden on phones. */
+  #miniCalendar {
+    display: none !important;
+  }
+  #calendar {
+    width: 95%;
+  }
+}
+
+/* For even smaller screens (tablets, phones),
+   we fix the table layout so 7 columns are forced to fit. */
+@media (max-width: 768px) {
+  :root {
+   --cell-min-height: 100px;
+  }
+  /* Hide the miniCalendar again just to be sure */
+  #miniCalendar {
+    display: none !important;
+  }
+
+  /* Let the table use fixed layout so 7 columns compress to fit horizontally */
+  #calendar {
+    width: 100% !important;
+    max-width: none;
+    table-layout: fixed;  /* ensures columns stay a fixed width */
+  }
+  /* Each of the 7 days gets ~14.2857% of the width.
+     Adjust padding if needed for better fit. */
+  #calendar td {
+    width: 14.2857%;
+    min-width: 0;
+    padding: 6px; /* reduce padding for smaller screens */
+  }
+
+  /* Tweak the stickyMonthHeader font size so it doesn't overflow on phones */
+  #stickyMonthHeader {
+    font-size: 24px;
+  }
+
+  /* Optionally reduce the brand or other header text on phones */
+  #header span:not(:first-child) {
+    display: none; /* hides extra text in the top header if desired */
+  }
+}
+
+/* For very narrow screens (like iPhone widths <480px),
+   further reduce font size/padding if needed: */
+@media (max-width: 480px) {
+  #calendar td {
+    padding: 4px;
+    font-size: 80%; /* optional: smaller text for the day numbers */
+  }
+  /* Year View grid becomes 1 column */
+  #yearViewGrid {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
+}
+
+
+
 
     /* Print styles */
     @media print {
