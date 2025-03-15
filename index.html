@@ -1048,20 +1048,26 @@
           <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="currentColor"/>
         </svg>
       </a>
-      <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
-          <path d="M12 12v4" stroke="currentColor" stroke-width="2"/>
-          <path d="M10 14l2 2l2 -2" stroke="currentColor" stroke-width="2"/>
-        </svg>
-      </a>
-      <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
-          <path d="M12 12v-4" stroke="currentColor" stroke-width="2"/>
-          <path d="M10 10l2 -2l2 2" stroke="currentColor" stroke-width="2"/>
-        </svg>
-      </a>
+      <!--
+Commented out bc now that it lives on server, this is not needed. I can still access it from the command palette.
+           <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">
+           <svg class="icon" viewBox="0 0 24 24">
+           <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
+           <path d="M12 12v4" stroke="currentColor" stroke-width="2"/>
+           <path d="M10 14l2 2l2 -2" stroke="currentColor" stroke-width="2"/>
+           </svg>
+           </a> -->
+
+      <!--
+Commented out bc now that it lives on server, this is not needed. I can still access it from the command palette.
+           <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">
+           <svg class="icon" viewBox="0 0 24 24">
+           <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
+           <path d="M12 12v-4" stroke="currentColor" stroke-width="2"/>
+           <path d="M10 10l2 -2l2 2" stroke="currentColor" stroke-width="2"/>
+           </svg>
+           </a> -->
+
       <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">
         <svg class="icon" viewBox="0 0 24 24">
           <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -2685,18 +2691,10 @@
       );
     }
 
+
 window.onload = async function() {
   // 1. Load from server one time (could be optional)
   await loadDataFromServer();
-
-  // 2. Once-a-day check
-  let lastPulledDate = localStorage.getItem("lastPulledDate") || "";
-  const todayString = new Date().toDateString();
-  if (lastPulledDate !== todayString) {
-    localStorage.setItem("lastPulledDate", todayString);
-    // Call pullUpdatesFromServer but skip the confirm
-    await pullUpdatesFromServer(false);
-  }
 
   // 3. Proceed as normal
   calendarTableElement = document.getElementById("calendar");
