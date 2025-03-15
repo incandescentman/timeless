@@ -1357,6 +1357,8 @@
       loadCalendarAroundDate(todayDate);
       showToast("Redo applied");
     }
+
+
     function recalculateHeight(itemId) {
       const ta = document.getElementById(itemId);
       if (!ta) return;
@@ -1366,6 +1368,7 @@
     function recalculateAllHeights() {
       document.querySelectorAll('textarea').forEach(ta => recalculateHeight(ta.id));
     }
+
     function storeValueForItemId(itemId) {
       pushUndoState();
       const ta = document.getElementById(itemId);
@@ -1383,7 +1386,14 @@
       }
       localStorage.setItem("lastSavedTimestamp", Date.now());
         processNoteTags(ta);
+
+localStorage[itemId] = ta.value;
+  // Now trigger the debounced server save:
+  debouncedServerSave();
+  processNoteTags(ta);
     }
+
+
     function processNoteTags(textarea) {
       const parent = textarea.parentNode;
       const existingTags = parent.querySelector('.note-tags');
@@ -3009,6 +3019,14 @@ function debounce(fn, delay) {
   };
 }
 
+// Then create a debounced wrapper:
+const debouncedServerSave = debounce(() => {
+  saveDataToServer();
+}, 2000);
+
+
+
+
 
 
     /* REMAINING FILE HANDLING FOR SYNC */
@@ -3138,19 +3156,6 @@ async function saveDataToServer() {
   }
 }
 
-
-function debounce(fn, delay) {
-  let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn.apply(this, args), delay);
-  };
-}
-
-// Then create a debounced wrapper:
-const debouncedServerSave = debounce(() => {
-  saveDataToServer();
-}, 2000);
 
 
     async function importFromDiaryFile() {
