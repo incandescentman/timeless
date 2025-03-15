@@ -1369,29 +1369,37 @@
       document.querySelectorAll('textarea').forEach(ta => recalculateHeight(ta.id));
     }
 
-    function storeValueForItemId(itemId) {
+   function storeValueForItemId(itemId) {
       pushUndoState();
       const ta = document.getElementById(itemId);
       if (!ta) return;
+
       const parentId = ta.parentNode.id;
+      // Save note text under its own itemId
       localStorage[itemId] = ta.value;
+
+      // Track the itemId in the parent's list of note-IDs
       const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
       if (!parentIds.includes(itemId)) {
-        parentIds.push(itemId);
-        localStorage[parentId] = parentIds;
+         parentIds.push(itemId);
+         localStorage[parentId] = parentIds;
       }
+
+      // Optionally store the same text under the ISO date key
       const iso = parseDateFromId(parentId);
       if (iso) {
-        localStorage[iso] = ta.value;
+         localStorage[iso] = ta.value;
       }
-      localStorage.setItem("lastSavedTimestamp", Date.now());
-        processNoteTags(ta);
 
-localStorage[itemId] = ta.value;
-  // Now trigger the debounced server save:
-  debouncedServerSave();
-  processNoteTags(ta);
-    }
+      // Mark the last-saved timestamp
+      localStorage.setItem("lastSavedTimestamp", Date.now());
+
+      // Trigger debounced server save so we don't spam the server
+      debouncedServerSave();
+
+      // Then process note tags, recalc height, etc.
+      processNoteTags(ta);
+   }
 
 
     function processNoteTags(textarea) {
