@@ -3216,7 +3216,7 @@ async function saveDataToServer() {
   }
 }
 
-async function pullUpdatesFromServer(confirmNeeded = true) {
+async function pullUpdatesFromServer(confirmNeeded = false) {
   // If we still want a prompt for manual pulls:
   if (confirmNeeded) {
     const confirmed = confirm("Pull server data? This may overwrite local changes if they're not saved.");
