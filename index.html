@@ -1496,6 +1496,14 @@ Commented out bc now that it lives on server, this is not needed. I can still ac
             e.preventDefault();
             insertHashtag(this);
             break;
+           case 'r':
+            e.preventDefault();
+              pullUpdatesFromServer(this);
+            break;
+
+
+
+
         }
         return;
       }
@@ -1764,26 +1772,42 @@ Commented out bc now that it lives on server, this is not needed. I can still ac
       }
     }
 
-    function showCommandPalette() {
-      let palette = document.getElementById('command-palette');
-      if (!palette) {
-        palette = document.createElement('div');
-        palette.id = 'command-palette';
-        palette.innerHTML = `
-          <div class="command-wrapper">
-            <input type="text" id="command-input" placeholder="Type a command..." />
-            <div class="command-list"></div>
-          </div>`;
-        document.body.appendChild(palette);
-        const input = document.getElementById('command-input');
-        input.addEventListener('input', filterCommands);
-        input.addEventListener('keydown', handleCommandNavigation);
+function showCommandPalette() {
+  let palette = document.getElementById('command-palette');
+  if (!palette) {
+    // 1. Create the element if not existing
+    palette = document.createElement('div');
+    palette.id = 'command-palette';
+    palette.innerHTML = `
+      <div class="command-wrapper">
+        <input type="text" id="command-input" placeholder="Type a command..." />
+        <div class="command-list"></div>
+      </div>`;
+    document.body.appendChild(palette);
+
+    // 2. Attach your input listeners
+    const input = document.getElementById('command-input');
+    input.addEventListener('input', filterCommands);
+    input.addEventListener('keydown', handleCommandNavigation);
+
+    // 3. *Add the click listener* to hide the palette if the user clicks outside
+    palette.addEventListener('click', e => {
+      // If the user clicked on the background overlay (the parent <div>),
+      // not on the command-wrapper, hide the palette
+      if (e.target.id === 'command-palette') {
+        hideCommandPalette();
       }
-      populateCommands();
-      palette.style.display = 'flex';
-      setTimeout(() => palette.classList.add('active'), 10);
-      document.getElementById('command-input').focus();
-    }
+    });
+  }
+
+  // 4. Populate commands each time you show it
+  populateCommands();
+  // 5. Show the palette and focus the input
+  palette.style.display = 'flex';
+  setTimeout(() => palette.classList.add('active'), 10);
+  document.getElementById('command-input').focus();
+}
+
 
     function hideCommandPalette() {
       const palette = document.getElementById('command-palette');
