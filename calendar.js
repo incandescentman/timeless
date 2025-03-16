@@ -1368,18 +1368,24 @@ function jumpOneMonthForward() {
 }
 
 function jumpOneMonthBackward() {
+  // If we have no current visible row, bail out
   if (!currentVisibleRow) return;
 
+  // Grab numeric month/year from the row's data attributes
   let year  = parseInt(currentVisibleRow.dataset.year, 10);
   let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
+  // Decrement month, wrapping year if needed
   month--;
   if (month < 0) {
     month = 11;
     year--;
   }
 
+  // Create a date for the 1st day of that new month
   const prevDate = new Date(year, month, 1);
+
+  // Smooth scroll to that new date
   smoothScrollToDate(prevDate);
 }
 
