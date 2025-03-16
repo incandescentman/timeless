@@ -1677,10 +1677,12 @@ document.addEventListener("click", evt => {
  *    then call smoothScrollToDate().
  */
 
+
 function jumpOneMonthForward() {
-  if (!window.currentVisibleRow) return;
-  let year = parseInt(window.currentVisibleRow.dataset.year, 10);
-  let month = parseInt(window.currentVisibleRow.dataset.monthIndex, 10);
+  if (!currentVisibleRow) return;
+  let year = parseInt(currentVisibleRow.dataset.year, 10);
+  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
+
 
   month++;
   if (month > 11) {
@@ -1692,9 +1694,9 @@ function jumpOneMonthForward() {
 }
 
 function jumpOneMonthBackward() {
-  if (!window.currentVisibleRow) return;
-  let year = parseInt(window.currentVisibleRow.dataset.year, 10);
-  let month = parseInt(window.currentVisibleRow.dataset.monthIndex, 10);
+if (!currentVisibleRow) return;
+  let year = parseInt(currentVisibleRow.dataset.year, 10);
+  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
   month--;
   if (month < 0) {
@@ -2272,6 +2274,18 @@ function downloadBackupStorageData() {
         showToast("Calendar data backup created", 5000);
     }, 300);
 }
+
+
+async function restoreDirectoryHandle(str) {
+  try {
+    // Try to parse but don't throw an error
+    const data = JSON.parse(str);
+    return null; // Return null instead of throwing
+  } catch(e) {
+    return null;
+  }
+}
+
 
 
 // ========== MARKDOWN EXPORT ==========
