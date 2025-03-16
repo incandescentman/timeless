@@ -1594,8 +1594,6 @@ function animateRowInsertion(row, direction = 'append') {
 
 
 
-
-
 function setupHorizontalSwipe() {
   let touchStartX = 0;
   let touchEndX = 0;
@@ -1655,13 +1653,14 @@ function setupHorizontalSwipe() {
 
 
 
-
 window.onload = async function() {
-    // Show a hint for mobile users
+
+    // or delete this if I don't want horizontal swiping on mobile
 if (window.innerWidth <= 768) {
-    // Show mobile swipe hint, etc.
     setupHorizontalSwipe();
   }
+// up to here
+
 
     // 1. Load from server one time (could be optional)
     await loadDataFromServer();
