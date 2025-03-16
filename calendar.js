@@ -827,6 +827,8 @@ function appendWeek() {
     row.dataset.year       = lastDate.getFullYear();
 }
 
+
+
 /*
  * updateStickyMonthHeader()
  *  - Called on scroll to find which row is near the top, then updates the "sticky" label.

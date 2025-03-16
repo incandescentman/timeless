@@ -30,14 +30,14 @@
       <div id="miniCalendar"></div>
       <div>
         <span class="brand"><strong>Timeless:</strong> The Infinite Calendar 🪐✨ </span>
-        <a href="#" class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">
+        <button class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">
           <svg class="icon" viewBox="0 0 24 24">
             <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="currentColor"/>
           </svg>
-        </a>
+        </button>
         <!--
              Commented out bc now that it lives on server, this is not needed. I can still access it from the command palette.
-             <a href="#" class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">
+             <button class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">
              <svg class="icon" viewBox="0 0 24 24">
              <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
              <path d="M12 12v4" stroke="currentColor" stroke-width="2"/>
@@ -47,7 +47,7 @@
 
         <!--
              Commented out bc now that it lives on server, this is not needed. I can still access it from the command palette.
-             <a href="#" class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">
+             <button class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">
              <svg class="icon" viewBox="0 0 24 24">
              <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
              <path d="M12 12v-4" stroke="currentColor" stroke-width="2"/>
@@ -55,7 +55,7 @@
              </svg>
              </a> -->
 
-        <a href="#" class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">
+        <button class="button" onclick="smoothScrollToToday()" data-tooltip="Scroll to Today">
           <svg class="icon" viewBox="0 0 24 24">
             <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
             <path d="M16 3v4" stroke="currentColor" stroke-width="2"/>
@@ -63,8 +63,8 @@
             <path d="M4 11h16" stroke="currentColor" stroke-width="2"/>
             <path d="M12 16m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" fill="currentColor"/>
           </svg>
-        </a>
-        <a href="#" class="button" onclick="showYearView()" data-tooltip="Year View">
+        </button>
+        <button class="button" onclick="showYearView()" data-tooltip="Year View">
           <svg class="icon" viewBox="0 0 24 24">
             <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
             <line x1="8" y1="9" x2="8" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -77,42 +77,42 @@
             <line x1="12" y1="17" x2="12" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             <line x1="16" y1="17" x2="16" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-        </a>
-        <a href="#" class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">
+        </button>
+        <button class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">
           <svg class="icon" viewBox="0 0 24 24">
             <path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none"/>
           </svg>
-        </a>
-        <a href="#" class="button" onclick="pullUpdatesFromServer()" data-tooltip="Sync with Server">
+        </button>
+        <button class="button" onclick="pullUpdatesFromServer()" data-tooltip="Sync with Server">
           <svg class="icon" viewBox="0 0 24 24">
             <path d="M7 16a4 4 0 0 1 -4 -4a5 5 0 0 1 .3 -1.5a4 4 0 0 1 -1.3 -2.5a5 5 0 0 1 5 -5h9c3 0 5 1.343 5 3a3 3 0 0 1 -3 3h-3.5" stroke="currentColor" stroke-width="2" fill="none"/>
             <path d="M14 16l3 -3l3 3" stroke="currentColor" stroke-width="2"/>
             <path d="M17 13v9" stroke="currentColor" stroke-width="2"/>
           </svg>
-        </a>
+        </button>
 
         <!-- Export Emacs Diary (arrow UP) -->
-        <a href="#" class="button" onclick="downloadMarkdownEvents()" data-tooltip="Export Emacs Diary">
+        <button class="button" onclick="downloadMarkdownEvents()" data-tooltip="Export Emacs Diary">
           <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <!-- Arrow pointing upward, plus horizontal bar at the bottom -->
             <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
           </svg>
-        </a>
+        </button>
 
         <!-- Import from Emacs Diary (arrow DOWN) -->
-        <a href="#" class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
+        <button class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
           <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <!-- Exact vertical mirror of the above arrow, with the bar at the top -->
             <path d="M12 8l4 4h-3v8h-2v-8H8l4-4zm-7-2h14v2H5v-2z"/>
           </svg>
-        </a>
-        <a href="#" class="button" onclick="showHelp()" data-tooltip="Help">
+        </button>
+        <button class="button" onclick="showHelp()" data-tooltip="Help">
           <svg class="icon" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
             <line x1="12" y1="17" x2="12" y2="17.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             <path d="M12 13.5v-1.5a2 2 0 1 1 2 -2" stroke="currentColor" stroke-width="2"/>
           </svg>
-        </a>
+        </button>
         <input type="file" id="fileInput" onchange="loadDataFromFile()" />
         <span>Jump to date:</span>
         <input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31" />
