@@ -577,7 +577,8 @@ function prependWeek() {
     if (isMonthBoundary) {
         row.classList.add('month-boundary');
     }
-    row.dataset.monthName = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+    row.dataset.monthIndex = firstDate.getMonth();        // e.g. 2 for "March"
+row.dataset.year = firstDate.getFullYear();           // e.g. 2023
 }
 
 function appendWeek() {
@@ -603,29 +604,46 @@ function appendWeek() {
     const extra = row.insertCell(-1);
     extra.className = "extra";
     extra.innerHTML = isMonthBoundary ? (months[lastDate.getMonth()] + " " + lastDate.getFullYear()) : "";
-    row.dataset.monthName = rowMonthName;
+row.dataset.monthIndex = lastDate.getMonth();
+row.dataset.year = lastDate.getFullYear();
 }
 
+
 function updateStickyMonthHeader() {
-    const rows = document.querySelectorAll('#calendar tr');
-    const headerOffset = document.getElementById('header').offsetHeight + 30;
-    let visMonth = null;
-    for (const row of rows) {
-        const rect = row.getBoundingClientRect();
-        if (
-            (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-                (rect.top < headerOffset && rect.bottom > headerOffset)
-        ) {
-            visMonth = row.dataset.monthName;
-            break;
-        }
+  const headerOffset = document.getElementById('header').offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // If the row is visible near the top (choose your own logic here!)
+    // e.g., if the row's top is less than some offset but bottom is
+    // still on screen, etc.
+    if ((rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+        (rect.top < headerOffset && rect.bottom > headerOffset)) {
+      foundRow = row;
+      break;
     }
-    const sticky = document.getElementById('stickyMonthHeader');
-    if (visMonth && visMonth !== currentVisibleMonth) {
-        currentVisibleMonth = visMonth;
-        sticky.textContent = visMonth;
-        sticky.style.display = 'block';
-    }
+  }
+
+  if (foundRow) {
+    // Store it in a global variable
+    window.currentVisibleRow = foundRow;
+
+    // Optionally, you can update #stickyMonthHeader with the numeric info:
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year       = parseInt(foundRow.dataset.year, 10);
+
+    // If you have an array of month names, you can do:
+    const monthName = months[monthIndex]; // e.g. "March"
+
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    // e.g., set text to "March 2023"
+    stickyElem.textContent = monthName + " " + year;
+    stickyElem.style.display = 'block';
+  }
 }
 
 function showCommandPalette() {
@@ -1329,22 +1347,26 @@ row.dataset.monthIndex = firstDate.getMonth();
 row.dataset.year = firstDate.getFullYear();
 
 function jumpOneMonthForward() {
-  // If you have no current row, bail.
-  if (!currentVisibleMonth) return;
+  // If we have no current visible row, bail out
+  if (!currentVisibleRow) return;
 
-  // Instead of splitting, do:
-  const monthIndex = parseInt(rowElement.dataset.monthIndex, 10);
-  let y = parseInt(rowElement.dataset.year, 10);
+  // Grab numeric month/year from the row's data attributes
+  let year  = parseInt(currentVisibleRow.dataset.year, 10);
+  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
-  let nm = monthIndex + 1;
-  if (nm > 11) {
-    nm = 0;
-    y++;
+  // Increment month, wrapping year if needed
+  month++;
+  if (month > 11) {
+    month = 0;
+    year++;
   }
-  const nextDate = new Date(y, nm, 1);
+
+  // Create a date for the 1st day of that new month
+  const nextDate = new Date(year, month, 1);
+
+  // Smooth scroll to that new date
   smoothScrollToDate(nextDate);
 }
-
 
 function jumpOneMonthBackward() {
     if (!currentVisibleMonth) return;
