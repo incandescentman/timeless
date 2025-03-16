@@ -1592,29 +1592,6 @@ function animateRowInsertion(row, direction = 'append') {
 
 
 
-function setupTouchGestures() {
-
-    document.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    document.addEventListener('touchmove', e => {
-
-        if (touchDeltaY > 0 && touchDeltaY < pullThreshold) {
-            // Show visual feedback that we're pulling
-            const percent = Math.min(touchDeltaY / pullThreshold, 1);
-            const indicator = document.getElementById('pull-indicator') || createPullIndicator();
-            indicator.style.opacity = percent.toFixed(2);
-            indicator.style.transform = `translateY(${touchDeltaY / 2}px)`;
-        }
-    }, { passive: true });
-
-    document.addEventListener('touchend', e => {
-
-        // Handle horizontal swipe
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }, { passive: true });
 
 
 
@@ -1671,11 +1648,11 @@ function setupHorizontalSwipe() {
   let touchEndX = 0;
   const swipeThreshold = 80;
 
-  document.addEventListener('touchstart', e => {
+  document.addEventListener('touchstart', (e) => {
     touchStartX = e.changedTouches[0].screenX;
   }, { passive: true });
 
-  document.addEventListener('touchend', e => {
+  document.addEventListener('touchend', (e) => {
     touchEndX = e.changedTouches[0].screenX;
     handleSwipe();
   }, { passive: true });
@@ -1730,9 +1707,8 @@ window.onload = async function() {
     // Show a hint for mobile users
 if (window.innerWidth <= 768) {
     // Show mobile swipe hint, etc.
-    setupHorizontalSwipe(); // or whatever you call it
+    setupHorizontalSwipe();
   }
-
 
     // 1. Load from server one time (could be optional)
     await loadDataFromServer();
