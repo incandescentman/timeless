@@ -1323,21 +1323,29 @@ document.addEventListener("click", evt => {
     }
 });
 
+
+// Instead of storing row.dataset.monthName, store the actual numeric month:
+row.dataset.monthIndex = firstDate.getMonth();
+row.dataset.year = firstDate.getFullYear();
+
 function jumpOneMonthForward() {
-    if (!currentVisibleMonth) return;
-    const [monthName, yearStr] = currentVisibleMonth.split(" ");
-    if (!monthName || !yearStr) return;
-    let y = parseInt(yearStr, 10) || new Date().getFullYear();
-    const mIdx = months.indexOf(monthName);
-    if (mIdx === -1) return;
-    let nm = mIdx + 1;
-    if (nm > 11) {
-        nm = 0;
-        y++;
-    }
-    const nextDate = new Date(y, nm, 1);
-    smoothScrollToDate(nextDate);
+  // If you have no current row, bail.
+  if (!currentVisibleMonth) return;
+
+  // Instead of splitting, do:
+  const monthIndex = parseInt(rowElement.dataset.monthIndex, 10);
+  let y = parseInt(rowElement.dataset.year, 10);
+
+  let nm = monthIndex + 1;
+  if (nm > 11) {
+    nm = 0;
+    y++;
+  }
+  const nextDate = new Date(y, nm, 1);
+  smoothScrollToDate(nextDate);
 }
+
+
 function jumpOneMonthBackward() {
     if (!currentVisibleMonth) return;
     const [monthName, yearStr] = currentVisibleMonth.split(" ");
@@ -1353,6 +1361,8 @@ function jumpOneMonthBackward() {
     const prevDate = new Date(y, pm, 1);
     smoothScrollToDate(prevDate);
 }
+
+
 function smoothScrollToDate(dateObj) {
     showLoading();
     loadCalendarAroundDate(dateObj);
