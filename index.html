@@ -1090,6 +1090,40 @@
 }
 
 
+@media (max-width: 768px) {
+  /* Dark mode adjustments for mobile */
+  body.dark-mode #calendar td {
+    background: rgba(40, 40, 40, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  body.dark-mode .day-number {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  body.dark-mode .mobile-action-bar {
+    background: rgba(30, 30, 30, 0.95);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Better touch feedback */
+  #calendar td:active {
+    transform: scale(0.98) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+
+  .mobile-action-bar button:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+}
+
+
+
+
 /* For the vertical "day card" layout */
 @media (max-width: 768px) {
 #calendar td.extra.mobile-month-header {
@@ -1135,6 +1169,119 @@
   }
 }
 
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Root variable adjustments for mobile */
+  :root {
+   --cell-min-height: 90px;
+   --header-height: auto;
+  }
+
+  /* Add space at the bottom for mobile scrolling */
+  body {
+    padding-bottom: 70px;
+  }
+
+  /* Fix the day-top-row layout */
+  .day-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding-bottom: 6px;
+  }
+
+  /* Make the day-label and day-number better positioned */
+  #calendar td .day-label {
+    float: none;
+    display: inline-block;
+    margin: 0;
+    text-align: left;
+  }
+
+  #calendar td .day-number {
+    float: none;
+    display: inline-block;
+    background: rgba(0,0,0,0.05);
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 16px;
+    margin: 0;
+  }
+
+
+  /* Better spacing for buttons in mobile */
+  a.button, button {
+    margin: 3px;
+  }
+
+  /* Make header components stack nicely */
+  #header {
+    padding-top: 15px;
+  }
+
+  /* Make the "Jump to date" section better on mobile */
+  #header > div:last-child span:first-of-type {
+    display: block;
+    width: 100%;
+    margin: 10px 0 5px;
+    text-align: center;
+  }
+
+  /* Make date input and button row nicely */
+  #jumpDate, #header > div:last-child button {
+    margin: 0 5px 10px 5px;
+  }
+
+  /* Better styling for note textareas */
+  textarea {
+    font-size: 14px;
+    padding: 10px;
+    line-height: 1.4;
+  }
+}
+
+/* Mobile bottom action bar */
+.mobile-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--header-solid-bg);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  display: none;
+  justify-content: space-around;
+  padding: 10px;
+  z-index: 990;
+}
+
+.mobile-action-bar button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  box-shadow: none;
+  font-size: 12px;
+  margin: 0;
+  padding: 5px;
+}
+
+.mobile-action-bar .icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 768px) {
+  .mobile-action-bar {
+    display: flex;
+  }
+}
 
     /* Print styles */
     @media print {
@@ -2915,7 +3062,126 @@ document.addEventListener("keydown", (e) => {
     }
 
 
+
+function setupTouchGestures() {
+// Add to your setupTouchGestures function
+let touchStartY = 0;
+let touchDeltaY = 0;
+let isPulling = false;
+const pullThreshold = 70;
+
+document.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+  touchStartX = e.touches[0].clientX;
+  if (window.scrollY === 0) {
+    isPulling = true;
+  }
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  if (!isPulling) return;
+
+  touchDeltaY = e.touches[0].clientY - touchStartY;
+
+  if (touchDeltaY > 0 && touchDeltaY < pullThreshold) {
+    // Show visual feedback that we're pulling
+    const percent = Math.min(touchDeltaY / pullThreshold, 1);
+    const indicator = document.getElementById('pull-indicator') || createPullIndicator();
+    indicator.style.opacity = percent.toFixed(2);
+    indicator.style.transform = `translateY(${touchDeltaY / 2}px)`;
+  }
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  if (!isPulling) return;
+
+  if (touchDeltaY > pullThreshold) {
+    // Do the refresh
+    pullUpdatesFromServer();
+    showToast("Refreshing calendar...");
+  }
+
+  // Reset
+  isPulling = false;
+  const indicator = document.getElementById('pull-indicator');
+  if (indicator) {
+    indicator.style.opacity = '0';
+    indicator.style.transform = 'translateY(0)';
+  }
+}, { passive: true });
+
+function createPullIndicator() {
+  const indicator = document.createElement('div');
+  indicator.id = 'pull-indicator';
+  indicator.textContent = '↓ Pull to refresh';
+  indicator.style.position = 'fixed';
+  indicator.style.top = '0';
+  indicator.style.left = '0';
+  indicator.style.width = '100%';
+  indicator.style.textAlign = 'center';
+  indicator.style.padding = '10px';
+  indicator.style.background = 'rgba(0,0,0,0.1)';
+  indicator.style.color = '#333';
+  indicator.style.transition = 'opacity 0.3s';
+  indicator.style.opacity = '0';
+  indicator.style.zIndex = '1000';
+  document.body.appendChild(indicator);
+  return indicator;
+}
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, false);
+
+  document.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, false);
+
+  function handleSwipe() {
+    const swipeThreshold = 80; // Minimum distance for a swipe
+
+    if (touchEndX < touchStartX - swipeThreshold) {
+      // Swipe left - next month
+      jumpOneMonthForward();
+    }
+
+    if (touchEndX > touchStartX + swipeThreshold) {
+      // Swipe right - previous month
+      jumpOneMonthBackward();
+    }
+  }
+}
+
 window.onload = async function() {
+
+// Show a hint for mobile users
+if (window.innerWidth <= 768) {
+  document.getElementById('mobileActions').style.display = 'flex';
+  const hint = document.createElement('div');
+  hint.className = 'swipe-hint';
+  hint.textContent = 'Tap to add event - Swipe vertically to scroll';
+  hint.style.textAlign = 'center';
+  hint.style.padding = '8px';
+  hint.style.margin = '10px auto';
+  hint.style.fontSize = '12px';
+  hint.style.color = '#666';
+  hint.style.background = 'rgba(0,0,0,0.05)';
+  hint.style.borderRadius = '20px';
+  hint.style.width = '80%';
+  document.getElementById('calendarContainer').insertBefore(hint, document.getElementById('calendar'));
+  setTimeout(() => {
+    hint.style.opacity = '0';
+    hint.style.transition = 'opacity 0.5s';
+    setTimeout(() => hint.remove(), 500);
+  }, 5000);
+
+  // Setup touch gesture detection for mobile
+  setupTouchGestures();
+}
+
   // 1. Load from server one time (could be optional)
   await loadDataFromServer();
 
@@ -3503,5 +3769,36 @@ async function pullUpdatesFromServer(confirmNeeded = false) {
       }
     }
   </script>
+<!-- Mobile action bar for most common actions -->
+<div class="mobile-action-bar" id="mobileActions">
+  <button onclick="smoothScrollToToday()">
+    <svg class="icon" viewBox="0 0 24 24">
+      <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+      <path d="M12 16m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" fill="currentColor"/>
+    </svg>
+    <span>Today</span>
+  </button>
+  <button onclick="showQuickDateInput()">
+    <svg class="icon" viewBox="0 0 24 24">
+      <path d="M12 12v-6" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 12l4 4" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span>Jump</span>
+  </button>
+  <button onclick="toggleDarkMode()">
+    <svg class="icon" viewBox="0 0 24 24">
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="currentColor"/>
+    </svg>
+    <span>Theme</span>
+  </button>
+  <button onclick="showCommandPalette()">
+    <svg class="icon" viewBox="0 0 24 24">
+      <path d="M4 6h16" stroke="currentColor" stroke-width="2"/>
+      <path d="M4 12h16" stroke="currentColor" stroke-width="2"/>
+      <path d="M4 18h16" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span>Menu</span>
+  </button>
+</div>
 </body>
 </html>
