@@ -610,41 +610,375 @@ row.dataset.year = lastDate.getFullYear();
 
 
 function updateStickyMonthHeader() {
-  const headerOffset = document.getElementById('header').offsetHeight + 30;
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
   const rows = document.querySelectorAll('#calendar tr');
 
   let foundRow = null;
-
   for (const row of rows) {
     const rect = row.getBoundingClientRect();
 
-    // If the row is visible near the top (choose your own logic here!)
-    // e.g., if the row's top is less than some offset but bottom is
-    // still on screen, etc.
-    if ((rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-        (rect.top < headerOffset && rect.bottom > headerOffset)) {
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
       foundRow = row;
       break;
     }
   }
 
   if (foundRow) {
-    // Store it in a global variable
+    // Set a global reference so jumpOneMonthForward/backward can read it
     window.currentVisibleRow = foundRow;
 
-    // Optionally, you can update #stickyMonthHeader with the numeric info:
+    // Extract the numeric month/year we stored on each row
     const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year       = parseInt(foundRow.dataset.year, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
 
-    // If you have an array of month names, you can do:
-    const monthName = months[monthIndex]; // e.g. "March"
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
 
+    // Update the sticky month heading
     const stickyElem = document.getElementById('stickyMonthHeader');
-    // e.g., set text to "March 2023"
-    stickyElem.textContent = monthName + " " + year;
+    stickyElem.textContent = `${monthName} ${year}`;
+    stickyElem.style.display = 'block';
+  }
+} function updateStickyMonthHeader() {
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
+      foundRow = row;
+      break;
+    }
+  }
+
+  if (foundRow) {
+    // Set a global reference so jumpOneMonthForward/backward can read it
+    window.currentVisibleRow = foundRow;
+
+    // Extract the numeric month/year we stored on each row
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
+
+    // Update the sticky month heading
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    stickyElem.textContent = `${monthName} ${year}`;
+    stickyElem.style.display = 'block';
+  }
+} function updateStickyMonthHeader() {
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
+      foundRow = row;
+      break;
+    }
+  }
+
+  if (foundRow) {
+    // Set a global reference so jumpOneMonthForward/backward can read it
+    window.currentVisibleRow = foundRow;
+
+    // Extract the numeric month/year we stored on each row
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
+
+    // Update the sticky month heading
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    stickyElem.textContent = `${monthName} ${year}`;
+    stickyElem.style.display = 'block';
+  }
+} function updateStickyMonthHeader() {
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
+      foundRow = row;
+      break;
+    }
+  }
+
+  if (foundRow) {
+    // Set a global reference so jumpOneMonthForward/backward can read it
+    window.currentVisibleRow = foundRow;
+
+    // Extract the numeric month/year we stored on each row
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
+
+    // Update the sticky month heading
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    stickyElem.textContent = `${monthName} ${year}`;
+    stickyElem.style.display = 'block';
+  }
+} function updateStickyMonthHeader() {
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
+      foundRow = row;
+      break;
+    }
+  }
+
+  if (foundRow) {
+    // Set a global reference so jumpOneMonthForward/backward can read it
+    window.currentVisibleRow = foundRow;
+
+    // Extract the numeric month/year we stored on each row
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
+
+    // Update the sticky month heading
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    stickyElem.textContent = `${monthName} ${year}`;
+    stickyElem.style.display = 'block';
+  }
+} function updateStickyMonthHeader() {
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
+      foundRow = row;
+      break;
+    }
+  }
+
+  if (foundRow) {
+    // Set a global reference so jumpOneMonthForward/backward can read it
+    window.currentVisibleRow = foundRow;
+
+    // Extract the numeric month/year we stored on each row
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
+
+    // Update the sticky month heading
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    stickyElem.textContent = `${monthName} ${year}`;
+    stickyElem.style.display = 'block';
+  }
+} function updateStickyMonthHeader() {
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
+      foundRow = row;
+      break;
+    }
+  }
+
+  if (foundRow) {
+    // Set a global reference so jumpOneMonthForward/backward can read it
+    window.currentVisibleRow = foundRow;
+
+    // Extract the numeric month/year we stored on each row
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
+
+    // Update the sticky month heading
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    stickyElem.textContent = `${monthName} ${year}`;
+    stickyElem.style.display = 'block';
+  }
+} function updateStickyMonthHeader() {
+  // Hide the top header if on mobile
+  const headerEl = document.getElementById('header');
+  if (window.innerWidth <= 768) {
+    // Hide the header on mobile
+    headerEl.style.display = 'none';
+  } else {
+    // Otherwise ensure the header is shown
+    headerEl.style.display = '';
+  }
+
+  // Compute offset based on the header's (possibly zero) height
+  const headerOffset = headerEl.offsetHeight + 30;
+  const rows = document.querySelectorAll('#calendar tr');
+
+  let foundRow = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+
+    // "Visible near the top" logic: if the row is overlapping the region
+    // just under the header, we consider it "the current visible row."
+    if (
+      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+      (rect.top < headerOffset && rect.bottom > headerOffset)
+    ) {
+      foundRow = row;
+      break;
+    }
+  }
+
+  if (foundRow) {
+    // Set a global reference so jumpOneMonthForward/backward can read it
+    window.currentVisibleRow = foundRow;
+
+    // Extract the numeric month/year we stored on each row
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+
+    // Use your 'months' array to map monthIndex → "March" etc.
+    const monthName = months[monthIndex] || "???";
+
+    // Update the sticky month heading
+    const stickyElem = document.getElementById('stickyMonthHeader');
+    stickyElem.textContent = `${monthName} ${year}`;
     stickyElem.style.display = 'block';
   }
 }
+
 
 function showCommandPalette() {
     let palette = document.getElementById('command-palette');
