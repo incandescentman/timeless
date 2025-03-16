@@ -1,0 +1,287 @@
+/* =======================
+   MOBILE LAYOUT (<= 768px)
+   ======================= */
+@media (max-width: 768px) {
+
+  /* Hide miniCalendar on mobile */
+  #miniCalendar {
+    display: none !important;
+  }
+
+  /* Root variable adjustments */
+  :root {
+ --cell-min-height: 90px;
+ --header-height: auto;
+  }
+
+  /* General layout */
+  body {
+    padding-bottom: 70px;
+  }
+  #calendar {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 8px;
+    table-layout: auto;
+  }
+  #calendar tbody,
+  #calendar tr {
+    display: block;
+    width: 100%;
+  }
+
+  /* Day card styles */
+  #calendar td {
+    display: block;
+    width: 100% !important;
+    min-height: var(--cell-min-height);
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: none !important;
+  }
+  #calendar td:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+  #calendar td:active {
+    transform: scale(0.98) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+
+  /* Extra cells (month headings or blank) and today highlight */
+  #calendar td.extra {
+    margin-top: 24px;
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: transparent;
+    box-shadow: none;
+    text-align: center;
+    border-radius: 0;
+  }
+  #calendar td.extra:empty {
+    display: none;
+  }
+  #calendar td.today {
+    border-left: 4px solid var(--today-gradient-from);
+    background: linear-gradient(to right, rgba(229, 62, 62, 0.05), transparent);
+    transform: none !important;
+  }
+
+  /* Textarea and top row adjustments */
+  #calendar td textarea {
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 8px 12px;
+  }
+
+
+
+/* Force day/month labels and day-number inline on mobile */
+  #calendar td .day-label,
+  #calendar td .month-label,
+  #calendar td .day-number {
+    display: inline-block !important;
+background: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    vertical-align: middle;
+     padding:0 !important;
+  }
+
+#calendar td.today .day-label,
+#calendar td.today .month-label,
+#calendar td.today .day-number {
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: #000 !important;
+}
+
+  /* Override any extra margin in special cells */
+  #calendar td.today span {
+    margin-bottom: 0 !important;
+  }
+
+
+.day-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 6px;
+}
+
+/* Large day label, left side */
+.day-label {
+  font-size: 16px !important;
+  font-weight: 600;
+  color: #333;
+    text-align: left;
+text-transform:uppercase !important;
+}
+
+
+/* Month + day number container on the right */
+.month-day-container {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.month-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #aaa !important;
+  text-transform: uppercase;
+}
+
+.day-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+  /* Header and button styles */
+  #header {
+    flex-direction: column;
+    padding: 8px;
+    height: auto;
+    padding-top: 15px;
+  }
+  #header > div:last-child {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    padding-bottom: 6px;
+ -webkit-overflow-scrolling: touch;
+  }
+  a.button,
+  button {
+    padding: 6px 10px;
+    margin: 3px;
+    font-size: 14px;
+    min-width: 40px;
+    flex-shrink: 0;
+  }
+  #stickyMonthHeader {
+    font-size: 18px;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: center;
+  }
+  #calendarContainer {
+    margin-top: 80px;
+  }
+
+  /* Vertical "day card" layout overrides */
+  #calendar.vertical td.extra.mobile-month-header {
+    margin: 20px 0 8px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .day-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+  .notes-container {
+    font-size: 12px;
+  }
+
+  /* Additional mobile improvements */
+  #header > div:last-child span:first-of-type {
+    display: block;
+    width: 100%;
+    margin: 10px 0 5px;
+    text-align: center;
+  }
+  #jumpDate,
+  #header > div:last-child button {
+    margin: 0 5px 10px 5px;
+  }
+  textarea {
+    font-size: 14px;
+    padding: 10px;
+    line-height: 1.4;
+  }
+
+  /* Dark mode adjustments */
+  body.dark-mode #calendar td {
+    background: rgba(40, 40, 40, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  body.dark-mode .day-number {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  body.dark-mode .mobile-action-bar {
+    background: rgba(30, 30, 30, 0.95);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Mobile bottom action bar */
+  .mobile-action-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--header-solid-bg);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    justify-content: space-around;
+    padding: 10px;
+    z-index: 990;
+  }
+  .mobile-action-bar button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+    font-size: 12px;
+    margin: 0;
+    padding: 5px;
+  }
+  .mobile-action-bar .icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 2px;
+  }
+  .mobile-action-bar button:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+}
+
+
+
+/* ================
+   NARROW SCREENS (<= 480px)
+   ================ */
+@media (max-width: 480px) {
+
+  /* Smaller padding for day cards */
+  #calendar td {
+    padding: 8px 12px;
+  }
+  /* Further reduce textarea font size for compact screens */
+  #calendar td textarea {
+    font-size: 11px;
+  }
+  /* Ensure tap targets are large enough */
+  a.button,
+  button {
+    min-height: 44px;
+  }
+}
