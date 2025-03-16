@@ -1,38 +1,66 @@
-
 /*
  * Timeless: The Infinitely Scrolling Calendar
+ *
+ * A single-page application that displays a continuously scrolling calendar.
+ * Users can add notes to any day, toggle dark mode, import/export data, and more.
  */
 
-/* CORE VARIABLES & STATE */
-// Force local midnight date (no hours/minutes)
+// ========== CORE VARIABLES & STATE ==========
+
+// Force local midnight date to avoid time-zone hour offsets
 const now = new Date();
 let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+// The "todayDate" is what we consider "today" within the calendar logic
 let todayDate;
+
+// The main <table> element that holds day cells
 let calendarTableElement;
+
+// "firstDate" and "lastDate" track the earliest + latest days loaded
 let firstDate, lastDate;
+
+// Undo/redo logic uses arrays to store JSON snapshots of localStorage
 let undoStack = [];
 let redoStack = [];
 const MAX_UNDO = 5;
+
+// Date range selection state
 let rangeStart = null;
 let rangeEnd = null;
 let isSelectingRange = false;
+
+// For row insertion animations
 const ROW_ANIMATION_CLASS = 'week-row-animate';
+
+// Arrays for day-of-week and month-of-year names
 const daysOfWeek = ["Mon","Tues","Wed","Thurs","Fri","Sat","Sun"];
 const months = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
 ];
+// Short month labels for mobile
 const shortMonths = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
-
 const monthsShort = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
 
+// Variables for smooth-scrolling animations
 let startTime, startY, goalY;
+
+// If we used to track "currentVisibleMonth", we now track the row instead.
 let currentVisibleMonth = '';
-let keyboardFocusDate = null;
+let keyboardFocusDate = null;  // used for arrow key navigation
+
+// Multi-select mode
 let selectedDays = [];
 let isMultiSelectMode = false;
 
-/* UTILITY FUNCTIONS */
+
+// ========== UTILITY FUNCTIONS ==========
+
+/*
+ * throttle(func, delay)
+ *  - Ensures `func` is invoked at most once per `delay` ms.
+ */
 function throttle(func, delay) {
     let lastCall = 0;
     return function(...args) {
@@ -43,6 +71,11 @@ function throttle(func, delay) {
         }
     };
 }
+
+/*
+ * debounce(fn, wait)
+ *  - Delays `fn` until no further calls occur for `wait` ms.
+ */
 function debounce(fn, wait) {
     let timeout;
     return function(...args) {
@@ -50,10 +83,33 @@ function debounce(fn, wait) {
         timeout = setTimeout(() => fn.apply(this, args), wait);
     };
 }
-function showHelp() { document.getElementById("help").style.display = "block"; }
-function hideHelp() { document.getElementById("help").style.display = "none"; }
-function showLoading() { document.getElementById('loadingIndicator').classList.add('active'); }
-function hideLoading() { document.getElementById('loadingIndicator').classList.remove('active'); }
+
+/*
+ * showHelp(), hideHelp()
+ *  - Show/hide the "help" overlay.
+ */
+function showHelp() {
+    document.getElementById("help").style.display = "block";
+}
+function hideHelp() {
+    document.getElementById("help").style.display = "none";
+}
+
+/*
+ * showLoading(), hideLoading()
+ *  - Show/hide a loading spinner overlay.
+ */
+function showLoading() {
+    document.getElementById('loadingIndicator').classList.add('active');
+}
+function hideLoading() {
+    document.getElementById('loadingIndicator').classList.remove('active');
+}
+
+/*
+ * showToast(message, duration)
+ *  - Shows a temporary message pop-up (toast) in the corner.
+ */
 function showToast(message, duration=3000) {
     let toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
@@ -65,19 +121,47 @@ function showToast(message, duration=3000) {
     toast.className = 'toast';
     toast.textContent = message;
     toastContainer.appendChild(toast);
+
+    // Animate in
     requestAnimationFrame(() => { toast.style.opacity = '1'; });
+
+    // After "duration" ms, fade out
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => {
-            if (toastContainer.contains(toast)) toastContainer.removeChild(toast);
+            if (toastContainer.contains(toast)) {
+                toastContainer.removeChild(toast);
+            }
         }, 300);
     }, duration);
 }
-function documentScrollTop() { return Math.max(document.body.scrollTop, document.documentElement.scrollTop); }
-function documentScrollHeight() { return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); }
-function curve(x) {
-    return (x < 0.5) ? (4 * x*x*x) : (1 - 4*(1 - x)*(1 - x)*(1 - x));
+
+/*
+ * documentScrollTop(), documentScrollHeight()
+ *  - Cross-browser ways to measure scroll position and total height.
+ */
+function documentScrollTop() {
+    return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
 }
+function documentScrollHeight() {
+    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+}
+
+/*
+ * curve(x)
+ *  - A custom easing function for smooth scrolling.
+ */
+function curve(x) {
+    // cubic-based easing: slow at start/end, faster in middle
+    return (x < 0.5)
+      ? (4 * x*x*x)
+      : (1 - 4*(1 - x)*(1 - x)*(1 - x));
+}
+
+/*
+ * scrollAnimation()
+ *  - Animates from startY to goalY over ~1 second using curve().
+ */
 function scrollAnimation() {
     const percent = (new Date() - startTime) / 1000;
     if (percent > 1) {
@@ -89,6 +173,11 @@ function scrollAnimation() {
         setTimeout(scrollAnimation, 10);
     }
 }
+
+/*
+ * scrollPositionForElement(element)
+ *  - Returns a vertical offset so element is near the vertical center of the viewport.
+ */
 function scrollPositionForElement(element) {
     let y = element.offsetTop;
     let node = element;
@@ -99,6 +188,11 @@ function scrollPositionForElement(element) {
     const clientHeight = element.clientHeight;
     return y - (window.innerHeight - clientHeight) / 2;
 }
+
+/*
+ * scrollToToday()
+ *  - Jumps immediately to the row containing "todayDate".
+ */
 function scrollToToday() {
     const elem = document.getElementById(idForDate(todayDate));
     if (elem) {
@@ -106,6 +200,11 @@ function scrollToToday() {
     }
     hideLoading();
 }
+
+/*
+ * smoothScrollToToday()
+ *  - Smoothly animates to the row containing "todayDate".
+ */
 function smoothScrollToToday() {
     showLoading();
     const elem = document.getElementById(idForDate(todayDate));
@@ -119,14 +218,23 @@ function smoothScrollToToday() {
     if (goalY !== startY) setTimeout(scrollAnimation, 10);
     else hideLoading();
 }
+
+/*
+ * toggleDarkMode()
+ *  - Toggles a .dark-mode body class and saves preference in localStorage.
+ */
 function toggleDarkMode() {
     document.body.classList.toggle("dark-mode");
     localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
     showToast(document.body.classList.contains("dark-mode") ? "Dark mode enabled" : "Light mode enabled");
 }
+
+/*
+ * pushUndoState()
+ *  - Creates a JSON snapshot of localStorage and pushes it onto undoStack.
+ */
 function pushUndoState() {
-    // Clear redo stack on new action
-    redoStack = [];
+    redoStack = []; // Clear redo stack on new action
     const snapshot = {};
     for (const key in localStorage) {
         if (localStorage.hasOwnProperty(key)) {
@@ -138,6 +246,11 @@ function pushUndoState() {
         undoStack.shift();
     }
 }
+
+/*
+ * undoLastChange()
+ *  - Pops from undoStack, overwrites localStorage, and refreshes the calendar.
+ */
 function undoLastChange() {
     if (!undoStack.length) {
         showToast("No undo history available");
@@ -151,8 +264,10 @@ function undoLastChange() {
         }
     }
     redoStack.push(JSON.stringify(currentSnapshot));
+
     const lastSnap = undoStack.pop();
     if (!lastSnap) return;
+
     localStorage.clear();
     const data = JSON.parse(lastSnap);
     for (const k in data) {
@@ -161,13 +276,19 @@ function undoLastChange() {
     loadCalendarAroundDate(todayDate);
     showToast("Undo applied");
 }
+
+/*
+ * redoLastChange()
+ *  - Restores from redoStack, pushing current state onto undoStack.
+ */
 function redoLastChange() {
     if (!redoStack.length) {
         showToast("No redo history available");
         return;
     }
     const nextState = redoStack.pop();
-    pushUndoState();
+    pushUndoState();  // Current goes to undo
+
     localStorage.clear();
     const data = JSON.parse(nextState);
     for (const k in data) {
@@ -177,50 +298,64 @@ function redoLastChange() {
     showToast("Redo applied");
 }
 
-
+/*
+ * recalculateHeight(itemId)
+ *  - Adjusts the <textarea>'s height to fit its content.
+ */
 function recalculateHeight(itemId) {
     const ta = document.getElementById(itemId);
     if (!ta) return;
     ta.style.height = "0";
     ta.style.height = (ta.scrollHeight + 5) + "px";
 }
+
+/*
+ * recalculateAllHeights()
+ *  - Recomputes heights for all <textarea> nodes in the calendar.
+ */
 function recalculateAllHeights() {
     document.querySelectorAll('textarea').forEach(ta => recalculateHeight(ta.id));
 }
 
+/*
+ * storeValueForItemId(itemId)
+ *  - Persists the <textarea> content to localStorage, plus adds undo state.
+ */
 function storeValueForItemId(itemId) {
     pushUndoState();
     const ta = document.getElementById(itemId);
     if (!ta) return;
 
     const parentId = ta.parentNode.id;
-    // Save note text under its own itemId
     localStorage[itemId] = ta.value;
 
-    // Track the itemId in the parent's list of note-IDs
+    // Attach itemId to parent's comma-separated list
     const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
     if (!parentIds.includes(itemId)) {
         parentIds.push(itemId);
         localStorage[parentId] = parentIds;
     }
 
-    // Optionally store the same text under the ISO date key
+    // Optionally store under an ISO date key
     const iso = parseDateFromId(parentId);
     if (iso) {
         localStorage[iso] = ta.value;
     }
 
-    // Mark the last-saved timestamp
+    // Mark last-saved time
     localStorage.setItem("lastSavedTimestamp", Date.now());
 
-    // Trigger debounced server save so we don't spam the server
+    // Trigger a debounced server save
     debouncedServerSave();
 
     // Then process note tags, recalc height, etc.
     processNoteTags(ta);
 }
 
-
+/*
+ * processNoteTags(textarea)
+ *  - Finds "#tags" in the note, and shows them above the <textarea>.
+ */
 function processNoteTags(textarea) {
     const parent = textarea.parentNode;
     const existingTags = parent.querySelector('.note-tags');
@@ -246,6 +381,11 @@ function processNoteTags(textarea) {
         textarea.parentNode.insertBefore(tagsContainer, textarea);
     }
 }
+
+/*
+ * removeValueForItemId(itemId)
+ *  - Deletes an item from localStorage, removing from parent's item list as well.
+ */
 function removeValueForItemId(itemId) {
     pushUndoState();
     delete localStorage[itemId];
@@ -261,52 +401,53 @@ function removeValueForItemId(itemId) {
             delete localStorage[parentId];
         }
     }
+    // Also remove from ISO date if present
     const iso = parseDateFromId(parentId);
     if (iso && localStorage[iso]) {
         delete localStorage[iso];
     }
 }
 
+/*
+ * noteKeyDownHandler(e)
+ *  - Handles key events in a day note <textarea>, supporting Ctrl/Command shortcuts.
+ */
 function noteKeyDownHandler(e) {
     recalculateHeight(this.id);
     if (e.ctrlKey || e.metaKey) {
         switch(e.key) {
-        case 'b':
+        case 'b': // Ctrl+B = bold
             e.preventDefault();
             wrapTextSelection(this, '*', '*');
             break;
-        case 'i':
+        case 'i': // Ctrl+I = italic
             e.preventDefault();
             wrapTextSelection(this, '*', '*');
             break;
-        case '1':
+        case '1': // Ctrl+1 = set [priority:high]
             e.preventDefault();
             addTaskPriority(this, 'high');
             break;
-        case '2':
+        case '2': // Ctrl+2 = [priority:medium]
             e.preventDefault();
             addTaskPriority(this, 'medium');
             break;
-        case '3':
+        case '3': // Ctrl+3 = [priority:low]
             e.preventDefault();
             addTaskPriority(this, 'low');
             break;
-        case 'd':
+        case 'd': // Ctrl+D => mark done
             e.preventDefault();
             toggleTaskDone(this);
             break;
-        case 'h':
+        case 'h': // Ctrl+H => insert hashtag
             e.preventDefault();
             insertHashtag(this);
             break;
-        case 'r':
+        case 'r': // Ctrl+R => pull updates from server
             e.preventDefault();
             pullUpdatesFromServer(this);
             break;
-
-
-
-
         }
         return;
     }
@@ -316,17 +457,24 @@ function noteKeyDownHandler(e) {
         return;
     }
     if (e.key === "Enter" && !e.shiftKey) {
+        // Press Enter to save + blur
         e.preventDefault();
         storeValueForItemId(this.id);
         this.blur();
         return false;
     } else {
+        // Debounce auto-save while typing
         if (!this.debouncedSave) {
             this.debouncedSave = debounce(() => storeValueForItemId(this.id), 1000);
         }
         this.debouncedSave();
     }
 }
+
+/*
+ * wrapTextSelection(textarea, prefix, suffix)
+ *  - Surrounds the current text selection with "prefix" and "suffix".
+ */
 function wrapTextSelection(textarea, prefix, suffix) {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -334,15 +482,25 @@ function wrapTextSelection(textarea, prefix, suffix) {
     const beforeText = textarea.value.substring(0, start);
     const afterText = textarea.value.substring(end);
     textarea.value = beforeText + prefix + selectedText + suffix + afterText;
+    // Move caret after suffix
     textarea.selectionStart = textarea.selectionEnd = end + prefix.length + suffix.length;
     storeValueForItemId(textarea.id);
 }
+
+/*
+ * addTaskPriority(textarea, priority)
+ *  - Insert "[priority:xx]" at the start of the note content.
+ */
 function addTaskPriority(textarea, priority) {
-    // remove existing [priority:xx], add new
     textarea.value = textarea.value.replace(/\[priority:(high|medium|low)\]/g, '').trim();
     textarea.value = `[priority:${priority}] ` + textarea.value;
     storeValueForItemId(textarea.id);
 }
+
+/*
+ * toggleTaskDone(textarea)
+ *  - Toggles "✓ " prefix to mark a note as done.
+ */
 function toggleTaskDone(textarea) {
     if (textarea.value.startsWith('✓ ')) {
         textarea.value = textarea.value.substring(2);
@@ -351,6 +509,11 @@ function toggleTaskDone(textarea) {
     }
     storeValueForItemId(textarea.id);
 }
+
+/*
+ * insertHashtag(textarea)
+ *  - Inserts a "#" at the cursor position.
+ */
 function insertHashtag(textarea) {
     const pos = textarea.selectionStart;
     const beforeText = textarea.value.substring(0, pos);
@@ -358,12 +521,22 @@ function insertHashtag(textarea) {
     textarea.value = beforeText + '#' + afterText;
     textarea.selectionStart = textarea.selectionEnd = pos + 1;
 }
+
+/*
+ * noteBlurHandler()
+ *  - If the note is empty when blurred, remove it from localStorage.
+ */
 function noteBlurHandler() {
     if (!this.value.trim()) {
         removeValueForItemId(this.id);
         this.parentNode.removeChild(this);
     }
 }
+
+/*
+ * generateItem(parentId, itemId)
+ *  - Creates a new <textarea> inside the day cell and returns it.
+ */
 function generateItem(parentId, itemId) {
     const cell = document.getElementById(parentId);
     if (!cell) return null;
@@ -375,6 +548,11 @@ function generateItem(parentId, itemId) {
     cell.appendChild(ta);
     return ta;
 }
+
+/*
+ * lookupItemsForParentId(parentId, callback)
+ *  - Retrieves all item IDs stored in localStorage for the given parent day, then calls callback(items).
+ */
 function lookupItemsForParentId(parentId, callback) {
     if (localStorage[parentId]) {
         const ids = localStorage[parentId].split(",");
@@ -389,48 +567,57 @@ function lookupItemsForParentId(parentId, callback) {
     }
 }
 
+
+// ========== CALENDAR DAY GENERATION ==========
+
+/*
+ * generateDay(dayCell, date)
+ *  - Populates a single <td> with the day label, number, and any stored notes.
+ */
 function generateDay(dayCell, date) {
+    // Weekend shading
     const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
     if (isWeekend) dayCell.classList.add("weekend");
 
+    // "Shaded" alternating months
     const isShaded = (date.getMonth() % 2 === 1);
     if (isShaded) dayCell.classList.add("shaded");
 
+    // Is it "today"?
     const isToday = (
         date.getFullYear() === todayDate.getFullYear() &&
-            date.getMonth() === todayDate.getMonth() &&
-            date.getDate() === todayDate.getDate()
+        date.getMonth() === todayDate.getMonth() &&
+        date.getDate() === todayDate.getDate()
     );
     if (isToday) dayCell.classList.add("today");
 
+    // Unique ID like "2_10_2025" for each day cell
     dayCell.id = idForDate(date);
 
-    // For mobile screens
+    // For mobile, a top-row layout with day label on left, month+day number on right
     if (window.innerWidth <= 768) {
         const monthShort = shortMonths[date.getMonth()];
         const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
         const dayNum = date.getDate();
 
-        // Replace the old inline HTML with a flex container and two groups:
-        // (1) day-label on the left
-        // (2) month-label + day-number on the right
         dayCell.innerHTML = `
-      <div class="day-top-row">
-        <span class="day-label">${dowLabel}</span>
-        <div class="month-day-container">
-          <span class="month-label">${monthShort}</span>
-          <span class="day-number">${dayNum}</span>
-        </div>
-      </div>
-    `;
+          <div class="day-top-row">
+            <span class="day-label">${dowLabel}</span>
+            <div class="month-day-container">
+              <span class="month-label">${monthShort}</span>
+              <span class="day-number">${dayNum}</span>
+            </div>
+          </div>
+        `;
     } else {
-        // Original desktop layout
+        // Desktop layout
         dayCell.innerHTML = `
-      <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
-      <span class="day-number">${date.getDate()}</span>
-    `;
+          <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+          <span class="day-number">${date.getDate()}</span>
+        `;
     }
 
+    // Restore any notes stored for this day
     lookupItemsForParentId(dayCell.id, items => {
         items.forEach(it => {
             const note = generateItem(dayCell.id, it.itemId);
@@ -443,8 +630,12 @@ function generateDay(dayCell, date) {
     });
 }
 
+/*
+ * buildMobileDayCard(container, date)
+ *  - Example code for an alternate "vertical day card" mobile layout (unused).
+ */
 function buildMobileDayCard(container, date) {
-    // If the 1st day of the month, insert "Month Year" first
+    // If the 1st day of the month, add a month header
     if (date.getDate() === 1) {
         const monthHeader = document.createElement('div');
         monthHeader.className = 'mobile-month-header';
@@ -452,50 +643,53 @@ function buildMobileDayCard(container, date) {
         container.appendChild(monthHeader);
     }
 
-    // Create the "day card"
+    // Create a "day-card"
     const dayCard = document.createElement('div');
     dayCard.className = 'day-card';
 
-    // Build the inner HTML
+    // The day label + number
     dayCard.innerHTML = `
-    <div class="day-top-row">
-      <span class="day-label">
-        ${daysOfWeek[getAdjustedDayIndex(date)]}
-      </span>
-
-      <!-- Wrap month + day number together on the right -->
-      <span class="month-day-container">
-        <span class="month-label">${monthsShort[date.getMonth()]}</span>
-        <span class="day-number">${date.getDate()}</span>
-      </span>
-    </div>
-    <div class="notes-container"></div>
-  `;
-
+      <div class="day-top-row">
+        <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+        <span class="month-day-container">
+          <span class="month-label">${monthsShort[date.getMonth()]}</span>
+          <span class="day-number">${date.getDate()}</span>
+        </span>
+      </div>
+      <div class="notes-container"></div>
+    `;
     container.appendChild(dayCard);
 }
-/* BUILDING THE MINI-CALENDAR WITHOUT FORCING 42 CELLS */
+
+
+// ========== MINI CALENDAR WIDGET ==========
+
+/*
+ * buildMiniCalendar()
+ *  - Builds a small month-based mini calendar for the current, previous, and next months.
+ */
 function buildMiniCalendar() {
     const mini = document.getElementById("miniCalendar");
     if (!mini) return;
     mini.innerHTML = "";
     const currentMonth = todayDate.getMonth();
     const currentYear = todayDate.getFullYear();
+
+    // Figure out prev/next month
     let prevMonth = currentMonth - 1, prevYear = currentYear;
-    if (prevMonth < 0) {
-        prevMonth = 11;
-        prevYear = currentYear - 1;
-    }
+    if (prevMonth < 0) { prevMonth = 11; prevYear--; }
     let nextMonth = currentMonth + 1, nextYear = currentYear;
-    if (nextMonth > 11) {
-        nextMonth = 0;
-        nextYear = currentYear + 1;
-    }
-    buildMiniCalendarForMonth(mini, prevYear, prevMonth, false);
+    if (nextMonth > 11) { nextMonth = 0; nextYear++; }
+
+    buildMiniCalendarForMonth(mini, prevYear,  prevMonth,  false);
     buildMiniCalendarForMonth(mini, currentYear, currentMonth, true);
-    buildMiniCalendarForMonth(mini, nextYear, nextMonth, false);
+    buildMiniCalendarForMonth(mini, nextYear,  nextMonth,  false);
 }
 
+/*
+ * buildMiniCalendarForMonth(container, year, month, highlightCurrent)
+ *  - Renders a small grid for a single month. Clicking a day jumps to that day.
+ */
 function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
     const section = document.createElement("div");
     section.style.marginBottom = "10px";
@@ -515,7 +709,7 @@ function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
     grid.style.gridTemplateColumns = "repeat(7, 20px)";
     grid.style.gridGap = "2px";
 
-    // Days of week header (M T W T F S S)
+    // Create day-of-week headers
     for (let i = 0; i < 7; i++) {
         const dayCell = document.createElement("div");
         dayCell.textContent = daysOfWeek[i].charAt(0);
@@ -524,17 +718,19 @@ function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
         grid.appendChild(dayCell);
     }
 
+    // Determine offset for first day (Mon-based vs. Sun-based)
     const firstDay = new Date(year, month, 1);
-    let startDay = firstDay.getDay();
-    startDay = (startDay === 0) ? 7 : startDay;
+    let startDay = firstDay.getDay(); // Sunday=0, Monday=1, etc.
+    startDay = (startDay === 0) ? 7 : startDay; // If Sunday, treat as day=7
     const offset = startDay - 1;
 
-    // Create empty cells for any offset at start
+    // Insert blank cells if the month doesn't start on Monday
     for (let i = 0; i < offset; i++) {
         const empty = document.createElement("div");
         grid.appendChild(empty);
     }
 
+    // Fill in days
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     for (let d = 1; d <= daysInMonth; d++) {
         const cell = document.createElement("div");
@@ -543,8 +739,9 @@ function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
         cell.style.cursor = 'pointer';
         cell.style.padding = '2px';
         cell.style.borderRadius = '3px';
-
         cell.textContent = d;
+
+        // Highlight if it's the same as our "todayDate"
         if (highlightCurrent && d === todayDate.getDate()) {
             cell.style.backgroundColor = '#e53e3e';
             cell.style.color = '#fff';
@@ -561,11 +758,18 @@ function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
     container.appendChild(section);
 }
 
-/* APPENDING/PREPENDING WEEKS */
+
+// ========== WEEK ROW CREATION/EXTENSION ==========
+
+/*
+ * prependWeek()
+ *  - Inserts a new <tr> at the top, stepping "firstDate" backward by 7 days (1 row).
+ */
 function prependWeek() {
     const row = calendarTableElement.insertRow(0);
     animateRowInsertion(row, 'prepend');
     let isMonthBoundary = false;
+
     do {
         firstDate.setDate(firstDate.getDate() - 1);
         if (firstDate.getDate() === 1) {
@@ -574,17 +778,26 @@ function prependWeek() {
         const cell = row.insertCell(0);
         generateDay(cell, new Date(firstDate));
     } while (getAdjustedDayIndex(firstDate) !== 0);
+
     if (isMonthBoundary) {
         row.classList.add('month-boundary');
     }
-    row.dataset.monthIndex = firstDate.getMonth();        // e.g. 2 for "March"
-row.dataset.year = firstDate.getFullYear();           // e.g. 2023
+
+    // Store numeric month/year on the row itself
+    row.dataset.monthIndex = firstDate.getMonth();
+    row.dataset.year       = firstDate.getFullYear();
 }
 
+/*
+ * appendWeek()
+ *  - Adds a new <tr> at the bottom, stepping "lastDate" forward by 7 days (1 row).
+ */
 function appendWeek() {
     const row = calendarTableElement.insertRow(-1);
     animateRowInsertion(row, 'append');
     let isMonthBoundary = false;
+
+    // The next row starts right after "lastDate"
     const rowStart = new Date(lastDate);
     rowStart.setDate(rowStart.getDate() + 1);
     const rowMonthName = months[rowStart.getMonth()] + " " + rowStart.getFullYear();
@@ -601,26 +814,35 @@ function appendWeek() {
     if (isMonthBoundary) {
         row.classList.add('month-boundary');
     }
+
+    // Insert an extra cell for optional month label
     const extra = row.insertCell(-1);
     extra.className = "extra";
-    extra.innerHTML = isMonthBoundary ? (months[lastDate.getMonth()] + " " + lastDate.getFullYear()) : "";
-row.dataset.monthIndex = lastDate.getMonth();
-row.dataset.year = lastDate.getFullYear();
+    extra.innerHTML = isMonthBoundary
+      ? (months[lastDate.getMonth()] + " " + lastDate.getFullYear())
+      : "";
+
+    // Store numeric month/year on the row
+    row.dataset.monthIndex = lastDate.getMonth();
+    row.dataset.year       = lastDate.getFullYear();
 }
 
-
+/*
+ * updateStickyMonthHeader()
+ *  - Called on scroll to find which row is near the top, then updates the "sticky" label.
+ */
 function updateStickyMonthHeader() {
   // Hide the top header if on mobile
   const headerEl = document.getElementById('header');
   if (window.innerWidth <= 768) {
-    // Hide the header on mobile
+    // On small screens, hide the top bar entirely
     headerEl.style.display = 'none';
   } else {
-    // Otherwise ensure the header is shown
+    // Otherwise, ensure it's visible
     headerEl.style.display = '';
   }
 
-  // Compute offset based on the header's (possibly zero) height
+  // Our offset includes the header's height plus a small buffer
   const headerOffset = headerEl.offsetHeight + 30;
   const rows = document.querySelectorAll('#calendar tr');
 
@@ -628,8 +850,7 @@ function updateStickyMonthHeader() {
   for (const row of rows) {
     const rect = row.getBoundingClientRect();
 
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
+    // If the row overlaps the area just under the header, we consider it current
     if (
       (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
       (rect.top < headerOffset && rect.bottom > headerOffset)
@@ -640,339 +861,15 @@ function updateStickyMonthHeader() {
   }
 
   if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
+    // Save in a global variable for jumpOneMonthForward/backward
     window.currentVisibleRow = foundRow;
 
-    // Extract the numeric month/year we stored on each row
+    // Retrieve numeric month/year from row data
     const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
+    const year       = parseInt(foundRow.dataset.year, 10);
+    const monthName  = months[monthIndex] || "???";
 
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
-} function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // Hide the header on mobile
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise ensure the header is shown
-    headerEl.style.display = '';
-  }
-
-  // Compute offset based on the header's (possibly zero) height
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
-    }
-  }
-
-  if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
-    window.currentVisibleRow = foundRow;
-
-    // Extract the numeric month/year we stored on each row
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
-} function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // Hide the header on mobile
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise ensure the header is shown
-    headerEl.style.display = '';
-  }
-
-  // Compute offset based on the header's (possibly zero) height
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
-    }
-  }
-
-  if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
-    window.currentVisibleRow = foundRow;
-
-    // Extract the numeric month/year we stored on each row
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
-} function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // Hide the header on mobile
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise ensure the header is shown
-    headerEl.style.display = '';
-  }
-
-  // Compute offset based on the header's (possibly zero) height
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
-    }
-  }
-
-  if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
-    window.currentVisibleRow = foundRow;
-
-    // Extract the numeric month/year we stored on each row
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
-} function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // Hide the header on mobile
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise ensure the header is shown
-    headerEl.style.display = '';
-  }
-
-  // Compute offset based on the header's (possibly zero) height
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
-    }
-  }
-
-  if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
-    window.currentVisibleRow = foundRow;
-
-    // Extract the numeric month/year we stored on each row
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
-} function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // Hide the header on mobile
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise ensure the header is shown
-    headerEl.style.display = '';
-  }
-
-  // Compute offset based on the header's (possibly zero) height
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
-    }
-  }
-
-  if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
-    window.currentVisibleRow = foundRow;
-
-    // Extract the numeric month/year we stored on each row
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
-} function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // Hide the header on mobile
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise ensure the header is shown
-    headerEl.style.display = '';
-  }
-
-  // Compute offset based on the header's (possibly zero) height
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
-    }
-  }
-
-  if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
-    window.currentVisibleRow = foundRow;
-
-    // Extract the numeric month/year we stored on each row
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
-} function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // Hide the header on mobile
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise ensure the header is shown
-    headerEl.style.display = '';
-  }
-
-  // Compute offset based on the header's (possibly zero) height
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // "Visible near the top" logic: if the row is overlapping the region
-    // just under the header, we consider it "the current visible row."
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
-    }
-  }
-
-  if (foundRow) {
-    // Set a global reference so jumpOneMonthForward/backward can read it
-    window.currentVisibleRow = foundRow;
-
-    // Extract the numeric month/year we stored on each row
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-
-    // Use your 'months' array to map monthIndex → "March" etc.
-    const monthName = months[monthIndex] || "???";
-
-    // Update the sticky month heading
+    // Put "March 2023" (example) in #stickyMonthHeader
     const stickyElem = document.getElementById('stickyMonthHeader');
     stickyElem.textContent = `${monthName} ${year}`;
     stickyElem.style.display = 'block';
@@ -980,6 +877,12 @@ function updateStickyMonthHeader() {
 }
 
 
+// ========== COMMAND PALETTE & SHORTCUTS ==========
+
+/*
+ * showCommandPalette(), hideCommandPalette()
+ *  - Toggles a full-screen overlay for "quick actions."
+ */
 function showCommandPalette() {
     let palette = document.getElementById('command-palette');
     if (!palette) {
@@ -987,36 +890,31 @@ function showCommandPalette() {
         palette = document.createElement('div');
         palette.id = 'command-palette';
         palette.innerHTML = `
-      <div class="command-wrapper">
-        <input type="text" id="command-input" placeholder="Type a command..." />
-        <div class="command-list"></div>
-      </div>`;
+          <div class="command-wrapper">
+            <input type="text" id="command-input" placeholder="Type a command..." />
+            <div class="command-list"></div>
+          </div>`;
         document.body.appendChild(palette);
 
-        // 2. Attach your input listeners
+        // 2. Input listeners: filter commands & navigation
         const input = document.getElementById('command-input');
         input.addEventListener('input', filterCommands);
         input.addEventListener('keydown', handleCommandNavigation);
 
-        // 3. *Add the click listener* to hide the palette if the user clicks outside
+        // 3. Click outside to close
         palette.addEventListener('click', e => {
-            // If the user clicked on the background overlay (the parent <div>),
-            // not on the command-wrapper, hide the palette
             if (e.target.id === 'command-palette') {
                 hideCommandPalette();
             }
         });
     }
 
-    // 4. Populate commands each time you show it
+    // 4. Refresh list and display
     populateCommands();
-    // 5. Show the palette and focus the input
     palette.style.display = 'flex';
     setTimeout(() => palette.classList.add('active'), 10);
     document.getElementById('command-input').focus();
 }
-
-
 function hideCommandPalette() {
     const palette = document.getElementById('command-palette');
     if (palette) {
@@ -1025,26 +923,32 @@ function hideCommandPalette() {
     }
 }
 
+/*
+ * populateCommands()
+ *  - Renders a list of available commands for the palette overlay.
+ */
 function populateCommands() {
     const commandList = document.querySelector('.command-list');
     commandList.innerHTML = '';
+
     const commands = [
-        { icon: '📅', name: 'Go to today', shortcut: 'T', action: () => { todayDate = new Date(systemToday); loadCalendarAroundDate(todayDate); } },
-        { icon: '🔍', name: 'Jump to date', shortcut: 'G', action: () => document.getElementById('jumpDate').focus() },
-        { icon: '🌙', name: 'Toggle dark mode', shortcut: 'Ctrl+D', action: toggleDarkMode },
-        { icon: '📆', name: 'Show year view', shortcut: 'Y', action: showYearView },
-        { icon: '↔️', name: 'Select date range', shortcut: 'R', action: toggleRangeSelection },
-        { icon: '⌨️', name: 'Toggle keyboard navigation', shortcut: 'I', action: toggleKeyboardNavMode },
-        { icon: '↩️', name: 'Undo last change', shortcut: 'Z', action: undoLastChange },
-        { icon: '↪️', name: 'Redo last change', shortcut: 'Ctrl+Shift+Z', action: redoLastChange },
-        { icon: '⬇️', name: 'Next month', shortcut: 'Alt+↓', action: jumpOneMonthForward },
-        { icon: '⬆️', name: 'Previous month', shortcut: 'Alt+↑', action: jumpOneMonthBackward },
-        { icon: '❓', name: 'Show help', shortcut: '?', action: showHelp },
-        { icon: '💾', name: 'Download calendar data', shortcut: '', action: downloadLocalStorageData },
-        { icon: '📥', name: 'Import calendar data', shortcut: '', action: () => document.getElementById('fileInput').click() },
-        { icon: '📝', name: 'Enter multi-day edit mode', shortcut: 'M', action: toggleMultiSelectMode },
-        { icon: '📋', name: 'Quick date entry', shortcut: 'D', action: showQuickDateInput }
+        { icon: '📅', name: 'Go to today',           shortcut: 'T',    action: () => { todayDate = new Date(systemToday); loadCalendarAroundDate(todayDate); } },
+        { icon: '🔍', name: 'Jump to date',          shortcut: 'G',    action: () => document.getElementById('jumpDate').focus() },
+        { icon: '🌙', name: 'Toggle dark mode',      shortcut: 'Ctrl+D', action: toggleDarkMode },
+        { icon: '📆', name: 'Show year view',        shortcut: 'Y',    action: showYearView },
+        { icon: '↔️', name: 'Select date range',     shortcut: 'R',    action: toggleRangeSelection },
+        { icon: '⌨️', name: 'Toggle keyboard nav',   shortcut: 'I',    action: toggleKeyboardNavMode },
+        { icon: '↩️', name: 'Undo last change',      shortcut: 'Z',    action: undoLastChange },
+        { icon: '↪️', name: 'Redo last change',      shortcut: 'Ctrl+Shift+Z', action: redoLastChange },
+        { icon: '⬇️', name: 'Next month',            shortcut: 'Alt+↓', action: jumpOneMonthForward },
+        { icon: '⬆️', name: 'Previous month',        shortcut: 'Alt+↑', action: jumpOneMonthBackward },
+        { icon: '❓', name: 'Show help',             shortcut: '?',    action: showHelp },
+        { icon: '💾', name: 'Download calendar data', shortcut: '',     action: downloadLocalStorageData },
+        { icon: '📥', name: 'Import calendar data',  shortcut: '',     action: () => document.getElementById('fileInput').click() },
+        { icon: '📝', name: 'Enter multi-day edit',  shortcut: 'M',    action: toggleMultiSelectMode },
+        { icon: '📋', name: 'Quick date entry',      shortcut: 'D',    action: showQuickDateInput }
     ];
+
     commands.forEach(command => {
         const item = document.createElement('div');
         item.className = 'command-item';
@@ -1061,6 +965,10 @@ function populateCommands() {
     });
 }
 
+/*
+ * filterCommands(e)
+ *  - Called as user types in the command palette, hides items that don't match.
+ */
 function filterCommands(e) {
     const query = e.target.value.toLowerCase();
     const items = document.querySelectorAll('.command-item');
@@ -1070,12 +978,15 @@ function filterCommands(e) {
     });
 }
 
+/*
+ * handleCommandNavigation(e)
+ *  - Keyboard up/down/enter in the command palette to select + run a command.
+ */
 function handleCommandNavigation(e) {
-    const items = Array.from(document.querySelectorAll('.command-item')).filter(
-        item => item.style.display !== 'none'
-    );
+    const items = Array.from(document.querySelectorAll('.command-item')).filter(item => item.style.display !== 'none');
     const activeItem = document.querySelector('.command-item.active');
     const activeIndex = activeItem ? items.indexOf(activeItem) : -1;
+
     switch (e.key) {
     case 'Escape':
         e.preventDefault();
@@ -1083,16 +994,12 @@ function handleCommandNavigation(e) {
         break;
     case 'ArrowDown':
         e.preventDefault();
-        if (activeItem) {
-            activeItem.classList.remove('active');
-        }
+        if (activeItem) activeItem.classList.remove('active');
         items[(activeIndex + 1) % items.length]?.classList.add('active');
         break;
     case 'ArrowUp':
         e.preventDefault();
-        if (activeItem) {
-            activeItem.classList.remove('active');
-        }
+        if (activeItem) activeItem.classList.remove('active');
         items[(activeIndex - 1 + items.length) % items.length]?.classList.add('active');
         break;
     case 'Enter':
@@ -1106,14 +1013,19 @@ function handleCommandNavigation(e) {
     }
 }
 
+/*
+ * showQuickDateInput()
+ *  - Allows typed input like "tomorrow" or "March 15" to quickly jump.
+ */
 function showQuickDateInput() {
     const popup = document.createElement('div');
     popup.className = 'quick-date-popup';
     popup.innerHTML = `
         <input type="text" id="quick-date-input" placeholder="Try 'tomorrow' or 'March 15'..." />
         <div class="quick-date-examples">Press Enter to confirm, Esc to close</div>
-      `;
+    `;
     document.body.appendChild(popup);
+
     const input = document.getElementById('quick-date-input');
     input.focus();
     input.addEventListener('keydown', e => {
@@ -1127,14 +1039,22 @@ function showQuickDateInput() {
     });
 }
 
+/*
+ * tryParseAndJumpToDate(dateText)
+ *  - Attempts to parse text like "next friday", "tomorrow", or "March 15" and jump there.
+ */
 function tryParseAndJumpToDate(dateText) {
     try {
         let targetDate;
         const parsedDate = new Date(dateText);
+
+        // If direct Date parse worked, fine
         if (!isNaN(parsedDate.getTime())) {
             targetDate = parsedDate;
         } else {
+            // Otherwise handle "today", "tomorrow", "yesterday", or "next Monday" etc.
             const today = new Date();
+
             if (dateText.toLowerCase() === 'today') {
                 targetDate = today;
             } else if (dateText.toLowerCase() === 'tomorrow') {
@@ -1147,13 +1067,12 @@ function tryParseAndJumpToDate(dateText) {
                 const dayName = dateText.toLowerCase().substring(5);
                 targetDate = getNextDayOfWeek(dayName);
             } else {
+                // Possibly "March 15"
                 const monthDayMatch = dateText.match(/(\w+)\s+(\d+)/);
                 if (monthDayMatch) {
                     const monthName = monthDayMatch[1];
                     const day = parseInt(monthDayMatch[2]);
-                    const monthIndex = months.findIndex(m =>
-                        m.toLowerCase().startsWith(monthName.toLowerCase())
-                    );
+                    const monthIndex = months.findIndex(m => m.toLowerCase().startsWith(monthName.toLowerCase()));
                     if (monthIndex >= 0 && day > 0 && day <= 31) {
                         targetDate = new Date(today.getFullYear(), monthIndex, day);
                         if (targetDate < today) {
@@ -1176,6 +1095,10 @@ function tryParseAndJumpToDate(dateText) {
     }
 }
 
+/*
+ * getNextDayOfWeek(dayName)
+ *  - For text like "monday", returns a Date for the next instance of that weekday.
+ */
 function getNextDayOfWeek(dayName) {
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const dayIndex = dayNames.findIndex(d => d.startsWith(dayName.toLowerCase()));
@@ -1193,7 +1116,9 @@ function getNextDayOfWeek(dayName) {
     return null;
 }
 
-/* MULTI SELECT MODE */
+
+// ========== MULTI-SELECT MODE (M KEY) ==========
+
 function toggleMultiSelectMode() {
     isMultiSelectMode = !isMultiSelectMode;
     if (isMultiSelectMode) {
@@ -1211,13 +1136,16 @@ function toggleMultiSelectMode() {
         showToast("Multi-select mode disabled");
     }
 }
+
+/*
+ * toggleDaySelection() => toggles the currently focused day in the "selectedDays" list.
+ */
 function toggleDaySelection() {
     if (!keyboardFocusDate || !isMultiSelectMode) return;
-    const selectedIndex = selectedDays.findIndex(
-        date =>
+    const selectedIndex = selectedDays.findIndex(date =>
         date.getFullYear() === keyboardFocusDate.getFullYear() &&
-            date.getMonth() === keyboardFocusDate.getMonth() &&
-            date.getDate() === keyboardFocusDate.getDate()
+        date.getMonth() === keyboardFocusDate.getMonth() &&
+        date.getDate() === keyboardFocusDate.getDate()
     );
     if (selectedIndex >= 0) {
         selectedDays.splice(selectedIndex, 1);
@@ -1226,6 +1154,11 @@ function toggleDaySelection() {
     }
     updateMultiDaySelection();
 }
+
+/*
+ * updateMultiDaySelection()
+ *  - Visually highlights all days in "selectedDays".
+ */
 function updateMultiDaySelection() {
     document.querySelectorAll('.multi-selected').forEach(el => el.classList.remove('multi-selected'));
     selectedDays.forEach(date => {
@@ -1235,10 +1168,20 @@ function updateMultiDaySelection() {
         }
     });
 }
+
+/*
+ * clearMultiDaySelection()
+ *  - Removes multi-select highlighting.
+ */
 function clearMultiDaySelection() {
     document.querySelectorAll('.multi-selected').forEach(el => el.classList.remove('multi-selected'));
     selectedDays = [];
 }
+
+/*
+ * performBatchAction(action)
+ *  - Allows "clear" or "add" on all selectedDays at once.
+ */
 function performBatchAction(action) {
     if (!isMultiSelectMode || selectedDays.length === 0) {
         showToast("No days selected for batch action");
@@ -1246,6 +1189,7 @@ function performBatchAction(action) {
     }
     switch (action) {
     case 'clear':
+        // Confirm then remove all notes in selected days
         if (confirm("Are you sure you want to clear all notes for selected days?")) {
             let count = 0;
             selectedDays.forEach(date => {
@@ -1264,6 +1208,7 @@ function performBatchAction(action) {
         }
         break;
     case 'add':
+        // Prompt for text to add to each selected day
         const noteText = prompt("Enter note for all selected days:");
         if (noteText && noteText.trim()) {
             pushUndoState();
@@ -1286,7 +1231,13 @@ function performBatchAction(action) {
     }
 }
 
-/* YEAR VIEW */
+
+// ========== YEAR VIEW ==========
+
+/*
+ * buildYearView(year, container)
+ *  - Renders a 12-month "Year at a glance" grid, each with days clickable.
+ */
 function buildYearView(year, container) {
     for (let m = 0; m < 12; m++) {
         const div = document.createElement('div');
@@ -1294,9 +1245,12 @@ function buildYearView(year, container) {
         const h3 = document.createElement('h3');
         h3.textContent = months[m];
         div.appendChild(h3);
+
         const table = document.createElement('table');
         table.style.width = '100%';
         table.style.borderCollapse = 'collapse';
+
+        // Day-of-week headers
         const headerRow = document.createElement('tr');
         for (let i = 0; i < 7; i++) {
             const th = document.createElement('th');
@@ -1306,11 +1260,14 @@ function buildYearView(year, container) {
             headerRow.appendChild(th);
         }
         table.appendChild(headerRow);
+
         const firstDay = new Date(year, m, 1);
         let dayOfWeek = getAdjustedDayIndex(firstDay);
         const daysInMonth = new Date(year, m + 1, 0).getDate();
+
         let day = 1;
         let row = document.createElement('tr');
+        // Fill offset
         for (let k = 0; k < dayOfWeek; k++) {
             const emptyCell = document.createElement('td');
             emptyCell.style.padding = '3px';
@@ -1326,17 +1283,22 @@ function buildYearView(year, container) {
             td.textContent = day;
             td.style.padding = '3px';
             td.style.textAlign = 'center';
+
+            // highlight if it is "todayDate"
             const currentDate = new Date(year, m, day);
             if (currentDate.getTime() === todayDate.setHours(0, 0, 0, 0)) {
                 td.style.backgroundColor = '#e53e3e';
                 td.style.color = 'white';
                 td.style.borderRadius = '50%';
             }
+
+            // If we have stored data for that day, show bold/underline
             const dateId = `${m}_${day}_${year}`;
             if (localStorage[dateId]) {
                 td.style.fontWeight = 'bold';
                 td.style.textDecoration = 'underline';
             }
+
             td.style.cursor = 'pointer';
             td.onclick = () => {
                 hideYearView();
@@ -1359,17 +1321,24 @@ function buildYearView(year, container) {
 function showYearView() {
     const year = todayDate.getFullYear();
     document.getElementById('yearViewTitle').textContent = year;
+
     const container = document.getElementById('yearViewGrid');
     container.innerHTML = '';
     buildYearView(year, container);
+
     document.getElementById('yearViewContainer').style.display = 'block';
 }
-
 function hideYearView() {
     document.getElementById('yearViewContainer').style.display = 'none';
 }
 
-/* KEYBOARD NAVIGATION LOGIC */
+
+// ========== KEYBOARD NAVIGATION LOGIC ==========
+
+/*
+ * toggleKeyboardNavMode()
+ *  - Press 'i' to enable arrow-key day navigation.
+ */
 function toggleKeyboardNavMode() {
     if (!keyboardFocusDate) {
         keyboardFocusDate = new Date(todayDate || systemToday);
@@ -1383,6 +1352,11 @@ function toggleKeyboardNavMode() {
         showToast("Keyboard navigation mode deactivated");
     }
 }
+
+/*
+ * highlightKeyboardFocusedDay()
+ *  - Adds a CSS class to the day cell that currently has "keyboardFocusDate".
+ */
 function highlightKeyboardFocusedDay() {
     document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
     if (!keyboardFocusDate) return;
@@ -1392,21 +1366,26 @@ function highlightKeyboardFocusedDay() {
         cell.classList.add('keyboard-focus');
     }
 }
+
+/*
+ * stepDay(delta)
+ *  - Moves the keyboardFocusDate by the given number of days.
+ */
 function stepDay(delta) {
     if (!keyboardFocusDate) {
         keyboardFocusDate = new Date(todayDate || systemToday);
     }
     keyboardFocusDate.setDate(keyboardFocusDate.getDate() + delta);
+
     const cell = document.getElementById(idForDate(keyboardFocusDate));
     if (cell) {
         highlightKeyboardFocusedDay();
         goalY = scrollPositionForElement(cell);
         startY = documentScrollTop();
         startTime = new Date();
-        if (goalY !== startY) {
-            scrollAnimation();
-        }
+        if (goalY !== startY) scrollAnimation();
     } else {
+        // If the new day isn't loaded, load more weeks
         loadCalendarAroundDate(keyboardFocusDate);
         setTimeout(() => {
             highlightKeyboardFocusedDay();
@@ -1420,6 +1399,11 @@ function stepDay(delta) {
         }, 300);
     }
 }
+
+/*
+ * createEventInFocusedDay()
+ *  - Press Enter to create a new note in the currently focused day.
+ */
 function createEventInFocusedDay() {
     if (!keyboardFocusDate) {
         showToast("No day is selected");
@@ -1433,6 +1417,7 @@ function createEventInFocusedDay() {
     }
     cell.classList.add("clicked-day");
     setTimeout(() => cell.classList.remove("clicked-day"), 500);
+
     const itemId = nextItemId();
     const note = generateItem(cellId, itemId);
     if (note) {
@@ -1441,6 +1426,11 @@ function createEventInFocusedDay() {
         note.focus();
     }
 }
+
+/*
+ * deleteEntriesForFocusedDay()
+ *  - Press Delete/Backspace to remove all notes in the current day.
+ */
 function deleteEntriesForFocusedDay() {
     if (!keyboardFocusDate) {
         showToast("No day is selected");
@@ -1466,45 +1456,46 @@ function deleteEntriesForFocusedDay() {
     }
 }
 
+// Add global keydown event for hotkeys
 document.addEventListener("keydown", (e) => {
-    // If the palette is open, let the handleCommandNavigation code handle it
+    // If command palette is open, let that handle up/down/enter
     const palette = document.getElementById("command-palette");
     if (palette && palette.classList.contains("active")) {
-        // Do nothing here; return early so we don't also intercept Escape
+        return;
+    }
+    // If user is typing in an <input> or <textarea>, skip
+    if (e.target && (e.target.tagName.toLowerCase() === "textarea" ||
+                     e.target.tagName.toLowerCase() === "input")) {
         return;
     }
 
-    // (otherwise do your existing global Esc logic, e.g. closing help, etc.)
-
-    if (
-        e.target &&
-            (e.target.tagName.toLowerCase() === "textarea" || e.target.tagName.toLowerCase() === "input")
-    ) {
-        return;
-    }
-    // Command palette shortcuts:
+    // Command palette shortkeys => Ctrl+K or Ctrl+/ ...
     if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
         e.preventDefault();
         showCommandPalette();
         return;
     }
-    // Quick date popup
+
+    // Quick date pop-up => Press 'd'
     if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         showQuickDateInput();
         return;
     }
-    // Multi-select
+
+    // Multi-select => 'm'
     if (e.key === 'm') {
         e.preventDefault();
         toggleMultiSelectMode();
         return;
     }
+    // In multi-select mode, press space => toggle selection
     if (isMultiSelectMode) {
         if (e.key === ' ') {
             e.preventDefault();
             toggleDaySelection();
             return;
+        // Ctrl+C => Clear, Ctrl+N => Add note
         } else if (e.key === 'c' && e.ctrlKey) {
             e.preventDefault();
             performBatchAction('clear');
@@ -1516,17 +1507,17 @@ document.addEventListener("keydown", (e) => {
         }
     }
 
-    // NEW SHIFT+D => Download in Markdown:
+    // SHIFT+D => Download in Markdown
     if (e.key === "D" && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
         e.preventDefault();
         downloadMarkdownEvents();
         return;
     }
 
-
-
+    // Check other keys
     switch (e.key) {
     case "Escape":
+        // Possibly hide help, or year view, or cancel range select
         if (document.getElementById("help").style.display === "block") {
             hideHelp();
             return;
@@ -1551,17 +1542,17 @@ document.addEventListener("keydown", (e) => {
     case "?":
         e.preventDefault();
         const helpElem = document.getElementById("help");
-        helpElem.style.display === "block" ? hideHelp() : showHelp();
+        if (helpElem.style.display === "block") hideHelp(); else showHelp();
         break;
     case "i":
         e.preventDefault();
-        // Only activate keyboard navigation if not already active.
         if (!document.body.classList.contains('keyboard-nav-active')) {
             toggleKeyboardNavMode();
         }
         break;
     case "q":
     case "Q":
+        // Quit keyboard nav
         if (keyboardFocusDate) {
             e.preventDefault();
             keyboardFocusDate = null;
@@ -1572,6 +1563,7 @@ document.addEventListener("keydown", (e) => {
         break;
     case "z":
     case "Z":
+        // Undo/Redo shortcuts
         if (e.ctrlKey && e.shiftKey) {
             e.preventDefault();
             redoLastChange();
@@ -1585,22 +1577,22 @@ document.addEventListener("keydown", (e) => {
         break;
     case "y":
     case "Y":
+        // Show Year view
         if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
             redoLastChange();
         } else {
             e.preventDefault();
             const yv = document.getElementById("yearViewContainer");
-            yv.style.display === "block" ? hideYearView() : showYearView();
+            if (yv.style.display === "block") hideYearView(); else showYearView();
         }
         break;
     case "g":
     case "G":
         e.preventDefault();
+        // "go to date" => focus #jumpDate
         const jump = document.getElementById("jumpDate");
-        if (jump) {
-            jump.focus();
-        }
+        if (jump) jump.focus();
         break;
     case "ArrowLeft":
         e.preventDefault();
@@ -1639,11 +1631,12 @@ document.addEventListener("keydown", (e) => {
         break;
     case "t":
     case "T":
+        // Jump to systemToday
         todayDate = new Date(systemToday);
         loadCalendarAroundDate(todayDate);
         break;
     default:
-        // Toggle dark mode with Ctrl+D
+        // Ctrl+D => toggleDarkMode
         if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
             e.preventDefault();
             toggleDarkMode();
@@ -1652,18 +1645,20 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
+// ========== CLICK HANDLER FOR CREATING A NEW NOTE ==========
+
 document.addEventListener("click", evt => {
     const dayCell = evt.target.closest("td");
-    if (!dayCell || !dayCell.id || dayCell.classList.contains("extra")) {
-        return;
-    }
-    if (evt.target.tagName.toLowerCase() === "textarea") {
-        return;
-    }
+    if (!dayCell || !dayCell.id || dayCell.classList.contains("extra")) return;
+    // If clicked inside an existing <textarea>, do nothing
+    if (evt.target.tagName.toLowerCase() === "textarea") return;
+
     if (isSelectingRange) {
+        // If user is in "range select" mode, handle that
         handleRangeSelection(dayCell);
         return;
     }
+    // Otherwise create a new note
     dayCell.classList.add("clicked-day");
     setTimeout(() => dayCell.classList.remove("clicked-day"), 500);
     const itemId = nextItemId();
@@ -1675,54 +1670,51 @@ document.addEventListener("click", evt => {
     }
 });
 
-
-// Instead of storing row.dataset.monthName, store the actual numeric month:
+/*
+ * Instead of storing row.dataset.monthName = "March 2025",
+ * we store numeric row.dataset.monthIndex + row.dataset.year = e.g. 2 and 2025
+ */
 row.dataset.monthIndex = firstDate.getMonth();
-row.dataset.year = firstDate.getFullYear();
+row.dataset.year       = firstDate.getFullYear();
 
+/*
+ * jumpOneMonthForward(), jumpOneMonthBackward()
+ *  - Use the row's monthIndex/year to figure out the next/previous month's 1st day,
+ *    then call smoothScrollToDate().
+ */
 function jumpOneMonthForward() {
   if (!currentVisibleRow) return;
 
-  // Grab numeric month/year from the row's data attributes
   let year  = parseInt(currentVisibleRow.dataset.year, 10);
   let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
-  // Increment the month
   month++;
   if (month > 11) {
     month = 0;
     year++;
   }
-
-  // Create a new Date for the 1st day of that month
   const nextDate = new Date(year, month, 1);
-
-  // Now do your smooth scroll
   smoothScrollToDate(nextDate);
 }
-
 function jumpOneMonthBackward() {
-  // If we have no current visible row, bail out
   if (!currentVisibleRow) return;
 
-  // Grab numeric month/year from the row's data attributes
   let year  = parseInt(currentVisibleRow.dataset.year, 10);
   let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
-  // Decrement month, wrapping year if needed
   month--;
   if (month < 0) {
     month = 11;
     year--;
   }
-
-  // Create a date for the 1st day of that new month
   const prevDate = new Date(year, month, 1);
-
-  // Smooth scroll to that new date
   smoothScrollToDate(prevDate);
 }
 
+/*
+ * smoothScrollToDate(dateObj)
+ *  - Loads the calendar around the given date, then animates to it.
+ */
 function smoothScrollToDate(dateObj) {
     showLoading();
     loadCalendarAroundDate(dateObj);
@@ -1740,7 +1732,9 @@ function smoothScrollToDate(dateObj) {
     }, 200);
 }
 
-/* RANGE SELECTION */
+
+// ========== RANGE SELECTION ==========
+
 function toggleRangeSelection() {
     isSelectingRange = !isSelectingRange;
     if (!isSelectingRange) {
@@ -1748,29 +1742,41 @@ function toggleRangeSelection() {
     }
     showToast(isSelectingRange ? "Select range start date" : "Range selection cancelled");
 }
+
+/*
+ * clearRangeSelection()
+ *  - Clears any partial or complete range styling.
+ */
 function clearRangeSelection() {
-    document
-        .querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
+    document.querySelectorAll('.selected-range-start, .selected-range-end, .selected-range-day')
         .forEach(el => el.classList.remove('selected-range-start', 'selected-range-end', 'selected-range-day'));
     rangeStart = null;
     rangeEnd = null;
 }
+
+/*
+ * handleRangeSelection(dayCell)
+ *  - If no start is chosen, pick this dayCell as start.
+ *  - Else mark it as end, highlight the days in between, then disable range select.
+ */
 function handleRangeSelection(dayCell) {
     const dateId = dayCell.id;
     if (!dateId) return;
     const [month, day, year] = dateId.split('_').map(Number);
     const selectedDate = new Date(year, month, day);
+
     if (!rangeStart) {
         rangeStart = selectedDate;
         dayCell.classList.add('selected-range-start');
         showToast("Select range end date");
     } else if (!rangeEnd) {
         if (selectedDate < rangeStart) {
+            // If the user clicked an earlier day than the start, swap them
             rangeEnd = rangeStart;
             rangeStart = selectedDate;
             document.querySelector('.selected-range-start')?.classList.remove('selected-range-start');
             dayCell.classList.add('selected-range-start');
-            // Mark the old start as range-end
+            // The old start becomes the end
             document.querySelectorAll('td').forEach(cell => {
                 if (cell.id === idForDate(rangeEnd)) {
                     cell.classList.add('selected-range-end');
@@ -1785,6 +1791,11 @@ function handleRangeSelection(dayCell) {
         isSelectingRange = false;
     }
 }
+
+/*
+ * highlightDaysInRange()
+ *  - Marks days between rangeStart and rangeEnd with a "selected-range-day" class.
+ */
 function highlightDaysInRange() {
     if (!rangeStart || !rangeEnd) return;
     const curDate = new Date(rangeStart);
@@ -1792,17 +1803,21 @@ function highlightDaysInRange() {
         curDate.setDate(curDate.getDate() + 1);
         const dayId = idForDate(curDate);
         const dayCell = document.getElementById(dayId);
-        if (
-            dayCell &&
-                !dayCell.classList.contains('selected-range-start') &&
-                !dayCell.classList.contains('selected-range-end')
+        if (dayCell &&
+            !dayCell.classList.contains('selected-range-start') &&
+            !dayCell.classList.contains('selected-range-end')
         ) {
             dayCell.classList.add('selected-range-day');
         }
     }
 }
 
-/* JUMP TO DATE */
+
+// ========== "JUMP TO DATE" FIELD ==========
+
+/*
+ * jumpToDate() => read #jumpDate input, parse, scroll to that date.
+ */
 function jumpToDate() {
     const val = document.getElementById("jumpDate").value;
     if (!val) return;
@@ -1813,19 +1828,32 @@ function jumpToDate() {
     loadCalendarAroundDate(todayDate);
     setTimeout(() => smoothScrollToToday(), 300);
 }
+
+/*
+ * nextItemId()
+ *  - Generates a unique ID for a new note item. Stored in localStorage.nextId.
+ */
 function nextItemId() {
     localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
     return "item" + localStorage.nextId;
 }
 
-/* LOADING THE CALENDAR */
+
+// ========== LOADING THE CALENDAR ==========
+
 const throttledUpdateMiniCalendar = throttle(buildMiniCalendar, 300);
 let lastMiniCalendarMonth = null;
 
+/*
+ * loadCalendarAroundDate(seedDate)
+ *  - Clears #calendar, sets firstDate to the Monday of that week, and loads enough weeks to fill screen.
+ */
 function loadCalendarAroundDate(seedDate) {
     showLoading();
     const container = document.getElementById('calendarContainer');
     container.classList.add('loading-calendar');
+
+    // Start from seedDate, roll back to Monday
     calendarTableElement.innerHTML = "";
     firstDate = new Date(seedDate);
     while (getAdjustedDayIndex(firstDate) !== 0) {
@@ -1833,10 +1861,13 @@ function loadCalendarAroundDate(seedDate) {
     }
     lastDate = new Date(firstDate);
     lastDate.setDate(lastDate.getDate() - 1);
+
+    // Insert first row
     appendWeek();
 
     function loadBatch() {
         let batchCount = 0;
+        // Keep adding top/bottom weeks until screen is filled (or do a max iteration)
         while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
             prependWeek();
             appendWeek();
@@ -1845,17 +1876,19 @@ function loadCalendarAroundDate(seedDate) {
         if (documentScrollHeight() <= window.innerHeight) {
             setTimeout(loadBatch, 0);
         } else {
+            // Done loading
             container.classList.remove('loading-calendar');
             scrollToToday();
             recalculateAllHeights();
             updateStickyMonthHeader();
 
-            // Only rebuild mini-calendar if month changed:
+            // Rebuild mini-calendar if our month changed
             if (todayDate.getMonth() !== lastMiniCalendarMonth) {
                 buildMiniCalendar();
                 lastMiniCalendarMonth = todayDate.getMonth();
             }
 
+            // If we were using keyboardFocusDate, highlight that day
             if (keyboardFocusDate) {
                 highlightKeyboardFocusedDay();
             }
@@ -1865,6 +1898,7 @@ function loadCalendarAroundDate(seedDate) {
     loadBatch();
 }
 
+// On scroll, we may want parallax effect
 window.addEventListener("scroll", throttle(() => {
     const parallax = document.querySelector(".parallax-bg");
     if (parallax) {
@@ -1872,8 +1906,13 @@ window.addEventListener("scroll", throttle(() => {
     }
 }, 20));
 
+/*
+ * setupScrollObservers()
+ *  - Uses IntersectionObserver to detect hitting top/bottom sentinels, then loads more weeks.
+ */
 function setupScrollObservers() {
     const opts = { rootMargin: '200px' };
+
     const topObs = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
             const oldH = documentScrollHeight();
@@ -1885,6 +1924,7 @@ function setupScrollObservers() {
             updateStickyMonthHeader();
         }
     }, opts);
+
     const botObs = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
             for (let i = 0; i < 8; i++) {
@@ -1894,14 +1934,16 @@ function setupScrollObservers() {
             updateStickyMonthHeader();
         }
     }, opts);
+
     topObs.observe(document.getElementById('top-sentinel'));
     botObs.observe(document.getElementById('bottom-sentinel'));
 
-    // Check system date changes once a minute
+    // Also check if the system day changed
     setInterval(() => {
         const newSys = new Date();
         if (newSys.toDateString() !== systemToday.toDateString()) {
             systemToday = newSys;
+            // If the visual "today" is out of date, reload
             if (!document.querySelector('.current-day-dot')) {
                 location.reload();
             }
@@ -1909,6 +1951,11 @@ function setupScrollObservers() {
     }, 60000);
 }
 
+/*
+ * checkInfiniteScroll()
+ *  - Fallback approach if IntersectionObserver is not supported:
+ *    if near top -> prepend, if near bottom -> append.
+ */
 function checkInfiniteScroll() {
     if (documentScrollTop() < 200) {
         const oldH = documentScrollHeight();
@@ -1917,15 +1964,14 @@ function checkInfiniteScroll() {
         }
         window.scrollBy(0, documentScrollHeight() - oldH);
         recalculateAllHeights();
-    } else if (
-        documentScrollTop() >
-            documentScrollHeight() - window.innerHeight - 200
-    ) {
+    } else if (documentScrollTop() > documentScrollHeight() - window.innerHeight - 200) {
         for (let i = 0; i < 8; i++) {
             appendWeek();
         }
         recalculateAllHeights();
     }
+
+    // Also watch for system date changes
     const newSys = new Date();
     if (newSys.toDateString() !== systemToday.toDateString()) {
         systemToday = newSys;
@@ -1935,35 +1981,53 @@ function checkInfiniteScroll() {
     }
 }
 
+/*
+ * idForDate(date)
+ *  - Returns e.g. "2_14_2025" for a Feb 14, 2025.
+ */
 function idForDate(date) {
     return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
 }
+
+/*
+ * parseDateFromId(idStr)
+ *  - Reverse of the above: "2_14_2025" => "2025-03-14"
+ */
 function parseDateFromId(idStr) {
     const parts = idStr.split("_");
     if (parts.length !== 3) return null;
     const [month, day, year] = parts.map(Number);
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
+
+/*
+ * getAdjustedDayIndex(date)
+ *  - Returns 0..6 for Monday..Sunday, shifting JS's default Sunday=0.
+ */
 function getAdjustedDayIndex(date) {
-    const day = date.getDay();
-    return day === 0 ? 6 : day - 1;
+    const day = date.getDay();  // 0..6 (Sun..Sat)
+    return day === 0 ? 6 : day - 1; // Re-map so Monday=0, Sunday=6
 }
+
+/*
+ * animateRowInsertion(row, direction)
+ *  - Adds a CSS class to animate row insertion at top or bottom.
+ */
 function animateRowInsertion(row, direction = 'append') {
     row.classList.add(ROW_ANIMATION_CLASS);
     row.classList.add(direction === 'append' ? 'append-animate' : 'prepend-animate');
-    row.addEventListener(
-        'animationend',
-        () => {
-            row.classList.remove(ROW_ANIMATION_CLASS, 'append-animate', 'prepend-animate');
-        },
-        { once: true }
-    );
+    row.addEventListener('animationend', () => {
+        row.classList.remove(ROW_ANIMATION_CLASS, 'append-animate', 'prepend-animate');
+    }, { once: true });
 }
 
 
+// ========== MOBILE SWIPE ==========
 
-
-
+/*
+ * setupHorizontalSwipe()
+ *  - On mobile, swiping left => next month, swiping right => previous month.
+ */
 function setupHorizontalSwipe() {
   let touchStartX = 0;
   let touchEndX = 0;
@@ -1979,12 +2043,12 @@ function setupHorizontalSwipe() {
   }, { passive: true });
 
   function handleSwipe() {
-    // If we swiped left enough -> next month
+    // left => next month
     if (touchEndX < touchStartX - swipeThreshold) {
       showSwipeIndicator('left');
       jumpOneMonthForward();
     }
-    // If we swiped right enough -> prev month
+    // right => previous month
     else if (touchEndX > touchStartX + swipeThreshold) {
       showSwipeIndicator('right');
       jumpOneMonthBackward();
@@ -2012,7 +2076,6 @@ function setupHorizontalSwipe() {
 
     document.body.appendChild(indicator);
 
-    // Fade out & remove
     setTimeout(() => {
       indicator.style.opacity = '0';
       indicator.style.transition = 'opacity 0.3s';
@@ -2022,57 +2085,60 @@ function setupHorizontalSwipe() {
 }
 
 
+// ========== WINDOW ONLOAD ==========
 
 window.onload = async function() {
+    // On mobile, enable horizontal swipes for month switching
+    if (window.innerWidth <= 768) {
+        setupHorizontalSwipe();
+    }
 
-    // or delete this if I don't want horizontal swiping on mobile
-if (window.innerWidth <= 768) {
-    setupHorizontalSwipe();
-  }
-// up to here
-
-
-    // 1. Load from server one time (could be optional)
+    // (1) Optionally load data from server once
     await loadDataFromServer();
 
-    // 3. Proceed as normal
+    // (2) Grab the #calendar table
     calendarTableElement = document.getElementById("calendar");
     todayDate = new Date(systemToday);
+
+    // Build the calendar around "today"
     loadCalendarAroundDate(todayDate);
 
-    // 2) This sets up the infinite scrolling watchers
+    // (3) Use IntersectionObserver if possible; else fallback
     if ('IntersectionObserver' in window) {
         setupScrollObservers();
     } else {
         setInterval(checkInfiniteScroll, 100);
     }
 
-    // 3) Optionally auto-pull from server if we haven't yet today:
+    // (4) Auto-pull from server once a day if we want
     let lastPulledDate = localStorage.getItem("lastPulledDate") || "";
     const todayString = new Date().toDateString();
     if (lastPulledDate !== todayString) {
         localStorage.setItem("lastPulledDate", todayString);
-        await pullUpdatesFromServer();  // or just call your function to load from server
+        await pullUpdatesFromServer();
     }
 
-    // 4) Misc existing setup
+    // (5) Misc. setup: set #jumpDate to today's date, re-apply dark mode
     const j = document.getElementById("jumpDate");
     if (j) {
         const sys = new Date();
         j.value = sys.getFullYear() + "-" +
-            String(sys.getMonth() + 1).padStart(2, '0') + "-" +
-            String(sys.getDate()).padStart(2, '0');
+                  String(sys.getMonth() + 1).padStart(2, '0') + "-" +
+                  String(sys.getDate()).padStart(2, '0');
     }
 
     if (localStorage.getItem("darkMode") === "enabled") {
         document.body.classList.add("dark-mode");
     }
 
+    // Recalc <textarea> heights after short delay
     setTimeout(recalculateAllHeights, 100);
 
+    // Listen for scroll to update the sticky month header
     window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
     updateStickyMonthHeader();
 
+    // Additional cosmetic: fade in the top header after scrolling
     window.addEventListener('scroll', () => {
         const header = document.getElementById('header');
         if (window.scrollY > 50) {
@@ -2084,7 +2150,12 @@ if (window.innerWidth <= 768) {
 };
 
 
+// ========== IMPORT/EXPORT FUNCTIONS ==========
 
+/*
+ * downloadLocalStorageData()
+ *  - Saves a JSON snapshot of localStorage as "calendar_data.json".
+ */
 function downloadLocalStorageData() {
     showLoading();
     const data = {};
@@ -2100,12 +2171,17 @@ function downloadLocalStorageData() {
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
+
     setTimeout(() => {
         hideLoading();
         showToast("Calendar data downloaded");
     }, 300);
 }
 
+/*
+ * loadDataFromFile()
+ *  - Loads JSON from user-selected file into localStorage, then reloads page.
+ */
 function loadDataFromFile() {
     showLoading();
     const input = document.getElementById("fileInput");
@@ -2122,7 +2198,6 @@ function loadDataFromFile() {
             for (const key in data) {
                 if (data.hasOwnProperty(key)) {
                     localStorage.setItem(key, data[key]);
-                    // Now call the *debounced* version:
                     debouncedServerSave();
                 }
             }
@@ -2140,6 +2215,10 @@ function loadDataFromFile() {
     reader.readAsText(file);
 }
 
+/*
+ * shouldLoadOrExport()
+ *  - Example method using the File System Access API for directory-based sync.
+ */
 async function shouldLoadOrExport() {
     showLoading();
     try {
@@ -2148,13 +2227,16 @@ async function shouldLoadOrExport() {
         const file = await fileHandle.getFile();
         const contents = await file.text();
         const data = JSON.parse(contents);
+
         const fileTimestamp = data.lastSavedTimestamp;
         const localTimestamp = localStorage.getItem("lastSavedTimestamp");
         if (fileTimestamp && (!localTimestamp || fileTimestamp > localTimestamp)) {
+            // If file is newer, backup local then load from file
             downloadBackupStorageData();
             await loadDataFromFileHandle(fileHandle);
             location.reload();
         } else {
+            // Otherwise export our local data to file
             await exportToFileHandle(fileHandle);
             hideLoading();
         }
@@ -2168,6 +2250,11 @@ async function shouldLoadOrExport() {
         }
     }
 }
+
+/*
+ * downloadBackupStorageData()
+ *  - Creates a backup of local data in "calendar_data_backup.json".
+ */
 function downloadBackupStorageData() {
     showLoading();
     const data = {};
@@ -2183,37 +2270,20 @@ function downloadBackupStorageData() {
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
+
     setTimeout(() => {
         hideLoading();
         showToast("Calendar data backup created", 5000);
     }, 300);
 }
 
-/* ---------------------
-   NEW MARKDOWN EXPORT
-   ---------------------- */
 
-// 1) Helper functions you requested:
-// For serializing a directory handle to a string:
-async function serializeDirectoryHandle(dirHandle) {
-    // Request read/write permission if not already granted:
-    await dirHandle.requestPermission({ mode: "readwrite" });
-    // We'll just store the directory's "name", but that won't actually let us re-hydrate
-    // the handle. You truly need "structuredClone" support in an IndexedDB approach.
-    return JSON.stringify({
-        name: dirHandle.name,
-        // (If we had a stable way to store the actual handle in localStorage, we would do it here.)
-    });
-}
+// ========== MARKDOWN EXPORT ==========
 
-// For re-creating the handle from a string:
-async function restoreDirectoryHandle(str) {
-    // Even if we parse the name, there's no official standard to resurrect the real handle.
-    // This function intentionally throws an error as a reminder:
-    throw new Error("In practice, you must store FileSystemDirectoryHandle in IndexedDB for re-hydration!");
-}
-
-// 2) Your existing function, updated to attempt writing directly to a chosen directory:
+/*
+ * downloadMarkdownEvents()
+ *  - Gathers events from localStorage, organizes by year/month/day, and optionally saves to user-chosen directory.
+ */
 async function downloadMarkdownEvents() {
     // 1) Gather date => [events] from localStorage
     const dateMap = {};
@@ -2234,7 +2304,7 @@ async function downloadMarkdownEvents() {
         }
     }
 
-    // 2) Build a structure: structured[year][monthIndex] = [{ day, events }]
+    // 2) Build structured[year][month] = array of day/notes
     const structured = {};
     for (let dateKey in dateMap) {
         const [m, d, y] = dateKey.split("_").map(Number);
@@ -2243,76 +2313,58 @@ async function downloadMarkdownEvents() {
         const month = dt.getMonth();
         const day = dt.getDate();
 
-        if (!structured[year]) {
-            structured[year] = {};
-        }
-        if (!structured[year][month]) {
-            structured[year][month] = [];
-        }
+        if (!structured[year]) structured[year] = {};
+        if (!structured[year][month]) structured[year][month] = [];
         structured[year][month].push({ day, events: dateMap[dateKey] });
     }
 
-    // We'll output lines with headings for each year/month,
-    // plus the day lines and "  - " prefix for events.
+    // Build lines
     const months = [
         "January","February","March","April","May","June",
         "July","August","September","October","November","December"
     ];
-    const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
+    const years = Object.keys(structured).map(Number).sort((a,b) => a-b);
 
     let mdLines = [];
 
-    // 3) For each year, push "# YEAR"
+    // For each year
     for (let y of years) {
         mdLines.push(`# ${y}`);
-        // Sort the month's keys (0..11) ascending
-        const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
-
+        const monthsInYear = Object.keys(structured[y]).map(Number).sort((a,b) => a-b);
         for (let m of monthsInYear) {
-            // Month heading: "** MonthName YEAR"
-            mdLines.push(`** ${months[m]} ${y}`);
-
-            // Sort days ascending
+            mdLines.push(`* ${months[m]} ${y}`);
             structured[y][m].sort((a, b) => a.day - b.day);
 
-            // For each day, lines like:
-            // "2/18/2025"
-            //   - Fly to SF
             structured[y][m].forEach(obj => {
-                const dayStr = `${m + 1}/${obj.day}/${y}`;
+                const dayStr = `${m+1}/${obj.day}/${y}`;
                 mdLines.push(dayStr);
                 obj.events.forEach(ev => {
-                    // Two spaces, then dash => "  - "
                     mdLines.push(`  - ${ev}`);
                 });
-                // Blank line after each day block
                 mdLines.push("");
             });
         }
     }
 
-    // 4) Convert lines to text
     const finalText = mdLines.join("\n");
 
-    // Check if we have a stored directory handle in localStorage
+    // Possibly restore a previously stored directory handle
     let dirHandle = null;
     const stored = localStorage.getItem("myDirectoryHandle");
     if (stored) {
-        // Attempt to restore it
         try {
             dirHandle = await restoreDirectoryHandle(stored);
-            // If we get here without error, request permission
             const perm = await dirHandle.requestPermission({ mode: "readwrite" });
             if (perm !== "granted") {
                 throw new Error("Permission was not granted for readwrite");
             }
         } catch (err) {
-            console.warn("Failed to restore directory handle from storage:", err);
+            console.warn("Failed to restore directory handle:", err);
             dirHandle = null;
         }
     }
 
-    // If we have no valid handle, ask user to pick a directory:
+    // If no handle, ask the user
     if (!dirHandle) {
         try {
             dirHandle = await window.showDirectoryPicker();
@@ -2321,10 +2373,8 @@ async function downloadMarkdownEvents() {
                 showToast("Cannot save without write permission");
                 return;
             }
-            // Serialize it (though it won't truly re-hydrate from localStorage)
             const serialized = await serializeDirectoryHandle(dirHandle);
             localStorage.setItem("myDirectoryHandle", serialized);
-            // Now call the *debounced* version:
             debouncedServerSave();
         } catch (err) {
             console.error("User canceled picking directory or permission denied:", err);
@@ -2333,7 +2383,7 @@ async function downloadMarkdownEvents() {
         }
     }
 
-    // Now write "jay-diary.md" to the chosen directory:
+    // Write "jay-diary.md" in that directory
     try {
         const fileHandle = await dirHandle.getFileHandle("jay-diary.md", { create: true });
         const writable = await fileHandle.createWritable();
@@ -2345,13 +2395,13 @@ async function downloadMarkdownEvents() {
         showToast("Error writing file to directory");
     }
 
-    // 5) Optionally copy to clipboard
+    // Also copy to clipboard
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(finalText)
             .then(() => showToast("Markdown events copied to clipboard!"))
             .catch(err => console.error("Clipboard copy failed:", err));
     } else {
-        // fallback if insecure context
+        // fallback
         const textArea = document.createElement("textarea");
         textArea.value = finalText;
         textArea.style.position = "fixed";
@@ -2370,11 +2420,8 @@ async function downloadMarkdownEvents() {
 }
 
 
-
 /*
- * debounce(fn, delay)
- * Returns a function that, when invoked repeatedly, calls `fn` only after
- * no further calls occur for the given `delay` in milliseconds.
+ * Implementation of a debounced server save. Only triggered after user stops typing for 2s.
  */
 function debounce(fn, delay) {
     let timeout;
@@ -2383,18 +2430,17 @@ function debounce(fn, delay) {
         timeout = setTimeout(() => fn.apply(this, args), delay);
     };
 }
-
-// Then create a debounced wrapper:
 const debouncedServerSave = debounce(() => {
     saveDataToServer();
 }, 2000);
 
 
+// ========== FILE HANDLING FOR SYNC ==========
 
-
-
-
-/* REMAINING FILE HANDLING FOR SYNC */
+/*
+ * loadDataFromFileHandle(fileHandle)
+ *  - Loads JSON from the given file handle.
+ */
 async function loadDataFromFileHandle(fileHandle) {
     try {
         const file = await fileHandle.getFile();
@@ -2403,7 +2449,6 @@ async function loadDataFromFileHandle(fileHandle) {
         for (const key in data) {
             if (data.hasOwnProperty(key)) {
                 localStorage.setItem(key, data[key]);
-                // Now call the *debounced* version:
                 debouncedServerSave();
             }
         }
@@ -2414,6 +2459,11 @@ async function loadDataFromFileHandle(fileHandle) {
         showToast("Error loading calendar data");
     }
 }
+
+/*
+ * exportToFileHandle(fileHandle)
+ *  - Saves current localStorage to the given file handle.
+ */
 async function exportToFileHandle(fileHandle) {
     try {
         const writable = await fileHandle.createWritable();
@@ -2434,9 +2484,13 @@ async function exportToFileHandle(fileHandle) {
     }
 }
 
+/*
+ * buildDiaryExportText()
+ *  - Another example function for converting day events into a plain text "diary" format.
+ */
 function buildDiaryExportText() {
-    // existing logic from your code
     let eventsByDate = {};
+    // Gather note IDs from day keys like "2_14_2025"
     for (const key in localStorage) {
         if (!localStorage.hasOwnProperty(key)) continue;
         if (!/^\d+_\d+_\d+$/.test(key)) continue;
@@ -2453,6 +2507,7 @@ function buildDiaryExportText() {
         }
     }
 
+    // Convert to lines, sorted by date
     let dateEntries = [];
     for (let dateKey in eventsByDate) {
         let [m, d, y] = dateKey.split("_").map(Number);
@@ -2480,15 +2535,17 @@ function buildDiaryExportText() {
 }
 
 
+// ========== SERVER SYNC ==========
 
-
-
+/*
+ * loadDataFromServer()
+ *  - Fetches JSON from your server endpoint (e.g., 'api.php'), stores in localStorage.
+ */
 async function loadDataFromServer() {
     try {
         const response = await fetch('api.php');
         const data = await response.json();
 
-        // Clear existing localStorage and populate from the fetched data
         localStorage.clear();
         for (let key in data) {
             localStorage.setItem(key, data[key]);
@@ -2499,15 +2556,16 @@ async function loadDataFromServer() {
     }
 }
 
-
+/*
+ * saveDataToServer()
+ *  - Collects all localStorage into an object, POSTs to server.
+ */
 async function saveDataToServer() {
-    // Gather all localStorage data into an object
     const allData = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         allData[key] = localStorage.getItem(key);
     }
-
     try {
         const resp = await fetch('api.php', {
             method: 'POST',
@@ -2521,25 +2579,23 @@ async function saveDataToServer() {
     }
 }
 
+/*
+ * pullUpdatesFromServer(confirmNeeded)
+ *  - Optionally confirms, then fetches data from the server into localStorage.
+ */
 async function pullUpdatesFromServer(confirmNeeded = false) {
-    // If we still want a prompt for manual pulls:
     if (confirmNeeded) {
         const confirmed = confirm("Pull server data? This may overwrite local changes if they're not saved.");
         if (!confirmed) return;
     }
-
     showLoading();
     try {
-        // This might be 'api.php' or 'calendar_data.json' directly
         const response = await fetch('api.php');
         const data = await response.json();
-
-        // Overwrite localStorage
         localStorage.clear();
         for (let key in data) {
             localStorage.setItem(key, data[key]);
         }
-
         loadCalendarAroundDate(todayDate);
         showToast("Pulled latest data from server");
     } catch (err) {
@@ -2551,6 +2607,10 @@ async function pullUpdatesFromServer(confirmNeeded = false) {
 }
 
 
+/*
+ * importFromDiaryFile()
+ *  - Lets user open an Emacs "diary" text file, parse line by line, and import to localStorage.
+ */
 async function importFromDiaryFile() {
     try {
         showLoading();
