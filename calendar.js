@@ -1670,12 +1670,6 @@ document.addEventListener("click", evt => {
     }
 });
 
-/*
- * Instead of storing row.dataset.monthName = "March 2025",
- * we store numeric row.dataset.monthIndex + row.dataset.year = e.g. 2 and 2025
- */
-row.dataset.monthIndex = firstDate.getMonth();
-row.dataset.year       = firstDate.getFullYear();
 
 /*
  * jumpOneMonthForward(), jumpOneMonthBackward()
