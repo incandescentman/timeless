@@ -47,7 +47,7 @@ const monthsShort = ["Jan","Feb","March","April","May","June","July","Aug","Sep"
 let startTime, startY, goalY;
 
 // If we used to track "currentVisibleMonth", we now track the row instead.
-let currentVisibleMonth = '';
+let currentVisibleRow = '';
 let keyboardFocusDate = null;  // used for arrow key navigation
 
 // Multi-select mode
@@ -1682,11 +1682,11 @@ row.dataset.year       = firstDate.getFullYear();
  *  - Use the row's monthIndex/year to figure out the next/previous month's 1st day,
  *    then call smoothScrollToDate().
  */
-function jumpOneMonthForward() {
-  if (!currentVisibleRow) return;
 
-  let year  = parseInt(currentVisibleRow.dataset.year, 10);
-  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
+function jumpOneMonthForward() {
+  if (!window.currentVisibleRow) return;
+  let year = parseInt(window.currentVisibleRow.dataset.year, 10);
+  let month = parseInt(window.currentVisibleRow.dataset.monthIndex, 10);
 
   month++;
   if (month > 11) {
@@ -1696,11 +1696,11 @@ function jumpOneMonthForward() {
   const nextDate = new Date(year, month, 1);
   smoothScrollToDate(nextDate);
 }
-function jumpOneMonthBackward() {
-  if (!currentVisibleRow) return;
 
-  let year  = parseInt(currentVisibleRow.dataset.year, 10);
-  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
+function jumpOneMonthBackward() {
+  if (!window.currentVisibleRow) return;
+  let year = parseInt(window.currentVisibleRow.dataset.year, 10);
+  let month = parseInt(window.currentVisibleRow.dataset.monthIndex, 10);
 
   month--;
   if (month < 0) {
@@ -1710,6 +1710,8 @@ function jumpOneMonthBackward() {
   const prevDate = new Date(year, month, 1);
   smoothScrollToDate(prevDate);
 }
+
+
 
 /*
  * smoothScrollToDate(dateObj)
