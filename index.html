@@ -1061,11 +1061,13 @@ background: none !important;
 
 /* Large day label, left side */
 .day-label {
-  font-size: 20px;
+  font-size: 16px !important;
   font-weight: 600;
   color: #333;
-  text-align: left;
+    text-align: left;
+text-transform:uppercase !important;
 }
+
 
 /* Month + day number container on the right */
 .month-day-container {
@@ -1075,9 +1077,9 @@ background: none !important;
 }
 
 .month-label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
-  color: #888;
+  color: #aaa !important;
   text-transform: uppercase;
 }
 
@@ -1086,18 +1088,6 @@ background: none !important;
   font-weight: 700;
   color: #333;
 }
-
-
-
-  /* Uncomment and adjust these if you use a vertical layout variation */
-  /*
-  #calendar.vertical td .day-number {
-    font-size: 16px;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-  }
-  */
 
   /* Header and button styles */
   #header {
@@ -1213,6 +1203,8 @@ background: none !important;
     transform: scale(0.95);
   }
 }
+
+
 
 /* ================
    NARROW SCREENS (<= 480px)
@@ -1823,40 +1815,47 @@ const monthsShort = ["Jan","Feb","March","April","May","June","July","Aug","Sep"
       }
     }
 
-   function generateDay(dayCell, date) {
-      const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
-      if (isWeekend) dayCell.classList.add("weekend");
+function generateDay(dayCell, date) {
+  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+  if (isWeekend) dayCell.classList.add("weekend");
 
-      const isShaded = (date.getMonth() % 2 === 1);
-      if (isShaded) dayCell.classList.add("shaded");
+  const isShaded = (date.getMonth() % 2 === 1);
+  if (isShaded) dayCell.classList.add("shaded");
 
-      const isToday = (
-         date.getFullYear() === todayDate.getFullYear() &&
-         date.getMonth() === todayDate.getMonth() &&
-         date.getDate() === todayDate.getDate()
-      );
-      if (isToday) dayCell.classList.add("today");
+  const isToday = (
+    date.getFullYear() === todayDate.getFullYear() &&
+    date.getMonth() === todayDate.getMonth() &&
+    date.getDate() === todayDate.getDate()
+  );
+  if (isToday) dayCell.classList.add("today");
 
-      dayCell.id = idForDate(date);
+  dayCell.id = idForDate(date);
 
-      // For mobile screens: show "Month" + "Day Label" + "Day Number"
-      if (window.innerWidth <= 768) {
-         // Short month name: use monthsShort or your shortMonths array
-         const monthShort = shortMonths[date.getMonth()];
-         const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
-         const dayNum = date.getDate();
+  // For mobile screens
+  if (window.innerWidth <= 768) {
+    const monthShort = shortMonths[date.getMonth()];
+    const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
+    const dayNum = date.getDate();
 
-         dayCell.innerHTML = `
-           <span class="day-label">${dowLabel}</span>
-           <span class="month-label">${monthShort}</span>
-           <span class="day-number">${dayNum}</span>
-         `;
-      } else {
-         // Original desktop layout
-         dayCell.innerHTML = `
-           <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
-           <span class="day-number">${date.getDate()}</span>`;
-      }
+    // Replace the old inline HTML with a flex container and two groups:
+    // (1) day-label on the left
+    // (2) month-label + day-number on the right
+    dayCell.innerHTML = `
+      <div class="day-top-row">
+        <span class="day-label">${dowLabel}</span>
+        <div class="month-day-container">
+          <span class="month-label">${monthShort}</span>
+          <span class="day-number">${dayNum}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    // Original desktop layout
+    dayCell.innerHTML = `
+      <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+      <span class="day-number">${date.getDate()}</span>
+    `;
+  }
 
   lookupItemsForParentId(dayCell.id, items => {
     items.forEach(it => {
