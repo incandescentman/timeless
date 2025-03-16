@@ -1594,7 +1594,6 @@ function animateRowInsertion(row, direction = 'append') {
 
 function setupTouchGestures() {
 
-
     document.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
@@ -1667,32 +1666,73 @@ function setupTouchGestures() {
 }
 
 
+function setupHorizontalSwipe() {
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const swipeThreshold = 80;
+
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    // If we swiped left enough -> next month
+    if (touchEndX < touchStartX - swipeThreshold) {
+      showSwipeIndicator('left');
+      jumpOneMonthForward();
+    }
+    // If we swiped right enough -> prev month
+    else if (touchEndX > touchStartX + swipeThreshold) {
+      showSwipeIndicator('right');
+      jumpOneMonthBackward();
+    }
+  }
+
+  function showSwipeIndicator(direction) {
+    const indicator = document.createElement('div');
+    indicator.style.position = 'fixed';
+    indicator.style.top = '50%';
+    indicator.style.padding = '10px 20px';
+    indicator.style.background = 'rgba(0,0,0,0.7)';
+    indicator.style.color = 'white';
+    indicator.style.borderRadius = '20px';
+    indicator.style.zIndex = '1000';
+    indicator.style.transform = 'translateY(-50%)';
+
+    if (direction === 'left') {
+      indicator.textContent = 'Next Month →';
+      indicator.style.right = '20px';
+    } else {
+      indicator.textContent = '← Previous Month';
+      indicator.style.left = '20px';
+    }
+
+    document.body.appendChild(indicator);
+
+    // Fade out & remove
+    setTimeout(() => {
+      indicator.style.opacity = '0';
+      indicator.style.transition = 'opacity 0.3s';
+      setTimeout(() => indicator.remove(), 300);
+    }, 800);
+  }
+}
+
+
+
+
 window.onload = async function() {
     // Show a hint for mobile users
-    if (window.innerWidth <= 768) {
-        document.getElementById('mobileActions').style.display = 'flex';
-        const hint = document.createElement('div');
-        hint.className = 'swipe-hint';
-        hint.textContent = 'Tap to add event - Swipe vertically to scroll';
-        hint.style.textAlign = 'center';
-        hint.style.padding = '8px';
-        hint.style.margin = '10px auto';
-        hint.style.fontSize = '12px';
-        hint.style.color = '#666';
-        hint.style.background = 'rgba(0,0,0,0.05)';
-        hint.style.borderRadius = '20px';
-        hint.style.width = '80%';
-        document.getElementById('calendarContainer').insertBefore(hint, document.getElementById('calendar'));
-        setTimeout(() => {
-            hint.style.opacity = '0';
-            hint.style.transition = 'opacity 0.5s';
-            setTimeout(() => hint.remove(), 500);
-        }, 5000);
+if (window.innerWidth <= 768) {
+    // Show mobile swipe hint, etc.
+    setupHorizontalSwipe(); // or whatever you call it
+  }
 
-        // Setup touch gesture detection for mobile
-// If you want purely horizontal swipes, you can keep a simpler version:
-+       // setupHorizontalSwipeOnly();
-    }
 
     // 1. Load from server one time (could be optional)
     await loadDataFromServer();
