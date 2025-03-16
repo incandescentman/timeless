@@ -1347,43 +1347,41 @@ row.dataset.monthIndex = firstDate.getMonth();
 row.dataset.year = firstDate.getFullYear();
 
 function jumpOneMonthForward() {
-  // If we have no current visible row, bail out
   if (!currentVisibleRow) return;
 
   // Grab numeric month/year from the row's data attributes
   let year  = parseInt(currentVisibleRow.dataset.year, 10);
   let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
-  // Increment month, wrapping year if needed
+  // Increment the month
   month++;
   if (month > 11) {
     month = 0;
     year++;
   }
 
-  // Create a date for the 1st day of that new month
+  // Create a new Date for the 1st day of that month
   const nextDate = new Date(year, month, 1);
 
-  // Smooth scroll to that new date
+  // Now do your smooth scroll
   smoothScrollToDate(nextDate);
 }
 
 function jumpOneMonthBackward() {
-    if (!currentVisibleMonth) return;
-    const [monthName, yearStr] = currentVisibleMonth.split(" ");
-    if (!monthName || !yearStr) return;
-    let y = parseInt(yearStr, 10) || new Date().getFullYear();
-    const mIdx = months.indexOf(monthName);
-    if (mIdx === -1) return;
-    let pm = mIdx - 1;
-    if (pm < 0) {
-        pm = 11;
-        y--;
-    }
-    const prevDate = new Date(y, pm, 1);
-    smoothScrollToDate(prevDate);
-}
+  if (!currentVisibleRow) return;
 
+  let year  = parseInt(currentVisibleRow.dataset.year, 10);
+  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
+
+  month--;
+  if (month < 0) {
+    month = 11;
+    year--;
+  }
+
+  const prevDate = new Date(year, month, 1);
+  smoothScrollToDate(prevDate);
+}
 
 function smoothScrollToDate(dateObj) {
     showLoading();
