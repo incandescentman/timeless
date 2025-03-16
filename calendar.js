@@ -4,7 +4,9 @@
  */
 
 /* CORE VARIABLES & STATE */
-let systemToday = new Date();
+// Force local midnight date (no hours/minutes)
+const now = new Date();
+let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 let todayDate;
 let calendarTableElement;
 let firstDate, lastDate;
@@ -1591,25 +1593,13 @@ function animateRowInsertion(row, direction = 'append') {
 
 
 function setupTouchGestures() {
-    let touchStartX = 0;
-    let touchEndX = 0;
-    let touchStartY = 0;
-    let touchDeltaY = 0;
-    let isPulling = false;
-    const pullThreshold = 70;
+
 
     document.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].clientY;
-        if (window.scrollY === 0) {
-            isPulling = true;
-        }
     }, { passive: true });
 
     document.addEventListener('touchmove', e => {
-        if (!isPulling) return;
-
-        touchDeltaY = e.changedTouches[0].clientY - touchStartY;
 
         if (touchDeltaY > 0 && touchDeltaY < pullThreshold) {
             // Show visual feedback that we're pulling
@@ -1621,46 +1611,13 @@ function setupTouchGestures() {
     }, { passive: true });
 
     document.addEventListener('touchend', e => {
-        // Handle pull-to-refresh
-        if (isPulling) {
-            if (touchDeltaY > pullThreshold) {
-                // Do the refresh
-                pullUpdatesFromServer();
-                showToast("Refreshing calendar...");
-            }
-
-            // Reset pull state
-            isPulling = false;
-            const indicator = document.getElementById('pull-indicator');
-            if (indicator) {
-                indicator.style.opacity = '0';
-                indicator.style.transform = 'translateY(0)';
-            }
-        }
 
         // Handle horizontal swipe
         touchEndX = e.changedTouches[0].screenX;
         handleSwipe();
     }, { passive: true });
 
-    function createPullIndicator() {
-        const indicator = document.createElement('div');
-        indicator.id = 'pull-indicator';
-        indicator.textContent = '↓ Pull to refresh';
-        indicator.style.position = 'fixed';
-        indicator.style.top = '0';
-        indicator.style.left = '0';
-        indicator.style.width = '100%';
-        indicator.style.textAlign = 'center';
-        indicator.style.padding = '10px';
-        indicator.style.background = 'rgba(0,0,0,0.1)';
-        indicator.style.color = '#333';
-        indicator.style.transition = 'opacity 0.3s';
-        indicator.style.opacity = '0';
-        indicator.style.zIndex = '1000';
-        document.body.appendChild(indicator);
-        return indicator;
-    }
+
 
     function handleSwipe() {
         const swipeThreshold = 80; // Minimum distance for a swipe
@@ -1733,7 +1690,8 @@ window.onload = async function() {
         }, 5000);
 
         // Setup touch gesture detection for mobile
-        setupTouchGestures();
+// If you want purely horizontal swipes, you can keep a simpler version:
++       // setupHorizontalSwipeOnly();
     }
 
     // 1. Load from server one time (could be optional)
