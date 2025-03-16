@@ -3064,99 +3064,126 @@ document.addEventListener("keydown", (e) => {
 
 
 function setupTouchGestures() {
-// Add to your setupTouchGestures function
-let touchStartY = 0;
-let touchDeltaY = 0;
-let isPulling = false;
-const pullThreshold = 70;
-
-document.addEventListener('touchstart', e => {
-  touchStartY = e.touches[0].clientY;
-  touchStartX = e.touches[0].clientX;
-  if (window.scrollY === 0) {
-    isPulling = true;
-  }
-}, { passive: true });
-
-document.addEventListener('touchmove', e => {
-  if (!isPulling) return;
-
-  touchDeltaY = e.touches[0].clientY - touchStartY;
-
-  if (touchDeltaY > 0 && touchDeltaY < pullThreshold) {
-    // Show visual feedback that we're pulling
-    const percent = Math.min(touchDeltaY / pullThreshold, 1);
-    const indicator = document.getElementById('pull-indicator') || createPullIndicator();
-    indicator.style.opacity = percent.toFixed(2);
-    indicator.style.transform = `translateY(${touchDeltaY / 2}px)`;
-  }
-}, { passive: true });
-
-document.addEventListener('touchend', e => {
-  if (!isPulling) return;
-
-  if (touchDeltaY > pullThreshold) {
-    // Do the refresh
-    pullUpdatesFromServer();
-    showToast("Refreshing calendar...");
-  }
-
-  // Reset
-  isPulling = false;
-  const indicator = document.getElementById('pull-indicator');
-  if (indicator) {
-    indicator.style.opacity = '0';
-    indicator.style.transform = 'translateY(0)';
-  }
-}, { passive: true });
-
-function createPullIndicator() {
-  const indicator = document.createElement('div');
-  indicator.id = 'pull-indicator';
-  indicator.textContent = '↓ Pull to refresh';
-  indicator.style.position = 'fixed';
-  indicator.style.top = '0';
-  indicator.style.left = '0';
-  indicator.style.width = '100%';
-  indicator.style.textAlign = 'center';
-  indicator.style.padding = '10px';
-  indicator.style.background = 'rgba(0,0,0,0.1)';
-  indicator.style.color = '#333';
-  indicator.style.transition = 'opacity 0.3s';
-  indicator.style.opacity = '0';
-  indicator.style.zIndex = '1000';
-  document.body.appendChild(indicator);
-  return indicator;
-}
   let touchStartX = 0;
   let touchEndX = 0;
+  let touchStartY = 0;
+  let touchDeltaY = 0;
+  let isPulling = false;
+  const pullThreshold = 70;
 
   document.addEventListener('touchstart', e => {
     touchStartX = e.changedTouches[0].screenX;
-  }, false);
+    touchStartY = e.changedTouches[0].clientY;
+    if (window.scrollY === 0) {
+      isPulling = true;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!isPulling) return;
+
+    touchDeltaY = e.changedTouches[0].clientY - touchStartY;
+
+    if (touchDeltaY > 0 && touchDeltaY < pullThreshold) {
+      // Show visual feedback that we're pulling
+      const percent = Math.min(touchDeltaY / pullThreshold, 1);
+      const indicator = document.getElementById('pull-indicator') || createPullIndicator();
+      indicator.style.opacity = percent.toFixed(2);
+      indicator.style.transform = `translateY(${touchDeltaY / 2}px)`;
+    }
+  }, { passive: true });
 
   document.addEventListener('touchend', e => {
+    // Handle pull-to-refresh
+    if (isPulling) {
+      if (touchDeltaY > pullThreshold) {
+        // Do the refresh
+        pullUpdatesFromServer();
+        showToast("Refreshing calendar...");
+      }
+
+      // Reset pull state
+      isPulling = false;
+      const indicator = document.getElementById('pull-indicator');
+      if (indicator) {
+        indicator.style.opacity = '0';
+        indicator.style.transform = 'translateY(0)';
+      }
+    }
+
+    // Handle horizontal swipe
     touchEndX = e.changedTouches[0].screenX;
     handleSwipe();
-  }, false);
+  }, { passive: true });
+
+  function createPullIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'pull-indicator';
+    indicator.textContent = '↓ Pull to refresh';
+    indicator.style.position = 'fixed';
+    indicator.style.top = '0';
+    indicator.style.left = '0';
+    indicator.style.width = '100%';
+    indicator.style.textAlign = 'center';
+    indicator.style.padding = '10px';
+    indicator.style.background = 'rgba(0,0,0,0.1)';
+    indicator.style.color = '#333';
+    indicator.style.transition = 'opacity 0.3s';
+    indicator.style.opacity = '0';
+    indicator.style.zIndex = '1000';
+    document.body.appendChild(indicator);
+    return indicator;
+  }
 
   function handleSwipe() {
     const swipeThreshold = 80; // Minimum distance for a swipe
 
     if (touchEndX < touchStartX - swipeThreshold) {
       // Swipe left - next month
+      showSwipeIndicator('left');
       jumpOneMonthForward();
     }
 
     if (touchEndX > touchStartX + swipeThreshold) {
       // Swipe right - previous month
+      showSwipeIndicator('right');
       jumpOneMonthBackward();
     }
   }
+
+  // Simple visual feedback for swipes
+  function showSwipeIndicator(direction) {
+    const indicator = document.createElement('div');
+    indicator.style.position = 'fixed';
+    indicator.style.top = '50%';
+    indicator.style.padding = '10px 20px';
+    indicator.style.background = 'rgba(0,0,0,0.7)';
+    indicator.style.color = 'white';
+    indicator.style.borderRadius = '20px';
+    indicator.style.zIndex = '1000';
+    indicator.style.transform = 'translateY(-50%)';
+
+    if (direction === 'left') {
+      indicator.textContent = 'Next Month →';
+      indicator.style.right = '20px';
+    } else {
+      indicator.textContent = '← Previous Month';
+      indicator.style.left = '20px';
+    }
+
+    document.body.appendChild(indicator);
+
+    // Remove after animation
+    setTimeout(() => {
+      indicator.style.opacity = '0';
+      indicator.style.transition = 'opacity 0.3s';
+      setTimeout(() => indicator.remove(), 300);
+    }, 800);
+  }
 }
 
-window.onload = async function() {
 
+window.onload = async function() {
 // Show a hint for mobile users
 if (window.innerWidth <= 768) {
   document.getElementById('mobileActions').style.display = 'flex';
