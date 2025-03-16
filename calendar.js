@@ -1240,85 +1240,101 @@ function performBatchAction(action) {
  * buildYearView(year, container)
  *  - Renders a 12-month "Year at a glance" grid, each with days clickable.
  */
+
+
+
 function buildYearView(year, container) {
-    for (let m = 0; m < 12; m++) {
-        const div = document.createElement('div');
-        div.className = 'month-grid';
-        const h3 = document.createElement('h3');
-        h3.textContent = months[m];
-        div.appendChild(h3);
+  for (let m = 0; m < 12; m++) {
+    const div = document.createElement('div');
+    div.className = 'month-grid';
 
-        const table = document.createElement('table');
-        table.style.width = '100%';
-        table.style.borderCollapse = 'collapse';
+    const h3 = document.createElement('h3');
+    h3.textContent = months[m];
+    div.appendChild(h3);
 
-        // Day-of-week headers
-        const headerRow = document.createElement('tr');
-        for (let i = 0; i < 7; i++) {
-            const th = document.createElement('th');
-            th.textContent = daysOfWeek[i].charAt(0);
-            th.style.padding = '3px';
-            th.style.textAlign = 'center';
-            headerRow.appendChild(th);
-        }
-        table.appendChild(headerRow);
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
 
-        const firstDay = new Date(year, m, 1);
-        let dayOfWeek = getAdjustedDayIndex(firstDay);
-        const daysInMonth = new Date(year, m + 1, 0).getDate();
-
-        let day = 1;
-        let row = document.createElement('tr');
-        // Fill offset
-        for (let k = 0; k < dayOfWeek; k++) {
-            const emptyCell = document.createElement('td');
-            emptyCell.style.padding = '3px';
-            row.appendChild(emptyCell);
-        }
-        while (day <= daysInMonth) {
-            if (dayOfWeek === 7) {
-                table.appendChild(row);
-                row = document.createElement('tr');
-                dayOfWeek = 0;
-            }
-            const td = document.createElement('td');
-            td.textContent = day;
-            td.style.padding = '3px';
-            td.style.textAlign = 'center';
-
-            // highlight if it is "todayDate"
-            const currentDate = new Date(year, m, day);
-            if (currentDate.getTime() === todayDate.setHours(0, 0, 0, 0)) {
-                td.style.backgroundColor = '#e53e3e';
-                td.style.color = 'white';
-                td.style.borderRadius = '50%';
-            }
-
-            // If we have stored data for that day, show bold/underline
-            const dateId = `${m}_${day}_${year}`;
-            if (localStorage[dateId]) {
-                td.style.fontWeight = 'bold';
-                td.style.textDecoration = 'underline';
-            }
-
-            td.style.cursor = 'pointer';
-            td.onclick = () => {
-                hideYearView();
-                todayDate = new Date(year, m, day);
-                loadCalendarAroundDate(todayDate);
-                smoothScrollToToday();
-            };
-            row.appendChild(td);
-            day++;
-            dayOfWeek++;
-        }
-        if (row.hasChildNodes()) {
-            table.appendChild(row);
-        }
-        div.appendChild(table);
-        container.appendChild(div);
+    // Day-of-week headers
+    const headerRow = document.createElement('tr');
+    for (let i = 0; i < 7; i++) {
+      const th = document.createElement('th');
+      th.textContent = daysOfWeek[i].charAt(0);
+      th.style.padding = '3px';
+      th.style.textAlign = 'center';
+      headerRow.appendChild(th);
     }
+    table.appendChild(headerRow);
+
+    const firstDay = new Date(year, m, 1);
+    let dayOfWeek = getAdjustedDayIndex(firstDay);
+    const daysInMonth = new Date(year, m + 1, 0).getDate();
+
+    let day = 1;
+    let row = document.createElement('tr');
+
+    // fill offset
+    for (let k = 0; k < dayOfWeek; k++) {
+      const emptyCell = document.createElement('td');
+      emptyCell.style.padding = '3px';
+      row.appendChild(emptyCell);
+    }
+
+    while (day <= daysInMonth) {
+      if (dayOfWeek === 7) {
+        table.appendChild(row);
+        row = document.createElement('tr');
+        dayOfWeek = 0;
+      }
+
+      const td = document.createElement('td');
+      td.textContent = day;
+      td.style.padding = '3px';
+      td.style.textAlign = 'center';
+
+      // current day in the loop
+      const currentDate = new Date(year, m, day);
+
+      // clone your "todayDate" so you don't mutate it
+      const todayMidnight = new Date(todayDate.getTime());
+      todayMidnight.setHours(0,0,0,0);
+
+      // If currentDate is exactly "today"
+      if (currentDate.getTime() === todayMidnight.getTime()) {
+        td.style.backgroundColor = '#e53e3e';
+        td.style.color = 'white';
+        td.style.borderRadius = '50%';
+      }
+
+      // If we have stored data for that day, show bold/underline
+      const dateId = `${m}_${day}_${year}`;
+      if (localStorage[dateId]) {
+        td.style.fontWeight = 'bold';
+        td.style.textDecoration = 'underline';
+      }
+
+      td.style.cursor = 'pointer';
+      td.onclick = () => {
+        hideYearView();
+        todayDate = new Date(year, m, day);
+        loadCalendarAroundDate(todayDate);
+        smoothScrollToToday();
+      };
+
+      row.appendChild(td);
+      day++;
+      dayOfWeek++;
+    }
+
+    if (row.hasChildNodes()) {
+      table.appendChild(row);
+    }
+    div.appendChild(table);
+    container.appendChild(div);
+  }
 }
+
 
 function showYearView() {
     const year = todayDate.getFullYear();
