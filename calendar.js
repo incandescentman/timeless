@@ -1595,53 +1595,6 @@ function animateRowInsertion(row, direction = 'append') {
 
 
 
-    function handleSwipe() {
-        const swipeThreshold = 80; // Minimum distance for a swipe
-
-        if (touchEndX < touchStartX - swipeThreshold) {
-            // Swipe left - next month
-            showSwipeIndicator('left');
-            jumpOneMonthForward();
-        }
-
-        if (touchEndX > touchStartX + swipeThreshold) {
-            // Swipe right - previous month
-            showSwipeIndicator('right');
-            jumpOneMonthBackward();
-        }
-    }
-
-    // Simple visual feedback for swipes
-    function showSwipeIndicator(direction) {
-        const indicator = document.createElement('div');
-        indicator.style.position = 'fixed';
-        indicator.style.top = '50%';
-        indicator.style.padding = '10px 20px';
-        indicator.style.background = 'rgba(0,0,0,0.7)';
-        indicator.style.color = 'white';
-        indicator.style.borderRadius = '20px';
-        indicator.style.zIndex = '1000';
-        indicator.style.transform = 'translateY(-50%)';
-
-        if (direction === 'left') {
-            indicator.textContent = 'Next Month →';
-            indicator.style.right = '20px';
-        } else {
-            indicator.textContent = '← Previous Month';
-            indicator.style.left = '20px';
-        }
-
-        document.body.appendChild(indicator);
-
-        // Remove after animation
-        setTimeout(() => {
-            indicator.style.opacity = '0';
-            indicator.style.transition = 'opacity 0.3s';
-            setTimeout(() => indicator.remove(), 300);
-        }, 800);
-    }
-}
-
 
 function setupHorizontalSwipe() {
   let touchStartX = 0;
