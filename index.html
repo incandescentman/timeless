@@ -1022,43 +1022,85 @@
   }
 
 
-   .day-top-row {
+
+/* Force day/month labels and day-number inline on mobile */
+  #calendar td .day-label,
+  #calendar td .month-label,
+  #calendar td .day-number {
+    display: inline-block !important;
+background: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    vertical-align: middle;
+     padding:0 !important;
+  }
+
+#calendar td.today .day-label,
+#calendar td.today .month-label,
+#calendar td.today .day-number {
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: #000 !important;
+}
+
+  /* Override any extra margin in special cells */
+  #calendar td.today span {
+    margin-bottom: 0 !important;
+  }
+
+  /* Flex container for top row */
+/* Flex container for the top row */
+  .day-top-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
     padding-bottom: 6px;
   }
-  .month-label {
-    font-size: 12px;
-    color: var(--accent);
-    margin-right: 8px;
-    font-weight: 600;
-  }
-  #calendar td .day-label {
-    font-size: 12px;
-    display: inline-block;
-    margin: 0;
+
+  /* Day label: larger and left-justified */
+  .day-label {
+    flex-shrink: 0;
+    font-size: 18px;
+    color: #666;
     text-align: left;
-    font-weight: 500;
-    opacity: 0.9;
   }
-  /* Consolidated day-number styles
-     (adjust selectors if you use a vertical layout variant) */
-  #calendar td .day-number {
-    display: inline-block;
-    border-radius: 50%;
-    text-align: center;
-    font-weight: 600;
-    /* Default grid layout */
-    font-size: 20px;
-    width: 36px;
-    height: 36px;
-    line-height: 36px;
-    padding: 0 4px;
-    background: rgba(0, 0, 0, 0.05);
+
+.day-label {
+  font-size: 20px;         /* Larger for mobile */
+  font-weight: 600;        /* More emphasis */
+  color: #333;             /* Contrasts well on light background */
+  text-align: left;        /* Ensure it's left-justified */
+  margin-right: 8px;       /* Some spacing from the month/day container */
+}
+
+  /* Group month and day number together */
+  .month-day-container {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
   }
+
+.month-label {
+  font-size: 14px;
+  color: #888;             /* Lighter color to reduce visual emphasis */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 400;        /* Normal or lighter weight than the day label */
+}
+
+.day-number {
+  background: rgba(0,0,0,0.05);
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 50%;
+  text-align: center;
+  display: inline-block;
+}
+
 
   /* Uncomment and adjust these if you use a vertical layout variation */
   /*
@@ -1850,25 +1892,28 @@ function buildMobileDayCard(container, date) {
     container.appendChild(monthHeader);
   }
 
-  // Now create the "day card"
+  // Create the "day card"
   const dayCard = document.createElement('div');
   dayCard.className = 'day-card';
 
   // Build the inner HTML
   dayCard.innerHTML = `
     <div class="day-top-row">
-      <span class="month-label">${monthsShort[date.getMonth()]}</span>
-      <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
-      <span class="day-number">${date.getDate()}</span>
+      <span class="day-label">
+        ${daysOfWeek[getAdjustedDayIndex(date)]}
+      </span>
+
+      <!-- Wrap month + day number together on the right -->
+      <span class="month-day-container">
+        <span class="month-label">${monthsShort[date.getMonth()]}</span>
+        <span class="day-number">${date.getDate()}</span>
+      </span>
     </div>
     <div class="notes-container"></div>
   `;
 
-  // ...do your note logic, or create a <textarea> / note elements
   container.appendChild(dayCard);
 }
-
-
     /* BUILDING THE MINI-CALENDAR WITHOUT FORCING 42 CELLS */
     function buildMiniCalendar() {
       const mini = document.getElementById("miniCalendar");
