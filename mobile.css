@@ -277,11 +277,19 @@ text-transform:uppercase !important;
   }
   /* Further reduce textarea font size for compact screens */
   #calendar td textarea {
-    font-size: 11px;
+    font-size: 13px;
   }
   /* Ensure tap targets are large enough */
   a.button,
   button {
     min-height: 44px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  /* Hide top header and all buttons on mobile */
+  #header {
+    display: none !important;
   }
 }
