@@ -937,7 +937,15 @@
     }
 
 
-/* Mobile-First Layout Improvements */
+
+/* 1) Hide the miniCalendar for mobile */
+@media (max-width: 768px) {
+  #miniCalendar {
+    display: none !important;
+  }
+}
+
+/* 2) Switch to a "day card" layout rather than a grid on narrow screens */
 @media (max-width: 768px) {
   /* Root variable adjustments for mobile */
   :root {
@@ -945,42 +953,37 @@
    --header-height: auto;
   }
 
-  /* Vertical day card design */
+  /* Make the entire calendar scroll vertically, with each day as its own "card" */
   #calendar {
-    display: block;
+    display: block;      /* Instead of table layout */
     width: 100%;
     max-width: 100%;
     padding: 0 8px;
+    table-layout: auto;  /* No more strict columns */
   }
-
-  #calendar table,
-  #calendar tbody,
-  #calendar tr {
+  #calendar tbody, #calendar tr {
     display: block;
     width: 100%;
   }
 
-  /* Day card styling */
+  /* Each <td> becomes a card that stacks vertically */
   #calendar td {
     display: block;
     width: 100% !important;
-    height: auto;
     min-height: var(--cell-min-height);
     margin-bottom: 12px;
     padding: 12px 16px;
     border-radius: 12px;
     background: rgba(255,255,255,0.95);
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transform: none !important;
+    transform: none !important; /* Remove the 3D hover effect for simpler mobile usage */
   }
-
-  /* Day cell hover animation simplified for touch */
   #calendar td:hover {
-    transform: translateY(-3px) !important;
+    transform: translateY(-3px) !important; /* A simpler, more mobile-friendly hover */
     box-shadow: 0 5px 15px rgba(0,0,0,0.15);
   }
 
-  /* Better day header for mobile */
+  /* 3) Tweak the day label / day number layout */
   #calendar td .day-label {
     font-size: 12px;
     float: left;
@@ -989,7 +992,6 @@
     font-weight: 500;
     opacity: 0.9;
   }
-
   #calendar td .day-number {
     float: right;
     font-size: 20px;
@@ -997,19 +999,17 @@
     padding: 0 4px;
     border-radius: 50%;
   }
-
-  /* Clear the floats */
   #calendar td::after {
     content: "";
     display: table;
     clear: both;
   }
 
-  /* Extra cell styling */
+  /* "extra" cells that contain month headings or other info */
   #calendar td.extra {
-    padding: 6px 12px;
     margin-top: 24px;
     margin-bottom: 8px;
+    padding: 6px 12px;
     font-size: 18px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
     background: transparent;
@@ -1017,34 +1017,30 @@
     text-align: center;
     border-radius: 0;
   }
-
-  /* Hide "extra" cells that don't contain month names */
   #calendar td.extra:empty {
     display: none;
   }
 
-  /* Today highlight for mobile */
+  /* Highlight "today" in a simpler, more phone-friendly way */
   #calendar td.today {
     border-left: 4px solid var(--today-gradient-from);
     background: linear-gradient(to right, rgba(229,62,62,0.05), transparent);
     transform: none !important;
   }
 
-  /* Better textarea on mobile */
-  textarea {
-    font-size: 14px;
+  /* 4) Make event text smaller for mobile (the user requested this specifically) */
+  #calendar td textarea {
+    font-size: 12px; /* smaller text for calendar events */
     line-height: 1.4;
     padding: 8px 12px;
   }
 
-  /* Compact header for mobile */
+  /* 5) Condense the header and make the buttons scrollable horizontally */
   #header {
     flex-direction: column;
     padding: 8px;
     height: auto;
   }
-
-  /* Button panel scrollable horizontally */
   #header > div:last-child {
     display: flex;
     flex-wrap: nowrap;
@@ -1054,8 +1050,6 @@
     padding-bottom: 6px;
    -webkit-overflow-scrolling: touch;
   }
-
-  /* More compact buttons on mobile */
   a.button, button {
     padding: 6px 10px;
     margin: 4px 3px;
@@ -1064,7 +1058,7 @@
     flex-shrink: 0;
   }
 
-  /* Sticky month header size */
+  /* 6) Smaller sticky month heading */
   #stickyMonthHeader {
     font-size: 18px;
     padding: 8px 12px;
@@ -1072,78 +1066,29 @@
     text-align: center;
   }
 
-  /* Calendar container spacing */
+  /* Provide spacing so content isn't hidden behind the header */
   #calendarContainer {
     margin-top: 80px;
   }
 }
 
-/* iPhone-specific improvements */
+/* 7) Extra tiny tweaks for iPhone or narrower screens */
 @media (max-width: 480px) {
-  /* Improved touch targets */
+  #calendar td {
+    /* Even smaller padding if desired */
+    padding: 8px 12px;
+  }
+  #calendar td textarea {
+    font-size: 11px; /* reduce further for iPhone */
+  }
+
+  /* recommended min tap target of 44px in height for buttons */
   a.button, button {
-    padding: 8px 10px;
-    min-height: 44px; /* Apple's recommended minimum touch target */
-  }
-
-  /* Better date input on mobile */
-  input[type="date"] {
-    width: 100%;
-    margin: 8px 0;
-    padding: 10px;
-    height: 44px;
-    box-sizing: border-box;
-  }
-
-  /* Jump to date section styling */
-  #header > div:last-child span:first-of-type {
-    width: 100%;
-    display: block;
-    margin: 8px 0 4px;
-    font-weight: 500;
-  }
-
-  /* Group the date picker with its button */
-  #jumpDate, #header button:first-of-type {
-    display: inline-block;
-  }
-
-  /* Hide tooltips on mobile */
-  .button::after {
-    display: none;
-  }
-
-  /* Bottom action bar for most common actions */
-  .mobile-action-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--header-solid-bg);
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px;
-    z-index: 990;
-  }
-
-  /* Add padding to prevent content being hidden behind the action bar */
-  body {
-    padding-bottom: 64px;
-  }
-
-  /* Swipe hints for mobile users */
-  .swipe-hint {
-    text-align: center;
-    padding: 8px;
-    margin: 10px auto;
-    font-size: 12px;
-    color: #666;
-    background: rgba(0,0,0,0.05);
-    border-radius: 20px;
-    width: 80%;
+    min-height: 44px;
   }
 }
+
+
 
 
 
