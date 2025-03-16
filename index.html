@@ -938,6 +938,7 @@
 
 
 
+
 /* 1) Hide the miniCalendar for mobile */
 @media (max-width: 768px) {
   #miniCalendar {
@@ -1089,7 +1090,50 @@
 }
 
 
-
+/* For the vertical "day card" layout */
+@media (max-width: 768px) {
+#calendar td.extra.mobile-month-header {
+    margin: 20px 0 8px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .day-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+  .day-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .month-label {
+    font-size: 12px;
+    color: var(--accent);
+    margin-right: 8px;
+  }
+  .day-label {
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+  .day-number {
+    font-size: 20px;
+    font-weight: 600;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.05);
+  }
+  .notes-container {
+    font-size: 12px; /* or smaller if you want the note text smaller! */
+  }
+}
 
 
     /* Print styles */
@@ -1314,6 +1358,9 @@ Commented out bc now that it lives on server, this is not needed. I can still ac
       "July","August","September","October","November","December"
     ];
     const shortMonths = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
+
+const monthsShort = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
+
     let startTime, startY, goalY;
     let currentVisibleMonth = '';
     let keyboardFocusDate = null;
@@ -1676,11 +1723,44 @@ Commented out bc now that it lives on server, this is not needed. I can still ac
         callback(items);
       }
     }
-    function generateDay(dayCell, date) {
-      const isWeekend = (date.getDay()===0 || date.getDay()===6);
-      if (isWeekend) {
-        dayCell.classList.add("weekend");
-      }
+function generateDay(dayCell, date) {
+  // if it's the first day of the month...
+  if (date.getDate() === 1) {
+    // 1) Insert a new "Month+Year" row or block before we generate the day's card
+    const monthYear = months[date.getMonth()] + " " + date.getFullYear();
+
+    // For a "vertical day-card" approach, you might create a full-width 'month header' row or card.
+    const monthHeaderRow = document.createElement("tr");
+    // If you're using your existing table, but want a block:
+    //   monthHeaderRow.style.display = "block";  // if you're in a vertical layout
+    //   monthHeaderRow.classList.add("mobile-month-header");
+
+    const monthHeaderTd = document.createElement("td");
+    monthHeaderTd.colSpan = 7; // or just 1 if you're going vertical
+    monthHeaderTd.className = "extra mobile-month-header";
+    monthHeaderTd.textContent = monthYear;
+
+    monthHeaderRow.appendChild(monthHeaderTd);
+
+    // Then insert that row *before* the current row you're building
+    // or if you're building row-by-row, you could just do:
+    //   someTableElement.insertRow(...)  or
+    //   calendarTableElement.tBodies[0].appendChild(monthHeaderRow);
+    //   etc.
+
+    // The simplest might be to do something like:
+    dayCell.parentNode.parentNode.insertBefore(monthHeaderRow, dayCell.parentNode);
+  }
+
+  // Then proceed with the normal day-generation code, e.g.:
+  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+  if (isWeekend) {
+    dayCell.classList.add("weekend");
+  }
+
+  // existing code
+
+
       const isShaded = (date.getMonth() % 2 === 1);
       if (isShaded) {
         dayCell.classList.add("shaded");
@@ -1695,8 +1775,15 @@ Commented out bc now that it lives on server, this is not needed. I can still ac
       }
       dayCell.id = idForDate(date);
       // Insert a day label & day number
-      dayCell.innerHTML = `<span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
-                           <span class="day-number">${date.getDate()}</span>`;
+
+dayCell.innerHTML = `
+  <span class="month-label">${monthsShort[date.getMonth()]}</span>
+  <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+  <span class="day-number">${date.getDate()}</span>
+`;
+// now your card has "Mar" or "Mar" + day-of-week + day-of-month
+
+
       lookupItemsForParentId(dayCell.id, items => {
         items.forEach(it => {
           const note = generateItem(dayCell.id, it.itemId);
@@ -1708,6 +1795,35 @@ Commented out bc now that it lives on server, this is not needed. I can still ac
         });
       });
     }
+
+
+function buildMobileDayCard(container, date) {
+  // If the 1st day of the month, insert "Month Year" first
+  if (date.getDate() === 1) {
+    const monthHeader = document.createElement('div');
+    monthHeader.className = 'mobile-month-header';
+    monthHeader.textContent = months[date.getMonth()] + ' ' + date.getFullYear();
+    container.appendChild(monthHeader);
+  }
+
+  // Now create the "day card"
+  const dayCard = document.createElement('div');
+  dayCard.className = 'day-card';
+
+  // Build the inner HTML
+  dayCard.innerHTML = `
+    <div class="day-top-row">
+      <span class="month-label">${monthsShort[date.getMonth()]}</span>
+      <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+      <span class="day-number">${date.getDate()}</span>
+    </div>
+    <div class="notes-container"></div>
+  `;
+
+  // ...do your note logic, or create a <textarea> / note elements
+  container.appendChild(dayCard);
+}
+
 
     /* BUILDING THE MINI-CALENDAR WITHOUT FORCING 42 CELLS */
     function buildMiniCalendar() {
