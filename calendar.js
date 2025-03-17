@@ -2379,6 +2379,7 @@ async function restoreDirectoryHandle(str) {
  * downloadMarkdownEvents()
  *  - Gathers events from localStorage, organizes by year/month/day, and optionally saves to user-chosen directory.
  */
+
 async function downloadMarkdownEvents() {
     // 1) Gather date => [events] from localStorage
     const dateMap = {};
@@ -2413,25 +2414,22 @@ async function downloadMarkdownEvents() {
         structured[year][month].push({ day, events: dateMap[dateKey] });
     }
 
-    // Build lines
-    const months = [
+    // Build markdown lines
+    const monthsArr = [
         "January","February","March","April","May","June",
         "July","August","September","October","November","December"
     ];
-    const years = Object.keys(structured).map(Number).sort((a,b) => a-b);
-
+    const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
     let mdLines = [];
 
-    // For each year
     for (let y of years) {
         mdLines.push(`# ${y}`);
-        const monthsInYear = Object.keys(structured[y]).map(Number).sort((a,b) => a-b);
+        const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
         for (let m of monthsInYear) {
-            mdLines.push(`* ${months[m]} ${y}`);
+            mdLines.push(`* ${monthsArr[m]} ${y}`);
             structured[y][m].sort((a, b) => a.day - b.day);
-
             structured[y][m].forEach(obj => {
-                const dayStr = `${m+1}/${obj.day}/${y}`;
+                const dayStr = `${m + 1}/${obj.day}/${y}`;
                 mdLines.push(dayStr);
                 obj.events.forEach(ev => {
                     mdLines.push(`  - ${ev}`);
@@ -2440,10 +2438,9 @@ async function downloadMarkdownEvents() {
             });
         }
     }
-
     const finalText = mdLines.join("\n");
 
-    // Possibly restore a previously stored directory handle
+    // 3) Try to restore a stored directory handle
     let dirHandle = null;
     const stored = localStorage.getItem("myDirectoryHandle");
     if (stored) {
@@ -2459,7 +2456,7 @@ async function downloadMarkdownEvents() {
         }
     }
 
-    // If no handle, ask the user
+    // 4) If no handle, ask the user to pick a directory
     if (!dirHandle) {
         try {
             dirHandle = await window.showDirectoryPicker();
@@ -2474,7 +2471,7 @@ async function downloadMarkdownEvents() {
             console.error("User canceled picking directory or permission denied:", err);
             showToast("Canceled or no permission to pick directory; falling back to download");
 
-            // Fallback: Download the file directly
+            // Fallback: download file to Downloads via data URL
             const dataStr = "data:text/markdown;charset=utf-8," + encodeURIComponent(finalText);
             const anchor = document.createElement("a");
             anchor.setAttribute("href", dataStr);
@@ -2483,7 +2480,7 @@ async function downloadMarkdownEvents() {
             anchor.click();
             anchor.remove();
 
-            // Optionally copy to clipboard
+            // Also attempt to copy to clipboard
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(finalText)
                     .then(() => showToast("Markdown events copied to clipboard!"))
@@ -2493,7 +2490,7 @@ async function downloadMarkdownEvents() {
         }
     }
 
-    // Write "jay-diary.md" in that directory
+    // 5) Write "jay-diary.md" in the chosen directory
     try {
         const fileHandle = await dirHandle.getFileHandle("jay-diary.md", { create: true });
         const writable = await fileHandle.createWritable();
@@ -2505,13 +2502,12 @@ async function downloadMarkdownEvents() {
         showToast("Error writing file to directory");
     }
 
-    // Also copy to clipboard
+    // 6) Also copy the markdown text to clipboard
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(finalText)
             .then(() => showToast("Markdown events copied to clipboard!"))
             .catch(err => console.error("Clipboard copy failed:", err));
     } else {
-        // fallback
         const textArea = document.createElement("textarea");
         textArea.value = finalText;
         textArea.style.position = "fixed";
@@ -2528,7 +2524,6 @@ async function downloadMarkdownEvents() {
         document.body.removeChild(textArea);
     }
 }
-
 
 
 // ========== FILE HANDLING FOR SYNC ==========
