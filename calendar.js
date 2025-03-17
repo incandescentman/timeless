@@ -206,18 +206,27 @@ function scrollToToday() {
  *  - Smoothly animates to the row containing "todayDate".
  */
 function smoothScrollToToday() {
-    showLoading();
+  // Force the calendar to load around that date first:
+  loadCalendarAroundDate(todayDate);
+
+  setTimeout(() => {
     const elem = document.getElementById(idForDate(todayDate));
     if (!elem) {
-        hideLoading();
-        return;
+      hideLoading();
+      return;
     }
     goalY = scrollPositionForElement(elem);
     startY = documentScrollTop();
     startTime = new Date();
-    if (goalY !== startY) setTimeout(scrollAnimation, 10);
-    else hideLoading();
+    if (goalY !== startY) {
+      setTimeout(scrollAnimation, 10);
+    } else {
+      hideLoading();
+    }
+  }, 200);
 }
+
+
 
 /*
  * toggleDarkMode()
@@ -1870,7 +1879,7 @@ function loadCalendarAroundDate(seedDate) {
     container.classList.add('loading-calendar');
 
     // Start from seedDate, roll back to Monday
-    calendarTableElement.innerHTML = "";
+calendarTableElement.innerHTML = "";
     firstDate = new Date(seedDate);
     while (getAdjustedDayIndex(firstDate) !== 0) {
         firstDate.setDate(firstDate.getDate() - 1);
@@ -1878,8 +1887,16 @@ function loadCalendarAroundDate(seedDate) {
     lastDate = new Date(firstDate);
     lastDate.setDate(lastDate.getDate() - 1);
 
-    // Insert first row
+    // Insert the first row
     appendWeek();
+
+    // Insert a bunch of weeks before/after to ensure there's enough content:
+    for (let i = 0; i < 3; i++) {
+      prependWeek();
+    }
+    for (let i = 0; i < 5; i++) {
+      appendWeek();
+    }
 
     function loadBatch() {
         let batchCount = 0;
@@ -2105,9 +2122,9 @@ function setupHorizontalSwipe() {
 
 window.onload = async function() {
     // On mobile, enable horizontal swipes for month switching
-    if (window.innerWidth <= 768) {
-        setupHorizontalSwipe();
-    }
+    // if (window.innerWidth <= 768) {
+    //     setupHorizontalSwipe();
+    // }
 
     // (1) Optionally load data from server once
     await loadDataFromServer();
