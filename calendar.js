@@ -818,42 +818,45 @@ function prependWeek() {
 function appendWeek() {
     const row = calendarTableElement.insertRow(-1);
     animateRowInsertion(row, 'append');
-    let isMonthBoundary = false;
 
-    // The next row starts right after "lastDate"
+
+    // The row starts after "lastDate"
     const rowStart = new Date(lastDate);
     rowStart.setDate(rowStart.getDate() + 1);
-    const rowMonthName = months[rowStart.getMonth()] + " " + rowStart.getFullYear();
 
+    let isMonthBoundary = false;
+
+
+    // Fill 7 days
     do {
         lastDate.setDate(lastDate.getDate() + 1);
         if (lastDate.getDate() === 1) {
             isMonthBoundary = true;
         }
-        const cell = row.insertCell(-1);
         generateDay(cell, new Date(lastDate));
     } while (getAdjustedDayIndex(lastDate) !== 6);
 
+    // Now create the dedicated row IF day=1 was reached
     if (isMonthBoundary) {
-        row.classList.add('month-boundary');
+        const headingRow = calendarTableElement.insertRow(-1);
+        headingRow.classList.add('month-boundary');
+
+        const headingCell = headingRow.insertCell(0);
+        headingCell.colSpan = 8; // or 7, depending on your layout
+        headingCell.className = 'extra';
+        headingCell.innerHTML =
+            months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+        // Store numeric month/year on the row
+        row.dataset.monthIndex = lastDate.getMonth();
+        row.dataset.year       = lastDate.getFullYear();
+
     }
-
-    // Insert an extra cell for optional month label
-    const extra = row.insertCell(-1);
-    extra.className = "extra";
-    extra.innerHTML = isMonthBoundary
-      ? (months[lastDate.getMonth()] + " " + lastDate.getFullYear())
-      : "";
-
-    // Store numeric month/year on the row
-    row.dataset.monthIndex = lastDate.getMonth();
-    row.dataset.year       = lastDate.getFullYear();
 }
 
 
 
 /*
- * updateStickyMonthHeader()
+ * Updatestickymonthheader()
  *  - Called on scroll to find which row is near the top, then updates the "sticky" label.
  */
 function updateStickyMonthHeader() {
