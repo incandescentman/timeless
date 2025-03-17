@@ -8,8 +8,12 @@
 // ========== CORE VARIABLES & STATE ==========
 
 // Force local midnight date to avoid time-zone hour offsets
+// At the beginning of your code
+// Force local midnight date to avoid time-zone hour offsets
 const now = new Date();
 let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+// Make sure to set hours/min/sec to 0 to avoid any time-based issues
+systemToday.setHours(0, 0, 0, 0);
 
 // The "todayDate" is what we consider "today" within the calendar logic
 let todayDate;
@@ -226,7 +230,13 @@ function smoothScrollToToday() {
     }, 200);
 }
 
-
+function goToTodayAndRefresh() {
+  // Reset todayDate to actual system today
+  todayDate = new Date(systemToday);
+  // Reload calendar around today and scroll to it
+  loadCalendarAroundDate(todayDate);
+  setTimeout(smoothScrollToToday, 100);
+}
 
 /*
  * toggleDarkMode()
