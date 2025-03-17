@@ -209,10 +209,9 @@ function smoothScrollToToday() {
     // First, make sure todayDate is the ACTUAL current date
     todayDate = new Date(systemToday); // Reset to actual today
     showLoading();
-    // Force the calendar around 'todayDate', in case we've jumped away
     loadCalendarAroundDate(todayDate); // Reload around today
 
-    // Give it a moment to finish loading, then smooth-scroll
+    // Then after a short delay, scroll to it
     setTimeout(() => {
         const elem = document.getElementById(idForDate(todayDate));
         if (!elem) {
@@ -222,11 +221,8 @@ function smoothScrollToToday() {
         goalY = scrollPositionForElement(elem);
         startY = documentScrollTop();
         startTime = new Date();
-        if (goalY !== startY) {
-            setTimeout(scrollAnimation, 10);
-        } else {
-            hideLoading();
-        }
+        if (goalY !== startY) setTimeout(scrollAnimation, 10);
+        else hideLoading();
     }, 200);
 }
 
