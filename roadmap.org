@@ -1,0 +1,5 @@
+
+* Ideas to implement [0/0]
+- [ ] Add a refresh button to mobile action bar
+- [ ] On mobile, swipe left on an event to delete it
+- [ ] Create conspicuous gaps to remind me to fill them in, e.g. going to events after work, making plans with friends

@@ -2465,15 +2465,30 @@ async function downloadMarkdownEvents() {
             dirHandle = await window.showDirectoryPicker();
             const perm = await dirHandle.requestPermission({ mode: "readwrite" });
             if (perm !== "granted") {
-                showToast("Cannot save without write permission");
-                return;
+                throw new Error("Permission was not granted for readwrite");
             }
             const serialized = await serializeDirectoryHandle(dirHandle);
             localStorage.setItem("myDirectoryHandle", serialized);
             debouncedServerSave();
         } catch (err) {
             console.error("User canceled picking directory or permission denied:", err);
-            showToast("Canceled or no permission to pick directory");
+            showToast("Canceled or no permission to pick directory; falling back to download");
+
+            // Fallback: Download the file directly
+            const dataStr = "data:text/markdown;charset=utf-8," + encodeURIComponent(finalText);
+            const anchor = document.createElement("a");
+            anchor.setAttribute("href", dataStr);
+            anchor.setAttribute("download", "jay-diary.md");
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+
+            // Optionally copy to clipboard
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(finalText)
+                    .then(() => showToast("Markdown events copied to clipboard!"))
+                    .catch(err => console.error("Clipboard copy failed:", err));
+            }
             return;
         }
     }
