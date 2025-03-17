@@ -206,9 +206,11 @@ function scrollToToday() {
  *  - Smoothly animates to the row containing "todayDate".
  */
 function smoothScrollToToday() {
-  // Force the calendar to load around that date first:
+  showLoading();
+  // Force the calendar around 'todayDate', in case we've jumped away
   loadCalendarAroundDate(todayDate);
 
+  // Give it a moment to finish loading, then smooth-scroll
   setTimeout(() => {
     const elem = document.getElementById(idForDate(todayDate));
     if (!elem) {
@@ -873,8 +875,8 @@ function updateStickyMonthHeader() {
 
   if (foundRow) {
     // Save in a global variable for jumpOneMonthForward/backward
-    window.currentVisibleRow = foundRow;
 
+currentVisibleRow = foundRow; // Don't use window.currentVisibleRow
     // Retrieve numeric month/year from row data
     const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
     const year       = parseInt(foundRow.dataset.year, 10);
