@@ -76,17 +76,23 @@ function throttle(func, delay) {
     };
 }
 
+
 /*
- * debounce(fn, wait)
- *  - Delays `fn` until no further calls occur for `wait` ms.
+ * Implementation of a debounced server save. Only triggered after user stops typing for 2s.
  */
-function debounce(fn, wait) {
+function debounce(fn, delay) {
     let timeout;
     return function(...args) {
         clearTimeout(timeout);
-        timeout = setTimeout(() => fn.apply(this, args), wait);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
     };
 }
+const debouncedServerSave = debounce(() => {
+    saveDataToServer();
+}, 2000);
+
+
+
 
 /*
  * showHelp(), hideHelp()
@@ -193,6 +199,10 @@ function scrollPositionForElement(element) {
     return y - (window.innerHeight - clientHeight) / 2;
 }
 
+
+
+
+
 /*
  * scrollToToday()
  *  - Jumps immediately to the row containing "todayDate".
@@ -227,11 +237,10 @@ function goToTodayAndRefresh() {
     setTimeout(() => {
         const elem = document.getElementById(idForDate(todayDate));
         if (elem) {
-            window.scrollTo(0, scrollPositionForElement(elem));
+            elem.scrollIntoView({ behavior: "smooth", block: "center" });
         }
     }, 500);
 }
-
 
 /*
  * toggleDarkMode()
@@ -2482,20 +2491,6 @@ async function downloadMarkdownEvents() {
     }
 }
 
-
-/*
- * Implementation of a debounced server save. Only triggered after user stops typing for 2s.
- */
-function debounce(fn, delay) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => fn.apply(this, args), delay);
-    };
-}
-const debouncedServerSave = debounce(() => {
-    saveDataToServer();
-}, 2000);
 
 
 // ========== FILE HANDLING FOR SYNC ==========
