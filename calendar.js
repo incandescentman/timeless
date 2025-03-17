@@ -2188,13 +2188,18 @@ window.onload = async function() {
         setInterval(checkInfiniteScroll, 100);
     }
 
-    // (4) Auto-pull from server once a day if we want
-    let lastPulledDate = localStorage.getItem("lastPulledDate") || "";
-    const todayString = new Date().toDateString();
-    if (lastPulledDate !== todayString) {
-        localStorage.setItem("lastPulledDate", todayString);
-        await pullUpdatesFromServer();
-    }
+// Remove or comment out the old once-a-day logic:
+// let lastPulledDate = localStorage.getItem("lastPulledDate") || "";
+// const todayString = new Date().toDateString();
+// if (lastPulledDate !== todayString) {
+//     localStorage.setItem("lastPulledDate", todayString);
+//     await pullUpdatesFromServer();
+// }
+
+// Instead, set up a timer to auto-pull every 5 minutes:
+setInterval(() => {
+  pullUpdatesFromServer();
+}, 300000); // 300,000 ms = 5 minutes
 
     // (5) Misc. setup: set #jumpDate to today's date, re-apply dark mode
     const j = document.getElementById("jumpDate");
