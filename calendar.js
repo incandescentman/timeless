@@ -206,28 +206,28 @@ function scrollToToday() {
  *  - Smoothly animates to the row containing "todayDate".
  */
 function smoothScrollToToday() {
-// First, make sure todayDate is the ACTUAL current date
+    // First, make sure todayDate is the ACTUAL current date
     todayDate = new Date(systemToday); // Reset to actual today
-  showLoading();
-  // Force the calendar around 'todayDate', in case we've jumped away
-  loadCalendarAroundDate(todayDate); // Reload around today
+    showLoading();
+    // Force the calendar around 'todayDate', in case we've jumped away
+    loadCalendarAroundDate(todayDate); // Reload around today
 
-  // Give it a moment to finish loading, then smooth-scroll
-  setTimeout(() => {
-    const elem = document.getElementById(idForDate(todayDate));
-    if (!elem) {
-      hideLoading();
-      return;
-    }
-    goalY = scrollPositionForElement(elem);
-    startY = documentScrollTop();
-    startTime = new Date();
-    if (goalY !== startY) {
-      setTimeout(scrollAnimation, 10);
-    } else {
-      hideLoading();
-    }
-  }, 200);
+    // Give it a moment to finish loading, then smooth-scroll
+    setTimeout(() => {
+        const elem = document.getElementById(idForDate(todayDate));
+        if (!elem) {
+            hideLoading();
+            return;
+        }
+        goalY = scrollPositionForElement(elem);
+        startY = documentScrollTop();
+        startTime = new Date();
+        if (goalY !== startY) {
+            setTimeout(scrollAnimation, 10);
+        } else {
+            hideLoading();
+        }
+    }, 200);
 }
 
 
