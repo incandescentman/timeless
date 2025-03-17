@@ -15,8 +15,8 @@ let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 // Make sure to set hours/min/sec to 0 to avoid any time-based issues
 systemToday.setHours(0, 0, 0, 0);
 
-// The "todayDate" is what we consider "today" within the calendar logic
-let todayDate;
+// The "currentCalendarDate" is what we consider "today" within the calendar logic
+let currentCalendarDate;
 
 // The main <table> element that holds day cells
 let calendarTableElement;
@@ -205,10 +205,10 @@ function scrollPositionForElement(element) {
 
 /*
  * scrollToToday()
- *  - Jumps immediately to the row containing "todayDate".
+ *  - Jumps immediately to the row containing "currentCalendarDate".
  */
 function scrollToToday() {
-    const elem = document.getElementById(idForDate(todayDate));
+    const elem = document.getElementById(idForDate(currentCalendarDate));
     if (elem) {
         window.scrollTo(0, scrollPositionForElement(elem));
     }
@@ -217,11 +217,11 @@ function scrollToToday() {
 
 /*
  * goToTodayAndRefresh()
- *  - Smoothly animates to the row containing "todayDate".
+ *  - Smoothly animates to the row containing "currentCalendarDate".
  */
 function goToTodayAndRefresh() {
-    // Reset todayDate to actual system today
-    todayDate = new Date(systemToday);
+    // Reset currentCalendarDate to actual system today
+    currentCalendarDate = new Date(systemToday);
 
     // Reset currentVisibleRow so we don't scroll to an old row
     currentVisibleRow = null;
@@ -231,11 +231,11 @@ function goToTodayAndRefresh() {
 
     // Completely rebuild the calendar with today at the center
     calendarTableElement.innerHTML = "";
-    loadCalendarAroundDate(todayDate);
+    loadCalendarAroundDate(currentCalendarDate);
 
     // Increase delay to ensure calendar has time to render
     setTimeout(() => {
-        const elem = document.getElementById(idForDate(todayDate));
+        const elem = document.getElementById(idForDate(currentCalendarDate));
         if (elem) {
             elem.scrollIntoView({ behavior: "smooth", block: "center" });
         }
@@ -296,7 +296,7 @@ function undoLastChange() {
     for (const k in data) {
         localStorage.setItem(k, data[k]);
     }
-    loadCalendarAroundDate(todayDate);
+    loadCalendarAroundDate(currentCalendarDate);
     showToast("Undo applied");
 }
 
@@ -317,7 +317,7 @@ function redoLastChange() {
     for (const k in data) {
         localStorage.setItem(k, data[k]);
     }
-    loadCalendarAroundDate(todayDate);
+    loadCalendarAroundDate(currentCalendarDate);
     showToast("Redo applied");
 }
 
@@ -608,9 +608,9 @@ function generateDay(dayCell, date) {
 
     // Is it "today"?
     const isToday = (
-        date.getFullYear() === todayDate.getFullYear() &&
-        date.getMonth() === todayDate.getMonth() &&
-        date.getDate() === todayDate.getDate()
+        date.getFullYear() === currentCalendarDate.getFullYear() &&
+        date.getMonth() === currentCalendarDate.getMonth() &&
+        date.getDate() === currentCalendarDate.getDate()
     );
     if (isToday) dayCell.classList.add("today");
 
@@ -695,8 +695,8 @@ function buildMiniCalendar() {
     const mini = document.getElementById("miniCalendar");
     if (!mini) return;
     mini.innerHTML = "";
-    const currentMonth = todayDate.getMonth();
-    const currentYear = todayDate.getFullYear();
+    const currentMonth = currentCalendarDate.getMonth();
+    const currentYear = currentCalendarDate.getFullYear();
 
     // Figure out prev/next month
     let prevMonth = currentMonth - 1, prevYear = currentYear;
@@ -764,15 +764,15 @@ function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
         cell.style.borderRadius = '3px';
         cell.textContent = d;
 
-        // Highlight if it's the same as our "todayDate"
-        if (highlightCurrent && d === todayDate.getDate()) {
+        // Highlight if it's the same as our "currentCalendarDate"
+        if (highlightCurrent && d === currentCalendarDate.getDate()) {
             cell.style.backgroundColor = '#e53e3e';
             cell.style.color = '#fff';
         }
         const dayNum = d;
         cell.addEventListener("click", () => {
-            todayDate = new Date(year, month, dayNum);
-            loadCalendarAroundDate(todayDate);
+            currentCalendarDate = new Date(year, month, dayNum);
+            loadCalendarAroundDate(currentCalendarDate);
             goToTodayAndRefresh();
         });
         grid.appendChild(cell);
@@ -957,7 +957,7 @@ function populateCommands() {
     commandList.innerHTML = '';
 
     const commands = [
-        { icon: '📅', name: 'Go to today',           shortcut: 'T',    action: () => { todayDate = new Date(systemToday); loadCalendarAroundDate(todayDate); } },
+        { icon: '📅', name: 'Go to today',           shortcut: 'T',    action: () => { currentCalendarDate = new Date(systemToday); loadCalendarAroundDate(currentCalendarDate); } },
         { icon: '🔍', name: 'Jump to date',          shortcut: 'G',    action: () => document.getElementById('jumpDate').focus() },
         { icon: '🌙', name: 'Toggle dark mode',      shortcut: 'Ctrl+D', action: toggleDarkMode },
         { icon: '📆', name: 'Show year view',        shortcut: 'Y',    action: showYearView },
@@ -1108,8 +1108,8 @@ function tryParseAndJumpToDate(dateText) {
             }
         }
         if (targetDate) {
-            todayDate = targetDate;
-            loadCalendarAroundDate(todayDate);
+            currentCalendarDate = targetDate;
+            loadCalendarAroundDate(currentCalendarDate);
             goToTodayAndRefresh();
         } else {
             showToast("Couldn't understand that date format");
@@ -1148,7 +1148,7 @@ function toggleMultiSelectMode() {
     isMultiSelectMode = !isMultiSelectMode;
     if (isMultiSelectMode) {
         if (!keyboardFocusDate) {
-            keyboardFocusDate = new Date(todayDate || systemToday);
+            keyboardFocusDate = new Date(currentCalendarDate || systemToday);
             highlightKeyboardFocusedDay();
         }
         selectedDays = [new Date(keyboardFocusDate)];
@@ -1319,8 +1319,8 @@ function buildYearView(year, container) {
       // current day in the loop
       const currentDate = new Date(year, m, day);
 
-      // clone your "todayDate" so you don't mutate it
-      const todayMidnight = new Date(todayDate.getTime());
+      // clone your "currentCalendarDate" so you don't mutate it
+      const todayMidnight = new Date(currentCalendarDate.getTime());
       todayMidnight.setHours(0,0,0,0);
 
       // If currentDate is exactly "today"
@@ -1340,8 +1340,8 @@ function buildYearView(year, container) {
       td.style.cursor = 'pointer';
       td.onclick = () => {
         hideYearView();
-        todayDate = new Date(year, m, day);
-        loadCalendarAroundDate(todayDate);
+        currentCalendarDate = new Date(year, m, day);
+        loadCalendarAroundDate(currentCalendarDate);
         goToTodayAndRefresh();
       };
 
@@ -1360,7 +1360,7 @@ function buildYearView(year, container) {
 
 
 function showYearView() {
-    const year = todayDate.getFullYear();
+    const year = currentCalendarDate.getFullYear();
     document.getElementById('yearViewTitle').textContent = year;
 
     const container = document.getElementById('yearViewGrid');
@@ -1382,7 +1382,7 @@ function hideYearView() {
  */
 function toggleKeyboardNavMode() {
     if (!keyboardFocusDate) {
-        keyboardFocusDate = new Date(todayDate || systemToday);
+        keyboardFocusDate = new Date(currentCalendarDate || systemToday);
         document.body.classList.add('keyboard-nav-active');
         showToast("Keyboard navigation mode activated (press i to exit)");
         highlightKeyboardFocusedDay();
@@ -1414,7 +1414,7 @@ function highlightKeyboardFocusedDay() {
  */
 function stepDay(delta) {
     if (!keyboardFocusDate) {
-        keyboardFocusDate = new Date(todayDate || systemToday);
+        keyboardFocusDate = new Date(currentCalendarDate || systemToday);
     }
     keyboardFocusDate.setDate(keyboardFocusDate.getDate() + delta);
 
@@ -1673,8 +1673,8 @@ document.addEventListener("keydown", (e) => {
     case "t":
     case "T":
         // Jump to systemToday
-        todayDate = new Date(systemToday);
-        loadCalendarAroundDate(todayDate);
+        currentCalendarDate = new Date(systemToday);
+        loadCalendarAroundDate(currentCalendarDate);
         break;
     default:
         // Ctrl+D => toggleDarkMode
@@ -1876,8 +1876,8 @@ function jumpToDate() {
     showLoading();
     const [yyyy, mm, dd] = val.split("-");
     const jumpDateObj = new Date(yyyy, mm - 1, dd);
-    todayDate = jumpDateObj;
-    loadCalendarAroundDate(todayDate);
+    currentCalendarDate = jumpDateObj;
+    loadCalendarAroundDate(currentCalendarDate);
     setTimeout(() => goToTodayAndRefresh(), 300);
 }
 
@@ -1943,9 +1943,9 @@ calendarTableElement.innerHTML = "";
             updateStickyMonthHeader();
 
             // Rebuild mini-calendar if our month changed
-            if (todayDate.getMonth() !== lastMiniCalendarMonth) {
+            if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
                 buildMiniCalendar();
-                lastMiniCalendarMonth = todayDate.getMonth();
+                lastMiniCalendarMonth = currentCalendarDate.getMonth();
             }
 
             // If we were using keyboardFocusDate, highlight that day
@@ -2158,10 +2158,10 @@ window.onload = async function() {
 
     // (2) Grab the #calendar table
     calendarTableElement = document.getElementById("calendar");
-    todayDate = new Date(systemToday);
+    currentCalendarDate = new Date(systemToday);
 
     // Build the calendar around "today"
-    loadCalendarAroundDate(todayDate);
+    loadCalendarAroundDate(currentCalendarDate);
 
     // (3) Use IntersectionObserver if possible; else fallback
     if ('IntersectionObserver' in window) {
@@ -2654,7 +2654,7 @@ async function pullUpdatesFromServer(confirmNeeded = false) {
         for (let key in data) {
             localStorage.setItem(key, data[key]);
         }
-        loadCalendarAroundDate(todayDate);
+        loadCalendarAroundDate(currentCalendarDate);
         showToast("Pulled latest data from server");
     } catch (err) {
         console.error("Error pulling from server:", err);
@@ -2728,7 +2728,7 @@ async function importFromDiaryFile() {
 
         hideLoading();
         showToast("Diary imported successfully!");
-        loadCalendarAroundDate(todayDate);
+        loadCalendarAroundDate(currentCalendarDate);
 
     } catch (err) {
         hideLoading();
