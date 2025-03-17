@@ -1605,6 +1605,10 @@ document.addEventListener("keydown", (e) => {
             toggleKeyboardNavMode();
         }
         break;
+    case "r":
+        e.preventDefault();
+        pullUpdatesFromServer();
+        break;
     case "q":
     case "Q":
         // Quit keyboard nav
