@@ -187,6 +187,11 @@ text-transform:uppercase !important;
     min-width: 40px;
     flex-shrink: 0;
   }
+
+.button {
+  touch-action: manipulation;
+}
+
   #stickyMonthHeader {
     font-size: 18px;
     padding: 8px 12px;
