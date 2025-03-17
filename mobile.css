@@ -188,7 +188,11 @@ text-transform:uppercase !important;
     flex-shrink: 0;
   }
 
-.button {
+button,
+a.button,
+.my-action-element {
+  /* Tells modern mobile browsers that gestures are "manipulations"
+     (like taps) rather than "zoom" or "pan" gestures. */
   touch-action: manipulation;
 }
 
