@@ -816,43 +816,44 @@ function prependWeek() {
  *  - Adds a new <tr> at the bottom, stepping "lastDate" forward by 7 days (1 row).
  */
 function appendWeek() {
+    // Create the main "week row"
     const row = calendarTableElement.insertRow(-1);
     animateRowInsertion(row, 'append');
 
-
-    // The row starts after "lastDate"
-    const rowStart = new Date(lastDate);
-    rowStart.setDate(rowStart.getDate() + 1);
-
     let isMonthBoundary = false;
 
-
-    // Fill 7 days
     do {
         lastDate.setDate(lastDate.getDate() + 1);
+        // Insert a cell for each day
+        const cell = row.insertCell(-1);
+        generateDay(cell, new Date(lastDate));
+
+        // If the day is the 1st, we note it's a boundary
         if (lastDate.getDate() === 1) {
             isMonthBoundary = true;
         }
-        generateDay(cell, new Date(lastDate));
     } while (getAdjustedDayIndex(lastDate) !== 6);
 
-    // Now create the dedicated row IF day=1 was reached
+    // Store numeric month/year on the newly created row
+    row.dataset.monthIndex = lastDate.getMonth();
+    row.dataset.year       = lastDate.getFullYear();
+
+    // Now create the separate "heading row" if day=1 was reached
     if (isMonthBoundary) {
         const headingRow = calendarTableElement.insertRow(-1);
         headingRow.classList.add('month-boundary');
 
         const headingCell = headingRow.insertCell(0);
-        headingCell.colSpan = 8; // or 7, depending on your layout
+        headingCell.colSpan = 7; // or 8, if you had an extra cell
         headingCell.className = 'extra';
         headingCell.innerHTML =
             months[lastDate.getMonth()] + " " + lastDate.getFullYear();
-        // Store numeric month/year on the row
-        row.dataset.monthIndex = lastDate.getMonth();
-        row.dataset.year       = lastDate.getFullYear();
 
+        // Optionally store the monthIndex/year on *this* row, too, if you want:
+        headingRow.dataset.monthIndex = lastDate.getMonth();
+        headingRow.dataset.year       = lastDate.getFullYear();
     }
 }
-
 
 
 /*
@@ -860,48 +861,48 @@ function appendWeek() {
  *  - Called on scroll to find which row is near the top, then updates the "sticky" label.
  */
 function updateStickyMonthHeader() {
-  // Hide the top header if on mobile
-  const headerEl = document.getElementById('header');
-  if (window.innerWidth <= 768) {
-    // On small screens, hide the top bar entirely
-    headerEl.style.display = 'none';
-  } else {
-    // Otherwise, ensure it's visible
-    headerEl.style.display = '';
-  }
-
-  // Our offset includes the header's height plus a small buffer
-  const headerOffset = headerEl.offsetHeight + 30;
-  const rows = document.querySelectorAll('#calendar tr');
-
-  let foundRow = null;
-  for (const row of rows) {
-    const rect = row.getBoundingClientRect();
-
-    // If the row overlaps the area just under the header, we consider it current
-    if (
-      (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-      (rect.top < headerOffset && rect.bottom > headerOffset)
-    ) {
-      foundRow = row;
-      break;
+    // Hide the top header if on mobile
+    const headerEl = document.getElementById('header');
+    if (window.innerWidth <= 768) {
+        // On small screens, hide the top bar entirely
+        headerEl.style.display = 'none';
+    } else {
+        // Otherwise, ensure it's visible
+        headerEl.style.display = '';
     }
-  }
 
-  if (foundRow) {
-    // Save in a global variable for jumpOneMonthForward/backward
+    // Our offset includes the header's height plus a small buffer
+    const headerOffset = headerEl.offsetHeight + 30;
+    const rows = document.querySelectorAll('#calendar tr');
 
-currentVisibleRow = foundRow; // Don't use window.currentVisibleRow
-    // Retrieve numeric month/year from row data
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year       = parseInt(foundRow.dataset.year, 10);
-    const monthName  = months[monthIndex] || "???";
+    let foundRow = null;
+    for (const row of rows) {
+        const rect = row.getBoundingClientRect();
 
-    // Put "March 2023" (example) in #stickyMonthHeader
-    const stickyElem = document.getElementById('stickyMonthHeader');
-    stickyElem.textContent = `${monthName} ${year}`;
-    stickyElem.style.display = 'block';
-  }
+        // If the row overlaps the area just under the header, we consider it current
+        if (
+            (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+                (rect.top < headerOffset && rect.bottom > headerOffset)
+        ) {
+            foundRow = row;
+            break;
+        }
+    }
+
+    if (foundRow) {
+        // Save in a global variable for jumpOneMonthForward/backward
+
+        currentVisibleRow = foundRow; // Don't use window.currentVisibleRow
+        // Retrieve numeric month/year from row data
+        const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+        const year       = parseInt(foundRow.dataset.year, 10);
+        const monthName  = months[monthIndex] || "???";
+
+        // Put "March 2023" (example) in #stickyMonthHeader
+        const stickyElem = document.getElementById('stickyMonthHeader');
+        stickyElem.textContent = `${monthName} ${year}`;
+        stickyElem.style.display = 'block';
+    }
 }
 
 
