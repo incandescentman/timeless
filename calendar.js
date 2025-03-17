@@ -206,10 +206,10 @@ function scrollToToday() {
 }
 
 /*
- * smoothScrollToToday()
+ * goToTodayAndRefresh()
  *  - Smoothly animates to the row containing "todayDate".
  */
-function smoothScrollToToday() {
+function goToTodayAndRefresh() {
     // First, make sure todayDate is the ACTUAL current date
     todayDate = new Date(systemToday); // Reset to actual today
     showLoading();
@@ -782,7 +782,7 @@ function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
         cell.addEventListener("click", () => {
             todayDate = new Date(year, month, dayNum);
             loadCalendarAroundDate(todayDate);
-            smoothScrollToToday();
+            goToTodayAndRefresh();
         });
         grid.appendChild(cell);
     }
@@ -1119,7 +1119,7 @@ function tryParseAndJumpToDate(dateText) {
         if (targetDate) {
             todayDate = targetDate;
             loadCalendarAroundDate(todayDate);
-            smoothScrollToToday();
+            goToTodayAndRefresh();
         } else {
             showToast("Couldn't understand that date format");
         }
@@ -1351,7 +1351,7 @@ function buildYearView(year, container) {
         hideYearView();
         todayDate = new Date(year, m, day);
         loadCalendarAroundDate(todayDate);
-        smoothScrollToToday();
+        goToTodayAndRefresh();
       };
 
       row.appendChild(td);
@@ -1887,7 +1887,7 @@ function jumpToDate() {
     const jumpDateObj = new Date(yyyy, mm - 1, dd);
     todayDate = jumpDateObj;
     loadCalendarAroundDate(todayDate);
-    setTimeout(() => smoothScrollToToday(), 300);
+    setTimeout(() => goToTodayAndRefresh(), 300);
 }
 
 /*
