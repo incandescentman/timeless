@@ -1733,18 +1733,24 @@ function jumpOneMonthForward() {
   let year = parseInt(currentVisibleRow.dataset.year, 10);
   let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
-
   month++;
   if (month > 11) {
     month = 0;
     year++;
   }
+
+  // Create a date object centered on the 1st of the target month
   const nextDate = new Date(year, month, 1);
+
+  // Reset the currentVisibleRow reference before navigating
+  currentVisibleRow = null;
+
+  // Then load calendar and scroll to the date
   smoothScrollToDate(nextDate);
 }
 
 function jumpOneMonthBackward() {
-if (!currentVisibleRow) return;
+  if (!currentVisibleRow) return;
   let year = parseInt(currentVisibleRow.dataset.year, 10);
   let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
 
@@ -1753,7 +1759,14 @@ if (!currentVisibleRow) return;
     month = 11;
     year--;
   }
+
+  // Create a date object centered on the 1st of the target month
   const prevDate = new Date(year, month, 1);
+
+  // Reset the currentVisibleRow reference before navigating
+  currentVisibleRow = null;
+
+  // Then load calendar and scroll to the date
   smoothScrollToDate(prevDate);
 }
 
