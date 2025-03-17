@@ -230,26 +230,7 @@ function goToTodayAndRefresh() {
     }, 200);
 }
 
-// 1. Fix the function we call on the "Today" button
-function goToTodayAndRefresh() {
-  // Reset todayDate to actual system today
-  todayDate = new Date(systemToday);
 
-  // IMPORTANT: Also reset currentVisibleRow to null
-  currentVisibleRow = null;
-
-  // Completely rebuild the calendar with today at the center
-  calendarTableElement.innerHTML = "";
-  loadCalendarAroundDate(todayDate);
-
-  // After a short delay to let the calendar render
-  setTimeout(() => {
-    const elem = document.getElementById(idForDate(todayDate));
-    if (elem) {
-      window.scrollTo(0, scrollPositionForElement(elem));
-    }
-  }, 300);
-}
 
 /*
  * toggleDarkMode()
