@@ -210,26 +210,27 @@ function scrollToToday() {
  *  - Smoothly animates to the row containing "todayDate".
  */
 function goToTodayAndRefresh() {
-    // First, make sure todayDate is the ACTUAL current date
-    todayDate = new Date(systemToday); // Reset to actual today
-    showLoading();
-    loadCalendarAroundDate(todayDate); // Reload around today
+    // Reset todayDate to actual system today
+    todayDate = new Date(systemToday);
 
-    // Then after a short delay, scroll to it
+    // Reset currentVisibleRow so we don't scroll to an old row
+    currentVisibleRow = null;
+
+    // Clear any previous scroll position
+    window.scrollTo(0, 0);
+
+    // Completely rebuild the calendar with today at the center
+    calendarTableElement.innerHTML = "";
+    loadCalendarAroundDate(todayDate);
+
+    // Increase delay to ensure calendar has time to render
     setTimeout(() => {
         const elem = document.getElementById(idForDate(todayDate));
-        if (!elem) {
-            hideLoading();
-            return;
+        if (elem) {
+            window.scrollTo(0, scrollPositionForElement(elem));
         }
-        goalY = scrollPositionForElement(elem);
-        startY = documentScrollTop();
-        startTime = new Date();
-        if (goalY !== startY) setTimeout(scrollAnimation, 10);
-        else hideLoading();
-    }, 200);
+    }, 500);
 }
-
 
 
 /*
