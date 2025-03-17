@@ -789,26 +789,48 @@ function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
  *  - Inserts a new <tr> at the top, stepping "firstDate" backward by 7 days (1 row).
  */
 function prependWeek() {
-    const row = calendarTableElement.insertRow(0);
-    animateRowInsertion(row, 'prepend');
-    let isMonthBoundary = false;
+  // We'll gather the 7 previous days in an array first
+  let daysForThisRow = [];
 
-    do {
-        firstDate.setDate(firstDate.getDate() - 1);
-        if (firstDate.getDate() === 1) {
-            isMonthBoundary = true;
-        }
-        const cell = row.insertCell(0);
-        generateDay(cell, new Date(firstDate));
-    } while (getAdjustedDayIndex(firstDate) !== 0);
+  for (let i = 0; i < 7; i++) {
+    // Move firstDate backward by 1 day
+    firstDate.setDate(firstDate.getDate() - 1);
 
-    if (isMonthBoundary) {
-        row.classList.add('month-boundary');
+    // If we discover day=1, insert heading row above
+    if (firstDate.getDate() === 1) {
+      const headingRow = calendarTableElement.insertRow(0);
+      // Insert at index 0 so it appears above the upcoming week row
+
+      headingRow.classList.add('month-boundary');
+      const headingCell = headingRow.insertCell(0);
+      headingCell.colSpan = 7;
+      headingCell.className = 'extra';
+      headingCell.innerHTML =
+        months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+
+      headingRow.dataset.monthIndex = firstDate.getMonth();
+      headingRow.dataset.year       = firstDate.getFullYear();
     }
 
-    // Store numeric month/year on the row itself
-    row.dataset.monthIndex = firstDate.getMonth();
-    row.dataset.year       = firstDate.getFullYear();
+    // Collect this day
+    daysForThisRow.push(new Date(firstDate));
+  }
+
+  // Now we actually create the "week row" at index 0 so it's on top
+  const row = calendarTableElement.insertRow(0);
+  animateRowInsertion(row, 'prepend');
+
+  row.dataset.monthIndex = firstDate.getMonth();
+  row.dataset.year       = firstDate.getFullYear();
+
+  // Because we built daysForThisRow from newest to oldest,
+  // we may want to reverse it so it displays Monday..Tuesday.. etc
+  daysForThisRow.reverse();
+
+  for (let dayObj of daysForThisRow) {
+    const cell = row.insertCell(-1);
+    generateDay(cell, dayObj);
+  }
 }
 
 /*
@@ -816,44 +838,49 @@ function prependWeek() {
  *  - Adds a new <tr> at the bottom, stepping "lastDate" forward by 7 days (1 row).
  */
 function appendWeek() {
-    // Create the main "week row"
-    const row = calendarTableElement.insertRow(-1);
-    animateRowInsertion(row, 'append');
+  // We'll gather the 7 upcoming days in an array first
+  let daysForThisRow = [];
 
-    let isMonthBoundary = false;
+  // Build a list of 7 consecutive days
+  for (let i = 0; i < 7; i++) {
+    lastDate.setDate(lastDate.getDate() + 1);
 
-    do {
-        lastDate.setDate(lastDate.getDate() + 1);
-        // Insert a cell for each day
-        const cell = row.insertCell(-1);
-        generateDay(cell, new Date(lastDate));
+    // If we're about to generate day=1, insert a heading row for "Month Year"
+    if (lastDate.getDate() === 1) {
+      // Insert a separate row for the heading BEFORE we add the actual day row.
+      const headingRow = calendarTableElement.insertRow(-1);
+      headingRow.classList.add('month-boundary');
 
-        // If the day is the 1st, we note it's a boundary
-        if (lastDate.getDate() === 1) {
-            isMonthBoundary = true;
-        }
-    } while (getAdjustedDayIndex(lastDate) !== 6);
+      const headingCell = headingRow.insertCell(0);
+      headingCell.colSpan = 7; // or 8, if you prefer
+      headingCell.className = 'extra';
+      headingCell.innerHTML =
+        months[lastDate.getMonth()] + " " + lastDate.getFullYear();
 
-    // Store numeric month/year on the newly created row
-    row.dataset.monthIndex = lastDate.getMonth();
-    row.dataset.year       = lastDate.getFullYear();
-
-    // Now create the separate "heading row" if day=1 was reached
-    if (isMonthBoundary) {
-        const headingRow = calendarTableElement.insertRow(-1);
-        headingRow.classList.add('month-boundary');
-
-        const headingCell = headingRow.insertCell(0);
-        headingCell.colSpan = 7; // or 8, if you had an extra cell
-        headingCell.className = 'extra';
-        headingCell.innerHTML =
-            months[lastDate.getMonth()] + " " + lastDate.getFullYear();
-
-        // Optionally store the monthIndex/year on *this* row, too, if you want:
-        headingRow.dataset.monthIndex = lastDate.getMonth();
-        headingRow.dataset.year       = lastDate.getFullYear();
+      // Optionally store row data for the heading row
+      headingRow.dataset.monthIndex = lastDate.getMonth();
+      headingRow.dataset.year       = lastDate.getFullYear();
     }
+
+    // Collect this day in our array
+    daysForThisRow.push(new Date(lastDate));
+  }
+
+  // Now create the "week row" itself and fill it with these 7 days.
+  const row = calendarTableElement.insertRow(-1);
+  animateRowInsertion(row, 'append');
+
+  // For tracking
+  row.dataset.monthIndex = lastDate.getMonth();
+  row.dataset.year       = lastDate.getFullYear();
+
+  // Fill the cells
+  for (let dayObj of daysForThisRow) {
+    const cell = row.insertCell(-1);
+    generateDay(cell, dayObj);
+  }
 }
+
 
 
 /*
@@ -861,49 +888,32 @@ function appendWeek() {
  *  - Called on scroll to find which row is near the top, then updates the "sticky" label.
  */
 function updateStickyMonthHeader() {
-    // Hide the top header if on mobile
     const headerEl = document.getElementById('header');
-    if (window.innerWidth <= 768) {
-        // On small screens, hide the top bar entirely
-        headerEl.style.display = 'none';
-    } else {
-        // Otherwise, ensure it's visible
-        headerEl.style.display = '';
-    }
+    headerEl.style.display = window.innerWidth <= 768 ? 'none' : '';
 
-    // Our offset includes the header's height plus a small buffer
     const headerOffset = headerEl.offsetHeight + 30;
     const rows = document.querySelectorAll('#calendar tr');
-
     let foundRow = null;
     for (const row of rows) {
         const rect = row.getBoundingClientRect();
-
-        // If the row overlaps the area just under the header, we consider it current
-        if (
-            (rect.top >= headerOffset && rect.top <= window.innerHeight) ||
-                (rect.top < headerOffset && rect.bottom > headerOffset)
-        ) {
+        if ((rect.top >= headerOffset && rect.top <= window.innerHeight) ||
+            (rect.top < headerOffset && rect.bottom > headerOffset)) {
             foundRow = row;
             break;
         }
     }
 
     if (foundRow) {
-        // Save in a global variable for jumpOneMonthForward/backward
-
-        currentVisibleRow = foundRow; // Don't use window.currentVisibleRow
-        // Retrieve numeric month/year from row data
+        currentVisibleRow = foundRow;
         const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-        const year       = parseInt(foundRow.dataset.year, 10);
-        const monthName  = months[monthIndex] || "???";
-
-        // Put "March 2023" (example) in #stickyMonthHeader
+        const year = parseInt(foundRow.dataset.year, 10);
+        const monthName = months[monthIndex] || "???";
         const stickyElem = document.getElementById('stickyMonthHeader');
         stickyElem.textContent = `${monthName} ${year}`;
         stickyElem.style.display = 'block';
     }
 }
+
 
 
 // ========== COMMAND PALETTE & SHORTCUTS ==========
