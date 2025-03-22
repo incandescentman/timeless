@@ -76,6 +76,16 @@ function throttle(func, delay) {
     };
 }
 
+// Mobile: Check for mobile and go to today on page load
+window.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth <= 768) {
+        // Execute goToTodayAndRefresh after a short delay to ensure everything is loaded
+        setTimeout(function() {
+            goToTodayAndRefresh();
+        }, 100);
+    }
+});
+
 
 /*
  * Implementation of a debounced server save. Only triggered after user stops typing for 2s.
