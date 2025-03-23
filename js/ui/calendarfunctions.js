@@ -1,42 +1,35 @@
 // ui/calendarfunctions.js
 
-// Declare a module-level variable for the calendar table element:
-let calendarTableElement;
+// Import functions from dom.js and state.js (make sure these functions/variables are exported from those modules)
+import {
+  showLoading,
+  hideLoading,
+  showToast,
+  recalculateAllHeights,
+  documentScrollTop,
+  documentScrollHeight,
+  scrollPositionForElement,
+  updateStickyMonthHeader,
+  getAdjustedDayIndex,       // exported from dom.js
+  idForDate,                 // exported from dom.js
+  animateRowInsertion        // exported from dom.js
+} from "./dom.js";
 
-// Export a setter so other modules (like init.js) can set it:
-export function setCalendarTableElement(element) {
-  calendarTableElement = element;
-}
+import { buildMiniCalendar } from "./minicalendar.js"; // ensure the export name matches (capital M)
 
-
-
-// ui/calendarfunctions.js
-
-import { showLoading, hideLoading, showToast, recalculateAllHeights, documentScrollTop, documentScrollHeight, scrollPositionForElement, updateStickyMonthHeader } from "./dom.js";
-import { buildMiniCalendar } from "./minicalendar.js";
 import { currentCalendarDate, systemToday, keyboardFocusDate } from "../core/state.js";
 
 // Module-level variable for the calendar table element:
 let calendarTableElement;
 
-// Export a setter so that init.js can set it:
+// Export a setter so that init.js can set the calendar table element:
 export function setCalendarTableElement(element) {
   calendarTableElement = element;
 }
 
-// Module-level variables:
+// Module-level variables used for the calendar
 let firstDate, lastDate;
 let lastMiniCalendarMonth = null;
-
-// Define helper functions that were used but not defined:
-function getAdjustedDayIndex(date) {
-  const day = date.getDay(); // 0 (Sun) - 6 (Sat)
-  return day === 0 ? 6 : day - 1; // Adjust so Monday is 0
-}
-
-function idForDate(date) {
-  return `${date.getMonth()}_${date.getDate()}_${date.getFullYear()}`;
-}
 
 // --- Function definitions ---
 
@@ -57,7 +50,7 @@ export function loadCalendarAroundDate(seedDate) {
   // Insert the first row
   appendWeek();
 
-  // Insert additional weeks to fill the screen
+  // Insert additional weeks to fill the screen:
   for (let i = 0; i < 3; i++) {
     prependWeek();
   }
@@ -67,6 +60,7 @@ export function loadCalendarAroundDate(seedDate) {
 
   function loadBatch() {
     let batchCount = 0;
+    // Keep adding weeks until the document is tall enough:
     while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
       prependWeek();
       appendWeek();
@@ -85,7 +79,201 @@ export function loadCalendarAroundDate(seedDate) {
         lastMiniCalendarMonth = currentCalendarDate.getMonth();
       }
 
-      // If keyboardFocusDate exists and a global highlight function is available:
+      // If keyboardFocusDate exists and a global highlight function is defined, call it.
+      if (keyboardFocusDate && typeof window.highlightKeyboardFocusedDay === 'function') {
+        window.highlightKeyboardFocusedDay();
+      }
+      hideLoading();
+    }
+  }
+  loadBatch();
+}
+
+export function scrollToToday() {
+  const elem = document.getElementById(idForDate(currentCalendarDate));
+  if (elem) {
+    window.scrollTo(0, scrollPositionForElement(elem));
+  }
+  hideLoading();
+}
+
+export function goToTodayAndRefresh() {
+  // Reset currentCalendarDate to systemToday
+  currentCalendarDate = new Date(systemToday);
+
+  // Reset any visible row reference (assumed to be a global variable, e.g., on window)
+  window.currentVisibleRow = null;
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+
+  // Rebuild the calendar
+  calendarTableElement.innerHTML = "";
+  loadCalendarAroundDate(currentCalendarDate);
+
+  // After a delay, scroll smoothly to the day cell
+  setTimeout(() => {
+    const elem = document.getElementById(idForDate(currentCalendarDate));
+    if (elem) {
+      elem.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 500);
+}
+
+export function appendWeek() {
+  let daysForThisRow = [];
+  for (let i = 0; i < 7; i++) {
+    lastDate.setDate(lastDate.getDate() + 1);
+    if (lastDate.getDate() === 1) {
+      const headingRow = calendarTableElement.insertRow(-1);
+      headingRow.classList.add('month-boundary');
+      const headingCell = headingRow.insertCell(0);
+      headingCell.colSpan = 7;
+      headingCell.className = 'extra';
+      // Assuming that a global array "months" is defined in your original file.
+      headingCell.innerHTML = months[lastDate.getMonth()] + " " + lastDate.getFullYear();
+      headingRow.dataset.monthIndex = lastDate.getMonth();
+      headingRow.dataset.year = lastDate.getFullYear();
+    }
+    daysForThisRow.push(new Date(lastDate));
+  }
+  const row = calendarTableElement.insertRow(-1);
+  animateRowInsertion(row, 'append');
+  row.dataset.monthIndex = lastDate.getMonth();
+  row.dataset.year = lastDate.getFullYear();
+  for (let dayObj of daysForThisRow) {
+    const cell = row.insertCell(-1);
+    generateDay(cell, dayObj);
+  }
+}
+
+export function prependWeek() {
+  let daysForThisRow = [];
+  for (let i = 0; i < 7; i++) {
+    firstDate.setDate(firstDate.getDate() - 1);
+    if (firstDate.getDate() === 1) {
+      const headingRow = calendarTableElement.insertRow(0);
+      headingRow.classList.add('month-boundary');
+      const headingCell = headingRow.insertCell(0);
+      headingCell.colSpan = 7;
+      headingCell.className = 'extra';
+      headingCell.innerHTML = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
+      headingRow.dataset.monthIndex = firstDate.getMonth();
+      headingRow.dataset.year = firstDate.getFullYear();
+    }
+    daysForThisRow.push(new Date(firstDate));
+  }
+  const row = calendarTableElement.insertRow(0);
+  animateRowInsertion(row, 'prepend');
+  row.dataset.monthIndex = firstDate.getMonth();
+  row.dataset.year = firstDate.getFullYear();
+  daysForThisRow.reverse();
+  for (let dayObj of daysForThisRow) {
+    const cell = row.insertCell(-1);
+    generateDay(cell, dayObj);
+  }
+}
+
+export function generateDay(dayCell, date) {
+  // Here we assume that global arrays "daysOfWeek" and "shortMonths" (and "months") are available.
+  // You could also import these from a configuration module if desired.
+  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+  if (isWeekend) dayCell.classList.add("weekend");
+  const isShaded = (date.getMonth() % 2 === 1);
+  if (isShaded) dayCell.classList.add("shaded");
+  const isToday = (
+    date.getFullYear() === currentCalendarDate.getFullYear() &&
+    date.getMonth() === currentCalendarDate.getMonth() &&
+    date.getDate() === currentCalendarDate.getDate()
+  );
+  if (isToday) dayCell.classList.add("today");
+  dayCell.id = idForDate(date);
+  if (window.innerWidth <= 768) {
+    const monthShort = shortMonths[date.getMonth()];
+    const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
+    const dayNum = date.getDate();
+    dayCell.innerHTML = `
+          <div class="day-top-row">
+            <span class="day-label">${dowLabel}</span>
+            <div class="month-day-container">
+              <span class="month-label">${monthShort}</span>
+              <span class="day-number">${dayNum}</span>
+            </div>
+          </div>
+        `;
+  } else {
+    dayCell.innerHTML = `
+          <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+          <span class="day-number">${date.getDate()}</span>
+        `;
+  }
+  // Assume that lookupItemsForParentId, generateItem, recalculateHeight, processNoteTags are available globally.
+  lookupItemsForParentId(dayCell.id, items => {
+    items.forEach(it => {
+      const note = generateItem(dayCell.id, it.itemId);
+      if (note) {
+        note.value = it.itemValue;
+        recalculateHeight(note.id);
+        processNoteTags(note);
+      }
+    });
+  });
+}
+
+
+// ui/calendarfunctions.js
+
+
+// --- Function definitions ---
+
+export function loadCalendarAroundDate(seedDate) {
+  showLoading();
+  const container = document.getElementById('calendarContainer');
+  container.classList.add('loading-calendar');
+
+  // Start from seedDate, roll back to Monday
+  calendarTableElement.innerHTML = "";
+  firstDate = new Date(seedDate);
+  while (getAdjustedDayIndex(firstDate) !== 0) {
+    firstDate.setDate(firstDate.getDate() - 1);
+  }
+  lastDate = new Date(firstDate);
+  lastDate.setDate(lastDate.getDate() - 1);
+
+  // Insert the first row
+  appendWeek();
+
+  // Insert additional weeks to fill the screen:
+  for (let i = 0; i < 3; i++) {
+    prependWeek();
+  }
+  for (let i = 0; i < 5; i++) {
+    appendWeek();
+  }
+
+  function loadBatch() {
+    let batchCount = 0;
+    // Keep adding weeks until the document is tall enough
+    while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
+      prependWeek();
+      appendWeek();
+      batchCount++;
+    }
+    if (documentScrollHeight() <= window.innerHeight) {
+      setTimeout(loadBatch, 0);
+    } else {
+      container.classList.remove('loading-calendar');
+      scrollToToday();
+      recalculateAllHeights();
+      updateStickyMonthHeader();
+
+      // Rebuild mini-calendar if month changed
+      if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
+        buildMiniCalendar();
+        lastMiniCalendarMonth = currentCalendarDate.getMonth();
+      }
+
+      // Highlight the focused day if applicable
       if (keyboardFocusDate && typeof highlightKeyboardFocusedDay === 'function') {
         highlightKeyboardFocusedDay();
       }
@@ -107,7 +295,7 @@ export function goToTodayAndRefresh() {
   // Reset currentCalendarDate to systemToday
   currentCalendarDate = new Date(systemToday);
 
-  // Reset any visible row reference (assuming this variable is global or set elsewhere)
+  // Clear any visible row reference
   window.currentVisibleRow = null;
 
   // Scroll to top
@@ -162,7 +350,7 @@ export function prependWeek() {
       const headingCell = headingRow.insertCell(0);
       headingCell.colSpan = 7;
       headingCell.className = 'extra';
-      headingCell.innerHTML = months[firstDate.getFullYear()] + " " + firstDate.getFullYear(); // Possibly should be month?
+      headingCell.innerHTML = months[firstDate.getMonth()] + " " + firstDate.getFullYear();
       headingRow.dataset.monthIndex = firstDate.getMonth();
       headingRow.dataset.year = firstDate.getFullYear();
     }
@@ -210,278 +398,7 @@ export function generateDay(dayCell, date) {
           <span class="day-number">${date.getDate()}</span>
         `;
   }
-  lookupItemsForParentId(dayCell.id, items => {
-    items.forEach(it => {
-      const note = generateItem(dayCell.id, it.itemId);
-      if (note) {
-        note.value = it.itemValue;
-        recalculateHeight(note.id);
-        processNoteTags(note);
-      }
-    });
-  });
-}
-
-// Assume these helper functions (lookupItemsForParentId, generateItem, recalculateHeight, processNoteTags, animateRowInsertion)
-// are defined globally or imported as needed.
-
-
-import { buildMiniCalendar } from "./minicalendar.js";
-
-
-import {
-  showLoading,
-  hideLoading,
-  showToast,
-  recalculateAllHeights,
-  documentScrollTop,
-  documentScrollHeight,
-  scrollPositionForElement,
-  updateStickyMonthHeader,
-  getAdjustedDayIndex,      // NEW: import getAdjustedDayIndex
-  idForDate,                // NEW: import idForDate
-  animateRowInsertion       // NEW: import animateRowInsertion
-} from "./dom.js";
-
-
-
-
-// Declare module-level variables that were formerly global
-
-let firstDate, lastDate;
-let lastMiniCalendarMonth = null;
-
-// (Assuming other variables like currentCalendarDate, keyboardFocusDate, etc. are either imported or defined elsewhere)
-// You may choose to import currentCalendarDate from a state module if that is where you keep global state.
-
-
-// (Similarly, if needed, you could provide setters for other DOM elements.)
-
-// --- Function definitions
-
-export function loadCalendarAroundDate(seedDate) {
-  showLoading();
-  const container = document.getElementById('calendarContainer');
-  container.classList.add('loading-calendar');
-
-  // Start from seedDate, roll back to Monday
-  calendarTableElement.innerHTML = "";
-  firstDate = new Date(seedDate);
-  while (getAdjustedDayIndex(firstDate) !== 0) {
-    firstDate.setDate(firstDate.getDate() - 1);
-  }
-  lastDate = new Date(firstDate);
-  lastDate.setDate(lastDate.getDate() - 1);
-
-  // Insert the first row
-  appendWeek();
-
-  // Insert a bunch of weeks before/after to ensure there's enough content:
-  for (let i = 0; i < 3; i++) {
-    prependWeek();
-  }
-  for (let i = 0; i < 5; i++) {
-    appendWeek();
-  }
-
-  function loadBatch() {
-    let batchCount = 0;
-    // Keep adding top/bottom weeks until screen is filled (or do a max iteration)
-    while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
-      prependWeek();
-      appendWeek();
-      batchCount++;
-    }
-    if (documentScrollHeight() <= window.innerHeight) {
-      setTimeout(loadBatch, 0);
-    } else {
-      // Done loading
-      container.classList.remove('loading-calendar');
-      scrollToToday();
-      recalculateAllHeights();
-      updateStickyMonthHeader();
-
-      // Rebuild mini-calendar if our month changed
-      if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
-        buildMiniCalendar();
-        lastMiniCalendarMonth = currentCalendarDate.getMonth();
-      }
-
-      // If we were using keyboardFocusDate, highlight that day
-      if (keyboardFocusDate) {
-        highlightKeyboardFocusedDay();
-      }
-      hideLoading();
-    }
-  }
-  loadBatch();
-}
-
-export function scrollToToday() {
-  const elem = document.getElementById(idForDate(currentCalendarDate));
-  if (elem) {
-    window.scrollTo(0, scrollPositionForElement(elem));
-  }
-  hideLoading();
-}
-
-export function goToTodayAndRefresh() {
-  // Reset currentCalendarDate to actual system today
-  currentCalendarDate = new Date(systemToday);
-
-  // Reset currentVisibleRow so we don't scroll to an old row
-  currentVisibleRow = null;
-
-  // Clear any previous scroll position
-  window.scrollTo(0, 0);
-
-  // Completely rebuild the calendar with today at the center
-  calendarTableElement.innerHTML = "";
-  loadCalendarAroundDate(currentCalendarDate);
-
-  // Increase delay to ensure calendar has time to render
-  setTimeout(() => {
-    const elem = document.getElementById(idForDate(currentCalendarDate));
-    if (elem) {
-      elem.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, 500);
-}
-
-export function appendWeek() {
-  // We'll gather the 7 upcoming days in an array first
-  let daysForThisRow = [];
-
-  // Build a list of 7 consecutive days
-  for (let i = 0; i < 7; i++) {
-    lastDate.setDate(lastDate.getDate() + 1);
-
-    // If we're about to generate day=1, insert a heading row for "Month Year"
-    if (lastDate.getDate() === 1) {
-      // Insert a separate row for the heading BEFORE we add the actual day row.
-      const headingRow = calendarTableElement.insertRow(-1);
-      headingRow.classList.add('month-boundary');
-
-      const headingCell = headingRow.insertCell(0);
-      headingCell.colSpan = 7; // or 8, if you prefer
-      headingCell.className = 'extra';
-      headingCell.innerHTML =
-        months[lastDate.getMonth()] + " " + lastDate.getFullYear();
-
-      // Optionally store row data for the heading row
-      headingRow.dataset.monthIndex = lastDate.getMonth();
-      headingRow.dataset.year = lastDate.getFullYear();
-    }
-
-    // Collect this day in our array
-    daysForThisRow.push(new Date(lastDate));
-  }
-
-  // Now create the "week row" itself and fill it with these 7 days.
-  const row = calendarTableElement.insertRow(-1);
-  animateRowInsertion(row, 'append');
-
-  // For tracking
-  row.dataset.monthIndex = lastDate.getMonth();
-  row.dataset.year = lastDate.getFullYear();
-
-  // Fill the cells
-  for (let dayObj of daysForThisRow) {
-    const cell = row.insertCell(-1);
-    generateDay(cell, dayObj);
-  }
-}
-
-export function prependWeek() {
-  // We'll gather the 7 previous days in an array first
-  let daysForThisRow = [];
-
-  for (let i = 0; i < 7; i++) {
-    // Move firstDate backward by 1 day
-    firstDate.setDate(firstDate.getDate() - 1);
-
-    // If we discover day=1, insert heading row above
-    if (firstDate.getDate() === 1) {
-      const headingRow = calendarTableElement.insertRow(0);
-      // Insert at index 0 so it appears above the upcoming week row
-
-      headingRow.classList.add('month-boundary');
-      const headingCell = headingRow.insertCell(0);
-      headingCell.colSpan = 7;
-      headingCell.className = 'extra';
-      headingCell.innerHTML =
-        months[firstDate.getMonth()] + " " + firstDate.getFullYear();
-
-      headingRow.dataset.monthIndex = firstDate.getMonth();
-      headingRow.dataset.year = firstDate.getFullYear();
-    }
-
-    // Collect this day
-    daysForThisRow.push(new Date(firstDate));
-  }
-
-  // Now we actually create the "week row" at index 0 so it's on top
-  const row = calendarTableElement.insertRow(0);
-  animateRowInsertion(row, 'prepend');
-
-  row.dataset.monthIndex = firstDate.getMonth();
-  row.dataset.year = firstDate.getFullYear();
-
-  // Because we built daysForThisRow from newest to oldest,
-  // we may want to reverse it so it displays Monday..Tuesday.. etc
-  daysForThisRow.reverse();
-
-  for (let dayObj of daysForThisRow) {
-    const cell = row.insertCell(-1);
-    generateDay(cell, dayObj);
-  }
-}
-
-export function generateDay(dayCell, date) {
-  // (Assumes that variables such as currentCalendarDate, daysOfWeek, shortMonths, etc. are available.)
-  // Weekend shading
-  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
-  if (isWeekend) dayCell.classList.add("weekend");
-
-  // "Shaded" alternating months
-  const isShaded = (date.getMonth() % 2 === 1);
-  if (isShaded) dayCell.classList.add("shaded");
-
-  // Is it "today"?
-  const isToday = (
-    date.getFullYear() === currentCalendarDate.getFullYear() &&
-    date.getMonth() === currentCalendarDate.getMonth() &&
-    date.getDate() === currentCalendarDate.getDate()
-  );
-  if (isToday) dayCell.classList.add("today");
-
-  // Unique ID like "2_10_2025" for each day cell
-  dayCell.id = idForDate(date);
-
-  // For mobile, a top-row layout with day label on left, month+day number on right
-  if (window.innerWidth <= 768) {
-    const monthShort = shortMonths[date.getMonth()];
-    const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
-    const dayNum = date.getDate();
-
-    dayCell.innerHTML = `
-          <div class="day-top-row">
-            <span class="day-label">${dowLabel}</span>
-            <div class="month-day-container">
-              <span class="month-label">${monthShort}</span>
-              <span class="day-number">${dayNum}</span>
-            </div>
-          </div>
-        `;
-  } else {
-    // Desktop layout
-    dayCell.innerHTML = `
-          <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
-          <span class="day-number">${date.getDate()}</span>
-        `;
-  }
-
-  // Restore any notes stored for this day (assumes lookupItemsForParentId and generateItem are defined globally)
+  // Assumes lookupItemsForParentId, generateItem, recalculateHeight, processNoteTags are available globally
   lookupItemsForParentId(dayCell.id, items => {
     items.forEach(it => {
       const note = generateItem(dayCell.id, it.itemId);

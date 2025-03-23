@@ -30,15 +30,6 @@
  * This file contains the global state for the app.
  */
 
-// Force local midnight date to avoid time-zone hour offsets
-const now = new Date();
-export let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-// Make sure to set hours/min/sec to 0 to avoid any time-based issues
-systemToday.setHours(0, 0, 0, 0);
-
-// The "currentCalendarDate" is what we consider "today" within the calendar logic
-
-
 
 
 // core/state.js
@@ -46,24 +37,20 @@ const now = new Date();
 export let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 systemToday.setHours(0, 0, 0, 0);
 
-// Initially, set currentCalendarDate to systemToday.
-export let currentCalendarDate = new Date(systemToday);
 
 // (Other state variables as needed)
-export let keyboardFocusDate = null;
-export let isMultiSelectMode = false;
 
 
+// The "currentCalendarDate" is what we consider "today" within the calendar logic.
+export let currentCalendarDate = new Date(systemToday);
 
-
-
-// Global variable for keyboard navigation focus
+// Global variable for keyboard navigation focus.
 export let keyboardFocusDate = null;
 
-// Flag for multi-select mode
+// Flag for multi-select mode.
 export let isMultiSelectMode = false;
 
-// Optionally, you can add more state exports if needed:
+// Date range selection state.
 export let rangeStart = null;
 export let rangeEnd = null;
 
