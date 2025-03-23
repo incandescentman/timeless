@@ -1,8 +1,12 @@
 // main/init.js
 
+// main/init.js
+
+
+import { setupAllEventListeners } from "../events/eventSetup.js";
+import { systemToday } from "../core/state.js";
 import { loadDataFromServer, pullUpdatesFromServer } from "../data/serverSync.js";
 import { loadCalendarAroundDate } from "../ui/calendarfunctions.js";
-import { systemToday } from "../core/state.js";
 import { setupScrollObservers, checkInfiniteScroll } from "../events/scrollEvents.js";
 // (Assuming recalculateAllHeights, throttle, and updateStickyMonthHeader are available globally or imported as needed.)
 

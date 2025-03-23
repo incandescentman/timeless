@@ -12,6 +12,7 @@ import { updateStickyMonthHeader } from "./dom.js"; // if it's defined there
 import { buildMiniCalendar } from "./minicalendar.js"; // if mini calendar functions are here
 
 
+
 export function loadCalendarAroundDate(seedDate) {
     showLoading();
     const container = document.getElementById('calendarContainer');
