@@ -1,0 +1,309 @@
+#+TITLE: Timeless Calendar: File & Module Map
+#+AUTHOR: Jay Dixit
+
+* Plan
+This document describes how we'll split up our giant calendar.js file into a modular structure. Our goal is to have a clear directory layout, with each file handling its own slice of functionality, and to use ES modules for easy importing/exporting. We'll also clarify how to handle global variables or shared application state.
+
+** File Structure Overview
+
+We'll create these folders at the top level:
+ 1. core/ --- global state and minimal logic
+ 2. ui/ --- user interface and rendering functions
+ 3. events/ --- logic for user interactions (scrolling, keyboard, etc.)
+ 4. data/ --- server sync or local data manipulation
+ 5. main/ --- entry point for the entire app
+
+timeless/
+├── core/
+│   └── state.js
+├── ui/
+│   ├── calendarfunctions.js
+│   └── dom.js
+├── events/
+│   ├── scrollEvents.js
+│   ├── emacs.js
+│   ├── minicalendar.js
+│   ├── keyboard.js
+│   ├── help.js
+│   ├── command-palette.js
+│   ├── mobile.js
+│   ├── eventSetup.js
+│   └── scrollFallback.js
+├── data/
+│   └── serverSync.js
+└── main/
+    └── init.js
+
+**** core/state.js
+ - Purpose: Centralize any truly global variables or state that multiple modules need to share or modify.
+ - Exports (example list):
+
+// core/state.js
+export let systemToday = new Date();          // The system "today" at local midnight
+export let currentCalendarDate = new Date();  // The calendar's "current" day
+export let keyboardFocusDate = null;          // For arrow-key day navigation
+export let isMultiSelectMode = false;         // For multi-day editing
+
+// Optional: If you prefer getters/setters to control state changes:
+let _rangeStart = null;
+export function setRangeStart(date) { _rangeStart = date; }
+export function getRangeStart() { return _rangeStart; }
+
+// etc.
+
+
+ - Imports:
+Typically none. This file is at the core. Other files import from here.
+
+**** ui/calendarfunctions.js
+ - Purpose: Houses functions for building or rendering the main calendar.
+ - Functions to Include:
+ - loadCalendarAroundDate(date): Clears the calendar table, sets up weeks, ensures enough content is loaded.
+ - scrollToToday()
+ - goToTodayAndRefresh()
+ - appendWeek(), prependWeek(): For adding rows above/below
+ - generateDay(dayCell, date): Renders a single <td> with notes, etc.
+ - Exports:
+
+// ui/calendarfunctions.js
+export function loadCalendarAroundDate(seedDate) { ... }
+export function scrollToToday() { ... }
+export function goToTodayAndRefresh() { ... }
+export function appendWeek() { ... }
+export function prependWeek() { ... }
+export function generateDay(dayCell, date) { ... }
+
+
+ - Imports:
+
+import { currentCalendarDate, systemToday } from "../core/state.js";
+import { showLoading, hideLoading } from "./dom.js"; // (if needed)
+// ...
+
+
+
+**** ui/dom.js
+ - Purpose: "Pure UI" code that deals with direct DOM manipulation --- utility functions.
+ - Functions to Include:
+ - showLoading(), hideLoading()
+ - showToast(message, duration)
+ - Possibly recalculateAllHeights()
+ - Exports:
+
+// ui/dom.js
+export function showLoading() { ... }
+export function hideLoading() { ... }
+export function showToast(message, duration = 3000) { ... }
+
+
+ - Imports: Typically none. (Or minimal references if absolutely needed.)
+
+**** events/scrollEvents.js
+ - Purpose: Logic for infinite scrolling, IntersectionObserver usage, fallback checking.
+ - Functions:
+ - setupScrollObservers()
+ - checkInfiniteScroll()
+ - Exports:
+
+// events/scrollEvents.js
+export function setupScrollObservers() { ... }
+export function checkInfiniteScroll() { ... }
+
+
+ - Imports:
+
+import { appendWeek, prependWeek } from "../ui/calendarfunctions.js";
+import { currentCalendarDate } from "../core/state.js"; // if necessary
+
+**** events/emacs.js
+ - Purpose: Functionality to export or import Emacs diary format.
+ - Functions:
+ - importFromDiaryFile()
+ - exportEmacsDiary()
+ - Exports:
+
+// events/emacs.js
+export async function importFromDiaryFile() { ... }
+export async function exportEmacsDiary() { ... }
+
+
+ - Imports:
+Possibly from core/state.js if needed.
+
+6. events/minicalendar.js
+ - Purpose: Build and manage the "mini calendar" widget.
+ - Functions:
+ - buildMiniCalendar()
+ - buildMiniCalendarForMonth()
+ - Exports:
+
+export function buildMiniCalendar() { ... }
+// ...
+
+
+ - Imports:
+ - currentCalendarDate from core/state.js.
+
+**** events/keyboard.js
+ - Purpose: Keyboard shortcuts, arrow-key day navigation, undo/redo combos.
+ - Functions:
+ - toggleKeyboardNavMode()
+ - stepDay(delta)
+ - createEventInFocusedDay()
+ - deleteEntriesForFocusedDay()
+ - Exports:
+
+export function toggleKeyboardNavMode() { ... }
+export function stepDay(delta) { ... }
+export function createEventInFocusedDay() { ... }
+export function deleteEntriesForFocusedDay() { ... }
+
+
+ - Imports:
+
+import { currentCalendarDate, keyboardFocusDate } from "../core/state.js";
+import { loadCalendarAroundDate } from "../ui/calendarfunctions.js";
+// ...
+
+**** events/help.js
+ - Purpose: Show/hide help overlay.
+ - Functions:
+ - showHelp()
+ - hideHelp()
+ - Exports:
+
+export function showHelp() { ... }
+export function hideHelp() { ... }
+
+
+ - Imports: Potentially from dom.js if you want to show/hide via a function.
+
+**** events/command-palette.js
+ - Purpose: The command palette logic (show/hide, filter commands, handle user navigation).
+ - Functions:
+ - showCommandPalette()
+ - hideCommandPalette()
+ - populateCommands()
+ - filterCommands()
+ - handleCommandNavigation()
+ - Exports:
+
+export function showCommandPalette() { ... }
+export function hideCommandPalette() { ... }
+// ...
+
+
+ - Imports:
+Possibly calls actions from other modules (e.g. undoLastChange from keyboard.js).
+
+**** events/mobile.js
+ - Purpose: Touch/swipe-based logic, e.g. setupHorizontalSwipe()
+ - Exports:
+
+export function setupHorizontalSwipe() { ... }
+
+
+ - Imports:
+Possibly from calendarfunctions.js for jumpOneMonthForward() / jumpOneMonthBackward().
+
+11. events/eventSetup.js
+ - Purpose: A single place to wire up all event listeners.
+ - For example, document.addEventListener("click", ...), window.addEventListener("scroll", ...).
+ - Function:
+ - setupAllEventListeners(), which you call once in init.js.
+ - Exports:
+
+export function setupAllEventListeners() {
+  // attach all needed event listeners here
+  // (e.g., document.addEventListener("keydown", globalHotkeys), etc.)
+}
+
+
+ - Imports:
+ - The relevant event-handling functions from keyboard.js, command-palette.js, help.js, and so on.
+
+**** events/scrollFallback.js (Optional)
+ - Purpose: Contains checkInfiniteScroll() for browsers lacking IntersectionObserver.
+ - Exports:
+
+export function checkInfiniteScroll() { ... }
+
+
+ - Imports:
+ - Possibly from calendarfunctions.js (prependWeek, appendWeek).
+
+**** data/serverSync.js
+ - Purpose: All data-related functions for loading/pulling/pushing data to/from the server.
+ - Functions:
+ - loadDataFromServer()
+ - pullUpdatesFromServer()
+ - saveDataToServer()
+ - Exports:
+
+// data/serverSync.js
+export async function loadDataFromServer() { ... }
+export async function pullUpdatesFromServer() { ... }
+export async function saveDataToServer() { ... }
+
+
+ - Imports:
+ - Possibly core/state.js if storing timestamps in localStorage or updating other global variables.
+
+**** main/init.js
+ - Purpose: The main entry file that wires everything together and runs on page load.
+ - Typical Code:
+
+// main/init.js
+import { loadDataFromServer } from "../data/serverSync.js";
+import { loadCalendarAroundDate } from "../ui/calendarfunctions.js";
+import { setupAllEventListeners } from "../events/eventSetup.js";
+import { systemToday } from "../core/state.js";
+
+window.onload = async function() {
+  // 1) Load data from server (optional)
+  await loadDataFromServer();
+
+  // 2) Build the calendar around systemToday
+  loadCalendarAroundDate(systemToday);
+
+  // 3) Set up all event listeners (scroll, keyboard, etc.)
+  setupAllEventListeners();
+
+  // 4) Any additional logic (timers, intervals, etc.)
+};
+
+
+ - Exports: Typically none. This file is the final "app bootstrap."
+
+** Using ES Modules
+1. Each file is an ES module, so we use import/export statements at the top.
+2. In each file, specify what to export. Example:
+
+// core/state.js
+export let currentCalendarDate = new Date();
+export let keyboardFocusDate = null;
+// ...
+
+3. In files that need those variables or functions, do:
+
+import { currentCalendarDate, keyboardFocusDate } from "../core/state.js";
+
+** Sharing Variables
+ - Store truly global variables in core/state.js and export them.
+ - If you need to run side effects whenever a variable changes, use getter/setter functions instead of a direct variable export. Example:
+
+// core/state.js
+let _isSelectingRange = false;
+
+export function getIsSelectingRange() {
+  return _isSelectingRange;
+}
+
+export function setIsSelectingRange(val) {
+  _isSelectingRange = val;
+  // maybe also trigger UI updates or logs here...
+}
+
+
+ - Other modules can import these functions to read/write your state in a controlled way.
+
