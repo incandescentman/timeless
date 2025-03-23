@@ -1,105 +1,117 @@
 // ui/calendarfunctions.js
 
-//
-// Below are the functions verbatim from calendar.js, with only "export" added
-// so this file can serve as an ES module. No other code has been added or changed.
-//
+// Declare a module-level variable for the calendar table element:
+let calendarTableElement;
 
-// ui/calendarfunctions.js
-
-import { showLoading, hideLoading, showToast, recalculateAllHeights } from "./dom.js";
-import { updateStickyMonthHeader } from "./dom.js"; // if it's defined there
-import { buildMiniCalendar } from "./minicalendar.js"; // if mini calendar functions are here
+// Export a setter so other modules (like init.js) can set it:
+export function setCalendarTableElement(element) {
+  calendarTableElement = element;
+}
 
 
+import { showLoading, hideLoading, showToast, recalculateAllHeights, documentScrollTop, documentScrollHeight, scrollPositionForElement, updateStickyMonthHeader } from "./dom.js";
+import { buildMiniCalendar } from "./minicalendar.js";
+
+// Declare module-level variables that were formerly global
+
+let firstDate, lastDate;
+let lastMiniCalendarMonth = null;
+
+// (Assuming other variables like currentCalendarDate, keyboardFocusDate, etc. are either imported or defined elsewhere)
+// You may choose to import currentCalendarDate from a state module if that is where you keep global state.
+
+
+// (Similarly, if needed, you could provide setters for other DOM elements.)
+
+// --- Function definitions
 
 export function loadCalendarAroundDate(seedDate) {
-    showLoading();
-    const container = document.getElementById('calendarContainer');
-    container.classList.add('loading-calendar');
+  showLoading();
+  const container = document.getElementById('calendarContainer');
+  container.classList.add('loading-calendar');
 
-    // Start from seedDate, roll back to Monday
-    calendarTableElement.innerHTML = "";
-    firstDate = new Date(seedDate);
-    while (getAdjustedDayIndex(firstDate) !== 0) {
-        firstDate.setDate(firstDate.getDate() - 1);
-    }
-    lastDate = new Date(firstDate);
-    lastDate.setDate(lastDate.getDate() - 1);
+  // Start from seedDate, roll back to Monday
+  calendarTableElement.innerHTML = "";
+  firstDate = new Date(seedDate);
+  while (getAdjustedDayIndex(firstDate) !== 0) {
+    firstDate.setDate(firstDate.getDate() - 1);
+  }
+  lastDate = new Date(firstDate);
+  lastDate.setDate(lastDate.getDate() - 1);
 
-    // Insert the first row
+  // Insert the first row
+  appendWeek();
+
+  // Insert a bunch of weeks before/after to ensure there's enough content:
+  for (let i = 0; i < 3; i++) {
+    prependWeek();
+  }
+  for (let i = 0; i < 5; i++) {
     appendWeek();
+  }
 
-    // Insert a bunch of weeks before/after to ensure there's enough content:
-    for (let i = 0; i < 3; i++) {
+  function loadBatch() {
+    let batchCount = 0;
+    // Keep adding top/bottom weeks until screen is filled (or do a max iteration)
+    while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
       prependWeek();
-    }
-    for (let i = 0; i < 5; i++) {
       appendWeek();
+      batchCount++;
     }
+    if (documentScrollHeight() <= window.innerHeight) {
+      setTimeout(loadBatch, 0);
+    } else {
+      // Done loading
+      container.classList.remove('loading-calendar');
+      scrollToToday();
+      recalculateAllHeights();
+      updateStickyMonthHeader();
 
-    function loadBatch() {
-        let batchCount = 0;
-        // Keep adding top/bottom weeks until screen is filled (or do a max iteration)
-        while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
-            prependWeek();
-            appendWeek();
-            batchCount++;
-        }
-        if (documentScrollHeight() <= window.innerHeight) {
-            setTimeout(loadBatch, 0);
-        } else {
-            // Done loading
-            container.classList.remove('loading-calendar');
-            scrollToToday();
-            recalculateAllHeights();
-            updateStickyMonthHeader();
+      // Rebuild mini-calendar if our month changed
+      if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
+        buildMiniCalendar();
+        lastMiniCalendarMonth = currentCalendarDate.getMonth();
+      }
 
-            // Rebuild mini-calendar if our month changed
-            if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
-                buildMiniCalendar();
-                lastMiniCalendarMonth = currentCalendarDate.getMonth();
-            }
-
-            // If we were using keyboardFocusDate, highlight that day
-            if (keyboardFocusDate) {
-                highlightKeyboardFocusedDay();
-            }
-            hideLoading();
-        }
+      // If we were using keyboardFocusDate, highlight that day
+      if (keyboardFocusDate) {
+        highlightKeyboardFocusedDay();
+      }
+      hideLoading();
     }
-    loadBatch();
+  }
+  loadBatch();
 }
 
 export function scrollToToday() {
-    const elem = document.getElementById(idForDate(currentCalendarDate));
-    if (elem) {
-        window.scrollTo(0, scrollPositionForElement(elem));
-    }
-    hideLoading();
+  const elem = document.getElementById(idForDate(currentCalendarDate));
+  if (elem) {
+    window.scrollTo(0, scrollPositionForElement(elem));
+  }
+  hideLoading();
 }
 
 export function goToTodayAndRefresh() {
-    // Reset currentCalendarDate to actual system today
-    currentCalendarDate = new Date(systemToday);
+  // Reset currentCalendarDate to actual system today
+  currentCalendarDate = new Date(systemToday);
 
-    // Reset currentVisibleRow so we don't scroll to an old row
-    currentVisibleRow = null;
+  // Reset currentVisibleRow so we don't scroll to an old row
+  currentVisibleRow = null;
 
-    // Clear any previous scroll position
-    window.scrollTo(0, 0);
+  // Clear any previous scroll position
+  window.scrollTo(0, 0);
 
-    // Completely rebuild the calendar with today at the center
-    calendarTableElement.innerHTML = "";
-    loadCalendarAroundDate(currentCalendarDate);
+  // Completely rebuild the calendar with today at the center
+  calendarTableElement.innerHTML = "";
+  loadCalendarAroundDate(currentCalendarDate);
 
-    // Increase delay to ensure calendar has time to render
-    setTimeout(() => {
-        const elem = document.getElementById(idForDate(currentCalendarDate));
-        if (elem) {
-            elem.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-    }, 500);
+  // Increase delay to ensure calendar has time to render
+  setTimeout(() => {
+    const elem = document.getElementById(idForDate(currentCalendarDate));
+    if (elem) {
+      elem.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 500);
 }
 
 export function appendWeek() {
@@ -124,7 +136,7 @@ export function appendWeek() {
 
       // Optionally store row data for the heading row
       headingRow.dataset.monthIndex = lastDate.getMonth();
-      headingRow.dataset.year       = lastDate.getFullYear();
+      headingRow.dataset.year = lastDate.getFullYear();
     }
 
     // Collect this day in our array
@@ -137,7 +149,7 @@ export function appendWeek() {
 
   // For tracking
   row.dataset.monthIndex = lastDate.getMonth();
-  row.dataset.year       = lastDate.getFullYear();
+  row.dataset.year = lastDate.getFullYear();
 
   // Fill the cells
   for (let dayObj of daysForThisRow) {
@@ -167,7 +179,7 @@ export function prependWeek() {
         months[firstDate.getMonth()] + " " + firstDate.getFullYear();
 
       headingRow.dataset.monthIndex = firstDate.getMonth();
-      headingRow.dataset.year       = firstDate.getFullYear();
+      headingRow.dataset.year = firstDate.getFullYear();
     }
 
     // Collect this day
@@ -179,7 +191,7 @@ export function prependWeek() {
   animateRowInsertion(row, 'prepend');
 
   row.dataset.monthIndex = firstDate.getMonth();
-  row.dataset.year       = firstDate.getFullYear();
+  row.dataset.year = firstDate.getFullYear();
 
   // Because we built daysForThisRow from newest to oldest,
   // we may want to reverse it so it displays Monday..Tuesday.. etc
@@ -192,32 +204,33 @@ export function prependWeek() {
 }
 
 export function generateDay(dayCell, date) {
-    // Weekend shading
-    const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
-    if (isWeekend) dayCell.classList.add("weekend");
+  // (Assumes that variables such as currentCalendarDate, daysOfWeek, shortMonths, etc. are available.)
+  // Weekend shading
+  const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+  if (isWeekend) dayCell.classList.add("weekend");
 
-    // "Shaded" alternating months
-    const isShaded = (date.getMonth() % 2 === 1);
-    if (isShaded) dayCell.classList.add("shaded");
+  // "Shaded" alternating months
+  const isShaded = (date.getMonth() % 2 === 1);
+  if (isShaded) dayCell.classList.add("shaded");
 
-    // Is it "today"?
-    const isToday = (
-        date.getFullYear() === currentCalendarDate.getFullYear() &&
-        date.getMonth() === currentCalendarDate.getMonth() &&
-        date.getDate() === currentCalendarDate.getDate()
-    );
-    if (isToday) dayCell.classList.add("today");
+  // Is it "today"?
+  const isToday = (
+    date.getFullYear() === currentCalendarDate.getFullYear() &&
+    date.getMonth() === currentCalendarDate.getMonth() &&
+    date.getDate() === currentCalendarDate.getDate()
+  );
+  if (isToday) dayCell.classList.add("today");
 
-    // Unique ID like "2_10_2025" for each day cell
-    dayCell.id = idForDate(date);
+  // Unique ID like "2_10_2025" for each day cell
+  dayCell.id = idForDate(date);
 
-    // For mobile, a top-row layout with day label on left, month+day number on right
-    if (window.innerWidth <= 768) {
-        const monthShort = shortMonths[date.getMonth()];
-        const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
-        const dayNum = date.getDate();
+  // For mobile, a top-row layout with day label on left, month+day number on right
+  if (window.innerWidth <= 768) {
+    const monthShort = shortMonths[date.getMonth()];
+    const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
+    const dayNum = date.getDate();
 
-        dayCell.innerHTML = `
+    dayCell.innerHTML = `
           <div class="day-top-row">
             <span class="day-label">${dowLabel}</span>
             <div class="month-day-container">
@@ -226,24 +239,23 @@ export function generateDay(dayCell, date) {
             </div>
           </div>
         `;
-    } else {
-        // Desktop layout
-        dayCell.innerHTML = `
+  } else {
+    // Desktop layout
+    dayCell.innerHTML = `
           <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
           <span class="day-number">${date.getDate()}</span>
         `;
-    }
+  }
 
-    // Restore any notes stored for this day
-    lookupItemsForParentId(dayCell.id, items => {
-        items.forEach(it => {
-            const note = generateItem(dayCell.id, it.itemId);
-            if (note) {
-                note.value = it.itemValue;
-                recalculateHeight(note.id);
-                processNoteTags(note);
-            }
-        });
+  // Restore any notes stored for this day (assumes lookupItemsForParentId and generateItem are defined globally)
+  lookupItemsForParentId(dayCell.id, items => {
+    items.forEach(it => {
+      const note = generateItem(dayCell.id, it.itemId);
+      if (note) {
+        note.value = it.itemValue;
+        recalculateHeight(note.id);
+        processNoteTags(note);
+      }
     });
+  });
 }
-

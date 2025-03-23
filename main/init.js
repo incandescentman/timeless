@@ -1,22 +1,24 @@
 // main/init.js
 
-// main/init.js
-
-
-import { setupAllEventListeners } from "../events/eventSetup.js";
-import { systemToday } from "../core/state.js";
 import { loadDataFromServer, pullUpdatesFromServer } from "../data/serverSync.js";
-import { loadCalendarAroundDate } from "../ui/calendarfunctions.js";
+import { loadCalendarAroundDate, setCalendarTableElement } from "../ui/calendarfunctions.js";
 import { setupScrollObservers, checkInfiniteScroll } from "../events/scrollEvents.js";
-// (Assuming recalculateAllHeights, throttle, and updateStickyMonthHeader are available globally or imported as needed.)
+import { recalculateAllHeights, throttle, updateStickyMonthHeader } from "../ui/dom.js";
+import { systemToday } from "../core/state.js";
 
 window.onload = async function() {
     // (1) Optionally load data from server once
     await loadDataFromServer();
 
-    // (2) Grab the #calendar table and set currentCalendarDate based on systemToday.
-    // (Assuming calendarTableElement and currentCalendarDate are declared elsewhere or globally.)
-    const calendarTableElement = document.getElementById("calendar");
+    // (2) Grab the #calendar table element and set it in the calendarfunctions module
+    const calendarEl = document.getElementById("calendar");
+    if (!calendarEl) {
+        console.error("Calendar element not found!");
+        return;
+    }
+    setCalendarTableElement(calendarEl);
+
+    // Set currentCalendarDate based on systemToday
     let currentCalendarDate = new Date(systemToday);
 
     // Build the calendar around "today"
