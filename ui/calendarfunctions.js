@@ -5,6 +5,13 @@
 // so this file can serve as an ES module. No other code has been added or changed.
 //
 
+// ui/calendarfunctions.js
+
+import { showLoading, hideLoading, showToast, recalculateAllHeights } from "./dom.js";
+import { updateStickyMonthHeader } from "./dom.js"; // if it's defined there
+import { buildMiniCalendar } from "./minicalendar.js"; // if mini calendar functions are here
+
+
 export function loadCalendarAroundDate(seedDate) {
     showLoading();
     const container = document.getElementById('calendarContainer');
@@ -238,4 +245,4 @@ export function generateDay(dayCell, date) {
         });
     });
 }
- 
+

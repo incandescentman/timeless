@@ -22,13 +22,36 @@
 // Force local midnight date to avoid time-zone hour offsets
 // At the beginning of your code
 // Force local midnight date to avoid time-zone hour offsets
+
+/*
+ * Timeless: The Infinitely Scrolling Calendar
+ * core/state.js
+ *
+ * This file contains the global state for the app.
+ */
+
+// Force local midnight date to avoid time-zone hour offsets
 const now = new Date();
-let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+export let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 // Make sure to set hours/min/sec to 0 to avoid any time-based issues
 systemToday.setHours(0, 0, 0, 0);
 
 // The "currentCalendarDate" is what we consider "today" within the calendar logic
-let currentCalendarDate;
+export let currentCalendarDate = new Date();
+
+// Global variable for keyboard navigation focus
+export let keyboardFocusDate = null;
+
+// Flag for multi-select mode
+export let isMultiSelectMode = false;
+
+// Optionally, you can add more state exports if needed:
+export let rangeStart = null;
+export let rangeEnd = null;
+
+
+
+
 
 // The main <table> element that holds day cells
 let calendarTableElement;
@@ -42,8 +65,7 @@ let redoStack = [];
 const MAX_UNDO = 5;
 
 // Date range selection state
-let rangeStart = null;
-let rangeEnd = null;
+
 let isSelectingRange = false;
 
 // For row insertion animations
@@ -64,14 +86,10 @@ let startTime, startY, goalY;
 
 // If we used to track "currentVisibleMonth", we now track the row instead.
 let currentVisibleRow = '';
-let keyboardFocusDate = null;  // used for arrow key navigation
+
 
 // Multi-select mode
 let selectedDays = [];
-let isMultiSelectMode = false;
+
 
 // core/state.js
-export let systemToday = new Date();
-export let currentCalendarDate = new Date();
-export let keyboardFocusDate = null;
-export let isMultiSelectMode = false;
