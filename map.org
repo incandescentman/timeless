@@ -3095,12 +3095,6 @@ async function importFromDiaryFile() {
 }
 
 * Instructions
-The calendar.js file above already contains ALL NECESSARY CODE.
+Drawing on the calendar.js file above, give me the new FULL VERBATIM code for the following files:
 
-- Do not CREATE NEW CODE.
-- DO NOT WRITE CODE
-
-Using only EXISTING code from the calendar.js file above, give me the new FULL VERBATIM code for:
-
-├── ui/
-│   ├── calendarfunctions.js
+│   ├── minicalendar.js
