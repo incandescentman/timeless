@@ -3097,7 +3097,5 @@ async function importFromDiaryFile() {
 * Instructions
 Drawing on the calendar.js file above, give me the new FULL VERBATIM code for the following files:
 
-├── data/
-│   └── serverSync.js
 └── main/
     └── init.js

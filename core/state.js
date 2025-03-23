@@ -69,4 +69,5 @@ let keyboardFocusDate = null;  // used for arrow key navigation
 // Multi-select mode
 let selectedDays = [];
 let isMultiSelectMode = false;
- 
+
+export let systemToday = new Date();
