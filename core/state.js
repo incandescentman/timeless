@@ -70,4 +70,8 @@ let keyboardFocusDate = null;  // used for arrow key navigation
 let selectedDays = [];
 let isMultiSelectMode = false;
 
+// core/state.js
 export let systemToday = new Date();
+export let currentCalendarDate = new Date();
+export let keyboardFocusDate = null;
+export let isMultiSelectMode = false;

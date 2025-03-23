@@ -10,9 +10,10 @@ window.onload = async function() {
     // (1) Optionally load data from server once
     await loadDataFromServer();
 
-    // (2) Grab the #calendar table and set currentCalendarDate based on systemToday
-    calendarTableElement = document.getElementById("calendar");
-    currentCalendarDate = new Date(systemToday);
+    // (2) Grab the #calendar table and set currentCalendarDate based on systemToday.
+    // (Assuming calendarTableElement and currentCalendarDate are declared elsewhere or globally.)
+    const calendarTableElement = document.getElementById("calendar");
+    let currentCalendarDate = new Date(systemToday);
 
     // Build the calendar around "today"
     loadCalendarAroundDate(currentCalendarDate);
@@ -59,5 +60,3 @@ window.onload = async function() {
         }
     });
 };
-
-export let systemToday = new Date();
