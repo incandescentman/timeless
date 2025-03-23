@@ -1,5 +1,5 @@
 * Plan
-Hi! For my scrolling calendar app, I have a self-contained calendar.js file. The app is already working correctly! 
+Hi! For my scrolling calendar app, I have a self-contained calendar.js file. The app is already working correctly!
 
 But the calendar.js file is huge! I want to split it into files are smaller and easier to work with.
 
@@ -3102,5 +3102,5 @@ The calendar.js file above already contains ALL NECESSARY CODE.
 
 Using only EXISTING code from the calendar.js file above, give me the new FULL VERBATIM code for:
 
-├── core/
-│   └── state.js
+├── ui/
+│   ├── calendarfunctions.js

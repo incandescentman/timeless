@@ -10,6 +10,18 @@
 // Force local midnight date to avoid time-zone hour offsets
 // At the beginning of your code
 // Force local midnight date to avoid time-zone hour offsets
+/*
+ * Timeless: The Infinitely Scrolling Calendar
+ *
+ * A single-page application that displays a continuously scrolling calendar.
+ * Users can add notes to any day, toggle dark mode, import/export data, and more.
+ */
+
+// ========== CORE VARIABLES & STATE ==========
+
+// Force local midnight date to avoid time-zone hour offsets
+// At the beginning of your code
+// Force local midnight date to avoid time-zone hour offsets
 const now = new Date();
 let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 // Make sure to set hours/min/sec to 0 to avoid any time-based issues
@@ -57,3 +69,4 @@ let keyboardFocusDate = null;  // used for arrow key navigation
 // Multi-select mode
 let selectedDays = [];
 let isMultiSelectMode = false;
+ 
