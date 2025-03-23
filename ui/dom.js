@@ -52,15 +52,39 @@ function recalculateHeight(itemId) {
   ta.style.height = (ta.scrollHeight + 5) + "px";
 }
 
-// Export helper functions for scroll measurement:
+// --- New helper functions added for calendar functions ---
+
+// Adjusts the day index: JS: Sunday = 0 becomes 6; Monday becomes 0, etc.
+export function getAdjustedDayIndex(date) {
+  const day = date.getDay();
+  return day === 0 ? 6 : day - 1;
+}
+
+// Creates a unique id string for a given date (e.g. "2_14_2025")
+export function idForDate(date) {
+  return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
+}
+
+// Animates row insertion by adding and then removing CSS classes.
+export function animateRowInsertion(row, direction = 'append') {
+  row.classList.add('week-row-animate');
+  row.classList.add(direction === 'append' ? 'append-animate' : 'prepend-animate');
+  row.addEventListener('animationend', () => {
+    row.classList.remove('week-row-animate', 'append-animate', 'prepend-animate');
+  }, { once: true });
+}
+
+// Returns the current document scroll top position
 export function documentScrollTop() {
   return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
 }
 
+// Returns the total scrollable height of the document
 export function documentScrollHeight() {
   return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
 }
 
+// Calculates the scroll position so that an element is vertically centered
 export function scrollPositionForElement(element) {
   let y = element.offsetTop;
   let node = element;
@@ -72,11 +96,11 @@ export function scrollPositionForElement(element) {
   return y - (window.innerHeight - clientHeight) / 2;
 }
 
-// Export updateStickyMonthHeader so it can be used by other modules:
+// Updates the sticky month header based on the row nearest the top
 export function updateStickyMonthHeader() {
   const headerEl = document.getElementById('header');
-  if (!headerEl) return;
   headerEl.style.display = window.innerWidth <= 768 ? 'none' : '';
+
   const headerOffset = headerEl.offsetHeight + 30;
   const rows = document.querySelectorAll('#calendar tr');
   let foundRow = null;
@@ -88,15 +112,15 @@ export function updateStickyMonthHeader() {
       break;
     }
   }
+
   if (foundRow) {
-    // Define a local months array for the header text.
-    const months = [
+    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
+    const year = parseInt(foundRow.dataset.year, 10);
+    const monthsArr = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
-    const monthIndex = parseInt(foundRow.dataset.monthIndex, 10);
-    const year = parseInt(foundRow.dataset.year, 10);
-    const monthName = months[monthIndex] || "???";
+    const monthName = monthsArr[monthIndex] || "???";
     const stickyElem = document.getElementById('stickyMonthHeader');
     if (stickyElem) {
       stickyElem.textContent = `${monthName} ${year}`;

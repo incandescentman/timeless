@@ -37,7 +37,25 @@ export let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate
 systemToday.setHours(0, 0, 0, 0);
 
 // The "currentCalendarDate" is what we consider "today" within the calendar logic
-export let currentCalendarDate = new Date();
+
+
+
+
+// core/state.js
+const now = new Date();
+export let systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+systemToday.setHours(0, 0, 0, 0);
+
+// Initially, set currentCalendarDate to systemToday.
+export let currentCalendarDate = new Date(systemToday);
+
+// (Other state variables as needed)
+export let keyboardFocusDate = null;
+export let isMultiSelectMode = false;
+
+
+
+
 
 // Global variable for keyboard navigation focus
 export let keyboardFocusDate = null;

@@ -66,3 +66,18 @@ window.onload = async function() {
         }
     });
 };
+
+// ...
+window.onload = async function() {
+  // (1) Load data...
+  await loadDataFromServer();
+
+  // (2) Set the calendar table element from the DOM:
+  setCalendarTableElement(document.getElementById("calendar"));
+
+  // Set currentCalendarDate and build the calendar
+  let currentCalendarDate = new Date(systemToday);
+  loadCalendarAroundDate(currentCalendarDate);
+
+  // ... other initialization code
+};
