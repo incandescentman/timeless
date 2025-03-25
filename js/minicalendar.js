@@ -1,3 +1,11 @@
+import {
+    state,
+    daysOfWeek,
+    months,
+    loadCalendarAroundDate,
+    goToTodayAndRefresh
+} from './core.js';
+
 // ========== MINI CALENDAR WIDGET ==========
 
 /*
@@ -8,8 +16,8 @@ export function buildMiniCalendar() {
     const mini = document.getElementById("miniCalendar");
     if (!mini) return;
     mini.innerHTML = "";
-    const currentMonth = currentCalendarDate.getMonth();
-    const currentYear = currentCalendarDate.getFullYear();
+    const currentMonth = state.currentCalendarDate.getMonth();
+    const currentYear = state.currentCalendarDate.getFullYear();
 
     // Figure out prev/next month
     let prevMonth = currentMonth - 1, prevYear = currentYear;
@@ -78,14 +86,14 @@ export function buildMiniCalendarForMonth(container, year, month, highlightCurre
         cell.textContent = d;
 
         // Highlight if it's the same as our "currentCalendarDate"
-        if (highlightCurrent && d === currentCalendarDate.getDate()) {
+        if (highlightCurrent && d === state.currentCalendarDate.getDate()) {
             cell.style.backgroundColor = '#e53e3e';
             cell.style.color = '#fff';
         }
         const dayNum = d;
         cell.addEventListener("click", () => {
-            currentCalendarDate = new Date(year, month, dayNum);
-            loadCalendarAroundDate(currentCalendarDate);
+            state.currentCalendarDate = new Date(year, month, dayNum);
+            loadCalendarAroundDate(state.currentCalendarDate);
             goToTodayAndRefresh();
         });
         grid.appendChild(cell);

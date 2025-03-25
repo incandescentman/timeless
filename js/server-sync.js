@@ -1,3 +1,10 @@
+import {
+    state,
+    showLoading,
+    hideLoading,
+    showToast
+} from './core.js';
+
 // ========== SERVER SYNC ==========
 
 /*
@@ -59,7 +66,7 @@ export async function pullUpdatesFromServer(confirmNeeded = false) {
         for (let key in data) {
             localStorage.setItem(key, data[key]);
         }
-        loadCalendarAroundDate(currentCalendarDate);
+        loadCalendarAroundDate(state.currentCalendarDate);
         showToast("Pulled latest data from server");
     } catch (err) {
         console.error("Error pulling from server:", err);

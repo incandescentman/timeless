@@ -51,6 +51,61 @@ export function debounce(func, wait) {
     };
 }
 
+// DOM manipulation utilities
+export function documentScrollTop() {
+    return Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+}
+
+export function documentScrollHeight() {
+    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+}
+
+export function scrollPositionForElement(element) {
+    let y = element.offsetTop;
+    let node = element;
+    while (node.offsetParent && node.offsetParent !== document.body) {
+        node = node.offsetParent;
+        y += node.offsetTop;
+    }
+    const clientHeight = element.clientHeight;
+    return y - (window.innerHeight - clientHeight) / 2;
+}
+
+// UI feedback functions
+export function showLoading() {
+    document.getElementById('loadingIndicator').classList.add('active');
+}
+
+export function hideLoading() {
+    document.getElementById('loadingIndicator').classList.remove('active');
+}
+
+export function showToast(message, duration = 3000) {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => { toast.style.opacity = '1'; });
+
+    // After "duration" ms, fade out
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            if (toastContainer.contains(toast)) {
+                toastContainer.removeChild(toast);
+            }
+        }, 300);
+    }, duration);
+}
+
 /*
  * recalculateHeight(itemId)
  *  - Adjusts the <textarea>'s height to fit its content.
@@ -183,4 +238,51 @@ export function parseDateFromId(idStr) {
     if (parts.length !== 3) return null;
     const [month, day, year] = parts.map(Number);
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+// Server sync functions
+export async function pullUpdatesFromServer() {
+    try {
+        const response = await fetch('/api/sync');
+        const data = await response.json();
+        if (data.success) {
+            showToast("Calendar synced with server");
+        }
+    } catch (err) {
+        console.error("Error syncing with server:", err);
+        showToast("Error syncing with server");
+    }
+}
+
+export async function loadDataFromServer() {
+    try {
+        const response = await fetch('/api/load');
+        const data = await response.json();
+        if (data.success) {
+            // Implementation here
+        }
+    } catch (err) {
+        console.error("Error loading data from server:", err);
+    }
+}
+
+// Calendar generation functions
+export function generateDay(dayCell, date) {
+    // Implementation here
+}
+
+export function generateItem(parentId, itemId) {
+    const cell = document.getElementById(parentId);
+    if (!cell) return null;
+    const ta = document.createElement("textarea");
+    ta.id = itemId;
+    ta.onkeydown = noteKeyDownHandler;
+    ta.onblur = noteBlurHandler;
+    ta.spellcheck = false;
+    cell.appendChild(ta);
+    return ta;
+}
+
+export function buildMiniCalendar() {
+    // Implementation here
 } 

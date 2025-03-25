@@ -1,9 +1,18 @@
+import {
+    state,
+    showLoading,
+    hideLoading,
+    showToast,
+    loadCalendarAroundDate,
+    nextItemId,
+    pushUndoState
+} from './core.js';
 
 /*
  * buildDiaryExportText()
  *  - Another example function for converting day events into a plain text "diary" format.
  */
-function buildDiaryExportText() {
+export function buildDiaryExportText() {
     let eventsByDate = {};
     // Gather note IDs from day keys like "2_14_2025"
     for (const key in localStorage) {
@@ -49,16 +58,11 @@ function buildDiaryExportText() {
     return lines.join("\n");
 }
 
-
-
-
-
-
 /*
  * importFromDiaryFile()
  *  - Lets user open an Emacs "diary" text file, parse line by line, and import to localStorage.
  */
-async function importFromDiaryFile() {
+export async function importFromDiaryFile() {
     try {
         showLoading();
         const [handle] = await window.showOpenFilePicker({
@@ -117,7 +121,7 @@ async function importFromDiaryFile() {
 
         hideLoading();
         showToast("Diary imported successfully!");
-        loadCalendarAroundDate(currentCalendarDate);
+        loadCalendarAroundDate(state.currentCalendarDate);
 
     } catch (err) {
         hideLoading();
@@ -126,17 +130,13 @@ async function importFromDiaryFile() {
     }
 }
 
-
-
-
 // ========== MARKDOWN EXPORT ==========
 
 /*
  * downloadMarkdownEvents()
  *  - Gathers events from localStorage, organizes by year/month/day, and optionally saves to user-chosen directory.
  */
-
-async function downloadMarkdownEvents() {
+export async function downloadMarkdownEvents() {
     // 1) Gather date => [events] from localStorage
     const dateMap = {};
     for (let key in localStorage) {
@@ -198,85 +198,32 @@ async function downloadMarkdownEvents() {
 
     // 3) Try to restore a stored directory handle
     let dirHandle = null;
-    const stored = localStorage.getItem("myDirectoryHandle");
-    if (stored) {
-        try {
-            dirHandle = await restoreDirectoryHandle(stored);
-            const perm = await dirHandle.requestPermission({ mode: "readwrite" });
-            if (perm !== "granted") {
-                throw new Error("Permission was not granted for readwrite");
-            }
-        } catch (err) {
-            console.warn("Failed to restore directory handle:", err);
-            dirHandle = null;
-        }
+    try {
+        dirHandle = await navigator.storage.getDirectory();
+    } catch (err) {
+        console.warn("No stored directory handle:", err);
     }
 
-    // 4) If no handle, ask the user to pick a directory
+    // 4) If no stored handle, let user pick a directory
     if (!dirHandle) {
         try {
             dirHandle = await window.showDirectoryPicker();
-            const perm = await dirHandle.requestPermission({ mode: "readwrite" });
-            if (perm !== "granted") {
-                throw new Error("Permission was not granted for readwrite");
-            }
-            const serialized = await serializeDirectoryHandle(dirHandle);
-            localStorage.setItem("myDirectoryHandle", serialized);
-            debouncedServerSave();
+            await navigator.storage.persist();
         } catch (err) {
-            console.error("User canceled picking directory or permission denied:", err);
-            showToast("Canceled or no permission to pick directory; falling back to download");
-
-            // Fallback: download file to Downloads via data URL
-            const dataStr = "data:text/markdown;charset=utf-8," + encodeURIComponent(finalText);
-            const anchor = document.createElement("a");
-            anchor.setAttribute("href", dataStr);
-            anchor.setAttribute("download", "jay-diary.md");
-            document.body.appendChild(anchor);
-            anchor.click();
-            anchor.remove();
-
-            // Also attempt to copy to clipboard
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(finalText)
-                    .then(() => showToast("Markdown events copied to clipboard!"))
-                    .catch(err => console.error("Clipboard copy failed:", err));
-            }
+            console.error("Directory picker error:", err);
             return;
         }
     }
 
-    // 5) Write "jay-diary.md" in the chosen directory
+    // 5) Write the file
     try {
-        const fileHandle = await dirHandle.getFileHandle("jay-diary.md", { create: true });
+        const fileHandle = await dirHandle.getFileHandle("calendar_export.md", { create: true });
         const writable = await fileHandle.createWritable();
         await writable.write(finalText);
         await writable.close();
-        showToast("Saved 'jay-diary.md' to your chosen folder!");
+        showToast("Calendar exported to Markdown!");
     } catch (err) {
-        console.error("Error writing file:", err);
-        showToast("Error writing file to directory");
-    }
-
-    // 6) Also copy the markdown text to clipboard
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(finalText)
-            .then(() => showToast("Markdown events copied to clipboard!"))
-            .catch(err => console.error("Clipboard copy failed:", err));
-    } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = finalText;
-        textArea.style.position = "fixed";
-        textArea.style.opacity = "0";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand("copy");
-            showToast("Markdown events copied to clipboard!");
-        } catch (err) {
-            console.error("Fallback: Unable to copy", err);
-        }
-        document.body.removeChild(textArea);
+        console.error("Write error:", err);
+        showToast("Export failed.");
     }
 }

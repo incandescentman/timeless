@@ -1,3 +1,14 @@
+import {
+    state,
+    daysOfWeek,
+    months,
+    shortMonths,
+    recalculateHeight,
+    processNoteTags,
+    generateItem,
+    lookupItemsForParentId
+} from './core.js';
+
 // ========== CALENDAR DAY GENERATION ==========
 
 /*
@@ -15,9 +26,9 @@ export function generateDay(dayCell, date) {
 
     // Is it "today"?
     const isToday = (
-        date.getFullYear() === currentCalendarDate.getFullYear() &&
-        date.getMonth() === currentCalendarDate.getMonth() &&
-        date.getDate() === currentCalendarDate.getDate()
+        date.getFullYear() === state.currentCalendarDate.getFullYear() &&
+        date.getMonth() === state.currentCalendarDate.getMonth() &&
+        date.getDate() === state.currentCalendarDate.getDate()
     );
     if (isToday) dayCell.classList.add("today");
 
@@ -82,7 +93,7 @@ export function buildMobileDayCard(container, date) {
       <div class="day-top-row">
         <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
         <span class="month-day-container">
-          <span class="month-label">${monthsShort[date.getMonth()]}</span>
+          <span class="month-label">${shortMonths[date.getMonth()]}</span>
           <span class="day-number">${date.getDate()}</span>
         </span>
       </div>

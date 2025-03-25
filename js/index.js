@@ -5,15 +5,20 @@
  * It imports and initializes all the modules.
  */
 
-// Import core modules
-import { initializeState, currentCalendarDate, systemToday } from './modules/state.js';
-import { setupUI } from './modules/ui.js';
-import { loadCalendarAroundDate } from './modules/calendar.js';
-import { setupEventHandlers } from './modules/events.js';
-import { loadDataFromServer } from './modules/storage.js';
-import { setupScrollObservers, checkInfiniteScroll } from './modules/scroll.js';
-import { recalculateAllHeights } from './modules/notes.js';
-import { updateStickyMonthHeader } from './modules/header.js';
+import {
+    state,
+    initializeState,
+    setupUI,
+    loadCalendarAroundDate,
+    setupEventHandlers,
+    loadDataFromServer,
+    setupScrollObservers,
+    checkInfiniteScroll,
+    recalculateAllHeights,
+    updateStickyMonthHeader,
+    pullUpdatesFromServer,
+    throttle
+} from './core.js';
 
 // Application initialization
 window.onload = async function() {
@@ -27,7 +32,7 @@ window.onload = async function() {
     await loadDataFromServer();
     
     // 4. Build the calendar around "today"
-    loadCalendarAroundDate(currentCalendarDate);
+    loadCalendarAroundDate(state.currentCalendarDate);
     
     // 5. Set up scroll observers or fallback
     if ('IntersectionObserver' in window) {
@@ -37,11 +42,7 @@ window.onload = async function() {
     }
 
     // 6. Set up auto-refresh from server every 5 minutes
-    setInterval(() => {
-        import('./modules/storage.js').then(module => {
-            module.pullUpdatesFromServer();
-        });
-    }, 300000); // 300,000 ms = 5 minutes
+    setInterval(pullUpdatesFromServer, 300000); // 300,000 ms = 5 minutes
     
     // 7. Set initial date in date picker
     const jumpDateInput = document.getElementById("jumpDate");
@@ -61,12 +62,7 @@ window.onload = async function() {
     setTimeout(recalculateAllHeights, 100);
 
     // 10. Setup scroll event listeners
-    window.addEventListener('scroll', function() {
-        import('./modules/utils.js').then(module => {
-            const throttledUpdateHeader = module.throttle(updateStickyMonthHeader, 100);
-            throttledUpdateHeader();
-        });
-    });
+    window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
     updateStickyMonthHeader();
 
     // 11. Header opacity effect on scroll

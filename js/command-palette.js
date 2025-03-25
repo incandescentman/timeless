@@ -1,3 +1,20 @@
+import {
+    state,
+    loadCalendarAroundDate,
+    toggleDarkMode,
+    showYearView,
+    toggleRangeSelection,
+    toggleKeyboardNavMode,
+    undoLastChange,
+    redoLastChange,
+    jumpOneMonthForward,
+    jumpOneMonthBackward,
+    showHelp,
+    downloadLocalStorageData,
+    toggleMultiSelectMode,
+    showQuickDateInput
+} from './core.js';
+
 // ========== COMMAND PALETTE & SHORTCUTS ==========
 
 /*
@@ -53,7 +70,7 @@ function populateCommands() {
     commandList.innerHTML = '';
 
     const commands = [
-        { icon: '📅', name: 'Go to today',           shortcut: 'T',    action: () => { currentCalendarDate = new Date(systemToday); loadCalendarAroundDate(currentCalendarDate); } },
+        { icon: '📅', name: 'Go to today',           shortcut: 'T',    action: () => { state.currentCalendarDate = new Date(state.systemToday); loadCalendarAroundDate(state.currentCalendarDate); } },
         { icon: '🔍', name: 'Jump to date',          shortcut: 'G',    action: () => document.getElementById('jumpDate').focus() },
         { icon: '🌙', name: 'Toggle dark mode',      shortcut: 'Ctrl+D', action: toggleDarkMode },
         { icon: '📆', name: 'Show year view',        shortcut: 'Y',    action: showYearView },
