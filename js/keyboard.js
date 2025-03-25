@@ -1,8 +1,20 @@
+import {
+    recalculateHeight,
+    wrapTextSelection,
+    addTaskPriority,
+    toggleTaskDone,
+    insertHashtag,
+    storeValueForItemId,
+    debounce
+} from './core.js';
+
+import { pullUpdatesFromServer } from './server-sync.js';
+
 /*
  * noteKeyDownHandler(e)
  *  - Handles key events in a day note <textarea>, supporting Ctrl/Command shortcuts.
  */
-function noteKeyDownHandler(e) {
+export function noteKeyDownHandler(e) {
     recalculateHeight(this.id);
     if (e.ctrlKey || e.metaKey) {
         switch(e.key) {
