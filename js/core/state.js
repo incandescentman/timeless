@@ -40,6 +40,43 @@ export let isMultiSelectMode = false;
 export let rangeStart = null;
 export let rangeEnd = null;
 
+// Function to initialize or reset the state
+export function initializeState() {
+  // Reset today's date
+  const now = new Date();
+  systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  systemToday.setHours(0, 0, 0, 0);
+  
+  // Reset current calendar date
+  currentCalendarDate = new Date(systemToday);
+  
+  // Reset navigation state
+  keyboardFocusDate = null;
+  keyboardNavMode = false;
+  isMultiSelectMode = false;
+  rangeStart = null;
+  rangeEnd = null;
+  
+  // Reset undo/redo stacks
+  undoStack.length = 0;
+  redoStack.length = 0;
+  
+  // Apply dark mode if previously enabled
+  if (localStorage.getItem("darkMode") === "enabled") {
+    document.body.classList.add("dark-mode");
+  }
+  
+  // Make these values available globally
+  window.systemToday = systemToday;
+  window.currentCalendarDate = currentCalendarDate;
+  window.keyboardFocusDate = keyboardFocusDate;
+  
+  return {
+    systemToday,
+    currentCalendarDate
+  };
+}
+
 // Undo/redo logic for localStorage snapshots.
 export let undoStack = [];
 export let redoStack = [];

@@ -6,7 +6,8 @@ import {
 import { 
     goToTodayAndRefresh,
     updateStickyMonthHeader,
-    throttle
+    throttle,
+    loadCalendarAroundDate
 } from './ui/calendarfunctions.js';
 import { setupHorizontalSwipe } from './swipe.js';
 

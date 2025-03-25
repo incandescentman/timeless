@@ -16,7 +16,7 @@ import {
     recalculateAllHeights,
     goToTodayAndRefresh
 } from './ui/calendarfunctions.js';
-import { pullUpdatesFromServer } from './server-sync.js';
+import { pullUpdatesFromServer } from './data/serverSync.js';
 import { setupEventHandlers } from './events.js';
 import { setupKeyboardNavigation } from './navigation.js';
 import { setupMobileFeatures } from './mobile.js';
@@ -29,7 +29,10 @@ window.onload = async () => {
     initializeState();
 
     // Setup UI components
-    setupUI();
+    if (!setupUI()) {
+        console.error('Failed to set up UI components');
+        return;
+    }
 
     // Load data from server
     await pullUpdatesFromServer();

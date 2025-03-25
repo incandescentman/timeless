@@ -15,7 +15,10 @@ import {
   animateRowInsertion,
   generateItem,
   recalculateHeight,
-  processNoteTags
+  processNoteTags,
+  throttle,
+  debounce,
+  highlightKeyboardFocusedDay
 } from "./dom.js";
 
 import { buildMiniCalendar } from "./minicalendar.js";
@@ -61,6 +64,11 @@ let lastMiniCalendarMonth = null;
 // --- Function definitions ---
 
 export function loadCalendarAroundDate(seedDate) {
+  if (!calendarTableElement) {
+    console.error('Calendar table element not initialized');
+    return;
+  }
+
   showLoading();
   const container = document.getElementById('calendarContainer');
   container.classList.add('loading-calendar');
@@ -347,38 +355,59 @@ export function smoothScrollToDate(targetDate) {
   }, 100); // Small delay to ensure the calendar is fully loaded
 }
 
+// Functions for keyboard navigation
 export function createEventInFocusedDay() {
-    if (!keyboardFocusDate) return;
-    
-    const dayId = idForDate(keyboardFocusDate);
-    const note = document.createElement('textarea');
-    note.className = 'note';
-    note.id = nextItemId();
-    note.placeholder = 'Add a note...';
-    
-    const dayCell = document.getElementById(dayId);
-    if (dayCell) {
-        dayCell.appendChild(note);
-        note.focus();
-    }
+  // Get the keyboard focus date from global state
+  const keyboardFocusDate = window.keyboardFocusDate;
+  if (!keyboardFocusDate) return;
+  
+  const id = idForDate(keyboardFocusDate);
+  const cell = document.getElementById(id);
+  if (!cell) return;
+  
+  // Create a new note in the focused day
+  const itemId = window.nextItemId();
+  const note = generateItem(id, itemId);
+  if (note) {
+    recalculateHeight(note.id);
+    note.focus();
+  }
 }
 
 export function deleteEntriesForFocusedDay() {
-    if (!keyboardFocusDate) return;
+  // Get the keyboard focus date from global state
+  const keyboardFocusDate = window.keyboardFocusDate;
+  if (!keyboardFocusDate) return;
+  
+  const id = idForDate(keyboardFocusDate);
+  const cell = document.getElementById(id);
+  if (!cell) return;
+  
+  // Get all notes in this cell and remove them
+  const notes = cell.querySelectorAll('textarea');
+  if (notes.length === 0) return;
+  
+  if (confirm(`Delete ${notes.length} notes from this day?`)) {
+    notes.forEach(note => {
+      if (note.parentNode === cell) {
+        if (window.removeValueForItemId) {
+          window.removeValueForItemId(note.id);
+        }
+        cell.removeChild(note);
+      }
+    });
     
-    const dayId = idForDate(keyboardFocusDate);
-    const dayCell = document.getElementById(dayId);
-    if (!dayCell) return;
-    
-    // Get all notes in the day
-    const notes = dayCell.getElementsByClassName('note');
-    if (notes.length === 0) return;
-    
-    // Remove each note
-    while (notes.length > 0) {
-        const note = notes[0];
-        removeValueForItemId(note.id);
-        note.remove();
-    }
+    // Clear localStorage entry for this day
+    localStorage.removeItem(id);
+  }
 }
+
+// Re-export these functions to make them available to importers
+export { 
+  throttle, 
+  debounce, 
+  highlightKeyboardFocusedDay,
+  updateStickyMonthHeader,
+  recalculateAllHeights
+};
 

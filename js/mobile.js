@@ -1,136 +1,81 @@
-import { 
-    systemToday,
-    currentCalendarDate
-} from './core/state.js';
-import { showToast } from './ui/dom.js';
-import { 
-    goToTodayAndRefresh,
-    loadCalendarAroundDate
-} from './ui/calendarfunctions.js';
+// mobile.js - Mobile-specific functionality
+
+import { goToTodayAndRefresh, jumpOneMonthForward, jumpOneMonthBackward } from './ui/calendarfunctions.js';
+import { setupHorizontalSwipe } from './swipe.js';
 
 export function setupMobileFeatures() {
-    // Check if we're on mobile
-    if (window.innerWidth <= 768) {
-        // Initialize mobile-specific features
-        setupMobileUI();
-        setupMobileGestures();
+    // Only run on mobile devices
+    if (window.innerWidth > 768) return;
+    
+    // Set up swipe navigation
+    setupHorizontalSwipe();
+    
+    // Configure the mobile action bar
+    setupMobileActionBar();
+    
+    // Auto-scroll to today's date after a short delay
+    setTimeout(() => {
+        goToTodayAndRefresh();
+    }, 500);
+    
+    // Add viewport meta tag to prevent zooming if not already present
+    if (!document.querySelector('meta[name="viewport"]')) {
+        const viewport = document.createElement('meta');
+        viewport.name = 'viewport';
+        viewport.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+        document.head.appendChild(viewport);
     }
-
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        if (window.innerWidth <= 768) {
-            setupMobileUI();
-            setupMobileGestures();
-        } else {
-            cleanupMobileUI();
-        }
+    
+    // Add touch-specific CSS class to body
+    document.body.classList.add('touch-device');
+    
+    // Modify calendar display for smaller screens
+    adjustCalendarForMobile();
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+        setTimeout(adjustCalendarForMobile, 300);
     });
 }
 
-function setupMobileUI() {
-    // Add mobile-specific classes
-    document.body.classList.add('mobile-view');
+function setupMobileActionBar() {
+    const actionBar = document.getElementById('mobileActions');
+    if (!actionBar) return;
     
-    // Show mobile action bar
-    const actionBar = document.getElementById('mobile-action-bar');
-    if (actionBar) {
-        actionBar.style.display = 'flex';
-    }
-
-    // Initialize mobile-specific event listeners
-    setupMobileEventListeners();
-}
-
-function setupMobileEventListeners() {
-    // Quick action buttons
-    const todayButton = document.getElementById('mobile-today');
+    // Make sure the action bar is visible
+    actionBar.style.display = 'flex';
+    
+    // Connect any buttons that might not have event handlers
+    const todayButton = actionBar.querySelector('button[title="Today"]');
     if (todayButton) {
-        todayButton.addEventListener('click', () => {
-            goToTodayAndRefresh();
-            showToast('Jumped to today');
-        });
+        todayButton.addEventListener('click', goToTodayAndRefresh);
     }
-
-    const newNoteButton = document.getElementById('mobile-new-note');
-    if (newNoteButton) {
-        newNoteButton.addEventListener('click', () => {
-            const today = new Date(systemToday);
-            const todayId = `${today.getMonth()}_${today.getDate()}_${today.getFullYear()}`;
-            const note = document.createElement('textarea');
-            note.className = 'note';
-            note.id = nextItemId();
-            note.placeholder = 'Add a note...';
-            document.getElementById(todayId).appendChild(note);
-            note.focus();
-        });
-    }
-
-    const commandButton = document.getElementById('mobile-command');
-    if (commandButton) {
-        commandButton.addEventListener('click', () => {
-            showCommandPalette();
-        });
-    }
-}
-
-function setupMobileGestures() {
-    // Add touch event listeners for mobile gestures
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd, { passive: false });
-}
-
-function cleanupMobileUI() {
-    // Remove mobile-specific classes
-    document.body.classList.remove('mobile-view');
     
-    // Hide mobile action bar
-    const actionBar = document.getElementById('mobile-action-bar');
-    if (actionBar) {
-        actionBar.style.display = 'none';
+    const prevButton = actionBar.querySelector('button[title="Previous Month"]');
+    if (prevButton) {
+        prevButton.addEventListener('click', jumpOneMonthBackward);
     }
-
-    // Remove mobile-specific event listeners
-    document.removeEventListener('touchstart', handleTouchStart);
-    document.removeEventListener('touchmove', handleTouchMove);
-    document.removeEventListener('touchend', handleTouchEnd);
-}
-
-// Mobile gesture handlers
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-
-function handleTouchStart(e) {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-}
-
-function handleTouchMove(e) {
-    touchEndX = e.touches[0].clientX;
-    touchEndY = e.touches[0].clientY;
-}
-
-function handleTouchEnd(e) {
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
-
-    // Handle horizontal swipe
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (Math.abs(deltaX) > 50) { // Minimum swipe distance
-            if (deltaX > 0) {
-                // Swipe right - previous month
-                const newDate = new Date(currentCalendarDate);
-                newDate.setMonth(newDate.getMonth() - 1);
-                currentCalendarDate = newDate;
-            } else {
-                // Swipe left - next month
-                const newDate = new Date(currentCalendarDate);
-                newDate.setMonth(newDate.getMonth() + 1);
-                currentCalendarDate = newDate;
-            }
-            loadCalendarAroundDate(currentCalendarDate);
-        }
+    
+    const nextButton = actionBar.querySelector('button[title="Next Month"]');
+    if (nextButton) {
+        nextButton.addEventListener('click', jumpOneMonthForward);
     }
-} 
+}
+
+function adjustCalendarForMobile() {
+    // Adjust day cell heights to fit screen
+    const availableHeight = window.innerHeight;
+    const headerHeight = document.getElementById('header')?.offsetHeight || 0;
+    const actionBarHeight = document.getElementById('mobileActions')?.offsetHeight || 0;
+    
+    // Calculate ideal row height (consider 6 rows per month view)
+    const rowHeight = Math.floor((availableHeight - headerHeight - actionBarHeight) / 6);
+    
+    // Apply to CSS variable if we use one, or directly to cells
+    document.documentElement.style.setProperty('--day-cell-height', `${rowHeight}px`);
+    
+    // Simplify UI by hiding optional elements
+    document.querySelectorAll('.desktop-only').forEach(el => {
+        el.style.display = 'none';
+    });
+}

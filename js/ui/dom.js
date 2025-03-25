@@ -1,5 +1,39 @@
 // ui/dom.js
 
+import { setCalendarTableElement } from './calendarfunctions.js';
+
+// Function to set up UI elements
+export function setupUI() {
+  // Apply dark mode if previously enabled
+  if (localStorage.getItem("darkMode") === "enabled") {
+    document.body.classList.add("dark-mode");
+  }
+  
+  // Set up calendar table element
+  const calendarTable = document.getElementById('calendarTable');
+  if (calendarTable) {
+    setCalendarTableElement(calendarTable);
+  } else {
+    console.error('Calendar table element not found');
+    return false;
+  }
+  
+  // Initialize date picker if present
+  const datePicker = document.getElementById('date-picker');
+  if (datePicker) {
+    const today = new Date();
+    datePicker.value = today.toISOString().split('T')[0];
+  }
+  
+  // Set up sticky header if present
+  const stickyHeader = document.getElementById('stickyMonthHeader');
+  if (stickyHeader) {
+    updateStickyMonthHeader();
+  }
+
+  return true;
+}
+
 export function showLoading() {
   const loadingIndicator = document.getElementById('loadingIndicator');
   if (loadingIndicator) {
@@ -54,6 +88,26 @@ export function recalculateHeight(itemId) {
 
 // Make this function available globally
 window.recalculateHeight = recalculateHeight;
+
+// Function to highlight keyboard-focused day
+export function highlightKeyboardFocusedDay() {
+  // Remove previous highlights
+  document.querySelectorAll('.keyboard-focus').forEach(el => 
+    el.classList.remove('keyboard-focus'));
+  
+  // Get the keyboard focus date from global state
+  const keyboardFocusDate = window.keyboardFocusDate || null;
+  if (!keyboardFocusDate) return;
+  
+  // Create ID for the date
+  const id = idForDate(keyboardFocusDate);
+  const elem = document.getElementById(id);
+  
+  if (elem) {
+    elem.classList.add('keyboard-focus');
+    elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
 
 // Function to generate a new item (textarea) for a calendar day
 export function generateItem(parentId, itemId) {
