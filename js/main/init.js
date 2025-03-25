@@ -1,7 +1,7 @@
 // main/init.js
 
 import { loadDataFromServer, pullUpdatesFromServer } from "../data/serverSync.js";
-import { loadCalendarAroundDate, setCalendarTableElement } from "../ui/calendarfunctions.js";
+import { loadCalendarAroundDate, setCalendarTableElement, goToTodayAndRefresh } from "../ui/calendarfunctions.js";
 import { setupScrollObservers, checkInfiniteScroll } from "../events/scrollEvents.js";
 import { recalculateAllHeights, throttle, updateStickyMonthHeader } from "../ui/dom.js";
 import { systemToday } from "../core/state.js";
@@ -23,6 +23,13 @@ window.onload = async function() {
 
     // Build the calendar around "today"
     loadCalendarAroundDate(currentCalendarDate);
+    
+    // For mobile devices, automatically go to today's date
+    if (window.innerWidth <= 768) {
+        setTimeout(() => {
+            goToTodayAndRefresh();
+        }, 100);
+    }
 
     // (3) Use IntersectionObserver if available; else fallback
     if ('IntersectionObserver' in window) {
@@ -65,19 +72,4 @@ window.onload = async function() {
             header.classList.remove('solid');
         }
     });
-};
-
-// ...
-window.onload = async function() {
-  // (1) Load data...
-  await loadDataFromServer();
-
-  // (2) Set the calendar table element from the DOM:
-  setCalendarTableElement(document.getElementById("calendar"));
-
-  // Set currentCalendarDate and build the calendar
-  let currentCalendarDate = new Date(systemToday);
-  loadCalendarAroundDate(currentCalendarDate);
-
-  // ... other initialization code
 };
