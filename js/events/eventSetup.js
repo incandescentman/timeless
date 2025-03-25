@@ -24,14 +24,35 @@ export function checkItem(e) {
   const itemId = item.id;
   const parentId = item.parentNode.id;
   
-  // Update localStorage to store the value
-  localStorage.setItem(itemId, item.value);
+  // Import from core state if available, otherwise use localStorage directly
+  try {
+    const { storeValueForItemId } = require('../core/state.js');
+    storeValueForItemId(itemId, item.value);
+    
+    // Update the parent's item list if needed
+    let itemIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
+    if (!itemIds.includes(itemId)) {
+      itemIds.push(itemId);
+      localStorage[parentId] = itemIds.join(",");
+    }
+  } catch (err) {
+    // Fallback to direct localStorage usage
+    localStorage.setItem(itemId, item.value);
+    
+    // Update the parent's item list
+    let itemIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
+    if (!itemIds.includes(itemId)) {
+      itemIds.push(itemId);
+      localStorage[parentId] = itemIds.join(",");
+    }
+  }
   
-  // Update the parent's item list
-  let itemIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
-  if (!itemIds.includes(itemId)) {
-    itemIds.push(itemId);
-    localStorage[parentId] = itemIds.join(",");
+  // Process tags in the note
+  try {
+    const { processNoteTags } = require('../ui/dom.js');
+    processNoteTags(item);
+  } catch (err) {
+    // Fallback: do nothing if can't import
   }
 }
 
@@ -44,6 +65,9 @@ export function nextItemId() {
   const timestamp = new Date().getTime();
   return "item_" + timestamp + "_" + Math.floor(Math.random() * 1000);
 }
+
+// Make this function available globally
+window.nextItemId = nextItemId;
 
 export function setupAllEventListeners() {
   // Global keydown event for hotkeys

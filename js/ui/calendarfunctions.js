@@ -203,8 +203,25 @@ export function generateDay(dayCell, date) {
     date.getDate() === currentCalendarDate.getDate()
   );
   if (isToday) dayCell.classList.add("today");
+  
+  // System today highlight
+  const isSystemToday = (
+    date.getFullYear() === systemToday.getFullYear() &&
+    date.getMonth() === systemToday.getMonth() &&
+    date.getDate() === systemToday.getDate()
+  );
+  if (isSystemToday) {
+    dayCell.classList.add("system-today");
+    // Add a small dot indicator to show the true current day
+    const dot = document.createElement("div");
+    dot.className = "current-day-dot";
+    dayCell.appendChild(dot);
+  }
+  
   // Set a unique ID for the day cell.
   dayCell.id = idForDate(date);
+  
+  // Create inner HTML based on device width
   if (window.innerWidth <= 768) {
     const monthShort = shortMonths[date.getMonth()];
     const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
@@ -224,7 +241,8 @@ export function generateDay(dayCell, date) {
           <span class="day-number">${date.getDate()}</span>
         `;
   }
-  // These functions are now properly imported from dom.js and exported from this module
+  
+  // Add the day's events/notes from localStorage
   lookupItemsForParentId(dayCell.id, items => {
     items.forEach(it => {
       const note = generateItem(dayCell.id, it.itemId);
@@ -307,4 +325,20 @@ export function jumpOneMonthBackward() {
 }
 
 window.jumpOneMonthForward = jumpOneMonthForward;
+
+// Smoothly scroll to a specific date
+export function smoothScrollToDate(targetDate) {
+  if (!targetDate) return;
+  
+  // First ensure the calendar is loaded around that date
+  loadCalendarAroundDate(targetDate);
+  
+  // Then find the element and scroll to it smoothly
+  setTimeout(() => {
+    const elem = document.getElementById(idForDate(targetDate));
+    if (elem) {
+      elem.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 100); // Small delay to ensure the calendar is fully loaded
+}
 

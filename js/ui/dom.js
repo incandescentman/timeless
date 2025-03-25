@@ -70,8 +70,45 @@ export function generateItem(parentId, itemId) {
 export function processNoteTags(note) {
   if (!note || !note.value) return;
   
-  // Implement tag processing logic here if needed
-  // This is a placeholder based on the old version functionality
+  // Implement tag processing from original calendar.js
+  // Detect and mark up special syntax in notes
+  const text = note.value;
+  
+  // Process priority markers
+  if (text.includes("[#A]") || text.includes("[#1]")) {
+    note.classList.add("priority-high");
+  } else if (text.includes("[#B]") || text.includes("[#2]")) {
+    note.classList.add("priority-medium");
+  } else if (text.includes("[#C]") || text.includes("[#3]")) {
+    note.classList.add("priority-low");
+  } else {
+    note.classList.remove("priority-high", "priority-medium", "priority-low");
+  }
+  
+  // Process completed tasks
+  if (text.startsWith("DONE ") || text.startsWith("✓ ")) {
+    note.classList.add("done-item");
+  } else {
+    note.classList.remove("done-item");
+  }
+}
+
+// Parse date from an ID string like "1_15_2023"
+export function parseDateFromId(id) {
+  if (!id || typeof id !== 'string') return null;
+  
+  const parts = id.split('_');
+  if (parts.length !== 3) return null;
+  
+  // Format is month_day_year
+  const month = parseInt(parts[0], 10);  // 0-11
+  const day = parseInt(parts[1], 10);    // 1-31
+  const year = parseInt(parts[2], 10);   // Full year
+  
+  // Check for valid parts
+  if (isNaN(month) || isNaN(day) || isNaN(year)) return null;
+  
+  return new Date(year, month, day);
 }
 
 // --- New helper functions added for calendar functions ---
@@ -160,4 +197,49 @@ export function throttle(func, delay) {
             func.apply(this, args);
         }
     };
+}
+
+// Debounce function to prevent rapid repeated calls
+export function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(context, args);
+        }, wait);
+    };
+}
+
+// Function to aid in smooth scrolling with easing
+export function curve(t) {
+    return (t < 0.5) ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+}
+
+// Smooth scroll to a specific element with animation
+export function smoothScrollToElement(element, duration = 500) {
+    if (!element) return;
+    
+    const start = documentScrollTop();
+    const target = scrollPositionForElement(element);
+    const startTime = Date.now();
+    
+    function scroll() {
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
+        
+        if (elapsed >= duration) {
+            window.scrollTo(0, target);
+            return;
+        }
+        
+        const t = elapsed / duration;
+        const ease = curve(t);
+        const position = start + (target - start) * ease;
+        
+        window.scrollTo(0, position);
+        requestAnimationFrame(scroll);
+    }
+    
+    scroll();
 }
