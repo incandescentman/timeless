@@ -30,6 +30,9 @@ export function resetToToday() {
 // Global variable for keyboard navigation focus.
 export let keyboardFocusDate = null;
 
+// Flag for keyboard navigation mode
+export let keyboardNavMode = false;
+
 // Flag for multi-select mode.
 export let isMultiSelectMode = false;
 

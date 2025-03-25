@@ -6,7 +6,7 @@
     <!-- …but be aware it will completely remove pinch-zoom, which is unfriendly to many users.  -->
 
     <link rel="apple-touch-icon" href="https://jaydixit.com/timeless/_img/ios-icon.png">
-<link rel="icon" href="https://jaydixit.com/timeless/_img/favicon.png" type="image/png">
+    <link rel="icon" href="https://jaydixit.com/timeless/_img/favicon.png" type="image/png">
     <title>Timeless: The Infinite Calendar</title>
     <!-- Import fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,7 +31,7 @@
       <div id="miniCalendar"></div>
       <div>
         <span class="brand"><strong>Timeless:</strong> The Infinite Calendar 🪐✨ </span>
-        <button class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">
+        <button class="button" id="darkModeToggle" data-tooltip="Toggle Dark Mode">
           <svg class="icon" viewBox="0 0 24 24">
             <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="currentColor"/>
           </svg>
@@ -179,58 +179,70 @@
       </div>
       <div id="yearViewGrid"></div>
     </div>
-    <script type="module" src="js/main/init.js"></script> 
 
-<!-- Mobile action bar for most common actions -->
-<div class="mobile-action-bar" id="mobileActions">
+    <!-- Mobile action bar for most common actions -->
+    <div class="mobile-action-bar" id="mobileActions">
 
-<button onclick="goToTodayAndRefresh()">
-  <svg class="icon" viewBox="0 0 24 24">
-    <!-- Outer calendar rectangle -->
-    <rect x="4" y="5" width="16" height="16" rx="2"
-          stroke="currentColor" stroke-width="2" fill="none"/>
-    <!-- "Wire" for top bar (like old calendar tabs) -->
-    <path d="M16 3v4M8 3v4M4 11h16"
-          stroke="currentColor" stroke-width="2" fill="none"/>
-    <!-- Dot in the lower part for "today" -->
-    <circle cx="12" cy="16" r="2" fill="currentColor"/>
-  </svg>
-  <span>Today</span>
-</button>
-
-
-<button onclick="jumpOneMonthBackward()">
-  <svg class="icon" viewBox="0 0 24 24">
-    <!-- Left arrow (chevron) -->
-    <path d="M15 6l-6 6l6 6"
-          stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <span>Previous</span>
-</button>
+    <button onclick="goToTodayAndRefresh()">
+      <svg class="icon" viewBox="0 0 24 24">
+        <!-- Outer calendar rectangle -->
+        <rect x="4" y="5" width="16" height="16" rx="2"
+              stroke="currentColor" stroke-width="2" fill="none"/>
+        <!-- "Wire" for top bar (like old calendar tabs) -->
+        <path d="M16 3v4M8 3v4M4 11h16"
+              stroke="currentColor" stroke-width="2" fill="none"/>
+        <!-- Dot in the lower part for "today" -->
+        <circle cx="12" cy="16" r="2" fill="currentColor"/>
+      </svg>
+      <span>Today</span>
+    </button>
 
 
-<button onclick="jumpOneMonthForward()">
-  <svg class="icon" viewBox="0 0 24 24">
-    <!-- Right arrow (chevron) -->
-    <path d="M9 6l6 6l-6 6"
-          stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <span>Next</span>
-</button>
+    <button onclick="jumpOneMonthBackward()">
+      <svg class="icon" viewBox="0 0 24 24">
+        <!-- Left arrow (chevron) -->
+        <path d="M15 6l-6 6l6 6"
+              stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Previous</span>
+    </button>
 
 
-<button onclick="showCommandPalette()">
-  <svg class="icon" viewBox="0 0 24 24">
-    <!-- Three horizontal lines for a "menu" -->
-    <path d="M4 6h16" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M4 12h16" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/>
-  </svg>
-  <span>Menu</span>
-</button>
+    <button onclick="jumpOneMonthForward()">
+      <svg class="icon" viewBox="0 0 24 24">
+        <!-- Right arrow (chevron) -->
+        <path d="M9 6l6 6l-6 6"
+              stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Next</span>
+    </button>
 
 
-</div>
+    <button onclick="showCommandPalette()">
+      <svg class="icon" viewBox="0 0 24 24">
+        <!-- Three horizontal lines for a "menu" -->
+        <path d="M4 6h16" stroke="currentColor" stroke-width="2" fill="none"/>
+        <path d="M4 12h16" stroke="currentColor" stroke-width="2" fill="none"/>
+        <path d="M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/>
+      </svg>
+      <span>Menu</span>
+    </button>
 
+
+    </div>
+
+    <!-- Load all JavaScript modules -->
+    <script type="module" src="js/core.js"></script>
+    <script type="module" src="js/generate.js"></script>
+    <script type="module" src="js/minicalendar.js"></script>
+    <script type="module" src="js/command-palette.js"></script>
+    <script type="module" src="js/emacs.js"></script>
+    <script type="module" src="js/server-sync.js"></script>
+    <script type="module" src="js/swipe.js"></script>
+    <script type="module" src="js/events.js"></script>
+    <script type="module" src="js/navigation.js"></script>
+    <script type="module" src="js/storage.js"></script>
+    <script type="module" src="js/mobile.js"></script>
+    <script type="module" src="js/index.js"></script>
   </body>
 </html>

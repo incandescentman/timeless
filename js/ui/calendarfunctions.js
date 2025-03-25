@@ -10,16 +10,29 @@ import {
   documentScrollHeight,
   scrollPositionForElement,
   updateStickyMonthHeader,
-  getAdjustedDayIndex,  // exported from dom.js
-  idForDate,            // exported from dom.js
-  animateRowInsertion,  // exported from dom.js
-  generateItem,         // added import
-  recalculateHeight,    // added import
-  processNoteTags       // added import
+  getAdjustedDayIndex,
+  idForDate,
+  animateRowInsertion,
+  generateItem,
+  recalculateHeight,
+  processNoteTags
 } from "./dom.js";
 
-import { buildMiniCalendar } from "./minicalendar.js"; // Make sure this module exports buildMiniCalendar (capital M)
-import { currentCalendarDate, systemToday, keyboardFocusDate, resetToToday } from "../core/state.js";
+import { buildMiniCalendar } from "./minicalendar.js";
+import { 
+  systemToday,
+  currentCalendarDate,
+  keyboardFocusDate,
+  resetToToday,
+  removeValueForItemId
+} from "../core/state.js";
+
+// Utility function to generate unique IDs for items
+function nextItemId() {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `item_${timestamp}_${random}`;
+}
 
 // UI strings for calendar display:
 const daysOfWeek = ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"];
@@ -33,10 +46,8 @@ const monthsShort = shortMonths; // same as shortMonths in this case
 // Module-level variable for the calendar table element.
 let calendarTableElement;
 
-
 // If we used to track "currentVisibleMonth", we now track the row instead.
 let currentVisibleRow = '';
-
 
 // Export a setter so that init.js can set the calendar table element.
 export function setCalendarTableElement(element) {
@@ -255,7 +266,6 @@ export function generateDay(dayCell, date) {
   });
 }
 
-
 export function lookupItemsForParentId(parentId, callback) {
     if (localStorage[parentId]) {
         const ids = localStorage[parentId].split(",");
@@ -270,15 +280,11 @@ export function lookupItemsForParentId(parentId, callback) {
     }
 }
 
-
-
-
 /*
  * jumpOneMonthForward(), jumpOneMonthBackward()
  *  - Use the row's monthIndex/year to figure out the next/previous month's 1st day,
  *    then call smoothScrollToDate().
  */
-
 
 export function jumpOneMonthForward() {
   if (!currentVisibleRow) return;
@@ -301,7 +307,6 @@ export function jumpOneMonthForward() {
   smoothScrollToDate(nextDate);
 }
 window.jumpOneMonthBackward = jumpOneMonthBackward;
-
 
 export function jumpOneMonthBackward() {
   if (!currentVisibleRow) return;
@@ -340,5 +345,40 @@ export function smoothScrollToDate(targetDate) {
       elem.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, 100); // Small delay to ensure the calendar is fully loaded
+}
+
+export function createEventInFocusedDay() {
+    if (!keyboardFocusDate) return;
+    
+    const dayId = idForDate(keyboardFocusDate);
+    const note = document.createElement('textarea');
+    note.className = 'note';
+    note.id = nextItemId();
+    note.placeholder = 'Add a note...';
+    
+    const dayCell = document.getElementById(dayId);
+    if (dayCell) {
+        dayCell.appendChild(note);
+        note.focus();
+    }
+}
+
+export function deleteEntriesForFocusedDay() {
+    if (!keyboardFocusDate) return;
+    
+    const dayId = idForDate(keyboardFocusDate);
+    const dayCell = document.getElementById(dayId);
+    if (!dayCell) return;
+    
+    // Get all notes in the day
+    const notes = dayCell.getElementsByClassName('note');
+    if (notes.length === 0) return;
+    
+    // Remove each note
+    while (notes.length > 0) {
+        const note = notes[0];
+        removeValueForItemId(note.id);
+        note.remove();
+    }
 }
 
