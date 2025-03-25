@@ -4,7 +4,7 @@
  * generateDay(dayCell, date)
  *  - Populates a single <td> with the day label, number, and any stored notes.
  */
-function generateDay(dayCell, date) {
+export function generateDay(dayCell, date) {
     // Weekend shading
     const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
     if (isWeekend) dayCell.classList.add("weekend");
@@ -64,7 +64,7 @@ function generateDay(dayCell, date) {
  * buildMobileDayCard(container, date)
  *  - Example code for an alternate "vertical day card" mobile layout (unused).
  */
-function buildMobileDayCard(container, date) {
+export function buildMobileDayCard(container, date) {
     // If the 1st day of the month, add a month header
     if (date.getDate() === 1) {
         const monthHeader = document.createElement('div');

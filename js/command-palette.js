@@ -4,7 +4,7 @@
  * showCommandPalette(), hideCommandPalette()
  *  - Toggles a full-screen overlay for "quick actions."
  */
-function showCommandPalette() {
+export function showCommandPalette() {
     let palette = document.getElementById('command-palette');
     if (!palette) {
         // 1. Create the element if not existing
@@ -36,7 +36,7 @@ function showCommandPalette() {
     setTimeout(() => palette.classList.add('active'), 10);
     document.getElementById('command-input').focus();
 }
-function hideCommandPalette() {
+export function hideCommandPalette() {
     const palette = document.getElementById('command-palette');
     if (palette) {
         palette.classList.remove('active');
