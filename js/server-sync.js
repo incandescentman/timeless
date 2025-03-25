@@ -4,7 +4,7 @@
  * loadDataFromServer()
  *  - Fetches JSON from your server endpoint (e.g., 'api.php'), stores in localStorage.
  */
-async function loadDataFromServer() {
+export async function loadDataFromServer() {
     try {
         const response = await fetch('api.php');
         const data = await response.json();
@@ -23,7 +23,7 @@ async function loadDataFromServer() {
  * saveDataToServer()
  *  - Collects all localStorage into an object, POSTs to server.
  */
-async function saveDataToServer() {
+export async function saveDataToServer() {
     const allData = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -46,7 +46,7 @@ async function saveDataToServer() {
  * pullUpdatesFromServer(confirmNeeded)
  *  - Optionally confirms, then fetches data from the server into localStorage.
  */
-async function pullUpdatesFromServer(confirmNeeded = false) {
+export async function pullUpdatesFromServer(confirmNeeded = false) {
     if (confirmNeeded) {
         const confirmed = confirm("Pull server data? This may overwrite local changes if they're not saved.");
         if (!confirmed) return;

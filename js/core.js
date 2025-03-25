@@ -148,7 +148,7 @@ export function insertHashtag(textarea) {
  * processNoteTags(textarea)
  *  - Finds "#tags" in the note, and shows them above the <textarea>.
  */
-function processNoteTags(textarea) {
+export function processNoteTags(textarea) {
     const parent = textarea.parentNode;
     const existingTags = parent.querySelector('.note-tags');
     if (existingTags) {
@@ -178,7 +178,7 @@ function processNoteTags(textarea) {
  * parseDateFromId(idStr)
  *  - Reverse of the above: "2_14_2025" => "2025-03-14"
  */
-function parseDateFromId(idStr) {
+export function parseDateFromId(idStr) {
     const parts = idStr.split("_");
     if (parts.length !== 3) return null;
     const [month, day, year] = parts.map(Number);

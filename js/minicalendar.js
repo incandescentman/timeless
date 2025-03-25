@@ -4,7 +4,7 @@
  * buildMiniCalendar()
  *  - Builds a small month-based mini calendar for the current, previous, and next months.
  */
-function buildMiniCalendar() {
+export function buildMiniCalendar() {
     const mini = document.getElementById("miniCalendar");
     if (!mini) return;
     mini.innerHTML = "";
@@ -26,7 +26,7 @@ function buildMiniCalendar() {
  * buildMiniCalendarForMonth(container, year, month, highlightCurrent)
  *  - Renders a small grid for a single month. Clicking a day jumps to that day.
  */
-function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
+export function buildMiniCalendarForMonth(container, year, month, highlightCurrent) {
     const section = document.createElement("div");
     section.style.marginBottom = "10px";
     section.style.padding = "5px";
