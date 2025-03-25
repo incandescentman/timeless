@@ -12,7 +12,10 @@ import {
   updateStickyMonthHeader,
   getAdjustedDayIndex,  // exported from dom.js
   idForDate,            // exported from dom.js
-  animateRowInsertion   // exported from dom.js
+  animateRowInsertion,  // exported from dom.js
+  generateItem,         // added import
+  recalculateHeight,    // added import
+  processNoteTags       // added import
 } from "./dom.js";
 
 import { buildMiniCalendar } from "./minicalendar.js"; // Make sure this module exports buildMiniCalendar (capital M)
@@ -130,6 +133,9 @@ export function goToTodayAndRefresh() {
   }, 500);
 }
 
+// Also expose the function globally for use by HTML event handlers
+window.goToTodayAndRefresh = goToTodayAndRefresh;
+
 export function appendWeek() {
   let daysForThisRow = [];
   for (let i = 0; i < 7; i++) {
@@ -218,7 +224,7 @@ export function generateDay(dayCell, date) {
           <span class="day-number">${date.getDate()}</span>
         `;
   }
-  // Assume that lookupItemsForParentId, generateItem, recalculateHeight, and processNoteTags are defined globally.
+  // These functions are now properly imported from dom.js and exported from this module
   lookupItemsForParentId(dayCell.id, items => {
     items.forEach(it => {
       const note = generateItem(dayCell.id, it.itemId);
@@ -232,7 +238,7 @@ export function generateDay(dayCell, date) {
 }
 
 
-function lookupItemsForParentId(parentId, callback) {
+export function lookupItemsForParentId(parentId, callback) {
     if (localStorage[parentId]) {
         const ids = localStorage[parentId].split(",");
         const items = [];

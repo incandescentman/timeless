@@ -45,11 +45,33 @@ export function recalculateAllHeights() {
 }
 
 // Helper function to recalculate a single textarea's height
-function recalculateHeight(itemId) {
+export function recalculateHeight(itemId) {
   const ta = document.getElementById(itemId);
   if (!ta) return;
   ta.style.height = "0";
   ta.style.height = (ta.scrollHeight + 5) + "px";
+}
+
+// Function to generate a new item (textarea) for a calendar day
+export function generateItem(parentId, itemId) {
+  const item = document.createElement("textarea");
+  const parent = document.getElementById(parentId);
+  if (!parent) return null; // offscreen items aren't generated
+  parent.appendChild(item);
+  item.id = itemId;
+  item.spellcheck = false;
+  // Add event listeners
+  item.addEventListener("keydown", window.keydownHandler || function(){}); 
+  item.addEventListener("blur", window.checkItem || function(){});
+  return item;
+}
+
+// Process tags in notes (e.g., #hashtags, priorities)
+export function processNoteTags(note) {
+  if (!note || !note.value) return;
+  
+  // Implement tag processing logic here if needed
+  // This is a placeholder based on the old version functionality
 }
 
 // --- New helper functions added for calendar functions ---

@@ -5,10 +5,14 @@ import { loadCalendarAroundDate, setCalendarTableElement, goToTodayAndRefresh } 
 import { setupScrollObservers, checkInfiniteScroll } from "../events/scrollEvents.js";
 import { recalculateAllHeights, throttle, updateStickyMonthHeader } from "../ui/dom.js";
 import { systemToday, currentCalendarDate } from "../core/state.js";
+import { setupAllEventListeners } from "../events/eventSetup.js";
 
 window.onload = async function() {
     // (1) Optionally load data from server once
     await loadDataFromServer();
+
+    // Set up all event listeners
+    setupAllEventListeners();
 
     // (2) Grab the #calendar table element and set it in the calendarfunctions module
     const calendarEl = document.getElementById("calendar");

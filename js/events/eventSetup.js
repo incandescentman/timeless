@@ -1,3 +1,50 @@
+// Used by the generated items (textarea elements)
+export function keydownHandler(e) {
+  // Implementation based on the old calendar.js functionality
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    const item = e.target;
+    item.blur();
+    return;
+  }
+}
+
+// Used when a textarea loses focus
+export function checkItem(e) {
+  const item = e.target;
+  if (!item.value.trim()) {
+    // Remove empty notes
+    if (item.parentNode) {
+      item.parentNode.removeChild(item);
+    }
+    return;
+  }
+  
+  // Store the value
+  const itemId = item.id;
+  const parentId = item.parentNode.id;
+  
+  // Update localStorage to store the value
+  localStorage.setItem(itemId, item.value);
+  
+  // Update the parent's item list
+  let itemIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
+  if (!itemIds.includes(itemId)) {
+    itemIds.push(itemId);
+    localStorage[parentId] = itemIds.join(",");
+  }
+}
+
+// Make these functions available globally for now
+window.keydownHandler = keydownHandler;
+window.checkItem = checkItem;
+
+// Generate next unique item ID for calendar entries
+export function nextItemId() {
+  const timestamp = new Date().getTime();
+  return "item_" + timestamp + "_" + Math.floor(Math.random() * 1000);
+}
+
 export function setupAllEventListeners() {
   // Global keydown event for hotkeys
   document.addEventListener("keydown", (e) => {
