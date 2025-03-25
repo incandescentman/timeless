@@ -24,13 +24,13 @@ import {
     showLoading,
     hideLoading,
     showToast,
-    buildMiniCalendar,
-    generateDay,
     generateItem,
-    removeValueForItemId,
-    pullUpdatesFromServer,
-    loadDataFromServer
+    removeValueForItemId
 } from './core.js';
+
+import { buildMiniCalendar } from './minicalendar.js';
+import { generateDay } from './generate.js';
+import { pullUpdatesFromServer, loadDataFromServer } from './server-sync.js';
 
 // Variables for smooth-scrolling animations
 let scrollAnimationId = null;

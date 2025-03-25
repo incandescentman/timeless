@@ -48,7 +48,7 @@ export function noteKeyDownHandler(e) {
             break;
         case 'r': // Ctrl+R => pull updates from server
             e.preventDefault();
-            pullUpdatesFromServer(this);
+            pullUpdatesFromServer(true);
             break;
         }
         return;
