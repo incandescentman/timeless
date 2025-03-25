@@ -1,3 +1,7 @@
+import { documentScrollHeight, documentScrollTop, recalculateAllHeights, updateStickyMonthHeader } from "../ui/dom.js";
+import { prependWeek, appendWeek } from "../ui/calendarfunctions.js";
+import { systemToday } from "../core/state.js";
+
 export function setupScrollObservers() {
     const opts = { rootMargin: '200px' };
 

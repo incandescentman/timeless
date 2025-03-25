@@ -4,7 +4,7 @@ import { loadDataFromServer, pullUpdatesFromServer } from "../data/serverSync.js
 import { loadCalendarAroundDate, setCalendarTableElement, goToTodayAndRefresh } from "../ui/calendarfunctions.js";
 import { setupScrollObservers, checkInfiniteScroll } from "../events/scrollEvents.js";
 import { recalculateAllHeights, throttle, updateStickyMonthHeader } from "../ui/dom.js";
-import { systemToday } from "../core/state.js";
+import { systemToday, currentCalendarDate } from "../core/state.js";
 
 window.onload = async function() {
     // (1) Optionally load data from server once
@@ -18,10 +18,7 @@ window.onload = async function() {
     }
     setCalendarTableElement(calendarEl);
 
-    // Set currentCalendarDate based on systemToday
-    let currentCalendarDate = new Date(systemToday);
-
-    // Build the calendar around "today"
+    // Build the calendar around "today" (using the imported currentCalendarDate)
     loadCalendarAroundDate(currentCalendarDate);
     
     // For mobile devices, automatically go to today's date

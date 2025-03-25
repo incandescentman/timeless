@@ -16,6 +16,17 @@ systemToday.setHours(0, 0, 0, 0);
 // The "currentCalendarDate" is what we consider "today" within the calendar logic.
 export let currentCalendarDate = new Date(systemToday);
 
+// Helper functions to update currentCalendarDate
+export function updateCurrentCalendarDate(newDate) {
+  currentCalendarDate.setTime(new Date(newDate).getTime());
+  return currentCalendarDate;
+}
+
+export function resetToToday() {
+  currentCalendarDate.setTime(systemToday.getTime());
+  return currentCalendarDate;
+}
+
 // Global variable for keyboard navigation focus.
 export let keyboardFocusDate = null;
 

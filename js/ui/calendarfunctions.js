@@ -16,7 +16,7 @@ import {
 } from "./dom.js";
 
 import { buildMiniCalendar } from "./minicalendar.js"; // Make sure this module exports buildMiniCalendar (capital M)
-import { currentCalendarDate, systemToday, keyboardFocusDate } from "../core/state.js";
+import { currentCalendarDate, systemToday, keyboardFocusDate, resetToToday } from "../core/state.js";
 
 // UI strings for calendar display:
 const daysOfWeek = ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"];
@@ -112,8 +112,8 @@ export function scrollToToday() {
 }
 
 export function goToTodayAndRefresh() {
-  // Reset currentCalendarDate to systemToday.
-  currentCalendarDate = new Date(systemToday);
+  // Reset currentCalendarDate to today using the utility function that modifies in place
+  resetToToday();
   // Reset any visible row reference.
   window.currentVisibleRow = null;
   // Scroll to the top.
