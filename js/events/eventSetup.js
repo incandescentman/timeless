@@ -1,3 +1,7 @@
+// Import needed modules at the top of the file
+import { showToast } from '../ui/dom.js';
+import { rangeStart, rangeEnd } from '../core/state.js';
+
 // Used by the generated items (textarea elements)
 export function keydownHandler(e) {
   // Implementation based on the old calendar.js functionality
@@ -68,6 +72,50 @@ export function nextItemId() {
 
 // Make this function available globally
 window.nextItemId = nextItemId;
+
+
+// Range selection mode flag
+let isSelectingRange = false;
+
+// Initialize range selection handlers 
+function handleRangeSelection(dayCell) {
+  // Simplified placeholder for range selection
+  if (!window.rangeStart) {
+    window.rangeStart = dayCell.id;
+    dayCell.classList.add("range-selected");
+    showToast("Select end date");
+  } else {
+    window.rangeEnd = dayCell.id;
+    // Process the range
+    processDateRange(window.rangeStart, window.rangeEnd);
+    clearRangeSelection();
+  }
+}
+
+function clearRangeSelection() {
+  document.querySelectorAll('.range-selected').forEach(el => 
+    el.classList.remove('range-selected'));
+  // Set state module variables to null
+  window.rangeStart = null;
+  window.rangeEnd = null;
+  isSelectingRange = false;
+}
+
+function processDateRange(startId, endId) {
+  // This is a placeholder for range processing
+  console.log(`Processing range: ${startId} to ${endId}`);
+  // In a full implementation, this would create events or perform actions across the date range
+}
+
+// Toggle range selection mode
+window.toggleRangeSelection = function() {
+  isSelectingRange = !isSelectingRange;
+  if (!isSelectingRange) {
+    clearRangeSelection();
+  }
+  // showToast is imported at the top
+  showToast(isSelectingRange ? "Select range start date" : "Range selection cancelled");
+};
 
 export function setupAllEventListeners() {
   // Global keydown event for hotkeys
@@ -261,6 +309,7 @@ export function setupAllEventListeners() {
     if (!dayCell || !dayCell.id || dayCell.classList.contains("extra")) return;
     if (evt.target.tagName.toLowerCase() === "textarea") return;
 
+    // Use local isSelectingRange variable
     if (isSelectingRange) {
       handleRangeSelection(dayCell);
       return;
@@ -270,8 +319,21 @@ export function setupAllEventListeners() {
     const itemId = nextItemId();
     const note = generateItem(dayCell.id, itemId);
     if (note) {
-      recalculateHeight(note.id);
-      storeValueForItemId(note.id);
+      // Use the global recalculateHeight until properly imported
+      if (typeof window.recalculateHeight === 'function') {
+        window.recalculateHeight(note.id);
+      } else if (typeof recalculateHeight === 'function') {
+        recalculateHeight(note.id);
+      }
+      
+      // Use storeValueForItemId from state module if available
+      if (typeof window.storeValueForItemId === 'function') {
+        window.storeValueForItemId(note.id);
+      } else {
+        // Fallback to direct localStorage
+        localStorage.setItem(note.id, note.value || '');
+      }
+      
       note.focus();
     }
   });

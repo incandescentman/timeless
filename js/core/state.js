@@ -69,6 +69,9 @@ export function storeValueForItemId(itemId, value) {
   return true;
 }
 
+// Make this function available globally
+window.storeValueForItemId = storeValueForItemId;
+
 // Remove a value from localStorage and update parent references
 export function removeValueForItemId(itemId) {
   if (!itemId || !localStorage[itemId]) return;

@@ -52,6 +52,9 @@ export function recalculateHeight(itemId) {
   ta.style.height = (ta.scrollHeight + 5) + "px";
 }
 
+// Make this function available globally
+window.recalculateHeight = recalculateHeight;
+
 // Function to generate a new item (textarea) for a calendar day
 export function generateItem(parentId, itemId) {
   const item = document.createElement("textarea");
