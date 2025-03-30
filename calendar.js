@@ -2348,6 +2348,64 @@ function animateRowInsertion(row, direction = 'append') {
 
 // ========== WINDOW ONLOAD ==========
 
+/*
+ * =============================================================================
+ *   DEBUGGING NOTE: Data Disappearing on Refresh (Caching Issue) - SOLVED
+ * =============================================================================
+ *
+ * PROBLEM SYMPTOM:
+ *   - New calendar entries added on one device (e.g., a laptop browser)
+ *     would disappear after refreshing the page, even after waiting for
+ *     the server save confirmation.
+ *   - However, entries added on another device (e.g., iPhone Safari)
+ *     persisted correctly and synced between devices.
+ *
+ * ROOT CAUSE:
+ *   - Aggressive Browser Caching. The laptop browser was caching the GET
+ *     request response from `api.php` (which serves the `calendar_data.json` file).
+ *   - When the page was refreshed shortly after a save, the `window.onload`
+ *     function would initiate a fetch to `api.php`. Instead of getting the
+ *     *latest* data from the server (which reflected the recent save), the
+ *     browser served the *stale, cached* version from before the save.
+ *   - The original `window.onload` logic (before timestamp comparison was added)
+ *     would then often clear `localStorage` and populate it with this old,
+ *     cached data, effectively deleting the recent changes from the user's view.
+ *   - Different devices/browsers have varying default caching behaviors,
+ *     explaining why it worked on the iPhone but not the laptop initially.
+ *
+ * SOLUTION IMPLEMENTED:
+ *   1. Server-Side Cache Control Headers (in `api.php`):
+ *      - Added `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`,
+ *        `Pragma: no-cache`, and `Expires: 0` headers specifically for the
+ *        GET request handler. These headers explicitly instruct browsers *not*
+ *        to cache the response containing the calendar data. This is the
+ *        primary and most effective fix.
+ *
+ *   2. Client-Side Cache Busting (in `calendar.js`):
+ *      - Appended a unique timestamp query parameter (`?t=' + Date.now()`)
+ *        to the URLs used in `fetch` calls to `api.php` within both the
+ *        `window.onload` function and the `pullUpdatesFromServer` function.
+ *      - This makes each fetch URL unique (e.g., `api.php?t=1678886400123`),
+ *        further discouraging the browser from using a cached result. This acts
+ *        as a secondary layer of protection.
+ *
+ *   3. Robust `window.onload` Data Merging:
+ *      - Refactored the `window.onload` logic to first get the local timestamp,
+ *        then fetch server data, and *then* intelligently compare timestamps
+ *        *before* deciding whether to overwrite `localStorage`. It now only
+ *        clears local data if the server data is definitively newer. This makes
+ *        the loading process more resilient to timing issues and relies on the
+ *        correct data source.
+ *
+ * OUTCOME:
+ *   - With these changes, the browser is forced to fetch fresh data from the
+ *     server on page load and during syncs, preventing the stale cache issue.
+*
+ * =============================================================================
+ */
+
+
+
 window.onload = async function() {
     console.log("window.onload started.");
     // Ensure calendarTableElement is defined early, before any potential calendar operations
