@@ -2837,11 +2837,12 @@ async function downloadMarkdownEvents() {
 
 
 
+
+
 // ========== SERVER SYNC ==========
 
 /*
- * loadDataFromServer()
- *  - Fetches JSON from your server endpoint (e.g., 'api.php'), stores in localStorage.
+ * loadDataFromServer() - Stays the same (used for initial load)
  */
 async function loadDataFromServer() {
     try {
@@ -2859,74 +2860,154 @@ async function loadDataFromServer() {
 }
 
 /*
- * saveDataToServer()
- *  - Collects all localStorage into an object, POSTs to server.
+ * saveDataToServer() - Stays the same
  */
 async function saveDataToServer() {
     const allData = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        allData[key] = localStorage.getItem(key);
+        // Make sure not to send potentially sensitive handles if they exist
+        if (key !== "myDirectoryHandle") {
+            allData[key] = localStorage.getItem(key);
+        }
     }
+    // Update the timestamp *before* sending
+    allData['lastSavedTimestamp'] = Date.now().toString();
+    localStorage.setItem("lastSavedTimestamp", allData['lastSavedTimestamp']); // Update local immediately
+
+    console.log("Attempting to save data with timestamp:", allData['lastSavedTimestamp']);
+
     try {
         const resp = await fetch('api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(allData)
         });
-        const result = await resp.json();
-        console.log("Server save result:", result);
+        const result = await resp.json(); // Read the response from the enhanced api.php
+
+        // Check the server's response status
+        if (result.status === 'ok') {
+            console.log("Server save confirmed:", result);
+            // Optionally, update local timestamp again if server returned one,
+            // though setting it before send is usually sufficient.
+            // if (result.savedTimestamp) {
+            //    localStorage.setItem("lastSavedTimestamp", result.savedTimestamp);
+            // }
+        } else {
+            console.error("Server reported save error:", result);
+            showToast("Error: Server failed to save data.");
+            // Consider triggering an immediate pull or other recovery
+        }
+
     } catch (err) {
         console.error("Error saving to server:", err);
+        showToast("Network error saving data. Changes might be lost on refresh.");
+        // Maybe implement offline queuing later
     }
 }
 
-
-
 /*
- * pullUpdatesFromServer(confirmNeeded)
- *  - Optionally confirms, then fetches data from the server into localStorage.
+ * pullUpdatesFromServer(confirmNeeded = false) - ** USE THIS VERSION **
+ *  - Fetches data from server, compares timestamps, and merges safely or prompts user.
  */
 async function pullUpdatesFromServer(confirmNeeded = false) {
-    if (confirmNeeded) {
-        const confirmed = confirm("Pull server data? This may overwrite local changes if they're not saved.");
-        if (!confirmed) return;
-    }
+    let localTimestamp = parseInt(localStorage.getItem("lastSavedTimestamp") || "0", 10);
+    let manualPull = confirmNeeded; // Flag if user explicitly triggered this
+
+    console.log(`Pull initiated. Local TS: ${localTimestamp}. Manual: ${manualPull}`);
     showLoading();
+
     try {
         const response = await fetch('api.php');
-        const data = await response.json();
-        localStorage.clear();
-        for (let key in data) {
-            localStorage.setItem(key, data[key]);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        loadCalendarAroundDate(currentCalendarDate);
-        showToast("Pulled latest data from server");
+        const serverData = await response.json();
+        let serverTimestamp = parseInt(serverData["lastSavedTimestamp"] || "0", 10);
+
+        console.log(`Server responded. Server TS: ${serverTimestamp}`);
+
+        // --- Merge Logic ---
+        if (!serverTimestamp || serverTimestamp === 0) {
+             console.warn("Server data has no timestamp. Saving local data.");
+             showToast("Syncing local data to server...");
+             await saveDataToServer();
+        } else if (serverTimestamp > localTimestamp) {
+            // Server data is newer
+            console.log("Server data is newer.");
+            let doOverwrite = !manualPull; // Overwrite automatically on interval pulls
+
+            if (manualPull) { // Only confirm if user clicked the button
+                const overwrite = confirm(
+                    `Server data is newer (Server: ${new Date(serverTimestamp).toLocaleString()}, Local: ${new Date(localTimestamp).toLocaleString()}).\n\n` +
+                    "Pulling will overwrite any local changes made since the last successful save.\n\n" +
+                    "OK to pull and overwrite? (A local backup 'calendar_data_backup.json' will be downloaded first.)"
+                );
+                if (!overwrite) {
+                    showToast("Pull cancelled by user.");
+                    hideLoading();
+                    return;
+                }
+                // User confirmed, proceed with backup and apply
+                doOverwrite = true;
+                await downloadBackupAndApplyServerData(serverData); // Backup only needed on manual confirm
+                showToast("Local backup downloaded. Pulled latest data from server.");
+            }
+
+            if (doOverwrite && !manualPull) { // Apply automatically if interval pull & server newer
+                 console.log("Applying newer server data automatically.");
+                 applyServerData(serverData);
+                 showToast("Pulled latest data from server.");
+            } else if (doOverwrite && manualPull) {
+                // Data was already applied by downloadBackupAndApplyServerData
+            }
+
+        } else if (localTimestamp > serverTimestamp) {
+            // Local data is newer
+             console.log("Local data is newer than server. Triggering save.");
+             showToast("Local changes detected, syncing to server...");
+             await saveDataToServer(); // Attempt to push local changes
+             // *Don't* reload calendar here, save should just update server
+
+        } else {
+            // Timestamps match
+            console.log("Timestamps match. Data appears up-to-date.");
+             if(manualPull) showToast("Calendar is up-to-date."); // Only toast on manual pull
+        }
+
+        // Reload calendar view *only* if data was actually pulled and applied from server
+        if (serverTimestamp > localTimestamp) {
+            console.log("Reloading calendar view after applying server data.");
+            if (!(currentCalendarDate instanceof Date && !isNaN(currentCalendarDate))) {
+                 currentCalendarDate = new Date(systemToday);
+            }
+            loadCalendarAroundDate(currentCalendarDate); // Reload is needed here
+        } else {
+             console.log("No server data applied, skipping calendar reload.");
+        }
+
+
     } catch (err) {
-        console.error("Error pulling from server:", err);
-        showToast("Failed to pull updates from server");
+        console.error("Error pulling/merging from server:", err);
+        showToast("Failed to sync with server. Check console.");
     } finally {
         hideLoading();
     }
 }
 
-
-
-
-
-
 // Helper function to apply server data after potential backup
 async function downloadBackupAndApplyServerData(serverData) {
      try {
           console.log("Downloading local data backup...");
-          await downloadLocalStorageData("calendar_data_backup.json"); // Use modified download fn
+          // Ensure downloadLocalStorageData is defined and accepts filename
+          await downloadLocalStorageData("calendar_data_backup.json");
           console.log("Applying server data...");
           applyServerData(serverData);
      } catch(backupError) {
           console.error("Failed to create backup before overwrite:", backupError);
           showToast("Backup failed! Server data not applied.", 5000);
-          // Decide if you still want to apply server data even if backup fails - risky.
-          // For safety, we are *not* applying server data here if backup failed.
+          // Do not apply server data if backup failed
+          throw backupError; // Rethrow to prevent proceeding in pullUpdatesFromServer
      }
 }
 
@@ -2938,27 +3019,25 @@ function applyServerData(serverData) {
                localStorage.setItem(key, serverData[key]);
           }
      }
-     // Update local timestamp to match server
+     // Update local timestamp to match server's timestamp *that was just loaded*
      localStorage.setItem("lastSavedTimestamp", serverData["lastSavedTimestamp"] || Date.now().toString());
-     console.log("Server data applied locally.");
+     console.log("Server data applied locally. New local TS:", localStorage.getItem("lastSavedTimestamp"));
 }
 
-// Modify downloadLocalStorageData slightly to accept a filename
 /*
- * downloadLocalStorageData(filename = "calendar_data.json")
- *  - Saves a JSON snapshot of localStorage with the given filename.
+ * downloadLocalStorageData(filename = "calendar_data.json") - Stays the same
+ * (Make sure this function exists and works as posted previously)
  */
 async function downloadLocalStorageData(filename = "calendar_data.json") {
-     // No showLoading/hideLoading here, let calling function manage it
+     // ... (implementation from previous step) ...
      const data = {};
      for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          // Exclude the directory handle if it exists, not useful in JSON backup
-          if (key !== "myDirectoryHandle") {
+          if (key !== "myDirectoryHandle") { // Exclude directory handle if used
                data[key] = localStorage.getItem(key);
           }
      }
-     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); // Pretty print JSON
+     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
      const anchor = document.createElement("a");
      anchor.setAttribute("href", dataStr);
      anchor.setAttribute("download", filename);
@@ -2967,11 +3046,10 @@ async function downloadLocalStorageData(filename = "calendar_data.json") {
           try {
                anchor.click();
                anchor.remove();
-                // Add a small delay to ensure download starts before resolving
                setTimeout(() => {
                     console.log(`Triggered download for ${filename}`);
                     resolve();
-               }, 100); // 100ms delay
+               }, 100);
           } catch (err) {
                console.error(`Failed to trigger download for ${filename}:`, err);
                anchor.remove();
@@ -2979,4 +3057,4 @@ async function downloadLocalStorageData(filename = "calendar_data.json") {
           }
      });
 }
-
+ 
