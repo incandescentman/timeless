@@ -1899,48 +1899,59 @@ document.addEventListener("click", evt => {
  */
 
 
+/*
+ * jumpOneMonthForward()
+ *  - Calculates the next month based on currentCalendarDate and scrolls.
+ */
 function jumpOneMonthForward() {
-  if (!currentVisibleRow) return;
-  let year = parseInt(currentVisibleRow.dataset.year, 10);
-  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
+    // Base the jump on the current central date, not a potentially unreliable visible row
+    const currentYear = currentCalendarDate.getFullYear();
+    let currentMonth = currentCalendarDate.getMonth();
 
-  month++;
-  if (month > 11) {
-    month = 0;
-    year++;
-  }
+    let nextMonth = currentMonth + 1;
+    let nextYear = currentYear;
+    if (nextMonth > 11) {
+        nextMonth = 0;
+        nextYear++;
+    }
 
-  // Create a date object centered on the 1st of the target month
-  const nextDate = new Date(year, month, 1);
+    // Target the 1st of the next month
+    const nextDate = new Date(nextYear, nextMonth, 1);
+    currentCalendarDate = nextDate; // IMPORTANT: Update the global current date
 
-  // Reset the currentVisibleRow reference before navigating
-  currentVisibleRow = null;
+    // Reset visible row hint as we are navigating explicitly
+    currentVisibleRow = null;
 
-  // Then load calendar and scroll to the date
-  smoothScrollToDate(nextDate);
+    // Load and scroll smoothly
+    smoothScrollToDate(nextDate);
 }
 
+/*
+ * jumpOneMonthBackward()
+ *  - Calculates the previous month based on currentCalendarDate and scrolls.
+ */
 function jumpOneMonthBackward() {
-  if (!currentVisibleRow) return;
-  let year = parseInt(currentVisibleRow.dataset.year, 10);
-  let month = parseInt(currentVisibleRow.dataset.monthIndex, 10);
+    // Base the jump on the current central date
+    const currentYear = currentCalendarDate.getFullYear();
+    let currentMonth = currentCalendarDate.getMonth();
 
-  month--;
-  if (month < 0) {
-    month = 11;
-    year--;
-  }
+    let prevMonth = currentMonth - 1;
+    let prevYear = currentYear;
+    if (prevMonth < 0) {
+        prevMonth = 11;
+        prevYear--;
+    }
 
-  // Create a date object centered on the 1st of the target month
-  const prevDate = new Date(year, month, 1);
+    // Target the 1st of the previous month
+    const prevDate = new Date(prevYear, prevMonth, 1);
+    currentCalendarDate = prevDate; // IMPORTANT: Update the global current date
 
-  // Reset the currentVisibleRow reference before navigating
-  currentVisibleRow = null;
+    // Reset visible row hint
+    currentVisibleRow = null;
 
-  // Then load calendar and scroll to the date
-  smoothScrollToDate(prevDate);
+    // Load and scroll smoothly
+    smoothScrollToDate(prevDate);
 }
-
 
 
 /*
@@ -2104,11 +2115,7 @@ const throttledUpdateMiniCalendar = throttle(buildMiniCalendar, 300);
 let lastMiniCalendarMonth = null;
 
 /*
- * loadCalendarAroundDate(seedDate) - Modified to handle scrolling internally
- *  - Clears #calendar, sets firstDate/lastDate, loads weeks, scrolls to seedDate.
- */
-/*
- * loadCalendarAroundDate(seedDate) - Modified for more robust scrolling
+ * loadCalendarAroundDate(seedDate) - Enhanced robustness for mobile scrolling
  *  - Clears #calendar, sets firstDate/lastDate, loads weeks, scrolls accurately to seedDate.
  */
 function loadCalendarAroundDate(seedDate) {
@@ -2137,44 +2144,57 @@ function loadCalendarAroundDate(seedDate) {
 
     console.log(`Loading calendar around ${seedDate.toDateString()}. First loaded day will be ${firstDate.toDateString()}`);
 
-    let maxBatchIterations = 10;
+    let maxBatchIterations = 15; // Slightly increased max iterations
     let currentBatchIteration = 0;
+    const seedId = idForDate(seedDate); // Get target ID early
 
     // --- Batch Loading Function ---
     function loadBatch() {
         currentBatchIteration++;
         if (currentBatchIteration > maxBatchIterations) {
              console.warn("Max batch loading iterations reached. Stopping load.");
-             finishLoading();
+             finishLoading(false); // Pass flag indicating target might not exist
              return;
         }
 
         let batchCount = 0;
-        // Load enough content, maybe a bit more than just viewport height
-        const targetHeight = window.innerHeight * 2.0; // Increased multiplier
+        // Target height - aiming to load enough content around the seed date
+        const targetHeight = window.innerHeight * 2.0;
 
-        const weeksToAdd = 3;
+        // Add weeks - consider adding more if target date is far out? (Future enhancement)
+        const weeksToAdd = 4; // Add slightly more per batch
         for(let i = 0; i < weeksToAdd; i++) prependWeek();
         for(let i = 0; i < weeksToAdd; i++) appendWeek();
         batchCount += weeksToAdd * 2;
 
-        console.log(`Batch ${currentBatchIteration}: Added ${batchCount} weeks. Current scrollHeight: ${documentScrollHeight()}`);
+        console.log(`Batch ${currentBatchIteration}: Added ${batchCount} weeks. ScrollHeight: ${documentScrollHeight()}, Target Date ID: ${seedId}`);
 
+        // Use requestAnimationFrame to allow layout reflow
         requestAnimationFrame(() => {
-            if (documentScrollHeight() < targetHeight && currentBatchIteration <= maxBatchIterations) {
-                loadBatch();
+            // Check if target element exists OR if height target met
+            const targetElementExists = !!document.getElementById(seedId);
+            const currentHeight = documentScrollHeight();
+
+            // Conditions to continue loading:
+            // 1. Target element NOT found yet AND max iterations not reached
+            // 2. OR Height is still too small AND max iterations not reached
+             const shouldLoadMore = (!targetElementExists || currentHeight < targetHeight) && currentBatchIteration < maxBatchIterations;
+
+            if (shouldLoadMore) {
+                 console.log(`Target found: ${targetElementExists}, Height ${currentHeight} vs target ${targetHeight}. Loading next batch.`);
+                loadBatch(); // Load another batch
             } else {
-                 console.log(`Loading finished. Final height: ${documentScrollHeight()}`);
-                 finishLoading();
+                 console.log(`Loading finished. Target found: ${targetElementExists}, Final height: ${currentHeight}`);
+                 finishLoading(targetElementExists); // Pass whether the target was confirmed found
             }
         });
     }
 
     // --- Finish Loading Function ---
-    function finishLoading() {
-        recalculateAllHeights(); // *Step 1: Recalculate heights*
+    // Parameter 'targetWasFoundDuringLoad' indicates if the loop confirmed element existence
+    function finishLoading(targetWasFoundDuringLoad) {
+        recalculateAllHeights(); // Recalculate heights first
 
-        // Update UI elements that depend on layout
         updateStickyMonthHeader();
         if (currentCalendarDate instanceof Date && !isNaN(currentCalendarDate) && currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
             buildMiniCalendar();
@@ -2186,39 +2206,53 @@ function loadCalendarAroundDate(seedDate) {
 
         container.classList.remove('loading-calendar');
 
-        // *Step 2 & 3: Get element and calculate position AFTER heights adjusted*
-        const seedId = idForDate(seedDate);
+        // Attempt to find the element again *after* recalculateAllHeights
         const elem = document.getElementById(seedId);
 
         if (elem) {
-            // Use rAF to ensure calculations happen after potential reflow from recalculateAllHeights
+             console.log(`Final check: Element ${seedId} confirmed in DOM.`);
+             // Use rAF for final layout stability before calculating scroll position
             requestAnimationFrame(() => {
-                const targetY = scrollPositionForElement(elem); // *Calculate precise target Y*
-                console.log(`Scrolling instantly via scrollTo to seed date element: ${seedId} at Y: ${targetY}`);
+                 // --- Fixed Header Adjustment ---
+                 // Try to get the visible height of your fixed header.
+                 // Adjust the selector '#header' if your fixed header has a different ID/class.
+                 const headerElement = document.getElementById('header');
+                 // Only subtract height if header is actually displayed (not hidden on mobile)
+                 const fixedHeaderHeight = (headerElement && headerElement.offsetParent !== null) ? headerElement.offsetHeight : 0;
+                 console.log(`Fixed Header Height detected: ${fixedHeaderHeight}`);
 
-                // *Step 4: Scroll directly*
+                const targetY = scrollPositionForElement(elem) - fixedHeaderHeight; // Adjust for header
+                console.log(`Scrolling instantly via scrollTo to adjusted Y: ${targetY}`);
+
                 window.scrollTo({ top: targetY, behavior: 'auto' });
 
-                // *Step 5: Optional - Verify and adjust slightly after scroll*
-                // Add a tiny delay to allow the initial scroll to settle
+                // Verification/Adjustment Step
                 setTimeout(() => {
+                    // Re-check position relative to viewport *after* initial scroll and header adjustment
                     const rect = elem.getBoundingClientRect();
-                    const viewHeight = window.innerHeight;
-                    const elementCenter = rect.top + rect.height / 2;
-                    const viewportCenter = viewHeight / 2;
-                    const offset = elementCenter - viewportCenter;
+                    const adjustedViewportHeight = window.innerHeight - fixedHeaderHeight; // Center within visible area
+                    const elementCenterInViewport = rect.top + rect.height / 2 - fixedHeaderHeight;
+                    const viewportCenter = adjustedViewportHeight / 2;
+                    const offset = elementCenterInViewport - viewportCenter;
 
-                    // If it's still significantly off center (e.g., > 10 pixels), make a small adjustment
-                    if (Math.abs(offset) > 10) {
-                        console.log(`Adjusting scroll by ${-offset} pixels.`);
-                        window.scrollBy({ top: -offset, behavior: 'auto' }); // Changed behavior to 'auto' for faster adjustment
+                    if (Math.abs(offset) > 15) { // Increased threshold slightly
+                        console.log(`Final adjustment scroll by ${-offset} pixels.`);
+                        window.scrollBy({ top: -offset, behavior: 'auto' });
+                    } else {
+                         console.log("Element is reasonably centered after initial scroll.");
                     }
                     hideLoading(); // Hide loading *after* final positioning
-                }, 50); // Short delay for adjustment check
+                }, 100); // Slightly longer delay for verification on mobile
 
             });
         } else {
-             console.warn(`Seed date element ${seedId} not found after load! Cannot scroll.`);
+             console.warn(`Seed date element ${seedId} not found even after loading finished! Was targetWasFoundDuringLoad=${targetWasFoundDuringLoad}. Cannot scroll.`);
+             // Provide feedback to user if target wasn't found
+             if (!targetWasFoundDuringLoad) {
+                 showToast(`Could not load data far enough for ${seedDate.toLocaleDateString()}.`);
+             } else {
+                 showToast(`Error finding target date ${seedDate.toLocaleDateString()} to scroll.`);
+             }
              window.scrollTo(0, 0); // Fallback scroll to top
              hideLoading();
         }
