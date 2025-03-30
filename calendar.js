@@ -144,24 +144,36 @@ function hideLoading() {
     document.getElementById('loadingIndicator').classList.remove('active');
 }
 
+
+
+
 /*
  * showToast(message, duration)
  *  - Shows a temporary message pop-up (toast) in the corner.
+ *  - Prevents stacking by clearing existing toasts before displaying a new one.
  */
-function showToast(message, duration=3000) {
+function showToast(message, duration = 3000) {
     let toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.id = 'toast-container';
         document.body.appendChild(toastContainer);
     }
+
+    // Clear any existing toasts in the container before adding a new one
+    while (toastContainer.firstChild) {
+        toastContainer.removeChild(toastContainer.firstChild);
+    }
+
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
     toastContainer.appendChild(toast);
 
     // Animate in
-    requestAnimationFrame(() => { toast.style.opacity = '1'; });
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+    });
 
     // After "duration" ms, fade out
     setTimeout(() => {
@@ -173,6 +185,8 @@ function showToast(message, duration=3000) {
         }, 300);
     }, duration);
 }
+
+
 
 /*
  * documentScrollTop(), documentScrollHeight()
@@ -2026,9 +2040,7 @@ function jumpOneMonthBackward() {
 
 
 
-
-
-/* 
+/*
  * smoothScrollToDate(dateObj)
  *  - A version of loadCalendarAroundDate optimized for month navigation
  *  - Reduces visible redrawing and uses smooth animations
