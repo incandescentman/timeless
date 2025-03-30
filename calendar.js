@@ -122,6 +122,34 @@ function waitForElementAndScroll(elementId, scrollOptions = { behavior: "auto", 
     });
 }
 
+
+
+
+/*
+ * idForDate(date)
+ *  - Returns e.g. "2_14_2025" for a Feb 14, 2025.
+ */
+function idForDate(date) {
+    return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
+}
+
+/*
+ * parseDateFromId(idStr)
+ *  - Reverse of the above: "2_14_2025" => "2025-03-14"
+ */
+function parseDateFromId(idStr) {
+    const parts = idStr.split("_");
+    if (parts.length !== 3) return null;
+    const [month, day, year] = parts.map(Number);
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+
+
+
+
+
+
 /*
  * showHelp(), hideHelp()
  *  - Show/hide the "help" overlay.
@@ -143,6 +171,7 @@ function showLoading() {
 function hideLoading() {
     document.getElementById('loadingIndicator').classList.remove('active');
 }
+
 
 
 
@@ -2203,6 +2232,17 @@ function jumpToDate() {
 }
 
 
+
+/*
+ * nextItemId()
+ *  - Generates a unique ID for a new note item. Stored in localStorage.nextId.
+ */
+function nextItemId() {
+    localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
+    return "item" + localStorage.nextId;
+}
+
+
 // ========== LOADING THE CALENDAR ==========
 
 const throttledUpdateMiniCalendar = throttle(buildMiniCalendar, 300);
@@ -2439,24 +2479,6 @@ function checkInfiniteScroll() {
     }
 }
 
-/*
- * idForDate(date)
- *  - Returns e.g. "2_14_2025" for a Feb 14, 2025.
- */
-function idForDate(date) {
-    return date.getMonth() + "_" + date.getDate() + "_" + date.getFullYear();
-}
-
-/*
- * parseDateFromId(idStr)
- *  - Reverse of the above: "2_14_2025" => "2025-03-14"
- */
-function parseDateFromId(idStr) {
-    const parts = idStr.split("_");
-    if (parts.length !== 3) return null;
-    const [month, day, year] = parts.map(Number);
-    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-}
 
 /*
  * getAdjustedDayIndex(date)
@@ -2995,8 +3017,4 @@ async function downloadLocalStorageData(filename = "calendar_data.json") {
           }
      });
 }
-
-
-// Also remove the standalone downloadBackupStorageData function as it's now integrated
-// Find and DELETE the old downloadBackupStorageData function.
 
