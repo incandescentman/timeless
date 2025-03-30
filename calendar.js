@@ -2885,73 +2885,39 @@ async function saveDataToServer() {
  * pullUpdatesFromServer(confirmNeeded = false)
  *  - Fetches data from server, compares timestamps, and merges safely or prompts user.
  */
-async function pullUpdatesFromServer(confirmNeeded = false) {
-    let localTimestamp = parseInt(localStorage.getItem("lastSavedTimestamp") || "0", 10);
-    let confirmed = !confirmNeeded; // If confirmation isn't needed (e.g., initial load), proceed
 
+
+/*
+ * pullUpdatesFromServer(confirmNeeded)
+ *  - Optionally confirms, then fetches data from the server into localStorage.
+ */
+async function pullUpdatesFromServer(confirmNeeded = false) {
+    if (confirmNeeded) {
+        const confirmed = confirm("Pull server data? This may overwrite local changes if they're not saved.");
+        if (!confirmed) return;
+    }
     showLoading();
     try {
         const response = await fetch('api.php');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const serverData = await response.json();
-        let serverTimestamp = parseInt(serverData["lastSavedTimestamp"] || "0", 10);
-
-        console.log(`Local Timestamp: ${localTimestamp}, Server Timestamp: ${serverTimestamp}`);
-
-        // --- Merge Logic ---
-        if (serverTimestamp > localTimestamp) {
-            // Server data is potentially newer
-            if (!confirmed) {
-                const overwrite = confirm(
-                    `Server data is newer (Server: ${new Date(serverTimestamp).toLocaleString()}, Local: ${new Date(localTimestamp).toLocaleString()}).\n\n` +
-                    "Pulling will overwrite any local changes made since the last successful save.\n\n" +
-                    "OK to pull and overwrite? (A local backup 'calendar_data_backup.json' will be downloaded first.)"
-                );
-                if (!overwrite) {
-                    showToast("Pull cancelled by user.");
-                    hideLoading();
-                    return;
-                }
-                // User confirmed overwrite, proceed to download backup
-                await downloadBackupAndApplyServerData(serverData); // Use helper
-                showToast("Local backup downloaded. Pulled latest data from server.");
-
-            } else {
-                // No confirmation needed, but server is newer, so apply changes
-                console.log("Server data is newer, applying automatically.");
-                applyServerData(serverData); // Overwrite local with server data
-                // No backup needed here as it wasn't explicitly requested by user action
-                 showToast("Pulled latest data from server.");
-            }
-
-        } else if (localTimestamp > serverTimestamp) {
-            // Local data is newer, likely needs saving
-             console.log("Local data is newer than server. Triggering save.");
-             showToast("Local changes detected, attempting to save to server...");
-             await saveDataToServer(); // Attempt to push local changes
-
-        } else {
-            // Timestamps match, data is likely in sync
-            console.log("Timestamps match. Data appears up-to-date.");
-             showToast("Calendar is up-to-date.");
-        }
-
-        // Always reload the calendar view after potential changes or checks
-        // Ensure currentCalendarDate is valid before reloading
-        if (!(currentCalendarDate instanceof Date && !isNaN(currentCalendarDate))) {
-             currentCalendarDate = new Date(systemToday);
+        const data = await response.json();
+        localStorage.clear();
+        for (let key in data) {
+            localStorage.setItem(key, data[key]);
         }
         loadCalendarAroundDate(currentCalendarDate);
-
+        showToast("Pulled latest data from server");
     } catch (err) {
-        console.error("Error pulling/merging from server:", err);
-        showToast("Failed to sync with server. Check console.");
+        console.error("Error pulling from server:", err);
+        showToast("Failed to pull updates from server");
     } finally {
         hideLoading();
     }
 }
+
+
+
+
+
 
 // Helper function to apply server data after potential backup
 async function downloadBackupAndApplyServerData(serverData) {
