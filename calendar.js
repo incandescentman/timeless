@@ -2104,13 +2104,12 @@ const throttledUpdateMiniCalendar = throttle(buildMiniCalendar, 300);
 let lastMiniCalendarMonth = null;
 
 /*
- * loadCalendarAroundDate(seedDate)
- *  - Clears #calendar, sets firstDate to the Monday of that week, and loads enough weeks to fill screen.
- */
-
-/*
  * loadCalendarAroundDate(seedDate) - Modified to handle scrolling internally
  *  - Clears #calendar, sets firstDate/lastDate, loads weeks, scrolls to seedDate.
+ */
+/*
+ * loadCalendarAroundDate(seedDate) - Modified for more robust scrolling
+ *  - Clears #calendar, sets firstDate/lastDate, loads weeks, scrolls accurately to seedDate.
  */
 function loadCalendarAroundDate(seedDate) {
     // Ensure seedDate is valid
@@ -2138,7 +2137,6 @@ function loadCalendarAroundDate(seedDate) {
 
     console.log(`Loading calendar around ${seedDate.toDateString()}. First loaded day will be ${firstDate.toDateString()}`);
 
-    // Use a counter to prevent infinite loops in loadBatch if height calculation is off
     let maxBatchIterations = 10;
     let currentBatchIteration = 0;
 
@@ -2152,70 +2150,84 @@ function loadCalendarAroundDate(seedDate) {
         }
 
         let batchCount = 0;
-        const initialHeight = documentScrollHeight();
-        // Target height slightly more than viewport to ensure scrollbars appear if needed
-        const targetHeight = window.innerHeight + 200;
+        // Load enough content, maybe a bit more than just viewport height
+        const targetHeight = window.innerHeight * 2.0; // Increased multiplier
 
-        // Keep adding weeks until screen is sufficiently filled or max additions reached
-        const weeksToAdd = 3; // Add a few weeks above and below in each batch
+        const weeksToAdd = 3;
         for(let i = 0; i < weeksToAdd; i++) prependWeek();
         for(let i = 0; i < weeksToAdd; i++) appendWeek();
         batchCount += weeksToAdd * 2;
 
         console.log(`Batch ${currentBatchIteration}: Added ${batchCount} weeks. Current scrollHeight: ${documentScrollHeight()}`);
 
-        // Use requestAnimationFrame to allow layout reflow before checking height again
         requestAnimationFrame(() => {
             if (documentScrollHeight() < targetHeight && currentBatchIteration <= maxBatchIterations) {
-                // Ensure enough content loaded or max iterations not reached
-                 console.log(`Height ${documentScrollHeight()} still less than target ${targetHeight}. Loading next batch.`);
-                 loadBatch(); // Load another batch
+                loadBatch();
             } else {
                  console.log(`Loading finished. Final height: ${documentScrollHeight()}`);
-                 finishLoading(); // Finish loading process
+                 finishLoading();
             }
         });
     }
 
     // --- Finish Loading Function ---
     function finishLoading() {
-        recalculateAllHeights(); // Recalculate heights after all rows added
-        updateStickyMonthHeader(); // Update header based on final layout
+        recalculateAllHeights(); // *Step 1: Recalculate heights*
 
-        // Rebuild mini-calendar if our month changed
-        // Ensure currentCalendarDate is valid before accessing getMonth()
+        // Update UI elements that depend on layout
+        updateStickyMonthHeader();
         if (currentCalendarDate instanceof Date && !isNaN(currentCalendarDate) && currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
             buildMiniCalendar();
             lastMiniCalendarMonth = currentCalendarDate.getMonth();
         }
-
-
-        // If we were using keyboardFocusDate, highlight that day
         if (keyboardFocusDate) {
             highlightKeyboardFocusedDay();
         }
 
         container.classList.remove('loading-calendar');
 
-        // Scroll to the initial seedDate *after* loading is complete
+        // *Step 2 & 3: Get element and calculate position AFTER heights adjusted*
         const seedId = idForDate(seedDate);
         const elem = document.getElementById(seedId);
+
         if (elem) {
-             console.log(`Scrolling instantly via scrollIntoView to seed date element: ${seedId}`);
-             // Use scrollIntoView for potentially better cross-browser/mobile initial positioning
-             elem.scrollIntoView({ behavior: 'auto', block: 'center' });
+            // Use rAF to ensure calculations happen after potential reflow from recalculateAllHeights
+            requestAnimationFrame(() => {
+                const targetY = scrollPositionForElement(elem); // *Calculate precise target Y*
+                console.log(`Scrolling instantly via scrollTo to seed date element: ${seedId} at Y: ${targetY}`);
+
+                // *Step 4: Scroll directly*
+                window.scrollTo({ top: targetY, behavior: 'auto' });
+
+                // *Step 5: Optional - Verify and adjust slightly after scroll*
+                // Add a tiny delay to allow the initial scroll to settle
+                setTimeout(() => {
+                    const rect = elem.getBoundingClientRect();
+                    const viewHeight = window.innerHeight;
+                    const elementCenter = rect.top + rect.height / 2;
+                    const viewportCenter = viewHeight / 2;
+                    const offset = elementCenter - viewportCenter;
+
+                    // If it's still significantly off center (e.g., > 10 pixels), make a small adjustment
+                    if (Math.abs(offset) > 10) {
+                        console.log(`Adjusting scroll by ${-offset} pixels.`);
+                        window.scrollBy({ top: -offset, behavior: 'auto' }); // Changed behavior to 'auto' for faster adjustment
+                    }
+                    hideLoading(); // Hide loading *after* final positioning
+                }, 50); // Short delay for adjustment check
+
+            });
         } else {
              console.warn(`Seed date element ${seedId} not found after load! Cannot scroll.`);
-             // Attempt to scroll to top as fallback if seed date not found
-             window.scrollTo(0, 0);
+             window.scrollTo(0, 0); // Fallback scroll to top
+             hideLoading();
         }
-        hideLoading(); // Hide loading indicator *after* scrolling attempts
     }
 
     // Start the batch loading process
     loadBatch();
 }
-
+ 
 
 /*
  * setupScrollObservers()
