@@ -313,7 +313,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
 
-/* 
+/*
  * toggleDarkMode()
  *  - Toggles a .dark-mode body class and saves preference in localStorage.
  */
@@ -1927,19 +1927,14 @@ document.addEventListener("click", evt => {
 });
 
 
-/*
- * jumpOneMonthForward(), jumpOneMonthBackward()
- *  - Use the row's monthIndex/year to figure out the next/previous month's 1st day,
- *    then call smoothScrollToDate().
- */
 
 
 /*
  * jumpOneMonthForward()
- *  - Calculates the next month based on currentCalendarDate and scrolls.
+ *  - Smoothly navigates to the next month without full calendar redraw
  */
 function jumpOneMonthForward() {
-    // Base the jump on the current central date, not a potentially unreliable visible row
+    // Calculate next month based on currentCalendarDate
     const currentYear = currentCalendarDate.getFullYear();
     let currentMonth = currentCalendarDate.getMonth();
 
@@ -1952,21 +1947,48 @@ function jumpOneMonthForward() {
 
     // Target the 1st of the next month
     const nextDate = new Date(nextYear, nextMonth, 1);
-    currentCalendarDate = nextDate; // IMPORTANT: Update the global current date
 
-    // Reset visible row hint as we are navigating explicitly
+    // On mobile, we want to avoid full calendar rebuild if possible
+    if (window.innerWidth <= 768) {
+        // Instead of calling loadCalendarAroundDate (which rebuilds everything),
+        // we can check if the target date is already in the DOM
+        const targetId = idForDate(nextDate);
+        const targetElement = document.getElementById(targetId);
+
+        if (targetElement) {
+            // If the element exists, just update currentCalendarDate and scroll
+            showToast(`Going to ${months[nextMonth]} ${nextYear}`);
+            currentCalendarDate = nextDate;
+
+            // Use smooth scrolling behavior
+            targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+            // Update UI elements if needed (like sticky header)
+            setTimeout(updateStickyMonthHeader, 300);
+            return;
+        }
+    }
+
+    // If target not found or not on mobile, update and use standard navigation
+    currentCalendarDate = nextDate;
     currentVisibleRow = null;
 
-    // Load and scroll smoothly
-    smoothScrollToDate(nextDate);
+    // Show a subtle indicator that we're changing months
+    showToast(`Going to ${months[nextMonth]} ${nextYear}`);
+
+    // Use the smooth scroll method (modified to be less disruptive)
+    smoothNavigateToMonth(nextDate);
 }
 
 /*
  * jumpOneMonthBackward()
- *  - Calculates the previous month based on currentCalendarDate and scrolls.
+ *  - Smoothly navigates to the previous month without full calendar redraw
  */
 function jumpOneMonthBackward() {
-    // Base the jump on the current central date
+    // Calculate previous month based on currentCalendarDate
     const currentYear = currentCalendarDate.getFullYear();
     let currentMonth = currentCalendarDate.getMonth();
 
@@ -1979,14 +2001,123 @@ function jumpOneMonthBackward() {
 
     // Target the 1st of the previous month
     const prevDate = new Date(prevYear, prevMonth, 1);
-    currentCalendarDate = prevDate; // IMPORTANT: Update the global current date
 
-    // Reset visible row hint
+    // On mobile, we want to avoid full calendar rebuild if possible
+    if (window.innerWidth <= 768) {
+        // Check if the target date is already in the DOM
+        const targetId = idForDate(prevDate);
+        const targetElement = document.getElementById(targetId);
+
+        if (targetElement) {
+            // If the element exists, just update currentCalendarDate and scroll
+            showToast(`Going to ${months[prevMonth]} ${prevYear}`);
+            currentCalendarDate = prevDate;
+
+            // Use smooth scrolling behavior
+            targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+            // Update UI elements if needed
+            setTimeout(updateStickyMonthHeader, 300);
+            return;
+        }
+    }
+
+    // If target not found or not on mobile, update and use standard navigation
+    currentCalendarDate = prevDate;
     currentVisibleRow = null;
 
-    // Load and scroll smoothly
-    smoothScrollToDate(prevDate);
+    // Show a subtle indicator that we're changing months
+    showToast(`Going to ${months[prevMonth]} ${prevYear}`);
+
+    // Use the smooth scroll method (modified to be less disruptive)
+    smoothNavigateToMonth(prevDate);
 }
+
+/*
+ * smoothNavigateToMonth(dateObj)
+ *  - A gentler version of smoothScrollToDate that minimizes redrawing
+ */
+function smoothNavigateToMonth(dateObj) {
+    showLoading();
+
+    // First, try to find if month is already loaded
+    const targetId = idForDate(dateObj);
+    const targetElement = document.getElementById(targetId);
+
+    if (targetElement) {
+        // If already in DOM, just scroll to it
+        targetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        setTimeout(() => {
+            hideLoading();
+        }, 300);
+        return;
+    }
+
+    // If we need to reload, use a hybrid approach:
+    // 1. First try to append/prepend necessary weeks
+    // 2. Only rebuild completely if needed
+
+    // Calculate whether we need to go forward or backward from current
+    let monthDiff = 0;
+    if (firstDate && lastDate) {
+        // Check if dateObj is after the last loaded date
+        if (dateObj > lastDate) {
+            // Extend forward by appending weeks
+            const weeksToAdd = Math.ceil((dateObj - lastDate) / (7 * 86400000));
+            for (let i = 0; i < weeksToAdd + 2; i++) { // Add a couple extras for buffer
+                appendWeek();
+            }
+        }
+        // Check if dateObj is before the first loaded date
+        else if (dateObj < firstDate) {
+            // Extend backward by prepending weeks
+            const weeksToAdd = Math.ceil((firstDate - dateObj) / (7 * 86400000));
+            for (let i = 0; i < weeksToAdd + 2; i++) {
+                prependWeek();
+            }
+        }
+    }
+
+    // Now check if our target is loaded
+    const newTargetElement = document.getElementById(targetId);
+
+    if (newTargetElement) {
+        // Success! Scroll to it
+        newTargetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        setTimeout(() => {
+            hideLoading();
+            updateStickyMonthHeader();
+        }, 300);
+    } else {
+        // Still not found, fall back to full rebuild
+        loadCalendarAroundDate(dateObj);
+
+        setTimeout(() => {
+            const elem = document.getElementById(targetId);
+            if (elem) {
+                elem.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+            hideLoading();
+        }, 500);
+    }
+}
+
+
+
 
 
 /*
@@ -1995,7 +2126,7 @@ function jumpOneMonthBackward() {
  */
 function smoothScrollToDate(dateObj) {
     showLoading();
-    loadCalendarAroundDate(dateObj); // Rebuilds calendar around the target
+    loadCalendarAroundDate(dateObj); // Rebuilds calendar around the target 
 
     // loadCalendarAroundDate handles initial scroll. If a smooth animation
     // is *required* after load, use waitForElementAndScroll here.
