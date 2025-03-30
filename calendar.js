@@ -247,26 +247,39 @@ function scrollToToday() {
     hideLoading();
 }
 
+
+
 /*
  * goToTodayAndRefresh()
  *  - Smoothly animates to the row containing "currentCalendarDate".
  */
-
 function goToTodayAndRefresh() {
-    // 1. Reset currentCalendarDate to the actual systemToday
+    // Ensure calendarTableElement is defined before use (CRITICAL!)
+    calendarTableElement = document.getElementById("calendar");
+    if (!calendarTableElement) {
+        console.error("Error: #calendar element not found!");
+        return; // Exit early if calendar isn't present
+    }
+
+    // Update systemToday to the current date in case the page has been open for multiple days
+    const now = new Date();
+    systemToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    systemToday.setHours(0, 0, 0, 0);
+
+    // Reset currentCalendarDate to actual system today
     currentCalendarDate = new Date(systemToday);
 
-    // 2. Clear any existing "currentVisibleRow"
+    // Reset currentVisibleRow so we don't scroll to an old row
     currentVisibleRow = null;
 
-    // 3. Scroll to top right away
+    // Clear any previous scroll position
     window.scrollTo(0, 0);
 
-    // 4. Clear the current table and rebuild with "today" in the middle
+    // Completely rebuild the calendar with today at the center
     calendarTableElement.innerHTML = "";
     loadCalendarAroundDate(currentCalendarDate);
 
-    // 5. After a short delay (e.g., 500ms), call scrollIntoView
+    // Increase delay to ensure calendar has time to render
     setTimeout(() => {
         const elem = document.getElementById(idForDate(currentCalendarDate));
         if (elem) {
@@ -274,7 +287,11 @@ function goToTodayAndRefresh() {
         }
     }, 500);
 }
-/* 
+ 
+
+
+
+/*
  * toggleDarkMode()
  *  - Toggles a .dark-mode body class and saves preference in localStorage.
  */
