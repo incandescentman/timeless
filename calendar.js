@@ -2336,21 +2336,23 @@ function downloadBackupStorageData() {
 }
 
 
-
-
 // ========== MARKDOWN EXPORT ==========
 
 /*
  * downloadMarkdownEvents()
- *  - Gathers events from localStorage, organizes by year/month/day, and optionally saves to user-chosen directory.
+ *  - Gathers events from localStorage, organizes by year/month/day,
+ *    formats as Markdown, and triggers a direct download.
  */
 
 async function downloadMarkdownEvents() {
+    showLoading(); // Show loading indicator
+
     // 1) Gather date => [events] from localStorage
     const dateMap = {};
     for (let key in localStorage) {
         if (!localStorage.hasOwnProperty(key)) continue;
-        if (/^\d+_\d+_\d+$/.test(key)) {
+        // Regex ensures we only grab keys like M_D_YYYY (month/day can be 1 or 2 digits)
+        if (/^\d{1,2}_\d{1,2}_\d{4}$/.test(key)) {
             const itemIds = localStorage[key].split(",");
             const events = [];
             for (let eid of itemIds) {
@@ -2369,9 +2371,10 @@ async function downloadMarkdownEvents() {
     const structured = {};
     for (let dateKey in dateMap) {
         const [m, d, y] = dateKey.split("_").map(Number);
+        // Ensure we use the correct date parts (month is 0-indexed for Date constructor)
         const dt = new Date(y, m, d);
         const year = dt.getFullYear();
-        const month = dt.getMonth();
+        const month = dt.getMonth(); // 0-11
         const day = dt.getDate();
 
         if (!structured[year]) structured[year] = {};
@@ -2379,117 +2382,91 @@ async function downloadMarkdownEvents() {
         structured[year][month].push({ day, events: dateMap[dateKey] });
     }
 
-    // Build markdown lines
+    // Build the output lines in the desired format
     const monthsArr = [
         "January","February","March","April","May","June",
         "July","August","September","October","November","December"
     ];
     const years = Object.keys(structured).map(Number).sort((a, b) => a - b);
-    let mdLines = [];
+    let outputLines = [];
 
     for (let y of years) {
-        mdLines.push(`# ${y}`);
+        // Add blank line before new year if not the first year
+        if (outputLines.length > 0) {
+             outputLines.push("");
+        }
+        outputLines.push(`# ${y}`); // # Year heading
         const monthsInYear = Object.keys(structured[y]).map(Number).sort((a, b) => a - b);
+
         for (let m of monthsInYear) {
-            mdLines.push(`* ${monthsArr[m]} ${y}`);
-            structured[y][m].sort((a, b) => a.day - b.day);
+            outputLines.push(""); // Blank line before month heading
+            outputLines.push(`** ${monthsArr[m]} ${y}`); // ** Month Year heading
+            structured[y][m].sort((a, b) => a.day - b.day); // Sort days within the month
+
             structured[y][m].forEach(obj => {
+                // Format date as M/D/YYYY (no leading zeros)
                 const dayStr = `${m + 1}/${obj.day}/${y}`;
-                mdLines.push(dayStr);
+                outputLines.push(dayStr); // Date line
+
                 obj.events.forEach(ev => {
-                    mdLines.push(`  - ${ev}`);
+                    // Format each event indented with two spaces and starting with '- '
+                    // Ensure we don't double up the '- ' if it's already there
+                    const eventText = ev.trim().startsWith('- ') ? ev.trim().substring(2) : ev.trim();
+                    outputLines.push(`  - ${eventText}`);
                 });
-                mdLines.push("");
+                // No extra blank line needed here, the one before the next day/month handles spacing
             });
         }
     }
-    const finalText = mdLines.join("\n");
+    const finalText = outputLines.join("\n");
 
-    // 3) Try to restore a stored directory handle
-    let dirHandle = null;
-    const stored = localStorage.getItem("myDirectoryHandle");
-    if (stored) {
-        try {
-            dirHandle = await restoreDirectoryHandle(stored);
-            const perm = await dirHandle.requestPermission({ mode: "readwrite" });
-            if (perm !== "granted") {
-                throw new Error("Permission was not granted for readwrite");
-            }
-        } catch (err) {
-            console.warn("Failed to restore directory handle:", err);
-            dirHandle = null;
-        }
-    }
-
-    // 4) If no handle, ask the user to pick a directory
-    if (!dirHandle) {
-        try {
-            dirHandle = await window.showDirectoryPicker();
-            const perm = await dirHandle.requestPermission({ mode: "readwrite" });
-            if (perm !== "granted") {
-                throw new Error("Permission was not granted for readwrite");
-            }
-            const serialized = await serializeDirectoryHandle(dirHandle);
-            localStorage.setItem("myDirectoryHandle", serialized);
-            debouncedServerSave();
-        } catch (err) {
-            console.error("User canceled picking directory or permission denied:", err);
-            showToast("Canceled or no permission to pick directory; falling back to download");
-
-            // Fallback: download file to Downloads via data URL
-            const dataStr = "data:text/markdown;charset=utf-8," + encodeURIComponent(finalText);
-            const anchor = document.createElement("a");
-            anchor.setAttribute("href", dataStr);
-            anchor.setAttribute("download", "jay-diary.md");
-            document.body.appendChild(anchor);
-            anchor.click();
-            anchor.remove();
-
-            // Also attempt to copy to clipboard
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(finalText)
-                    .then(() => showToast("Markdown events copied to clipboard!"))
-                    .catch(err => console.error("Clipboard copy failed:", err));
-            }
-            return;
-        }
-    }
-
-    // 5) Write "jay-diary.md" in the chosen directory
+    // 3) Trigger direct download using a data URL
     try {
-        const fileHandle = await dirHandle.getFileHandle("jay-diary.md", { create: true });
-        const writable = await fileHandle.createWritable();
-        await writable.write(finalText);
-        await writable.close();
-        showToast("Saved 'jay-diary.md' to your chosen folder!");
+        const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(finalText); // Use text/plain for diary
+        const anchor = document.createElement("a");
+        anchor.setAttribute("href", dataStr);
+        anchor.setAttribute("download", "jay-diary.md"); // Keep .md extension or change to .txt? User wants .md.
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        showToast("Downloading 'jay-diary.md'");
+
     } catch (err) {
-        console.error("Error writing file:", err);
-        showToast("Error writing file to directory");
+        console.error("Error triggering download:", err);
+        showToast("Error preparing download.");
+        hideLoading();
+        return;
     }
 
-    // 6) Also copy the markdown text to clipboard
+    // 4) Also attempt to copy the text to clipboard
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(finalText)
-            .then(() => showToast("Markdown events copied to clipboard!"))
-            .catch(err => console.error("Clipboard copy failed:", err));
-    } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = finalText;
-        textArea.style.position = "fixed";
-        textArea.style.opacity = "0";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
         try {
-            document.execCommand("copy");
-            showToast("Markdown events copied to clipboard!");
+            await navigator.clipboard.writeText(finalText);
+            showToast("'jay-diary.md' downloaded & copied to clipboard!");
         } catch (err) {
-            console.error("Fallback: Unable to copy", err);
+            console.error("Clipboard copy failed:", err);
+            showToast("'jay-diary.md' downloaded (clipboard copy failed)");
         }
-        document.body.removeChild(textArea);
+    } else {
+        // Fallback clipboard copy
+         try {
+            const textArea = document.createElement("textarea");
+            textArea.value = finalText;
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showToast("'jay-diary.md' downloaded & copied (fallback method)!");
+         } catch (err) {
+            console.error("Fallback clipboard copy failed:", err);
+         }
     }
-}
 
+    hideLoading(); // Hide loading indicator
+}
 
 
 
