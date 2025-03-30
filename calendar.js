@@ -2834,7 +2834,8 @@ async function pullUpdatesFromServer(confirmNeeded = false) {
     showLoading();
 
     try {
-        const response = await fetch('api.php');
+        const fetchURL = 'api.php?t=' + Date.now(); // <<< ADD THIS LINE
+        const response = await fetch(fetchURL);    // <<< USE THE VARIABLE HERE
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -2910,6 +2911,9 @@ async function pullUpdatesFromServer(confirmNeeded = false) {
         hideLoading();
     }
 }
+
+
+
 
 // Helper function to apply server data after potential backup
 async function downloadBackupAndApplyServerData(serverData) {
