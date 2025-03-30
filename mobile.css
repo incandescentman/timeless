@@ -8,6 +8,16 @@ html, body {
 
 
 
+
+.changing-month {
+pointer-events: none;
+}
+
+#calendarContainer {
+transition: opacity 0.2s ease;
+}
+
+
 /* =======================
    MOBILE LAYOUT (<= 768px)
    ======================= */
@@ -285,6 +295,10 @@ a.button,
     opacity: 0.7;
     transform: scale(0.95);
   }
+
+
+
+
 }
 
 
