@@ -2309,31 +2309,6 @@ function loadDataFromFile() {
 }
 
 
-/*
- * downloadBackupStorageData()
- *  - Creates a backup of local data in "calendar_data_backup.json".
- */
-function downloadBackupStorageData() {
-    showLoading();
-    const data = {};
-    for (const key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
-            data[key] = localStorage.getItem(key);
-        }
-    }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const anchor = document.createElement("a");
-    anchor.setAttribute("href", dataStr);
-    anchor.setAttribute("download", "calendar_data_backup.json");
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-
-    setTimeout(() => {
-        hideLoading();
-        showToast("Calendar data backup created", 5000);
-    }, 300);
-}
 
 
 // ========== MARKDOWN EXPORT ==========
@@ -2400,7 +2375,7 @@ async function downloadMarkdownEvents() {
 
         for (let m of monthsInYear) {
             outputLines.push(""); // Blank line before month heading
-            outputLines.push(`** ${monthsArr[m]} ${y}`); // ** Month Year heading
+            outputLines.push(`## ${monthsArr[m]} ${y}`); // ## Month Year heading
             structured[y][m].sort((a, b) => a.day - b.day); // Sort days within the month
 
             structured[y][m].forEach(obj => {
