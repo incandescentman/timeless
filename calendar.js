@@ -254,28 +254,24 @@ function scrollToToday() {
 
 function goToTodayAndRefresh() {
     // Reset currentCalendarDate to actual system today
-    currentCalendarDate = new Date(systemToday);
+    const today = new Date(systemToday);
+    currentCalendarDate = today;
     currentVisibleRow = null;
     window.scrollTo(0, 0); // Go to top immediately
 
     showLoading(); // Show loading before rebuild
     calendarTableElement.innerHTML = "";
-    loadCalendarAroundDate(currentCalendarDate); // This function handles its own hideLoading/scrolling
+    
+    // Load calendar around today's date
+    loadCalendarAroundDate(today);
 
-    // loadCalendarAroundDate now calls scrollToToday which handles loading state.
-    // We just need to ensure the final scroll happens after load.
-    // The logic inside loadCalendarAroundDate's loadBatch completion handles the initial scroll.
-    // If a smooth scroll is specifically desired *here*, wait for load complete.
-    // However, loadCalendarAroundDate's internal scrollToToday might be sufficient.
-
-    // Let's rely on the scroll within loadCalendarAroundDate for now. If smoother needed:
-    // const todayId = idForDate(currentCalendarDate);
-    // waitForElementAndScroll(todayId, { behavior: "smooth", block: "center" })
-    //     .catch(err => {
-    //         console.error("Error scrolling after goToTodayAndRefresh:", err);
-    //         hideLoading(); // Ensure loading hidden on error
-    //     });
-    // Note: loadCalendarAroundDate manages its own loading indicator.
+    // Wait for the element to be available and scroll to it
+    const todayId = idForDate(today);
+    waitForElementAndScroll(todayId, { behavior: "smooth", block: "center" })
+        .catch(err => {
+            console.error("Error scrolling after goToTodayAndRefresh:", err);
+            hideLoading(); // Ensure loading hidden on error
+        });
 }
 
 /*
