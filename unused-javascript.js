@@ -148,6 +148,37 @@ function buildMobileDayCard(container, date) {
     container.appendChild(dayCard);
 }
 
+/*
+ * buildMobileDayCard(container, date)
+ *  - Example code for an alternate "vertical day card" mobile layout (unused).
+ */
+function buildMobileDayCard(container, date) {
+    // If the 1st day of the month, add a month header
+    if (date.getDate() === 1) {
+        const monthHeader = document.createElement('div');
+        monthHeader.className = 'mobile-month-header';
+        monthHeader.textContent = months[date.getMonth()] + ' ' + date.getFullYear();
+        container.appendChild(monthHeader);
+    }
+
+    // Create a "day-card"
+    const dayCard = document.createElement('div');
+    dayCard.className = 'day-card';
+
+    // The day label + number
+    dayCard.innerHTML = `
+      <div class="day-top-row">
+        <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+        <span class="month-day-container">
+          <span class="month-label">${shortMonths[date.getMonth()]}</span> {/* <-- Use shortMonths here */}
+          <span class="day-number">${date.getDate()}</span>
+        </span>
+      </div>
+      <div class="notes-container"></div>
+    `;
+    container.appendChild(dayCard);
+}
+ 
 // ========== MOBILE SWIPE ==========
 
 /*
