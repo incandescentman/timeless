@@ -101,8 +101,36 @@ const debouncedServerSave = debounce(() => {
 }, 2000);
 
 
+// ========== UTILITY FUNCTIONS ==========
+// ... (other utilities like throttle, debounce, etc.)
 
+/*
+ * waitForElementAndScroll(elementId, scrollOptions, timeoutMs = 3000)
+ *  - Waits for an element to exist, then scrolls to it.
+ *  - Uses requestAnimationFrame for polling.
+ *  - Rejects promise if element not found within timeout.
+ */
+function waitForElementAndScroll(elementId, scrollOptions = { behavior: "auto", block: "center" }, timeoutMs = 3000) {
+    const startTime = Date.now();
 
+    return new Promise((resolve, reject) => {
+        function checkElement() {
+            const element = document.getElementById(elementId);
+            if (element) {
+                console.log(`Element ${elementId} found. Scrolling.`);
+                element.scrollIntoView(scrollOptions);
+                resolve(element); // Resolve with the element
+            } else if (Date.now() - startTime > timeoutMs) {
+                console.warn(`Element ${elementId} not found within ${timeoutMs}ms.`);
+                reject(new Error(`Element ${elementId} not found.`)); // Reject if timeout exceeded
+            } else {
+                requestAnimationFrame(checkElement); // Continue polling
+            }
+        }
+        requestAnimationFrame(checkElement); // Start polling
+    });
+}
+ 
 /*
  * showHelp(), hideHelp()
  *  - Show/hide the "help" overlay.
@@ -606,6 +634,41 @@ function lookupItemsForParentId(parentId, callback) {
  * generateDay(dayCell, date)
  *  - Populates a single <td> with the day label, number, and any stored notes.
  */
+/*
+ * buildMobileDayCard(container, date)
+ *  - Example code for an alternate "vertical day card" mobile layout (unused).
+ */
+function buildMobileDayCard(container, date) {
+    // If the 1st day of the month, add a month header
+    if (date.getDate() === 1) {
+        const monthHeader = document.createElement('div');
+        monthHeader.className = 'mobile-month-header';
+        monthHeader.textContent = months[date.getMonth()] + ' ' + date.getFullYear();
+        container.appendChild(monthHeader);
+    }
+
+    // Create a "day-card"
+    const dayCard = document.createElement('div');
+    dayCard.className = 'day-card';
+
+    // The day label + number
+    dayCard.innerHTML = `
+      <div class="day-top-row">
+        <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
+        <span class="month-day-container">
+          <span class="month-label">${shortMonths[date.getMonth()]}</span> {/* <-- Use shortMonths here */}
+          <span class="day-number">${date.getDate()}</span>
+        </span>
+      </div>
+      <div class="notes-container"></div>
+    `;
+    container.appendChild(dayCard);
+}
+
+/*
+ * generateDay(dayCell, date)
+ *  - Populates a single <td> with the day label, number, and any stored notes.
+ */
 function generateDay(dayCell, date) {
     // Weekend shading
     const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
@@ -615,20 +678,34 @@ function generateDay(dayCell, date) {
     const isShaded = (date.getMonth() % 2 === 1);
     if (isShaded) dayCell.classList.add("shaded");
 
-    // Is it "today"?
+    // Is it "today"? (Comparing against systemToday, not currentCalendarDate for visual "today")
     const isToday = (
+        date.getFullYear() === systemToday.getFullYear() &&
+        date.getMonth() === systemToday.getMonth() &&
+        date.getDate() === systemToday.getDate()
+    );
+     // Also check if it's the *calendar's* current date for potential different highlight
+    const isCurrentCalendarDay = (
         date.getFullYear() === currentCalendarDate.getFullYear() &&
         date.getMonth() === currentCalendarDate.getMonth() &&
         date.getDate() === currentCalendarDate.getDate()
     );
-    if (isToday) dayCell.classList.add("today");
+
+    if (isToday) {
+         dayCell.classList.add("today"); // Style for actual system today
+    }
+    if (isCurrentCalendarDay && !isToday) {
+         // Optional: Add a different class if you want to highlight the navigated-to day differently
+         // dayCell.classList.add("current-view-day");
+    }
+
 
     // Unique ID like "2_10_2025" for each day cell
     dayCell.id = idForDate(date);
 
     // For mobile, a top-row layout with day label on left, month+day number on right
     if (window.innerWidth <= 768) {
-        const monthShort = shortMonths[date.getMonth()];
+        const monthShort = shortMonths[date.getMonth()]; // <-- Use shortMonths here
         const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
         const dayNum = date.getDate();
 
@@ -692,7 +769,7 @@ function buildMobileDayCard(container, date) {
     `;
     container.appendChild(dayCard);
 }
- 
+
 
 // ========== MINI CALENDAR WIDGET ==========
 
@@ -1520,6 +1597,7 @@ function deleteEntriesForFocusedDay() {
     }
 }
 
+
 // Add global keydown event for hotkeys
 document.addEventListener("keydown", (e) => {
     // If command palette is open, let that handle up/down/enter
@@ -1530,25 +1608,28 @@ document.addEventListener("keydown", (e) => {
     // If user is typing in an <input> or <textarea>, skip
     if (e.target && (e.target.tagName.toLowerCase() === "textarea" ||
                      e.target.tagName.toLowerCase() === "input")) {
-        return;
+        // Allow Ctrl+Enter even in inputs for potential future use, but block others
+        if (!( (e.ctrlKey || e.metaKey) && e.key === 'Enter') ) {
+             return;
+        }
     }
 
     // Command palette shortkeys => Ctrl+K or Ctrl+/ ...
-    if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
+    if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey)) { // Avoid conflict with help '?'
         e.preventDefault();
         showCommandPalette();
         return;
     }
 
     // Quick date pop-up => Press 'd'
-    if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
         e.preventDefault();
         showQuickDateInput();
         return;
     }
 
     // Multi-select => 'm'
-    if (e.key === 'm') {
+    if (e.key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
         e.preventDefault();
         toggleMultiSelectMode();
         return;
@@ -1560,23 +1641,31 @@ document.addEventListener("keydown", (e) => {
             toggleDaySelection();
             return;
         // Ctrl+C => Clear, Ctrl+N => Add note
-        } else if (e.key === 'c' && e.ctrlKey) {
+        } else if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
             performBatchAction('clear');
             return;
-        } else if (e.key === 'n' && e.ctrlKey) {
+        } else if (e.key === 'n' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
             performBatchAction('add');
             return;
         }
     }
 
-    // SHIFT+D => Download in Markdown
+    // SHIFT+D => Download Diary/Markdown Export
     if (e.key === "D" && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
         e.preventDefault();
-        downloadMarkdownEvents();
+        downloadMarkdownEvents(); // Keep Shift+D for Markdown/Diary
         return;
     }
+
+    // SHIFT+B => Download JSON Backup
+    if (e.key === "B" && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        downloadLocalStorageData(); // Assign Shift+B to JSON backup
+        return;
+    }
+
 
     // Check other keys
     switch (e.key) {
@@ -1584,44 +1673,59 @@ document.addEventListener("keydown", (e) => {
         // Possibly hide help, or year view, or cancel range select
         if (document.getElementById("help").style.display === "block") {
             hideHelp();
+            e.preventDefault(); // Prevent default Escape behavior if we handle it
             return;
         }
         if (document.getElementById("yearViewContainer").style.display === "block") {
             hideYearView();
+            e.preventDefault();
             return;
         }
         if (isSelectingRange) {
             clearRangeSelection();
             isSelectingRange = false;
             showToast("Range selection cancelled");
+            e.preventDefault();
             return;
         }
         if (keyboardFocusDate) {
+            e.preventDefault(); // Prevent Esc from potentially closing other things
             keyboardFocusDate = null;
             document.body.classList.remove('keyboard-nav-active');
             document.querySelectorAll('.keyboard-focus').forEach(el => el.classList.remove('keyboard-focus'));
             showToast("Keyboard navigation mode deactivated");
         }
-        break;
+         // If command palette input exists and is focused, let its handler manage Esc
+         const cmdInput = document.getElementById('command-input');
+         if (document.activeElement === cmdInput) {
+             // Let the command palette's own Escape handler work
+             return;
+         }
+        break; // Only break if Esc wasn't handled above
+
     case "?":
-        e.preventDefault();
-        const helpElem = document.getElementById("help");
-        if (helpElem.style.display === "block") hideHelp(); else showHelp();
-        break;
-    case "i":
-        e.preventDefault();
-        if (!document.body.classList.contains('keyboard-nav-active')) {
-            toggleKeyboardNavMode();
+        if (e.shiftKey) { // Typically '?' requires Shift
+            e.preventDefault();
+            const helpElem = document.getElementById("help");
+            if (helpElem.style.display === "block") hideHelp(); else showHelp();
         }
         break;
+    case "i":
+         if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            e.preventDefault();
+            toggleKeyboardNavMode(); // Changed condition
+         }
+        break;
     case "r":
-        e.preventDefault();
-        pullUpdatesFromServer();
+         if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            e.preventDefault();
+            pullUpdatesFromServer(true); // Pass true to force confirmation
+         } // Note: Ctrl+R/Cmd+R is browser refresh, don't preventDefault unless needed
         break;
     case "q":
     case "Q":
         // Quit keyboard nav
-        if (keyboardFocusDate) {
+        if (keyboardFocusDate && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
             e.preventDefault();
             keyboardFocusDate = null;
             document.body.classList.remove('keyboard-nav-active');
@@ -1629,89 +1733,120 @@ document.addEventListener("keydown", (e) => {
             showToast("Keyboard navigation mode deactivated");
         }
         break;
-    case "z":
+    case "z": // Handle lowercase 'z' for undo without Ctrl/Meta
+        if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+             e.preventDefault();
+             undoLastChange();
+        }
+        // Fall through to allow Ctrl+Z / Cmd+Z
     case "Z":
         // Undo/Redo shortcuts
-        if (e.ctrlKey && e.shiftKey) {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey) { // Ctrl+Shift+Z or Cmd+Shift+Z for Redo
             e.preventDefault();
             redoLastChange();
-        } else if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            undoLastChange();
-        } else {
+        } else if (e.ctrlKey || e.metaKey) { // Ctrl+Z or Cmd+Z for Undo
             e.preventDefault();
             undoLastChange();
         }
         break;
-    case "y":
+    case "y": // Handle lowercase 'y' for year view without Ctrl/Meta
+         if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+             e.preventDefault();
+             const yv = document.getElementById("yearViewContainer");
+             if (yv.style.display === "block") hideYearView(); else showYearView();
+         }
+         // Fall through to allow Ctrl+Y for redo
     case "Y":
-        // Show Year view
-        if (e.ctrlKey || e.metaKey) {
+        // Redo shortcut (often Ctrl+Y on Windows)
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey) { // Allow Ctrl+Y / Cmd+Y for redo
             e.preventDefault();
             redoLastChange();
-        } else {
-            e.preventDefault();
-            const yv = document.getElementById("yearViewContainer");
-            if (yv.style.display === "block") hideYearView(); else showYearView();
         }
         break;
     case "g":
     case "G":
-        e.preventDefault();
-        // "go to date" => focus #jumpDate
-        const jump = document.getElementById("jumpDate");
-        if (jump) jump.focus();
+         if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            e.preventDefault();
+            // "go to date" => focus #jumpDate
+            const jump = document.getElementById("jumpDate");
+            if (jump) jump.focus();
+         }
         break;
     case "ArrowLeft":
-        e.preventDefault();
-        stepDay(-1);
+         if (keyboardFocusDate && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            e.preventDefault();
+            stepDay(-1);
+         }
         break;
     case "ArrowRight":
-        e.preventDefault();
-        stepDay(1);
+         if (keyboardFocusDate && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            e.preventDefault();
+            stepDay(1);
+         }
         break;
     case "ArrowUp":
-        if (e.altKey) {
+        if (e.altKey) { // Alt+Up for previous month
             e.preventDefault();
             jumpOneMonthBackward();
-        } else if (keyboardFocusDate) {
+        } else if (keyboardFocusDate && !e.shiftKey && !e.ctrlKey && !e.metaKey) { // Up arrow in keyboard nav mode
             e.preventDefault();
             stepDay(-7);
         }
+        // Otherwise, allow default scroll behavior
         break;
     case "ArrowDown":
-        if (e.altKey) {
+        if (e.altKey) { // Alt+Down for next month
             e.preventDefault();
             jumpOneMonthForward();
-        } else if (keyboardFocusDate) {
+        } else if (keyboardFocusDate && !e.shiftKey && !e.ctrlKey && !e.metaKey) { // Down arrow in keyboard nav mode
             e.preventDefault();
             stepDay(7);
         }
+        // Otherwise, allow default scroll behavior
         break;
     case "Enter":
-        e.preventDefault();
-        createEventInFocusedDay();
+         // Only act if in keyboard nav mode or using Ctrl+Enter
+        if (keyboardFocusDate && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            e.preventDefault();
+            createEventInFocusedDay();
+        } else if ((e.ctrlKey || e.metaKey) && e.target && e.target.tagName.toLowerCase() === "textarea") {
+             // Allow Ctrl+Enter inside textarea - could be used for specific actions later if needed
+             // e.g., force save without blur, or add special item
+             // For now, just let it potentially bubble or do nothing specific here
+        }
         break;
     case "Delete":
     case "Backspace":
-        e.preventDefault();
-        deleteEntriesForFocusedDay();
+         if (keyboardFocusDate && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            e.preventDefault();
+            deleteEntriesForFocusedDay();
+         }
         break;
     case "t":
     case "T":
-        // Jump to systemToday
-        currentCalendarDate = new Date(systemToday);
-        loadCalendarAroundDate(currentCalendarDate);
-        break;
-    default:
-        // Ctrl+D => toggleDarkMode
-        if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
+        if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            // Jump to systemToday
             e.preventDefault();
-            toggleDarkMode();
+            currentCalendarDate = new Date(systemToday);
+            loadCalendarAroundDate(currentCalendarDate);
+            // Use the robust scrolling method after load
+            waitForElementAndScroll(idForDate(currentCalendarDate), { behavior: "smooth", block: "center" });
+        }
+        break;
+    // Note: Ctrl+D for Dark Mode is handled below
+    default:
+        // Ctrl+D => toggleDarkMode (ensure it doesn't conflict with textarea Ctrl+D)
+        if ((e.ctrlKey || e.metaKey) && e.key === "d" && !e.shiftKey && !e.altKey) {
+             // Check if focus is NOT inside a textarea where Ctrl+D marks done
+            if (!e.target || e.target.tagName.toLowerCase() !== "textarea") {
+                 e.preventDefault();
+                 toggleDarkMode();
+            }
         }
         break;
     }
 });
+
 
 // ========== CLICK HANDLER FOR CREATING A NEW NOTE ==========
 
@@ -2489,30 +2624,143 @@ async function saveDataToServer() {
 }
 
 /*
- * pullUpdatesFromServer(confirmNeeded)
- *  - Optionally confirms, then fetches data from the server into localStorage.
+ * pullUpdatesFromServer(confirmNeeded = false)
+ *  - Fetches data from server, compares timestamps, and merges safely or prompts user.
  */
 async function pullUpdatesFromServer(confirmNeeded = false) {
-    if (confirmNeeded) {
-        const confirmed = confirm("Pull server data? This may overwrite local changes if they're not saved.");
-        if (!confirmed) return;
-    }
+    let localTimestamp = parseInt(localStorage.getItem("lastSavedTimestamp") || "0", 10);
+    let confirmed = !confirmNeeded; // If confirmation isn't needed (e.g., initial load), proceed
+
     showLoading();
     try {
         const response = await fetch('api.php');
-        const data = await response.json();
-        localStorage.clear();
-        for (let key in data) {
-            localStorage.setItem(key, data[key]);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const serverData = await response.json();
+        let serverTimestamp = parseInt(serverData["lastSavedTimestamp"] || "0", 10);
+
+        console.log(`Local Timestamp: ${localTimestamp}, Server Timestamp: ${serverTimestamp}`);
+
+        // --- Merge Logic ---
+        if (serverTimestamp > localTimestamp) {
+            // Server data is potentially newer
+            if (!confirmed) {
+                const overwrite = confirm(
+                    `Server data is newer (Server: ${new Date(serverTimestamp).toLocaleString()}, Local: ${new Date(localTimestamp).toLocaleString()}).\n\n` +
+                    "Pulling will overwrite any local changes made since the last successful save.\n\n" +
+                    "OK to pull and overwrite? (A local backup 'calendar_data_backup.json' will be downloaded first.)"
+                );
+                if (!overwrite) {
+                    showToast("Pull cancelled by user.");
+                    hideLoading();
+                    return;
+                }
+                // User confirmed overwrite, proceed to download backup
+                await downloadBackupAndApplyServerData(serverData); // Use helper
+                showToast("Local backup downloaded. Pulled latest data from server.");
+
+            } else {
+                // No confirmation needed, but server is newer, so apply changes
+                console.log("Server data is newer, applying automatically.");
+                applyServerData(serverData); // Overwrite local with server data
+                // No backup needed here as it wasn't explicitly requested by user action
+                 showToast("Pulled latest data from server.");
+            }
+
+        } else if (localTimestamp > serverTimestamp) {
+            // Local data is newer, likely needs saving
+             console.log("Local data is newer than server. Triggering save.");
+             showToast("Local changes detected, attempting to save to server...");
+             await saveDataToServer(); // Attempt to push local changes
+
+        } else {
+            // Timestamps match, data is likely in sync
+            console.log("Timestamps match. Data appears up-to-date.");
+             showToast("Calendar is up-to-date.");
+        }
+
+        // Always reload the calendar view after potential changes or checks
+        // Ensure currentCalendarDate is valid before reloading
+        if (!(currentCalendarDate instanceof Date && !isNaN(currentCalendarDate))) {
+             currentCalendarDate = new Date(systemToday);
         }
         loadCalendarAroundDate(currentCalendarDate);
-        showToast("Pulled latest data from server");
+
     } catch (err) {
-        console.error("Error pulling from server:", err);
-        showToast("Failed to pull updates from server");
+        console.error("Error pulling/merging from server:", err);
+        showToast("Failed to sync with server. Check console.");
     } finally {
         hideLoading();
     }
 }
 
+// Helper function to apply server data after potential backup
+async function downloadBackupAndApplyServerData(serverData) {
+     try {
+          console.log("Downloading local data backup...");
+          await downloadLocalStorageData("calendar_data_backup.json"); // Use modified download fn
+          console.log("Applying server data...");
+          applyServerData(serverData);
+     } catch(backupError) {
+          console.error("Failed to create backup before overwrite:", backupError);
+          showToast("Backup failed! Server data not applied.", 5000);
+          // Decide if you still want to apply server data even if backup fails - risky.
+          // For safety, we are *not* applying server data here if backup failed.
+     }
+}
+
+// Helper function to overwrite local storage with server data
+function applyServerData(serverData) {
+     localStorage.clear(); // Clear local *only* when overwriting
+     for (let key in serverData) {
+          if (serverData.hasOwnProperty(key)) {
+               localStorage.setItem(key, serverData[key]);
+          }
+     }
+     // Update local timestamp to match server
+     localStorage.setItem("lastSavedTimestamp", serverData["lastSavedTimestamp"] || Date.now().toString());
+     console.log("Server data applied locally.");
+}
+
+// Modify downloadLocalStorageData slightly to accept a filename
+/*
+ * downloadLocalStorageData(filename = "calendar_data.json")
+ *  - Saves a JSON snapshot of localStorage with the given filename.
+ */
+async function downloadLocalStorageData(filename = "calendar_data.json") {
+     // No showLoading/hideLoading here, let calling function manage it
+     const data = {};
+     for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          // Exclude the directory handle if it exists, not useful in JSON backup
+          if (key !== "myDirectoryHandle") {
+               data[key] = localStorage.getItem(key);
+          }
+     }
+     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); // Pretty print JSON
+     const anchor = document.createElement("a");
+     anchor.setAttribute("href", dataStr);
+     anchor.setAttribute("download", filename);
+     document.body.appendChild(anchor);
+     return new Promise((resolve, reject) => {
+          try {
+               anchor.click();
+               anchor.remove();
+                // Add a small delay to ensure download starts before resolving
+               setTimeout(() => {
+                    console.log(`Triggered download for ${filename}`);
+                    resolve();
+               }, 100); // 100ms delay
+          } catch (err) {
+               console.error(`Failed to trigger download for ${filename}:`, err);
+               anchor.remove();
+               reject(err);
+          }
+     });
+}
+
+
+// Also remove the standalone downloadBackupStorageData function as it's now integrated
+// Find and DELETE the old downloadBackupStorageData function.
 
