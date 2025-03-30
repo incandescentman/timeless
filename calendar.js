@@ -2346,68 +2346,209 @@ function animateRowInsertion(row, direction = 'append') {
 
 
 
-
 // ========== WINDOW ONLOAD ==========
 
 window.onload = async function() {
-    // On mobile, enable horizontal swipes for month switching
-    // if (window.innerWidth <= 768) {
-    //     setupHorizontalSwipe();
-    // }
-
-    // (1) Optionally load data from server once
-    await loadDataFromServer();
-
-    // (2) Grab the #calendar table
+    console.log("window.onload started.");
+    // Ensure calendarTableElement is defined early, before any potential calendar operations
     calendarTableElement = document.getElementById("calendar");
-    currentCalendarDate = new Date(systemToday);
+    if (!calendarTableElement) {
+        console.error("FATAL: #calendar element not found on load!");
+        // Optionally display an error message to the user on the page itself
+        document.body.innerHTML = '<div style="padding: 20px; text-align: center; font-size: 1.2em; color: red;">Error: Calendar table element missing. Application cannot start.</div>';
+        return; // Stop execution if the core element is missing
+    }
 
-    // Build the calendar around "today"
-    loadCalendarAroundDate(currentCalendarDate);
 
-    // (3) Use IntersectionObserver if possible; else fallback
-    if ('IntersectionObserver' in window) {
+    // 1. Get local timestamp BEFORE fetching from server
+    let localTimestamp = parseInt(localStorage.getItem("lastSavedTimestamp") || "0", 10);
+    console.log(`Initial local timestamp: ${localTimestamp} (${new Date(localTimestamp).toLocaleString()})`);
+
+    let serverData = null;
+    let serverTimestamp = 0;
+    let loadError = false;
+
+    // 2. Try fetching server data (with cache-busting)
+    try {
+        console.log("Fetching data from server (with cache-bust)...");
+        const fetchURL = 'api.php?t=' + Date.now(); // Add timestamp for cache-busting
+        const response = await fetch(fetchURL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+        }
+        serverData = await response.json();
+        // Ensure serverData is an object even if the file was empty or invalid JSON
+        if (typeof serverData !== 'object' || serverData === null) {
+             console.warn("Server response was not a valid JSON object. Treating as empty.");
+             serverData = {}; // Default to empty object
+        }
+        serverTimestamp = parseInt(serverData["lastSavedTimestamp"] || "0", 10);
+        console.log(`Server fetch successful. Server timestamp: ${serverTimestamp} (${new Date(serverTimestamp).toLocaleString()})`);
+        // console.log("Server Data Received:", JSON.stringify(serverData).substring(0, 500) + "..."); // Log snippet of data
+    } catch (err) {
+        console.error("Error loading initial data from server:", err);
+        showToast("Could not load data from server. Using local data only.", 5000);
+        loadError = true;
+        // Don't clear local storage if server fetch fails! Proceed with local data.
+        serverData = {}; // Ensure serverData is an object for logic below
+        serverTimestamp = 0;
+    }
+
+    // --- Detailed Check before Merge ---
+    console.log("--- Onload Data Check ---");
+    console.log("Local Timestamp BEFORE merge:", localTimestamp, `(${new Date(localTimestamp).toLocaleString()})`);
+    console.log("Server Timestamp BEFORE merge:", serverTimestamp, `(${new Date(serverTimestamp).toLocaleString()})`);
+    try {
+        // Log local storage size or keys for context
+        console.log(`Local Storage BEFORE merge: ${localStorage.length} items. Keys: ${Object.keys(localStorage).slice(0, 10).join(', ')}...`);
+    } catch (e) { console.warn("Could not stringify localStorage"); }
+    // --- End Detailed Check ---
+
+
+    // 3. Decide which data to use (Merge Logic)
+    if (!loadError && serverTimestamp > localTimestamp) {
+        // Server data is newer (or local data didn't exist/had no timestamp)
+        console.log("Decision: Applying server data (Server newer).");
+        localStorage.clear(); // Clear local *only* when server is definitively newer
+        for (let key in serverData) {
+            if (serverData.hasOwnProperty(key)) {
+                localStorage.setItem(key, serverData[key]);
+            }
+        }
+        // Update local timestamp to match the server data we just loaded
+        localStorage.setItem("lastSavedTimestamp", serverTimestamp.toString());
+        localTimestamp = serverTimestamp; // Update variable for logging
+        console.log("Applied server data. New local timestamp:", localTimestamp);
+
+    } else if (localTimestamp > serverTimestamp) {
+        // Local data is newer (e.g., user made changes, reloaded before save completed)
+        console.log("Decision: Keeping local data (Local newer).");
+        // Attempt to push the newer local data immediately
+        console.log("Attempting to save newer local data to server on load...");
+        // Ensure saveDataToServer exists and handles potential errors
+        if (typeof saveDataToServer === 'function') {
+           await saveDataToServer().catch(saveErr => console.error("Error saving newer local data on load:", saveErr));
+        } else {
+            console.error("saveDataToServer function not found!");
+        }
+
+    } else {
+        // Timestamps match, or server failed to load, or server had no timestamp.
+        // Safest bet: keep whatever is currently in local storage.
+        console.log("Decision: Keeping existing local data (Timestamps match or server load issue/no server TS).");
+        // Handle the very first load scenario where local is empty but server might have data
+        if (Object.keys(localStorage).length === 0 && serverData && Object.keys(serverData).length > 0 && serverTimestamp > 0) {
+             console.log("Local storage was empty, applying server data as initial state.");
+             localStorage.clear();
+             for (let key in serverData) {
+                 if (serverData.hasOwnProperty(key)) {
+                     localStorage.setItem(key, serverData[key]);
+                 }
+             }
+             localStorage.setItem("lastSavedTimestamp", serverTimestamp.toString());
+             localTimestamp = serverTimestamp; // Update variable for logging
+             console.log("Applied server data initially. New local timestamp:", localTimestamp);
+        } else if (Object.keys(localStorage).length === 0 && (!serverData || Object.keys(serverData).length === 0)) {
+             console.log("Both local storage and server data appear empty or unavailable.");
+             // Ensure timestamp is set if completely fresh start
+             if (!localStorage.getItem("lastSavedTimestamp")) {
+                 localStorage.setItem("lastSavedTimestamp", "0");
+                 localTimestamp = 0;
+             }
+        }
+    }
+    console.log(`Final local timestamp after merge logic: ${localStorage.getItem("lastSavedTimestamp")} (${new Date(parseInt(localStorage.getItem("lastSavedTimestamp") || "0")).toLocaleString()})`);
+
+    // 4. Set the initial date for the calendar view
+    currentCalendarDate = new Date(systemToday); // Ensure systemToday is defined correctly
+    if (!(currentCalendarDate instanceof Date && !isNaN(currentCalendarDate))) {
+        console.warn("systemToday was invalid, resetting currentCalendarDate to now.");
+        currentCalendarDate = new Date(); // Fallback
+        systemToday = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), currentCalendarDate.getDate()); // Reset systemToday too
+    }
+    console.log("Setting initial calendar view date to:", currentCalendarDate.toDateString());
+
+
+    // 5. Load the calendar UI based on the finalized localStorage state
+    console.log("Calling loadCalendarAroundDate...");
+    // Ensure loadCalendarAroundDate exists and works correctly
+    if (typeof loadCalendarAroundDate === 'function') {
+       loadCalendarAroundDate(currentCalendarDate); // This function should handle its own loading indicator and scrolling
+    } else {
+        console.error("loadCalendarAroundDate function not found!");
+        hideLoading(); // Ensure loading indicator is hidden if calendar can't load
+    }
+
+
+    // --- Remaining Setup ---
+    console.log("Setting up observers and intervals...");
+
+    // Use IntersectionObserver if possible; else fallback (fallback less critical now)
+    if ('IntersectionObserver' in window && typeof setupScrollObservers === 'function') {
         setupScrollObservers();
     } else {
-        setInterval(checkInfiniteScroll, 100);
+        console.warn("IntersectionObserver not supported or setupScrollObservers function missing. Infinite scroll might not work.");
+        // Fallback interval check - consider if still needed
+        // if (typeof checkInfiniteScroll === 'function') {
+        //    setInterval(checkInfiniteScroll, 200); // Increased interval slightly
+        // }
+    }
+
+    // Auto-pull interval (ensure pullUpdatesFromServer exists)
+    if (typeof pullUpdatesFromServer === 'function') {
+        setInterval(() => {
+            // Pass false so it only confirms on manual pull or if essential
+            pullUpdatesFromServer(false);
+        }, 300000); // 5 minutes
+    } else {
+         console.error("pullUpdatesFromServer function not found! Auto-sync disabled.");
     }
 
 
-// Instead, set up a timer to auto-pull every 5 minutes:
-setInterval(() => {
-  pullUpdatesFromServer();
-}, 300000); // 300,000 ms = 5 minutes
-
-    // (5) Misc. setup: set #jumpDate to today's date, re-apply dark mode
+    // Misc. setup: set #jumpDate, dark mode, etc.
+    console.log("Performing miscellaneous UI setup...");
     const j = document.getElementById("jumpDate");
     if (j) {
-        const sys = new Date();
-        j.value = sys.getFullYear() + "-" +
-                  String(sys.getMonth() + 1).padStart(2, '0') + "-" +
-                  String(sys.getDate()).padStart(2, '0');
-    }
+        const sysForInput = new Date(); // Use a fresh 'now' for the input default
+        try {
+           j.value = sysForInput.getFullYear() + "-" +
+                     String(sysForInput.getMonth() + 1).padStart(2, '0') + "-" +
+                     String(sysForInput.getDate()).padStart(2, '0');
+        } catch (e) { console.error("Error setting jumpDate value:", e);}
+    } else { console.warn("#jumpDate input not found."); }
 
     if (localStorage.getItem("darkMode") === "enabled") {
         document.body.classList.add("dark-mode");
     }
 
-    // Recalc <textarea> heights after short delay
-    setTimeout(recalculateAllHeights, 100);
+    // Recalc heights after everything else settles (increase delay slightly)
+    if (typeof recalculateAllHeights === 'function') {
+      setTimeout(recalculateAllHeights, 300);
+    } else { console.error("recalculateAllHeights function not found!"); }
 
-    // Listen for scroll to update the sticky month header
-    window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
-    updateStickyMonthHeader();
 
-    // Additional cosmetic: fade in the top header after scrolling
+    // Scroll listeners (ensure throttled function exists)
+    if (typeof updateStickyMonthHeader === 'function' && typeof throttle === 'function') {
+      window.addEventListener('scroll', throttle(updateStickyMonthHeader, 100));
+      // Initial call might be redundant if loadCalendarAroundDate calls it, but safe
+      updateStickyMonthHeader();
+    } else { console.warn("updateStickyMonthHeader or throttle function not found!"); }
+
+
     window.addEventListener('scroll', () => {
         const header = document.getElementById('header');
-        if (window.scrollY > 50) {
-            header.classList.add('solid');
-        } else {
-            header.classList.remove('solid');
-        }
+        if (header) { // Add null check
+           if (window.scrollY > 50) {
+               header.classList.add('solid');
+           } else {
+               header.classList.remove('solid');
+           }
+        } else { /* console.warn("#header element not found for scroll effect."); */ } // Optional warning
     });
-};
+
+    console.log("window.onload finished.");
+}; // End of window.onload
+
 
 
 // ========== IMPORT/EXPORT FUNCTIONS ==========
@@ -2799,6 +2940,16 @@ function applyServerData(serverData) {
      console.log("Server data applied locally. New local TS:", localStorage.getItem("lastSavedTimestamp"));
 }
 
+
+
+
+
+
+
+
+
+
+//////////////////
 /*
  * downloadLocalStorageData(filename = "calendar_data.json") - Stays the same
  * (Make sure this function exists and works as posted previously)

@@ -14,27 +14,30 @@ $logFile = __DIR__ . '/api_activity.log'; // Separate log for script activity
 
 function log_message($message) {
     global $logFile;
-    file_put_contents($logFile, date('Y-m-d H:i:s') . " - " . $message . "\n", FILE_APPEND);
+    // Add microtime for finer granularity
+    file_put_contents($logFile, date('Y-m-d H:i:s') . '.' . substr((string)microtime(true), 11, 4) . " - " . $message . "\n", FILE_APPEND);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     log_message("GET request received.");
     if (file_exists($dataFile)) {
+        log_message("Data file exists. Reading...");
+        clearstatcache(true, $dataFile); // <--- Try clearing file status cache
         $content = file_get_contents($dataFile);
         if ($content === false) {
             log_message("ERROR reading data file: " . $dataFile);
             http_response_code(500);
             echo json_encode(["error" => "Failed to read data file."]);
         } else {
-            log_message("Sent " . strlen($content) . " bytes from data file.");
-            // Ensure content is valid JSON before echoing
+            log_message("Read " . strlen($content) . " bytes. First 100 chars: " . substr($content, 0, 100)); // Log part of content
             json_decode($content);
             if (json_last_error() === JSON_ERROR_NONE) {
+                log_message("Data is valid JSON. Sending.");
                 echo $content;
             } else {
-                 log_message("ERROR: Data file contains invalid JSON.");
-                 http_response_code(500);
-                 echo json_encode(["error" => "Data file corrupted."]);
+                log_message("ERROR: Data file contains invalid JSON.");
+                http_response_code(500);
+                echo json_encode(["error" => "Data file corrupted."]);
             }
         }
     } else {
@@ -47,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     log_message("POST request received.");
     $rawInput = file_get_contents("php://input");
-    log_message("Raw POST data: " . $rawInput); // Log the received data
+    // Limit log size for raw input if it's huge
+    log_message("Raw POST data (first 500 chars): " . substr($rawInput, 0, 500));
 
     $decoded = json_decode($rawInput, true);
 
@@ -57,38 +61,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(["status" => "error", "message" => "Invalid JSON received"]);
         exit;
     }
+    if (!is_array($decoded)) { /* ... error handling ... */ }
 
-    // Ensure it's an array (though json_decode true should handle this)
-    if (!is_array($decoded)) {
-         log_message("ERROR: Decoded JSON is not an array.");
-         http_response_code(400);
-         echo json_encode(["status" => "error", "message" => "Invalid data format"]);
-         exit;
-    }
+    // Add/update timestamp
+    $decoded['lastSavedTimestamp'] = (string)round(microtime(true) * 1000);
+    log_message("Data prepared for save. Timestamp: " . $decoded['lastSavedTimestamp']);
 
-    // Add or update the timestamp *before* saving
-    $decoded['lastSavedTimestamp'] = (string)round(microtime(true) * 1000); // Server-side timestamp
-    log_message("Attempting to save data with timestamp: " . $decoded['lastSavedTimestamp']);
-
-    // Attempt to save
     $jsonData = json_encode($decoded, JSON_PRETTY_PRINT);
-    if ($jsonData === false) {
-         log_message("ERROR: Failed to encode data to JSON. Error: " . json_last_error_msg());
+    if ($jsonData === false) { /* ... error handling ... */ }
+
+    log_message("Attempting file_put_contents to: " . $dataFile);
+    // --- Explicitly check file existence and writability before writing ---
+    if (file_exists($dataFile) && !is_writable($dataFile)) {
+         log_message("ERROR: File exists but is NOT writable: " . $dataFile);
          http_response_code(500);
-         echo json_encode(["status" => "error", "message" => "Failed to encode data"]);
+         echo json_encode(["status" => "error", "message" => "Server permission error (file not writable)."]);
          exit;
     }
+    if (!file_exists($dataFile) && !is_writable(dirname($dataFile))) {
+         log_message("ERROR: File does not exist AND directory is NOT writable: " . dirname($dataFile));
+         http_response_code(500);
+         echo json_encode(["status" => "error", "message" => "Server permission error (directory not writable)."]);
+         exit;
+    }
+    // --- End explicit checks ---
 
     $result = file_put_contents($dataFile, $jsonData);
 
-    // Check if save succeeded
     if ($result === false) {
-        log_message("ERROR: file_put_contents failed! Check permissions and path: " . $dataFile);
-        http_response_code(500); // Internal Server Error
+        log_message("ERROR: file_put_contents returned false! PHP Last Error: " . print_r(error_get_last(), true));
+        http_response_code(500);
         echo json_encode(["status" => "error", "message" => "Server failed to save data."]);
     } else {
-        log_message("SUCCESS: Saved " . $result . " bytes to " . $dataFile);
-        echo json_encode(["status" => "ok", "savedTimestamp" => $decoded['lastSavedTimestamp']]); // Return the timestamp we saved
+        log_message("SUCCESS: Saved " . $result . " bytes.");
+        clearstatcache(true, $dataFile); // <--- Try clearing file status cache after write
+        echo json_encode(["status" => "ok", "savedTimestamp" => $decoded['lastSavedTimestamp']]);
     }
     exit;
 }
