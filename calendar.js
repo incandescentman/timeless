@@ -356,33 +356,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
 
-/*
- * toggleDarkMode()
- *  - Toggles a .dark-mode body class and saves preference in localStorage.
- */
-function toggleDarkMode() {
-    document.body.classList.toggle("dark-mode");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
-    showToast(document.body.classList.contains("dark-mode") ? "Dark mode enabled" : "Light mode enabled");
-}
-
-/*
- * pushUndoState()
- *  - Creates a JSON snapshot of localStorage and pushes it onto undoStack.
- */
-function pushUndoState() {
-    redoStack = []; // Clear redo stack on new action
-    const snapshot = {};
-    for (const key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
-            snapshot[key] = localStorage[key];
-        }
-    }
-    undoStack.push(JSON.stringify(snapshot));
-    if (undoStack.length > MAX_UNDO) {
-        undoStack.shift();
-    }
-}
 
 /*
  * undoLastChange()
@@ -489,35 +462,6 @@ function storeValueForItemId(itemId) {
     processNoteTags(ta);
 }
 
-/*
- * processNoteTags(textarea)
- *  - Finds "#tags" in the note, and shows them above the <textarea>.
- */
-function processNoteTags(textarea) {
-    const parent = textarea.parentNode;
-    const existingTags = parent.querySelector('.note-tags');
-    if (existingTags) {
-        parent.removeChild(existingTags);
-    }
-    const text = textarea.value;
-    const tagPattern = /#(\w+)/g;
-    const tags = [];
-    let match;
-    while ((match = tagPattern.exec(text)) !== null) {
-        tags.push(match[1]);
-    }
-    if (tags.length) {
-        const tagsContainer = document.createElement('div');
-        tagsContainer.className = 'note-tags';
-        tags.forEach(tag => {
-            const tagSpan = document.createElement('span');
-            tagSpan.className = 'note-tag';
-            tagSpan.textContent = '#' + tag;
-            tagsContainer.appendChild(tagSpan);
-        });
-        textarea.parentNode.insertBefore(tagsContainer, textarea);
-    }
-}
 
 /*
  * removeValueForItemId(itemId)
@@ -624,40 +568,6 @@ function wrapTextSelection(textarea, prefix, suffix) {
     storeValueForItemId(textarea.id);
 }
 
-/*
- * addTaskPriority(textarea, priority)
- *  - Insert "[priority:xx]" at the start of the note content.
- */
-function addTaskPriority(textarea, priority) {
-    textarea.value = textarea.value.replace(/\[priority:(high|medium|low)\]/g, '').trim();
-    textarea.value = `[priority:${priority}] ` + textarea.value;
-    storeValueForItemId(textarea.id);
-}
-
-/*
- * toggleTaskDone(textarea)
- *  - Toggles "✓ " prefix to mark a note as done.
- */
-function toggleTaskDone(textarea) {
-    if (textarea.value.startsWith('✓ ')) {
-        textarea.value = textarea.value.substring(2);
-    } else {
-        textarea.value = '✓ ' + textarea.value;
-    }
-    storeValueForItemId(textarea.id);
-}
-
-/*
- * insertHashtag(textarea)
- *  - Inserts a "#" at the cursor position.
- */
-function insertHashtag(textarea) {
-    const pos = textarea.selectionStart;
-    const beforeText = textarea.value.substring(0, pos);
-    const afterText = textarea.value.substring(pos);
-    textarea.value = beforeText + '#' + afterText;
-    textarea.selectionStart = textarea.selectionEnd = pos + 1;
-}
 
 /*
  * noteBlurHandler()
@@ -816,36 +726,6 @@ function generateDay(dayCell, date) {
     });
 }
 
-/*
- * buildMobileDayCard(container, date)
- *  - Example code for an alternate "vertical day card" mobile layout (unused).
- */
-function buildMobileDayCard(container, date) {
-    // If the 1st day of the month, add a month header
-    if (date.getDate() === 1) {
-        const monthHeader = document.createElement('div');
-        monthHeader.className = 'mobile-month-header';
-        monthHeader.textContent = months[date.getMonth()] + ' ' + date.getFullYear();
-        container.appendChild(monthHeader);
-    }
-
-    // Create a "day-card"
-    const dayCard = document.createElement('div');
-    dayCard.className = 'day-card';
-
-    // The day label + number
-    dayCard.innerHTML = `
-      <div class="day-top-row">
-        <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
-        <span class="month-day-container">
-          <span class="month-label">${shortMonths[date.getMonth()]}</span> {/* <-- Use shortMonths here */}
-          <span class="day-number">${date.getDate()}</span>
-        </span>
-      </div>
-      <div class="notes-container"></div>
-    `;
-    container.appendChild(dayCard);
-}
 
 
 // ========== MINI CALENDAR WIDGET ==========
@@ -1440,8 +1320,6 @@ function performBatchAction(action) {
  * buildYearView(year, container)
  *  - Renders a 12-month "Year at a glance" grid, each with days clickable.
  */
-
-
 
 function buildYearView(year, container) {
   for (let m = 0; m < 12; m++) {
@@ -2502,67 +2380,6 @@ function animateRowInsertion(row, direction = 'append') {
 }
 
 
-// ========== MOBILE SWIPE ==========
-
-/*
- * setupHorizontalSwipe()
- *  - On mobile, swiping left => next month, swiping right => previous month.
- */
-function setupHorizontalSwipe() {
-  let touchStartX = 0;
-  let touchEndX = 0;
-  const swipeThreshold = 80;
-
-  document.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  document.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  }, { passive: true });
-
-  function handleSwipe() {
-    // left => next month
-    if (touchEndX < touchStartX - swipeThreshold) {
-      showSwipeIndicator('left');
-      jumpOneMonthForward();
-    }
-    // right => previous month
-    else if (touchEndX > touchStartX + swipeThreshold) {
-      showSwipeIndicator('right');
-      jumpOneMonthBackward();
-    }
-  }
-
-  function showSwipeIndicator(direction) {
-    const indicator = document.createElement('div');
-    indicator.style.position = 'fixed';
-    indicator.style.top = '50%';
-    indicator.style.padding = '10px 20px';
-    indicator.style.background = 'rgba(0,0,0,0.7)';
-    indicator.style.color = 'white';
-    indicator.style.borderRadius = '20px';
-    indicator.style.zIndex = '1000';
-    indicator.style.transform = 'translateY(-50%)';
-
-    if (direction === 'left') {
-      indicator.textContent = 'Next Month →';
-      indicator.style.right = '20px';
-    } else {
-      indicator.textContent = '← Previous Month';
-      indicator.style.left = '20px';
-    }
-
-    document.body.appendChild(indicator);
-
-    setTimeout(() => {
-      indicator.style.opacity = '0';
-      indicator.style.transition = 'opacity 0.3s';
-      setTimeout(() => indicator.remove(), 300);
-    }, 800);
-  }
-}
 
 
 // ========== WINDOW ONLOAD ==========
@@ -2590,13 +2407,6 @@ window.onload = async function() {
         setInterval(checkInfiniteScroll, 100);
     }
 
-// Remove or comment out the old once-a-day logic:
-// let lastPulledDate = localStorage.getItem("lastPulledDate") || "";
-// const todayString = new Date().toDateString();
-// if (lastPulledDate !== todayString) {
-//     localStorage.setItem("lastPulledDate", todayString);
-//     await pullUpdatesFromServer();
-// }
 
 // Instead, set up a timer to auto-pull every 5 minutes:
 setInterval(() => {
@@ -3057,4 +2867,31 @@ async function downloadLocalStorageData(filename = "calendar_data.json") {
           }
      });
 }
- 
+/*
+ * toggleDarkMode()
+ *  - Toggles a .dark-mode body class and saves preference in localStorage.
+ */
+function toggleDarkMode() {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+    showToast(document.body.classList.contains("dark-mode") ? "Dark mode enabled" : "Light mode enabled");
+}
+
+/*
+ * pushUndoState()
+ *  - Creates a JSON snapshot of localStorage and pushes it onto undoStack.
+ */
+function pushUndoState() {
+    redoStack = []; // Clear redo stack on new action
+    const snapshot = {};
+    for (const key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+            snapshot[key] = localStorage[key];
+        }
+    }
+    undoStack.push(JSON.stringify(snapshot));
+    if (undoStack.length > MAX_UNDO) {
+        undoStack.shift();
+    }
+}
+
