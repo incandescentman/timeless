@@ -45,7 +45,6 @@ const months = [
 ];
 // Short month labels for mobile
 const shortMonths = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
-const monthsShort = ["Jan","Feb","March","April","May","June","July","Aug","Sep","Oct","Nov","Dec"];
 
 // Variables for smooth-scrolling animations
 let startTime, startY, goalY;
@@ -685,7 +684,7 @@ function buildMobileDayCard(container, date) {
       <div class="day-top-row">
         <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
         <span class="month-day-container">
-          <span class="month-label">${monthsShort[date.getMonth()]}</span>
+          <span class="month-label">${shortMonths[date.getMonth()]}</span> {/* <-- Use shortMonths here */}
           <span class="day-number">${date.getDate()}</span>
         </span>
       </div>
@@ -693,7 +692,7 @@ function buildMobileDayCard(container, date) {
     `;
     container.appendChild(dayCard);
 }
-
+ 
 
 // ========== MINI CALENDAR WIDGET ==========
 
