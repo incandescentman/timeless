@@ -2308,41 +2308,6 @@ function loadDataFromFile() {
     reader.readAsText(file);
 }
 
-/*
- * shouldLoadOrExport()
- *  - Example method using the File System Access API for directory-based sync.
- */
-async function shouldLoadOrExport() {
-    showLoading();
-    try {
-        const handle = await window.showDirectoryPicker();
-        const fileHandle = await handle.getFileHandle("calendar_data.json", { create: false });
-        const file = await fileHandle.getFile();
-        const contents = await file.text();
-        const data = JSON.parse(contents);
-
-        const fileTimestamp = data.lastSavedTimestamp;
-        const localTimestamp = localStorage.getItem("lastSavedTimestamp");
-        if (fileTimestamp && (!localTimestamp || fileTimestamp > localTimestamp)) {
-            // If file is newer, backup local then load from file
-            downloadBackupStorageData();
-            await loadDataFromFileHandle(fileHandle);
-            location.reload();
-        } else {
-            // Otherwise export our local data to file
-            await exportToFileHandle(fileHandle);
-            hideLoading();
-        }
-    } catch (err) {
-        hideLoading();
-        if (err.name === "AbortError") {
-            console.log("User cancelled file/directory selection");
-        } else {
-            console.error("Error syncing data:", err);
-            showToast("Error syncing calendar data. See console for details.");
-        }
-    }
-}
 
 /*
  * downloadBackupStorageData()
@@ -2525,55 +2490,6 @@ async function downloadMarkdownEvents() {
     }
 }
 
-
-// ========== FILE HANDLING FOR SYNC ==========
-
-/*
- * loadDataFromFileHandle(fileHandle)
- *  - Loads JSON from the given file handle.
- */
-async function loadDataFromFileHandle(fileHandle) {
-    try {
-        const file = await fileHandle.getFile();
-        const contents = await file.text();
-        const data = JSON.parse(contents);
-        for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-                localStorage.setItem(key, data[key]);
-                debouncedServerSave();
-            }
-        }
-        showToast("Loaded calendar data from file");
-    } catch (err) {
-        hideLoading();
-        console.error("Error loading data from file:", err);
-        showToast("Error loading calendar data");
-    }
-}
-
-/*
- * exportToFileHandle(fileHandle)
- *  - Saves current localStorage to the given file handle.
- */
-async function exportToFileHandle(fileHandle) {
-    try {
-        const writable = await fileHandle.createWritable();
-        const data = {};
-        for (const key in localStorage) {
-            if (localStorage.hasOwnProperty(key)) {
-                data[key] = localStorage.getItem(key);
-            }
-        }
-        data.lastSavedTimestamp = Date.now();
-        await writable.write(JSON.stringify(data));
-        await writable.close();
-        showToast("Saved calendar data to file");
-    } catch (err) {
-        hideLoading();
-        console.error("Error saving data to file:", err);
-        showToast("Error saving calendar data");
-    }
-}
 
 
 
