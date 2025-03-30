@@ -2108,6 +2108,10 @@ let lastMiniCalendarMonth = null;
  *  - Clears #calendar, sets firstDate to the Monday of that week, and loads enough weeks to fill screen.
  */
 
+/*
+ * loadCalendarAroundDate(seedDate) - Modified to handle scrolling internally
+ *  - Clears #calendar, sets firstDate/lastDate, loads weeks, scrolls to seedDate.
+ */
 function loadCalendarAroundDate(seedDate) {
     // Ensure seedDate is valid
      if (!(seedDate instanceof Date && !isNaN(seedDate))) {
@@ -2149,10 +2153,10 @@ function loadCalendarAroundDate(seedDate) {
 
         let batchCount = 0;
         const initialHeight = documentScrollHeight();
-        const targetHeight = window.innerHeight * 1.5; // Load slightly more than viewport height
+        // Target height slightly more than viewport to ensure scrollbars appear if needed
+        const targetHeight = window.innerHeight + 200;
 
         // Keep adding weeks until screen is sufficiently filled or max additions reached
-        // Prepend more initially to have scroll-back buffer
         const weeksToAdd = 3; // Add a few weeks above and below in each batch
         for(let i = 0; i < weeksToAdd; i++) prependWeek();
         for(let i = 0; i < weeksToAdd; i++) appendWeek();
@@ -2163,8 +2167,9 @@ function loadCalendarAroundDate(seedDate) {
         // Use requestAnimationFrame to allow layout reflow before checking height again
         requestAnimationFrame(() => {
             if (documentScrollHeight() < targetHeight && currentBatchIteration <= maxBatchIterations) {
-                console.log(`Height ${documentScrollHeight()} still less than target ${targetHeight}. Loading next batch.`);
-                loadBatch(); // Load another batch
+                // Ensure enough content loaded or max iterations not reached
+                 console.log(`Height ${documentScrollHeight()} still less than target ${targetHeight}. Loading next batch.`);
+                 loadBatch(); // Load another batch
             } else {
                  console.log(`Loading finished. Final height: ${documentScrollHeight()}`);
                  finishLoading(); // Finish loading process
@@ -2178,10 +2183,12 @@ function loadCalendarAroundDate(seedDate) {
         updateStickyMonthHeader(); // Update header based on final layout
 
         // Rebuild mini-calendar if our month changed
-        if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
+        // Ensure currentCalendarDate is valid before accessing getMonth()
+        if (currentCalendarDate instanceof Date && !isNaN(currentCalendarDate) && currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
             buildMiniCalendar();
             lastMiniCalendarMonth = currentCalendarDate.getMonth();
         }
+
 
         // If we were using keyboardFocusDate, highlight that day
         if (keyboardFocusDate) {
@@ -2194,29 +2201,21 @@ function loadCalendarAroundDate(seedDate) {
         const seedId = idForDate(seedDate);
         const elem = document.getElementById(seedId);
         if (elem) {
-             console.log(`Scrolling instantly to seed date element: ${seedId}`);
-             // Instant scroll to center the seed date initially
-             window.scrollTo(0, scrollPositionForElement(elem));
+             console.log(`Scrolling instantly via scrollIntoView to seed date element: ${seedId}`);
+             // Use scrollIntoView for potentially better cross-browser/mobile initial positioning
+             elem.scrollIntoView({ behavior: 'auto', block: 'center' });
         } else {
              console.warn(`Seed date element ${seedId} not found after load! Cannot scroll.`);
+             // Attempt to scroll to top as fallback if seed date not found
+             window.scrollTo(0, 0);
         }
-        hideLoading(); // Hide loading indicator *after* scrolling
+        hideLoading(); // Hide loading indicator *after* scrolling attempts
     }
 
     // Start the batch loading process
     loadBatch();
 }
 
-// Remove the old scrollAnimation function - replaced by scrollAnimationRAF
-// Find and DELETE the old scrollAnimation function.
-
-// On scroll, we may want parallax effect
-window.addEventListener("scroll", throttle(() => {
-    const parallax = document.querySelector(".parallax-bg");
-    if (parallax) {
-        parallax.style.transform = "translateY(" + documentScrollTop() * 0.5 + "px)";
-    }
-}, 20));
 
 /*
  * setupScrollObservers()
