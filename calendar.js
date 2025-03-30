@@ -2371,16 +2371,6 @@ function downloadBackupStorageData() {
 }
 
 
-async function restoreDirectoryHandle(str) {
-  try {
-    // Try to parse but don't throw an error
-    const data = JSON.parse(str);
-    return null; // Return null instead of throwing
-  } catch(e) {
-    return null;
-  }
-}
-
 
 
 // ========== MARKDOWN EXPORT ==========
@@ -2585,55 +2575,6 @@ async function exportToFileHandle(fileHandle) {
     }
 }
 
-/*
- * buildDiaryExportText()
- *  - Another example function for converting day events into a plain text "diary" format.
- */
-function buildDiaryExportText() {
-    let eventsByDate = {};
-    // Gather note IDs from day keys like "2_14_2025"
-    for (const key in localStorage) {
-        if (!localStorage.hasOwnProperty(key)) continue;
-        if (!/^\d+_\d+_\d+$/.test(key)) continue;
-        const eventIds = localStorage[key].split(",");
-        const dayEvents = [];
-        eventIds.forEach(eid => {
-            const text = localStorage[eid];
-            if (text && text.trim() !== "") {
-                dayEvents.push(text.trim());
-            }
-        });
-        if (dayEvents.length > 0) {
-            eventsByDate[key] = dayEvents;
-        }
-    }
-
-    // Convert to lines, sorted by date
-    let dateEntries = [];
-    for (let dateKey in eventsByDate) {
-        let [m, d, y] = dateKey.split("_").map(Number);
-        let dateObj = new Date(y, m, d);
-        dateEntries.push({ dateObj, dateKey });
-    }
-    dateEntries.sort((a, b) => a.dateObj - b.dateObj);
-
-    let lines = [];
-    dateEntries.forEach(entry => {
-        const dateObj = entry.dateObj;
-        let [month, day, year] = [
-            dateObj.getMonth() + 1,
-            dateObj.getDate(),
-            dateObj.getFullYear(),
-        ];
-        lines.push(`${month}/${day}/${year}`);
-        eventsByDate[entry.dateKey].forEach(ev => {
-            lines.push(`- ${ev}`);
-        });
-        lines.push("");
-    });
-
-    return lines.join("\n");
-}
 
 
 // ========== SERVER SYNC ==========
@@ -2708,74 +2649,3 @@ async function pullUpdatesFromServer(confirmNeeded = false) {
 }
 
 
-/*
- * importFromDiaryFile()
- *  - Lets user open an Emacs "diary" text file, parse line by line, and import to localStorage.
- */
-async function importFromDiaryFile() {
-    try {
-        showLoading();
-        const [handle] = await window.showOpenFilePicker({
-            multiple: false,
-            types: [
-                {
-                    description: "Emacs Diary File",
-                    accept: { "text/plain": [".org", ".txt"] }
-                }
-            ]
-        });
-        const file = await handle.getFile();
-        const text = await file.text();
-        const lines = text.split(/\r?\n/);
-
-        const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
-        let currentDateKey = null;
-        let eventsByDate = {};
-
-        for (const rawLine of lines) {
-            let line = rawLine.trim();
-            if (!line || line.startsWith("*")) {
-                continue;
-            }
-            let match = line.match(dateRegex);
-            if (match) {
-                let [, M, D, Y] = match.map(Number);
-                let dateObj = new Date(Y, M - 1, D);
-                currentDateKey = `${dateObj.getMonth()}_${dateObj.getDate()}_${dateObj.getFullYear()}`;
-                if (!eventsByDate[currentDateKey]) {
-                    eventsByDate[currentDateKey] = [];
-                }
-                continue;
-            }
-            if (line.startsWith("-")) {
-                let eventText = line.replace(/^-+/, "").trim();
-                if (eventText && currentDateKey) {
-                    eventsByDate[currentDateKey].push(eventText);
-                }
-            }
-        }
-
-        pushUndoState();
-        for (let dateKey in eventsByDate) {
-            let existingIds = localStorage[dateKey] ? localStorage[dateKey].split(",") : [];
-            for (let text of eventsByDate[dateKey]) {
-                let isDuplicate = existingIds.some(id => localStorage[id] === text);
-                if (!isDuplicate) {
-                    let newId = nextItemId();
-                    localStorage[newId] = text;
-                    existingIds.push(newId);
-                }
-            }
-            localStorage[dateKey] = existingIds.join(",");
-        }
-
-        hideLoading();
-        showToast("Diary imported successfully!");
-        loadCalendarAroundDate(currentCalendarDate);
-
-    } catch (err) {
-        hideLoading();
-        console.error("Import error:", err);
-        showToast("Import canceled or failed.");
-    }
-}
