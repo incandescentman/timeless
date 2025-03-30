@@ -130,7 +130,7 @@ function waitForElementAndScroll(elementId, scrollOptions = { behavior: "auto", 
         requestAnimationFrame(checkElement); // Start polling
     });
 }
- 
+
 /*
  * showHelp(), hideHelp()
  *  - Show/hide the "help" overlay.
@@ -209,15 +209,19 @@ function curve(x) {
  * scrollAnimation()
  *  - Animates from startY to goalY over ~1 second using curve().
  */
-function scrollAnimation() {
-    const percent = (new Date() - startTime) / 1000;
-    if (percent > 1) {
-        window.scrollTo(0, goalY);
-        hideLoading();
+function scrollAnimationRAF() {
+    const elapsed = Date.now() - startTime; // Use Date.now() for consistency
+    const duration = 1000; // 1 second animation
+    const percent = Math.min(elapsed / duration, 1); // Clamp percent to max 1
+
+    const newY = Math.round(startY + (goalY - startY) * curve(percent));
+    window.scrollTo(0, newY);
+
+    if (percent < 1) {
+        requestAnimationFrame(scrollAnimationRAF); // Continue animation
     } else {
-        const newY = Math.round(startY + (goalY - startY)*curve(percent));
-        window.scrollTo(0, newY);
-        setTimeout(scrollAnimation, 10);
+        console.log("Smooth scroll animation finished.");
+        hideLoading(); // Hide loading indicator when animation completes
     }
 }
 
@@ -256,27 +260,31 @@ function scrollToToday() {
  * goToTodayAndRefresh()
  *  - Smoothly animates to the row containing "currentCalendarDate".
  */
+
 function goToTodayAndRefresh() {
     // Reset currentCalendarDate to actual system today
     currentCalendarDate = new Date(systemToday);
-
-    // Reset currentVisibleRow so we don't scroll to an old row
     currentVisibleRow = null;
+    window.scrollTo(0, 0); // Go to top immediately
 
-    // Clear any previous scroll position
-    window.scrollTo(0, 0);
-
-    // Completely rebuild the calendar with today at the center
+    showLoading(); // Show loading before rebuild
     calendarTableElement.innerHTML = "";
-    loadCalendarAroundDate(currentCalendarDate);
+    loadCalendarAroundDate(currentCalendarDate); // This function handles its own hideLoading/scrolling
 
-    // Increase delay to ensure calendar has time to render
-    setTimeout(() => {
-        const elem = document.getElementById(idForDate(currentCalendarDate));
-        if (elem) {
-            elem.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-    }, 500);
+    // loadCalendarAroundDate now calls scrollToToday which handles loading state.
+    // We just need to ensure the final scroll happens after load.
+    // The logic inside loadCalendarAroundDate's loadBatch completion handles the initial scroll.
+    // If a smooth scroll is specifically desired *here*, wait for load complete.
+    // However, loadCalendarAroundDate's internal scrollToToday might be sufficient.
+
+    // Let's rely on the scroll within loadCalendarAroundDate for now. If smoother needed:
+    // const todayId = idForDate(currentCalendarDate);
+    // waitForElementAndScroll(todayId, { behavior: "smooth", block: "center" })
+    //     .catch(err => {
+    //         console.error("Error scrolling after goToTodayAndRefresh:", err);
+    //         hideLoading(); // Ensure loading hidden on error
+    //     });
+    // Note: loadCalendarAroundDate manages its own loading indicator.
 }
 
 /*
@@ -1517,27 +1525,46 @@ function stepDay(delta) {
         keyboardFocusDate = new Date(currentCalendarDate || systemToday);
     }
     keyboardFocusDate.setDate(keyboardFocusDate.getDate() + delta);
+    const targetId = idForDate(keyboardFocusDate);
 
-    const cell = document.getElementById(idForDate(keyboardFocusDate));
+    const cell = document.getElementById(targetId);
     if (cell) {
+        // Cell exists, highlight and scroll smoothly
         highlightKeyboardFocusedDay();
         goalY = scrollPositionForElement(cell);
         startY = documentScrollTop();
-        startTime = new Date();
-        if (goalY !== startY) scrollAnimation();
+        if (Math.abs(goalY - startY) > 5) {
+             startTime = new Date();
+             showLoading(); // Show loading during smooth scroll
+             requestAnimationFrame(scrollAnimationRAF); // Start smooth scroll animation
+        } else {
+             // Already in view, no scroll needed
+        }
     } else {
-        // If the new day isn't loaded, load more weeks
-        loadCalendarAroundDate(keyboardFocusDate);
-        setTimeout(() => {
-            highlightKeyboardFocusedDay();
-            const newCell = document.getElementById(idForDate(keyboardFocusDate));
-            if (newCell) {
-                goalY = scrollPositionForElement(newCell);
-                startY = documentScrollTop();
-                startTime = new Date();
-                if (goalY !== startY) scrollAnimation();
-            }
-        }, 300);
+        // Cell not loaded, rebuild calendar and then scroll
+        showLoading();
+        loadCalendarAroundDate(keyboardFocusDate); // Rebuilds around new date
+
+        // Wait for the cell to appear after load, then scroll smoothly
+        waitForElementAndScroll(targetId, { behavior: "auto", block: "center" }, 5000)
+            .then(element => {
+                 highlightKeyboardFocusedDay(); // Highlight after it's found
+                 // Initiate smooth scroll animation
+                 goalY = scrollPositionForElement(element);
+                 startY = documentScrollTop();
+                 if (Math.abs(goalY - startY) > 5) {
+                      startTime = new Date();
+                      // showLoading() was already called
+                      requestAnimationFrame(scrollAnimationRAF);
+                 } else {
+                      hideLoading(); // Already in view after load
+                 }
+            })
+            .catch(err => {
+                 console.error(`Error scrolling after stepDay load for ${targetId}:`, err);
+                 showToast("Could not navigate to the target day.");
+                 hideLoading();
+            });
     }
 }
 
@@ -1931,19 +1958,31 @@ function jumpOneMonthBackward() {
  */
 function smoothScrollToDate(dateObj) {
     showLoading();
-    loadCalendarAroundDate(dateObj);
-    setTimeout(() => {
-        const el = document.getElementById(idForDate(dateObj));
-        if (!el) {
-            hideLoading();
-            return;
-        }
-        goalY = scrollPositionForElement(el);
-        startY = documentScrollTop();
-        startTime = new Date();
-        if (goalY !== startY) setTimeout(scrollAnimation, 10);
-        else hideLoading();
-    }, 200);
+    loadCalendarAroundDate(dateObj); // Rebuilds calendar around the target
+
+    // loadCalendarAroundDate handles initial scroll. If a smooth animation
+    // is *required* after load, use waitForElementAndScroll here.
+    const targetId = idForDate(dateObj);
+    waitForElementAndScroll(targetId, { behavior: "auto", block: "center" }, 5000) // Wait up to 5s
+         .then(element => {
+              // Element found and scrolled into view (likely instantly by loadCalendarAroundDate)
+              // Now initiate smooth animation if desired
+              goalY = scrollPositionForElement(element);
+              startY = documentScrollTop();
+              if (Math.abs(goalY - startY) > 5) { // Only animate if not already close
+                   startTime = new Date();
+                   console.log(`Starting smooth scroll animation to Y: ${goalY}`);
+                   requestAnimationFrame(scrollAnimationRAF); // Use RAF for animation loop
+              } else {
+                   console.log("Target element already near view, skipping smooth animation.");
+                   hideLoading(); // Hide loading if no animation needed
+              }
+         })
+         .catch(err => {
+              console.error(`Error in smoothScrollToDate: Could not find element ${targetId}.`, err);
+              showToast("Could not scroll to the target date.");
+              hideLoading();
+         });
 }
 
 
@@ -2035,21 +2074,36 @@ function highlightDaysInRange() {
 function jumpToDate() {
     const val = document.getElementById("jumpDate").value;
     if (!val) return;
-    showLoading();
-    const [yyyy, mm, dd] = val.split("-");
-    const jumpDateObj = new Date(yyyy, mm - 1, dd);
-    currentCalendarDate = jumpDateObj;
-    loadCalendarAroundDate(currentCalendarDate);
-    setTimeout(() => goToTodayAndRefresh(), 300);
-}
 
-/*
- * nextItemId()
- *  - Generates a unique ID for a new note item. Stored in localStorage.nextId.
- */
-function nextItemId() {
-    localStorage.nextId = localStorage.nextId ? parseInt(localStorage.nextId) + 1 : 0;
-    return "item" + localStorage.nextId;
+    showLoading();
+    try {
+        const [yyyy, mm, dd] = val.split("-");
+        // Validate parts
+        if (!yyyy || !mm || !dd || isNaN(yyyy) || isNaN(mm) || isNaN(dd)) {
+             throw new Error("Invalid date format in input.");
+        }
+        const jumpDateObj = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
+         if (isNaN(jumpDateObj.getTime())) {
+             throw new Error("Invalid date constructed.");
+         }
+
+        currentCalendarDate = jumpDateObj;
+        loadCalendarAroundDate(currentCalendarDate); // Rebuilds and scrolls internally
+
+        // Rely on loadCalendarAroundDate's internal scroll mechanism
+        // const targetId = idForDate(currentCalendarDate);
+        // waitForElementAndScroll(targetId, { behavior: "smooth", block: "center" })
+        //      .catch(err => {
+        //           console.error("Error scrolling after jumpToDate:", err);
+        //           hideLoading();
+        //      });
+         // Note: loadCalendarAroundDate manages its own loading indicator.
+
+    } catch (error) {
+         console.error("Error in jumpToDate:", error);
+         showToast("Invalid date specified.");
+         hideLoading();
+    }
 }
 
 
@@ -2062,64 +2116,109 @@ let lastMiniCalendarMonth = null;
  * loadCalendarAroundDate(seedDate)
  *  - Clears #calendar, sets firstDate to the Monday of that week, and loads enough weeks to fill screen.
  */
+
 function loadCalendarAroundDate(seedDate) {
-    showLoading();
+    // Ensure seedDate is valid
+     if (!(seedDate instanceof Date && !isNaN(seedDate))) {
+         console.error("Invalid seedDate passed to loadCalendarAroundDate. Using systemToday.");
+         seedDate = new Date(systemToday);
+         currentCalendarDate = new Date(systemToday); // Reset currentCalendarDate as well
+     }
+
+    showLoading(); // Show loading at the start
     const container = document.getElementById('calendarContainer');
     container.classList.add('loading-calendar');
+    calendarTableElement.innerHTML = ""; // Clear existing content
 
-    // Start from seedDate, roll back to Monday
-calendarTableElement.innerHTML = "";
+    // Start from seedDate, roll back to the Monday of that week
     firstDate = new Date(seedDate);
-    while (getAdjustedDayIndex(firstDate) !== 0) {
-        firstDate.setDate(firstDate.getDate() - 1);
+    firstDate.setHours(0, 0, 0, 0); // Normalize time
+    const dayIndex = getAdjustedDayIndex(firstDate); // 0=Mon, 6=Sun
+    if (dayIndex > 0) {
+        firstDate.setDate(firstDate.getDate() - dayIndex);
     }
+    // lastDate should start *before* the first day to be generated by appendWeek
     lastDate = new Date(firstDate);
     lastDate.setDate(lastDate.getDate() - 1);
 
-    // Insert the first row
-    appendWeek();
+    console.log(`Loading calendar around ${seedDate.toDateString()}. First loaded day will be ${firstDate.toDateString()}`);
 
-    // Insert a bunch of weeks before/after to ensure there's enough content:
-    for (let i = 0; i < 3; i++) {
-      prependWeek();
-    }
-    for (let i = 0; i < 5; i++) {
-      appendWeek();
-    }
+    // Use a counter to prevent infinite loops in loadBatch if height calculation is off
+    let maxBatchIterations = 10;
+    let currentBatchIteration = 0;
 
+    // --- Batch Loading Function ---
     function loadBatch() {
+        currentBatchIteration++;
+        if (currentBatchIteration > maxBatchIterations) {
+             console.warn("Max batch loading iterations reached. Stopping load.");
+             finishLoading();
+             return;
+        }
+
         let batchCount = 0;
-        // Keep adding top/bottom weeks until screen is filled (or do a max iteration)
-        while (documentScrollHeight() <= window.innerHeight && batchCount < 2) {
-            prependWeek();
-            appendWeek();
-            batchCount++;
-        }
-        if (documentScrollHeight() <= window.innerHeight) {
-            setTimeout(loadBatch, 0);
-        } else {
-            // Done loading
-            container.classList.remove('loading-calendar');
-            scrollToToday();
-            recalculateAllHeights();
-            updateStickyMonthHeader();
+        const initialHeight = documentScrollHeight();
+        const targetHeight = window.innerHeight * 1.5; // Load slightly more than viewport height
 
-            // Rebuild mini-calendar if our month changed
-            if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
-                buildMiniCalendar();
-                lastMiniCalendarMonth = currentCalendarDate.getMonth();
-            }
+        // Keep adding weeks until screen is sufficiently filled or max additions reached
+        // Prepend more initially to have scroll-back buffer
+        const weeksToAdd = 3; // Add a few weeks above and below in each batch
+        for(let i = 0; i < weeksToAdd; i++) prependWeek();
+        for(let i = 0; i < weeksToAdd; i++) appendWeek();
+        batchCount += weeksToAdd * 2;
 
-            // If we were using keyboardFocusDate, highlight that day
-            if (keyboardFocusDate) {
-                highlightKeyboardFocusedDay();
+        console.log(`Batch ${currentBatchIteration}: Added ${batchCount} weeks. Current scrollHeight: ${documentScrollHeight()}`);
+
+        // Use requestAnimationFrame to allow layout reflow before checking height again
+        requestAnimationFrame(() => {
+            if (documentScrollHeight() < targetHeight && currentBatchIteration <= maxBatchIterations) {
+                console.log(`Height ${documentScrollHeight()} still less than target ${targetHeight}. Loading next batch.`);
+                loadBatch(); // Load another batch
+            } else {
+                 console.log(`Loading finished. Final height: ${documentScrollHeight()}`);
+                 finishLoading(); // Finish loading process
             }
-            hideLoading();
-        }
+        });
     }
+
+    // --- Finish Loading Function ---
+    function finishLoading() {
+        recalculateAllHeights(); // Recalculate heights after all rows added
+        updateStickyMonthHeader(); // Update header based on final layout
+
+        // Rebuild mini-calendar if our month changed
+        if (currentCalendarDate.getMonth() !== lastMiniCalendarMonth) {
+            buildMiniCalendar();
+            lastMiniCalendarMonth = currentCalendarDate.getMonth();
+        }
+
+        // If we were using keyboardFocusDate, highlight that day
+        if (keyboardFocusDate) {
+            highlightKeyboardFocusedDay();
+        }
+
+        container.classList.remove('loading-calendar');
+
+        // Scroll to the initial seedDate *after* loading is complete
+        const seedId = idForDate(seedDate);
+        const elem = document.getElementById(seedId);
+        if (elem) {
+             console.log(`Scrolling instantly to seed date element: ${seedId}`);
+             // Instant scroll to center the seed date initially
+             window.scrollTo(0, scrollPositionForElement(elem));
+        } else {
+             console.warn(`Seed date element ${seedId} not found after load! Cannot scroll.`);
+        }
+        hideLoading(); // Hide loading indicator *after* scrolling
+    }
+
+    // Start the batch loading process
     loadBatch();
 }
 
+// Remove the old scrollAnimation function - replaced by scrollAnimationRAF
+// Find and DELETE the old scrollAnimation function.
+ 
 // On scroll, we may want parallax effect
 window.addEventListener("scroll", throttle(() => {
     const parallax = document.querySelector(".parallax-bg");
