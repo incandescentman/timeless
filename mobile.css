@@ -296,8 +296,12 @@ a.button,
     transform: scale(0.95);
   }
 
-
-
+{
+  .week-row-animate.append-animate,
+  .week-row-animate.prepend-animate {
+    animation-duration: 0.1s !important;
+  }
+ 
 
 }
 
