@@ -253,28 +253,28 @@ function scrollToToday() {
  */
 
 function goToTodayAndRefresh() {
-    // Reset currentCalendarDate to actual system today
-    const today = new Date(systemToday);
-    currentCalendarDate = today;
+    // 1. Reset currentCalendarDate to the actual systemToday
+    currentCalendarDate = new Date(systemToday);
+
+    // 2. Clear any existing "currentVisibleRow"
     currentVisibleRow = null;
-    window.scrollTo(0, 0); // Go to top immediately
 
-    showLoading(); // Show loading before rebuild
+    // 3. Scroll to top right away
+    window.scrollTo(0, 0);
+
+    // 4. Clear the current table and rebuild with "today" in the middle
     calendarTableElement.innerHTML = "";
-    
-    // Load calendar around today's date
-    loadCalendarAroundDate(today);
+    loadCalendarAroundDate(currentCalendarDate);
 
-    // Wait for the element to be available and scroll to it
-    const todayId = idForDate(today);
-    waitForElementAndScroll(todayId, { behavior: "smooth", block: "center" })
-        .catch(err => {
-            console.error("Error scrolling after goToTodayAndRefresh:", err);
-            hideLoading(); // Ensure loading hidden on error
-        });
+    // 5. After a short delay (e.g., 500ms), call scrollIntoView
+    setTimeout(() => {
+        const elem = document.getElementById(idForDate(currentCalendarDate));
+        if (elem) {
+            elem.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    }, 500);
 }
-
-/*
+/* 
  * toggleDarkMode()
  *  - Toggles a .dark-mode body class and saves preference in localStorage.
  */
@@ -2266,7 +2266,7 @@ function loadCalendarAroundDate(seedDate) {
 }
 
 
-/* 
+/*
  * setupScrollObservers()
  *  - Uses IntersectionObserver to detect hitting top/bottom sentinels, then loads more weeks.
  */
