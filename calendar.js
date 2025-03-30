@@ -254,7 +254,7 @@ function scrollToToday() {
  *  - Smoothly animates to the row containing "currentCalendarDate".
  */
 function goToTodayAndRefresh() {
-    // Ensure calendarTableElement is defined before use (CRITICAL!)
+    // Ensure calendarTableElement is defined before use
     calendarTableElement = document.getElementById("calendar");
     if (!calendarTableElement) {
         console.error("Error: #calendar element not found!");
@@ -281,17 +281,39 @@ function goToTodayAndRefresh() {
 
     // Increase delay to ensure calendar has time to render
     setTimeout(() => {
-        const elem = document.getElementById(idForDate(currentCalendarDate));
+        const targetId = idForDate(currentCalendarDate);
+        const elem = document.getElementById(targetId);
         if (elem) {
+            console.log(`Scrolling to today: ${currentCalendarDate.toDateString()}`);
             elem.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+            console.error(`Could not find element for today (${targetId})`);
         }
     }, 500);
 }
- 
+
+// Add this for mobile to help with immediate functionality
+window.addEventListener('DOMContentLoaded', function() {
+    // Add a click event listener to the Today button
+    const todayButton = document.getElementById('todayButton'); // Ensure this matches your button ID
+    if (todayButton) {
+        todayButton.addEventListener('click', function() {
+            goToTodayAndRefresh();
+        });
+    }
+
+    if (window.innerWidth <= 768) {
+        // Execute goToTodayAndRefresh after a short delay to ensure everything is loaded
+        setTimeout(function() {
+            goToTodayAndRefresh();
+        }, 100);
+    }
+});
 
 
 
-/*
+
+/* 
  * toggleDarkMode()
  *  - Toggles a .dark-mode body class and saves preference in localStorage.
  */
