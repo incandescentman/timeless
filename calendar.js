@@ -2881,10 +2881,6 @@ async function saveDataToServer() {
     }
 }
 
-/*
- * pullUpdatesFromServer(confirmNeeded = false)
- *  - Fetches data from server, compares timestamps, and merges safely or prompts user.
- */
 
 
 /*
