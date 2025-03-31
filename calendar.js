@@ -431,35 +431,68 @@ function recalculateAllHeights() {
  * storeValueForItemId(itemId)
  *  - Persists the <textarea> content to localStorage, plus adds undo state.
  */
+
+/*
+ * Persists the <textarea> content to localStorage and updates the parent's
+ * ordered list of item IDs based on the current DOM order.
+ * @param {string} itemId - The ID of the textarea being saved.
+ */
 function storeValueForItemId(itemId) {
-    pushUndoState();
     const ta = document.getElementById(itemId);
-    if (!ta) return;
-
+    // Basic validation: Ensure textarea and its parent TD exist
+    if (!ta || !ta.parentNode || ta.parentNode.tagName !== 'TD') {
+         console.warn(`storeValueForItemId: Could not find textarea or its parent TD for ID ${itemId}. Aborting save.`);
+         return; // Don't proceed if the element or context is invalid
+    }
     const parentId = ta.parentNode.id;
-    localStorage[itemId] = ta.value;
+    const parentCell = ta.parentNode;
+    const currentValue = ta.value; // Get value before potentially removing element
 
-    // Attach itemId to parent's comma-separated list
-    const parentIds = localStorage[parentId] ? localStorage[parentId].split(",") : [];
-    if (!parentIds.includes(itemId)) {
-        parentIds.push(itemId);
-        localStorage[parentId] = parentIds;
+    // Don't save if the value is effectively empty (trim check).
+    // Let the blur handler manage removal of empty items.
+    if (!currentValue.trim()) {
+         console.log(`storeValueForItemId: Value for ${itemId} is empty, deferring to blur handler for potential removal.`);
+         // It's important that noteBlurHandler correctly removes the item ID from localStorage[parentId]
+         return;
     }
 
-    // Optionally store under an ISO date key
+    console.log(`storeValueForItemId: Saving value for ${itemId} in parent ${parentId}`);
+    pushUndoState(); // Store undo state before making changes
+
+    // 1. Save the item's actual value
+    localStorage.setItem(itemId, currentValue);
+
+    // 2. Update the parent's ordered list based on current DOM structure
+    const notesInOrder = parentCell.querySelectorAll("textarea"); // Get all textareas within the parent TD in their current DOM order
+    const orderedIds = Array.from(notesInOrder)
+                           .map(note => note.id) // Get their IDs
+                           .filter(id => localStorage.getItem(id) !== null && localStorage.getItem(id).trim() !== ''); // Filter out any potentially lingering IDs for empty notes
+
+    if (orderedIds.length > 0) {
+        const orderedIdsString = orderedIds.join(',');
+        localStorage.setItem(parentId, orderedIdsString);
+        // console.log(`storeValueForItemId: Updated order for ${parentId}: ${orderedIdsString}`);
+    } else {
+        // If, after filtering, no valid items remain in this cell
+        delete localStorage.removeItem(parentId); // Use removeItem for clarity
+        console.log(`storeValueForItemId: No valid items left in ${parentId}, removing parent key.`);
+    }
+
+    // 3. Optional: Update ISO date key (if you use this feature)
+    //    Note: This simple key might only work well if you expect one main item per day using ISO.
+    //    If multiple items per day should map to ISO, this needs more complex logic.
     const iso = parseDateFromId(parentId);
     if (iso) {
-        localStorage[iso] = ta.value;
+        localStorage.setItem(iso, currentValue); // This overwrites any previous value for that ISO date
     }
 
-    // Mark last-saved time
+    // 4. Update metadata and trigger sync
     localStorage.setItem("lastSavedTimestamp", Date.now());
+    debouncedServerSave(); // Trigger server sync
 
-    // Trigger a debounced server save
-    debouncedServerSave();
-
-    // Then process note tags, recalc height, etc.
-    // processNoteTags(ta);
+    // 5. Update UI elements related to the note
+//    processNoteTags(ta); // Apply tag styling etc.
+    recalculateHeight(ta.id); // Ensure height is correct after save/tag processing
 }
 
 
@@ -620,7 +653,7 @@ function generateItem(parentId, itemId, insertBeforeElement = null) {
 
     return ta;
 }
- 
+
 
 
 
