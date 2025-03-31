@@ -580,21 +580,51 @@ function noteBlurHandler() {
     }
 }
 
+
+
 /*
  * generateItem(parentId, itemId)
  *  - Creates a new <textarea> inside the day cell and returns it.
  */
-function generateItem(parentId, itemId) {
+/*
+ * Creates a new <textarea> inside the day cell and returns it.
+ * Can optionally insert the new textarea before a specific existing element.
+ * @param {string} parentId - The ID of the parent <td> cell.
+ * @param {string} itemId - The unique ID for the new textarea.
+ * @param {HTMLElement|null} [insertBeforeElement=null] - If provided and valid, insert the new textarea before this element. Otherwise, append.
+ * @returns {HTMLTextAreaElement|null} The created textarea element or null on error.
+ */
+function generateItem(parentId, itemId, insertBeforeElement = null) {
     const cell = document.getElementById(parentId);
-    if (!cell) return null;
+    if (!cell) {
+        console.error(`generateItem: Parent cell with ID ${parentId} not found.`);
+        return null;
+    }
     const ta = document.createElement("textarea");
     ta.id = itemId;
     ta.onkeydown = noteKeyDownHandler;
-    ta.onblur = noteBlurHandler;
+    ta.onblur = noteBlurHandler; // Make sure this triggers the updated storeValueForItemId/removal
     ta.spellcheck = false;
-    cell.appendChild(ta);
+    ta.placeholder = "New note..."; // Add placeholder text
+
+    // Determine where to insert the element
+    if (insertBeforeElement instanceof HTMLElement && cell.contains(insertBeforeElement)) {
+        // Insert before the specified element if it's valid and inside the cell
+        cell.insertBefore(ta, insertBeforeElement);
+        console.log(`generateItem: Inserted ${itemId} before ${insertBeforeElement.id}`);
+    } else {
+        // Otherwise, append to the end of the cell
+        cell.appendChild(ta);
+        // console.log(`generateItem: Appended ${itemId} to ${parentId}`);
+    }
+
     return ta;
 }
+ 
+
+
+
+
 
 /*
  * lookupItemsForParentId(parentId, callback)
@@ -1789,30 +1819,64 @@ document.addEventListener("keydown", (e) => {
 
 // ========== CLICK HANDLER FOR CREATING A NEW NOTE ==========
 
+// Existing global click listener...
 document.addEventListener("click", evt => {
+    // Ignore clicks on inputs/buttons in the header etc.
+    if (evt.target.closest('#header')) return;
+    if (evt.target.closest('.mobile-action-bar')) return;
+
     const dayCell = evt.target.closest("td");
-    if (!dayCell || !dayCell.id || dayCell.classList.contains("extra")) return;
-    // If clicked inside an existing <textarea>, do nothing
+
+    // Ensure it's a valid calendar day cell and not the header/buttons etc.
+    if (!dayCell || !dayCell.id || dayCell.classList.contains("extra") || dayCell.closest('#miniCalendar')) return;
+
+    // If clicked inside an existing <textarea>, let its own handlers manage it
     if (evt.target.tagName.toLowerCase() === "textarea") return;
 
+    // Handle range selection if active
     if (isSelectingRange) {
-        // If user is in "range select" mode, handle that
         handleRangeSelection(dayCell);
         return;
     }
-    // Otherwise create a new note
+
+    // --- NEW LOGIC STARTS HERE ---
+
+    // Calculate click position within the cell
+    const cellRect = dayCell.getBoundingClientRect();
+    const clickY = evt.clientY - cellRect.top;
+    const cellHeight = cellRect.height;
+
+    // Find existing notes in this cell
+    const existingNotes = dayCell.querySelectorAll("textarea");
+    let insertBeforeElement = null; // Default to append
+
+    // Determine click zone
+    if (existingNotes.length > 0) {
+        if (clickY < cellHeight / 3) {
+            // Clicked in top third: Insert before the first existing note
+            insertBeforeElement = existingNotes[0];
+            console.log("Click detected in top third. Inserting before:", insertBeforeElement.id);
+        }
+        // No special action for bottom third needed, default append works.
+        // Middle third also defaults to append.
+    }
+    // If existingNotes.length is 0, insertBeforeElement remains null (append).
+
+    // Add visual feedback for the click
     dayCell.classList.add("clicked-day");
     setTimeout(() => dayCell.classList.remove("clicked-day"), 500);
-    const itemId = nextItemId();
-    const note = generateItem(dayCell.id, itemId);
+
+    // Generate the new item, potentially inserting it before an existing one
+    const newItemId = nextItemId();
+    const note = generateItem(dayCell.id, newItemId, insertBeforeElement); // Pass the target element
+
     if (note) {
-        recalculateHeight(note.id);
-        storeValueForItemId(note.id);
-        note.focus();
+        // Don't call storeValueForItemId here yet, let blur/enter handle final save
+        recalculateHeight(note.id); // Adjust height immediately
+        note.focus(); // Focus the newly created/inserted note
     }
+    // --- NEW LOGIC ENDS HERE ---
 });
-
-
 
 function jumpOneMonthForward() {
     // Figure out the next month from currentCalendarDate
