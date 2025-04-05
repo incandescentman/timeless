@@ -1053,6 +1053,10 @@ function populateCommands() {
         { icon: '⬇️', name: 'Next month',            shortcut: 'Alt+↓', action: jumpOneMonthForward },
         { icon: '⬆️', name: 'Previous month',        shortcut: 'Alt+↑', action: jumpOneMonthBackward },
         { icon: '❓', name: 'Show help',             shortcut: '?',    action: showHelp },
+
+// --- NEW COMMAND ADDED HERE ---
+        { icon: '🔄', name: 'Sync with Server',      shortcut: 'S',    action: () => pullUpdatesFromServer(false) }, // Calls pull without confirmation
+
         { icon: '💾', name: 'Download calendar data', shortcut: '',     action: downloadLocalStorageData },
         { icon: '📥', name: 'Import calendar data',  shortcut: '',     action: () => document.getElementById('fileInput').click() },
         { icon: '📝', name: 'Enter multi-day edit',  shortcut: 'M',    action: toggleMultiSelectMode },
