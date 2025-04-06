@@ -439,13 +439,20 @@ function recalculateAllHeights() {
  */
 function storeValueForItemId(itemId) {
     const ta = document.getElementById(itemId);
-    // Basic validation: Ensure textarea and its parent TD exist
-    if (!ta || !ta.parentNode || ta.parentNode.tagName !== 'TD') {
-         console.warn(`storeValueForItemId: Could not find textarea or its parent TD for ID ${itemId}. Aborting save.`);
-         return; // Don't proceed if the element or context is invalid
+    // Basic validation: Ensure textarea exists
+    if (!ta) {
+         console.warn(`storeValueForItemId: Could not find textarea for ID ${itemId}. Aborting save.`);
+         return; // Don't proceed if the element is invalid
     }
-    const parentId = ta.parentNode.id;
-    const parentCell = ta.parentNode;
+    
+    // Find the parent TD - handle both direct parent and Framework7 nested structure
+    let parentCell = ta.closest('td');
+    if (!parentCell) {
+         console.warn(`storeValueForItemId: Could not find parent TD for textarea ${itemId}. Aborting save.`);
+         return;
+    }
+    
+    const parentId = parentCell.id;
     const currentValue = ta.value; // Get value before potentially removing element
 
     // Don't save if the value is effectively empty (trim check).
@@ -462,11 +469,11 @@ function storeValueForItemId(itemId) {
     // 1. Save the item's actual value
     localStorage.setItem(itemId, currentValue);
 
-    // 2. Update the parent's ordered list based on current DOM structure
-    const notesInOrder = parentCell.querySelectorAll("textarea"); // Get all textareas within the parent TD in their current DOM order
-    const orderedIds = Array.from(notesInOrder)
-                           .map(note => note.id) // Get their IDs
-                           .filter(id => localStorage.getItem(id) !== null && localStorage.getItem(id).trim() !== ''); // Filter out any potentially lingering IDs for empty notes
+    // 2. Get all textareas in this cell, handling both direct children and F7 nested structure
+    const allTextareas = parentCell.querySelectorAll("textarea");
+    const orderedIds = Array.from(allTextareas)
+                         .map(note => note.id) // Get their IDs
+                         .filter(id => localStorage.getItem(id) !== null && localStorage.getItem(id).trim() !== '');
 
     if (orderedIds.length > 0) {
         const orderedIdsString = orderedIds.join(',');
@@ -616,7 +623,7 @@ function noteBlurHandler() {
 
 
 /*
- * generateItem(parentId, itemId)
+ * generateItem(parentId, itemId, insertBeforeElement = null)
  *  - Creates a new <textarea> inside the day cell and returns it.
  */
 /*
@@ -629,28 +636,101 @@ function noteBlurHandler() {
  */
 function generateItem(parentId, itemId, insertBeforeElement = null) {
     const cell = document.getElementById(parentId);
-    if (!cell) {
-        console.error(`generateItem: Parent cell with ID ${parentId} not found.`);
-        return null;
+    if (!cell) return null;
+    
+    // Check if we're using Framework7 (mobile) or standard layout
+    const isMobile = window.innerWidth <= 768;
+    const isF7Cell = cell.classList.contains('f7-enabled');
+    
+    // Handle Framework7 structure
+    if (isMobile && isF7Cell && window.Framework7) {
+        console.log(`generateItem: Creating item ${itemId} in F7-enabled cell ${parentId}`);
+        
+        // Find or create the notes-list wrapper
+        let notesList = cell.querySelector('.notes-list');
+        if (!notesList) {
+            notesList = document.createElement('div');
+            notesList.className = 'notes-list';
+            cell.appendChild(notesList);
+        }
+        
+        // Find or create the list container
+        let listDiv = notesList.querySelector('.list');
+        if (!listDiv) {
+            listDiv = document.createElement('div');
+            listDiv.className = 'list media-list';
+            
+            const listUl = document.createElement('ul');
+            listDiv.appendChild(listUl);
+            notesList.appendChild(listDiv);
+        }
+        
+        // Find the UL
+        const listUl = listDiv.querySelector('ul');
+        
+        // Create list item with Framework7's default structure
+        const listItem = document.createElement('li');
+        listItem.className = 'swipeout';
+        listItem.dataset.textareaId = itemId;
+        
+        // Create inner structure with Framework7's default classes
+        listItem.innerHTML = `
+            <div class="swipeout-content">
+                <a href="#" class="item-link item-content">
+                    <div class="item-inner">
+                        <div class="item-title-row">
+                            <div class="item-title">
+                                <textarea id="${itemId}" spellcheck="false"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="swipeout-actions-right">
+                <a href="#" class="swipeout-delete">Delete</a>
+            </div>
+        `;
+        
+        // Handle insertion before another element
+        if (insertBeforeElement) {
+            // Find the list item containing the insertBeforeElement
+            const beforeListItem = insertBeforeElement.closest('li.swipeout');
+            if (beforeListItem) {
+                listUl.insertBefore(listItem, beforeListItem);
+                console.log(`generateItem: Inserted ${itemId} before ${insertBeforeElement.id} in F7 structure`);
+            } else {
+                // Fallback - just append
+                listUl.appendChild(listItem);
+                console.log(`generateItem: Could not find list item for ${insertBeforeElement.id}, appending instead`);
+            }
+        } else {
+            // Simple append
+            listUl.appendChild(listItem);
+        }
+        
+        // Get reference to the new textarea
+        const ta = listItem.querySelector('textarea');
+        
+        // Set up event handlers
+        ta.onkeydown = noteKeyDownHandler;
+        ta.onblur = noteBlurHandler;
+        
+        return ta;
     }
+    
+    // Standard non-Framework7 approach
     const ta = document.createElement("textarea");
     ta.id = itemId;
     ta.onkeydown = noteKeyDownHandler;
-    ta.onblur = noteBlurHandler; // Make sure this triggers the updated storeValueForItemId/removal
+    ta.onblur = noteBlurHandler;
     ta.spellcheck = false;
-    ta.placeholder = "New note..."; // Add placeholder text
-
-    // Determine where to insert the element
-    if (insertBeforeElement instanceof HTMLElement && cell.contains(insertBeforeElement)) {
-        // Insert before the specified element if it's valid and inside the cell
+    
+    if (insertBeforeElement) {
         cell.insertBefore(ta, insertBeforeElement);
-        console.log(`generateItem: Inserted ${itemId} before ${insertBeforeElement.id}`);
     } else {
-        // Otherwise, append to the end of the cell
         cell.appendChild(ta);
-        // console.log(`generateItem: Appended ${itemId} to ${parentId}`);
     }
-
+    
     return ta;
 }
 
@@ -1950,7 +2030,7 @@ function jumpOneMonthForward() {
             currentCalendarDate = targetDate; // update
             showToast("Next Month");
             // Just smooth-scroll into view
-            targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetElem.scrollIntoView({ behavior: "smooth", block: "center" });
             // Possibly update sticky header after a small delay
             setTimeout(updateStickyMonthHeader, 300);
         } else {
@@ -3181,6 +3261,28 @@ function pushUndoState() {
  *  - Uses a pseudo-element on the parent TD for the delete indicator.
  */
 function setupSwipeToDelete() {
+    console.log("Setting up swipe functionality...");
+    
+    // First check if we're on mobile
+    const isPhone = window.innerWidth <= 768;
+    console.log("Is mobile device:", isPhone);
+    
+    if (isPhone) {
+        // First, ensure we have a toolbar
+        console.log("Creating toolbar for mobile");
+        createF7Toolbar();
+        
+        // Then enable Framework7
+        console.log("Enabling Framework7");
+        enableSwipeToDelete();
+    }
+    
+    // Then set up the regular swipe to delete functionality
+    // Only proceed with swipe handlers if on mobile device
+    if (!isPhone) return;
+    
+    console.log("Setting up touch event handlers");
+    
     let touchStartX = 0;
     let touchStartY = 0;
     let currentNote = null;
@@ -3189,10 +3291,6 @@ function setupSwipeToDelete() {
     let originalTransform = '';
     let transformAmount = 0;
     const deleteThreshold = 100; // Pixels to swipe before triggering delete
-    const isPhone = window.innerWidth <= 768;
-    
-    // Only set up swipe handlers on mobile devices
-    if (!isPhone) return;
     
     document.addEventListener('touchstart', handleTouchStart, { passive: false });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -3425,12 +3523,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Function to enable Framework7 swipe-to-delete on calendar textareas
 function enableSwipeToDelete() {
-  // Add CSS variables for theming
-  document.documentElement.style.setProperty('--textarea-mobile-bg', 'white');
-  document.documentElement.style.setProperty('--textarea-mobile-bg-dark', '#2d3748');
-
+  // Check if already initialized
+  if (document.querySelector('.f7-enabled')) {
+    console.log("Framework7 already initialized");
+    return;
+  }
+  
   // Add appropriate Framework7 classes to calendar cells
   const dayCells = document.querySelectorAll('#calendar td:not(.extra)');
+  
+  if (!dayCells.length) {
+    console.log("No day cells found to enable Framework7");
+    return;
+  }
+  
+  console.log(`Enabling Framework7 swipe-to-delete on ${dayCells.length} day cells`);
   
   dayCells.forEach(cell => {
     cell.classList.add('f7-enabled');
@@ -3453,9 +3560,9 @@ function enableSwipeToDelete() {
       }
     });
     
-    // Create Framework7 list structure
+    // Create Framework7 list structure - use Framework7's default classes
     const listDiv = document.createElement('div');
-    listDiv.className = 'list no-hairlines';
+    listDiv.className = 'list media-list';
     
     const listUl = document.createElement('ul');
     listDiv.appendChild(listUl);
@@ -3466,50 +3573,38 @@ function enableSwipeToDelete() {
       const textareaId = textarea.id;
       const textareaValue = textarea.value;
       
-      // Create list item with swipeout
+      // Create list item with Framework7's default swipeout structure
       const listItem = document.createElement('li');
       listItem.className = 'swipeout';
       listItem.dataset.textareaId = textareaId;
       
-      // Create swipeout content
-      const swipeoutContent = document.createElement('div');
-      swipeoutContent.className = 'swipeout-content';
-      
-      // Create item content
-      const itemContent = document.createElement('div');
-      itemContent.className = 'item-content';
-      
-      // Create a new textarea with the same properties
-      const newTextarea = document.createElement('textarea');
-      newTextarea.id = textareaId;
-      newTextarea.value = textareaValue;
-      newTextarea.spellcheck = false;
-      
-      // Copy event handlers
-      newTextarea.onkeydown = noteKeyDownHandler;
-      newTextarea.onblur = noteBlurHandler;
-      
-      // Build the DOM structure
-      itemContent.appendChild(newTextarea);
-      swipeoutContent.appendChild(itemContent);
-      
-      // Create swipeout actions
-      const swipeoutActions = document.createElement('div');
-      swipeoutActions.className = 'swipeout-actions-right';
-      
-      const deleteLink = document.createElement('a');
-      deleteLink.href = '#';
-      deleteLink.className = 'swipeout-delete';
-      deleteLink.textContent = 'Delete';
-      
-      swipeoutActions.appendChild(deleteLink);
-      
-      // Assemble the list item
-      listItem.appendChild(swipeoutContent);
-      listItem.appendChild(swipeoutActions);
+      // Create inner structure with Framework7's default classes
+      listItem.innerHTML = `
+        <div class="swipeout-content">
+          <a href="#" class="item-link item-content">
+            <div class="item-inner">
+              <div class="item-title-row">
+                <div class="item-title">
+                  <textarea id="${textareaId}" spellcheck="false">${textareaValue}</textarea>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="swipeout-actions-right">
+          <a href="#" class="swipeout-delete">Delete</a>
+        </div>
+      `;
       
       // Add to the list
       listUl.appendChild(listItem);
+      
+      // Get the new textarea reference
+      const newTextarea = listItem.querySelector('textarea');
+      
+      // Make sure it has the necessary event handlers
+      newTextarea.onkeydown = noteKeyDownHandler;
+      newTextarea.onblur = noteBlurHandler;
       
       // Remove the original textarea
       if (textarea.parentNode) {
@@ -3547,107 +3642,239 @@ function enableSwipeToDelete() {
       console.log(`Framework7: Deleted note ${textareaId}`);
     }
   });
-  
-  // Observer to handle newly created textareas
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
-      if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-        mutation.addedNodes.forEach(node => {
-          // Check if the added node is a textarea in an F7-enabled cell
-          // but not already in a swipeout
-          if (node.tagName && node.tagName.toLowerCase() === 'textarea' && 
-              !node.closest('.swipeout-content')) {
-            
-            const cell = node.closest('td.f7-enabled');
-            if (!cell) return;
-            
-            const textareaId = node.id;
-            const textareaValue = node.value;
-            
-            // Find or create the notes-list wrapper
-            let notesList = cell.querySelector('.notes-list');
-            if (!notesList) {
-              notesList = document.createElement('div');
-              notesList.className = 'notes-list';
-              cell.appendChild(notesList);
-            }
-            
-            // Find or create the list container
-            let listDiv = notesList.querySelector('.list');
-            if (!listDiv) {
-              listDiv = document.createElement('div');
-              listDiv.className = 'list no-hairlines';
-              
-              const listUl = document.createElement('ul');
-              listDiv.appendChild(listUl);
-              notesList.appendChild(listDiv);
-            }
-            
-            // Find the UL
-            const listUl = listDiv.querySelector('ul');
-            
-            // Create list item with swipeout
-            const listItem = document.createElement('li');
-            listItem.className = 'swipeout';
-            listItem.dataset.textareaId = textareaId;
-            
-            // Create swipeout content
-            const swipeoutContent = document.createElement('div');
-            swipeoutContent.className = 'swipeout-content';
-            
-            // Create item content
-            const itemContent = document.createElement('div');
-            itemContent.className = 'item-content';
-            
-            // Create a new textarea with the same properties
-            const newTextarea = document.createElement('textarea');
-            newTextarea.id = textareaId;
-            newTextarea.value = textareaValue;
-            newTextarea.spellcheck = false;
-            
-            // Copy event handlers
-            newTextarea.onkeydown = noteKeyDownHandler;
-            newTextarea.onblur = noteBlurHandler;
-            
-            // Build the DOM structure
-            itemContent.appendChild(newTextarea);
-            swipeoutContent.appendChild(itemContent);
-            
-            // Create swipeout actions
-            const swipeoutActions = document.createElement('div');
-            swipeoutActions.className = 'swipeout-actions-right';
-            
-            const deleteLink = document.createElement('a');
-            deleteLink.href = '#';
-            deleteLink.className = 'swipeout-delete';
-            deleteLink.textContent = 'Delete';
-            
-            swipeoutActions.appendChild(deleteLink);
-            
-            // Assemble the list item
-            listItem.appendChild(swipeoutContent);
-            listItem.appendChild(swipeoutActions);
-            
-            // Add to the list
-            listUl.appendChild(listItem);
-            
-            // Remove the original textarea
-            if (node.parentNode) {
-              node.parentNode.removeChild(node);
-            }
-            
-            // Recalculate height
-            recalculateHeight(textareaId);
-          }
-        });
-      }
-    });
-  });
-  
-  // Start observing the entire calendar for new textareas
-  observer.observe(document.getElementById('calendar'), { 
-    childList: true,
-    subtree: true
-  });
 }
+
+// Add the observer to handle newly created textareas
+function setupFramework7Observer() {
+    // Observer to handle newly created textareas
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(node => {
+                    // Check if the added node is a textarea in an F7-enabled cell
+                    // but not already in a swipeout
+                    if (node.tagName && node.tagName.toLowerCase() === 'textarea' && 
+                        !node.closest('.swipeout-content')) {
+                        
+                        const cell = node.closest('td.f7-enabled');
+                        if (!cell) return;
+                        
+                        const textareaId = node.id;
+                        const textareaValue = node.value;
+                        
+                        // Find or create the notes-list wrapper
+                        let notesList = cell.querySelector('.notes-list');
+                        if (!notesList) {
+                            notesList = document.createElement('div');
+                            notesList.className = 'notes-list';
+                            cell.appendChild(notesList);
+                        }
+                        
+                        // Find or create the list container
+                        let listDiv = notesList.querySelector('.list');
+                        if (!listDiv) {
+                            listDiv = document.createElement('div');
+                            listDiv.className = 'list media-list';
+                            
+                            const listUl = document.createElement('ul');
+                            listDiv.appendChild(listUl);
+                            notesList.appendChild(listDiv);
+                        }
+                        
+                        // Find the UL
+                        const listUl = listDiv.querySelector('ul');
+                        
+                        // Create list item with Framework7's default structure
+                        const listItem = document.createElement('li');
+                        listItem.className = 'swipeout';
+                        listItem.dataset.textareaId = textareaId;
+                        
+                        // Create inner structure with Framework7's default classes
+                        listItem.innerHTML = `
+                            <div class="swipeout-content">
+                                <a href="#" class="item-link item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title">
+                                                <textarea id="${textareaId}" spellcheck="false">${textareaValue}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="swipeout-delete">Delete</a>
+                            </div>
+                        `;
+                        
+                        // Add to the list
+                        listUl.appendChild(listItem);
+                        
+                        // Get the new textarea reference
+                        const newTextarea = listItem.querySelector('textarea');
+                        
+                        // Copy event handlers
+                        newTextarea.onkeydown = noteKeyDownHandler;
+                        newTextarea.onblur = noteBlurHandler;
+                        
+                        // Remove the original textarea
+                        if (node.parentNode) {
+                            node.parentNode.removeChild(node);
+                        }
+                        
+                        // Recalculate height
+                        recalculateHeight(textareaId);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Start observing the entire calendar for new textareas
+    observer.observe(document.getElementById('calendar'), { 
+        childList: true,
+        subtree: true
+    });
+}
+
+// Update the function that enables Framework7
+function enableSwipeToDelete() {
+    // Check if already initialized
+    if (document.querySelector('.f7-enabled')) {
+        console.log("Framework7 already initialized");
+        return;
+    }
+    
+    // Add appropriate Framework7 classes to calendar cells
+    const dayCells = document.querySelectorAll('#calendar td:not(.extra)');
+    
+    if (!dayCells.length) {
+        console.log("No day cells found to enable Framework7");
+        return;
+    }
+    
+    console.log(`Enabling Framework7 swipe-to-delete on ${dayCells.length} day cells`);
+    
+    // Create Framework7 toolbar with navigation buttons
+    createF7Toolbar();
+    
+    // Set up the observer for new textareas
+    setupFramework7Observer();
+    
+    // Rest of the function remains the same...
+}
+
+// Function to create Framework7 toolbar with navigation buttons
+function createF7Toolbar() {
+  console.log("Creating F7 toolbar for mobile navigation");
+  
+  // Add class to body
+  document.body.classList.add('has-f7-toolbar');
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.f7-toolbar');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'f7-toolbar';
+  toolbar.style.backgroundColor = '#f7f7f8'; // Force background color
+  toolbar.style.display = 'flex'; // Force display
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createButton(icon, label, onClick) {
+    const button = document.createElement('a');
+    button.className = 'tab-link';
+    button.innerHTML = `
+      <i class="icon">${icon}</i>
+      <span class="tabbar-label">${label}</span>
+    `;
+    button.addEventListener('click', () => {
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return button;
+  }
+  
+  // Add all buttons
+  const buttons = [
+    createButton('←', 'Prev', jumpOneMonthBackward),
+    createButton('•', 'Today', goToTodayAndRefresh),
+    createButton('→', 'Next', jumpOneMonthForward),
+    createButton('Y', 'Year', showYearView),
+    createButton('⇄', 'Range', toggleRangeSelection),
+    createButton('↑', 'Export', downloadMarkdownEvents),
+    createButton('↓', 'Import', () => {
+      // Trigger file input click
+      document.getElementById('fileInput').click();
+    }),
+    createButton('↻', 'Sync', pullUpdatesFromServer),
+    createButton('?', 'Help', showHelp),
+    createButton('↩', 'Undo', undoLastChange)
+  ];
+  
+  // Jump to date
+  const dateContainer = document.createElement('div');
+  dateContainer.className = 'toolbar-date-container';
+  dateContainer.innerHTML = `
+    <input type="date" id="jumpDateMobile" min="2000-01-01" max="2050-12-31" />
+    <button onclick="jumpToDateMobile()">Go</button>
+  `;
+  
+  // Add function to jump to date from mobile
+  window.jumpToDateMobile = function() {
+    const dateInput = document.getElementById('jumpDateMobile');
+    if (dateInput && dateInput.value) {
+      // Use the existing jumpToDate function but with the mobile input
+      const originalInput = document.getElementById('jumpDate');
+      const originalValue = originalInput.value;
+      originalInput.value = dateInput.value;
+      jumpToDate();
+      originalInput.value = originalValue; // Restore the original value
+    }
+  };
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  // Add date container to toolbar
+  toolbarInner.appendChild(dateContainer);
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body, directly at the top
+  document.body.insertBefore(toolbar, document.body.firstChild);
+  
+  console.log("F7 toolbar created and added to the document");
+}
+
+// Add this code at the end of the file, right before the final </script> tag
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOMContentLoaded event fired");
+  
+  // Check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    console.log("Creating mobile toolbar");
+    
+    // Use requestAnimationFrame to ensure toolbar is created after any other initialization
+    requestAnimationFrame(function() {
+      // Wait a tiny bit to make sure everything is rendered
+      setTimeout(function() {
+        console.log("Creating toolbar with delay");
+        // Directly create the toolbar for mobile
+        createF7Toolbar();
+      }, 100);
+    });
+  }
+});
  

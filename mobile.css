@@ -519,6 +519,136 @@ a.button,
     /* Use F7 default red or customize */
     /* background-color: #ff3b30; */
   }
+
+  /* Allow Framework7's default styles to take precedence */
+  #calendar td {
+    overflow: hidden; /* Keep this to contain the swipe animation */
+    position: relative;
+  }
+  
+  /* Add some basic spacing for the Framework7 lists */
+  #calendar td .notes-list {
+    margin-top: 8px;
+  }
+  
+  /* Remove any custom styles for Framework7 elements */
+  #calendar .list,
+  #calendar .list ul,
+  #calendar .list li,
+  #calendar .swipeout,
+  #calendar .swipeout-content,
+  #calendar .item-content,
+  #calendar .swipeout-actions-right {
+    /* Let Framework7 defaults apply */
+  }
+  
+  /* Minor adjustments to fit our layout */
+  #calendar .list {
+    margin: 0;
+  }
+  
+  /* Dark mode support - minimal changes */
+  body.dark-mode #calendar .item-content {
+    background-color: #2d3748;
+    color: #e2e8f0;
+  }
+
+  /* Hide top header and all buttons on mobile */
+  #header {
+    display: none !important;
+  }
+  
+  /* The styles below should be OUTSIDE any media query to ensure they always apply */
+  /* Framework7 Toolbar Styling - IMPROVED VISIBILITY */
+  .f7-toolbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: #f7f7f8 !important;
+    height: 50px !important;
+    z-index: 2000 !important; /* Ensure it's above everything */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    display: flex !important;
+    border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+    overflow-x: auto !important; /* Allow horizontal scrolling for many buttons */
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  body.dark-mode .f7-toolbar {
+    background-color: #1c1c1d !important;
+    color: #fff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+  }
+
+  .f7-toolbar .toolbar-inner {
+    display: flex !important;
+    justify-content: flex-start !important; /* Change to flex-start to allow scrolling */
+    align-items: center !important;
+    height: 100% !important;
+    width: auto !important; /* Changed from 100% to allow overflow */
+    padding: 0 5px !important;
+  }
+
+  .f7-toolbar .tab-link {
+    flex: 0 0 auto !important; /* Don't stretch buttons */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    color: #007aff !important; /* iOS blue */
+    text-decoration: none !important;
+    position: relative !important;
+    padding: 0 10px !important; /* Add horizontal padding */
+    margin: 0 2px !important; /* Add spacing between buttons */
+    min-width: 60px !important; /* Ensure minimum tap target size */
+  }
+
+  body.dark-mode .f7-toolbar .tab-link {
+    color: #0a84ff !important; /* Dark mode iOS blue */
+  }
+
+  .f7-toolbar .tab-link:active {
+    background-color: rgba(0,0,0,0.1) !important;
+  }
+
+  .f7-toolbar .icon {
+    font-size: 24px !important;
+    margin-bottom: 3px !important;
+    font-weight: bold !important;
+  }
+
+  .f7-toolbar .tabbar-label {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Adjust the calendar container's margin to make room for the toolbar */
+  @media (max-width: 768px) {
+    #calendarContainer {
+      margin-top: 60px !important; /* Increased to ensure enough space */
+      padding-top: 10px !important;
+    }
+  }
+
+  /* When using our toolbar, make sure original header is hidden completely */
+  body.has-f7-toolbar #header {
+    height: 0 !important;
+    min-height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+  }
+  
+  /* Adjust calendar container margin when toolbar is present */
+  body.has-f7-toolbar #calendarContainer {
+    margin-top: 60px !important;
+  }
 }
 
 
@@ -673,5 +803,49 @@ body.dark-mode .swipe-hint-content {
 
 body.dark-mode .swipe-hint-dismiss {
   background: #0a84ff;
+}
+
+/* Style the date picker in the toolbar */
+.toolbar-date-container {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 5px !important;
+  height: 36px !important;
+  background-color: rgba(255,255,255,0.1) !important;
+  border-radius: 6px !important;
+  margin: 0 5px !important;
+}
+
+.toolbar-date-container input[type="date"] {
+  background: transparent !important;
+  border: none !important;
+  color: #007aff !important;
+  font-size: 12px !important;
+  padding: 4px !important;
+  width: 120px !important;
+  height: 30px !important;
+}
+
+.toolbar-date-container button {
+  background: #007aff !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  height: 24px !important;
+  margin-left: 4px !important;
+}
+
+body.dark-mode .toolbar-date-container {
+  background-color: rgba(0,0,0,0.2) !important;
+}
+
+body.dark-mode .toolbar-date-container input[type="date"] {
+  color: #0a84ff !important;
+}
+
+body.dark-mode .toolbar-date-container button {
+  background: #0a84ff !important;
 }
 
