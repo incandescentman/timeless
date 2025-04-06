@@ -3232,28 +3232,32 @@ function setupSwipeToDelete() {
     }
     
     function createDeleteButton(note) {
-        // Create the delete button
+        // Create the delete button container
         deleteBtn = document.createElement('div');
-        deleteBtn.className = 'delete-button';
-        deleteBtn.textContent = 'Delete';
+        deleteBtn.className = 'delete-button-container';
         
-        // Get dimensions and position to match the textarea
-        const rect = note.getBoundingClientRect();
+        // Create the expanding background element
+        const background = document.createElement('div');
+        background.className = 'delete-background';
+        
+        // Create the fixed delete text label
+        const label = document.createElement('div');
+        label.className = 'delete-label';
+        label.textContent = 'Delete';
+        
+        // Add them to the container
+        deleteBtn.appendChild(background);
+        deleteBtn.appendChild(label);
         
         // Style the button to match the note's size and position
         deleteBtn.style.position = 'absolute';
         deleteBtn.style.top = `${note.offsetTop}px`;
         deleteBtn.style.height = `${note.offsetHeight}px`;
         deleteBtn.style.right = '0';
-        deleteBtn.style.backgroundColor = '#ff3b30';
-        deleteBtn.style.color = 'white';
-        deleteBtn.style.fontWeight = 'bold';
-        deleteBtn.style.display = 'flex';
-        deleteBtn.style.alignItems = 'center';
-        deleteBtn.style.justifyContent = 'center';
-        deleteBtn.style.padding = '0 10px';
+        deleteBtn.style.overflow = 'hidden';
+        
+        // Initially the container is not visible
         deleteBtn.style.opacity = '0';
-        deleteBtn.style.width = '0px';
         
         // Insert the button before the note
         note.parentNode.insertBefore(deleteBtn, note);
@@ -3302,12 +3306,18 @@ function setupSwipeToDelete() {
                 transformAmount = deltaX;
                 currentNote.style.transform = `translateX(${transformAmount}px)`;
                 
-                // Calculate the width and opacity for the delete button
+                // Calculate the width for the expanding background
                 const swipeAmount = Math.abs(transformAmount);
                 
-                // Update the delete button's width and opacity
-                deleteBtn.style.width = `${swipeAmount}px`;
+                // Get the background element and label
+                const background = deleteBtn.querySelector('.delete-background');
+                const label = deleteBtn.querySelector('.delete-label');
+                
+                // Make the container visible immediately
                 deleteBtn.style.opacity = '1';
+                
+                // Update only the background width, label stays in place
+                background.style.width = `${swipeAmount}px`;
             }
         }
     }
@@ -3321,6 +3331,13 @@ function setupSwipeToDelete() {
             currentNote.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
             currentNote.style.transform = 'translateX(-100%)';
             currentNote.style.opacity = '0';
+            
+            // Expand the background to full width
+            const background = deleteBtn.querySelector('.delete-background');
+            if (background) {
+                background.style.transition = 'width 0.2s ease';
+                background.style.width = '100%';
+            }
             
             // After animation, remove the note
             setTimeout(() => {
@@ -3343,9 +3360,15 @@ function setupSwipeToDelete() {
             currentNote.style.transform = originalTransform;
             
             // Hide the delete button with animation
-            deleteBtn.style.transition = 'width 0.3s ease, opacity 0.3s ease';
-            deleteBtn.style.width = '0px';
+            deleteBtn.style.transition = 'opacity 0.3s ease';
             deleteBtn.style.opacity = '0';
+            
+            // Reset the background width
+            const background = deleteBtn.querySelector('.delete-background');
+            if (background) {
+                background.style.transition = 'width 0.3s ease';
+                background.style.width = '0';
+            }
             
             // Remove the delete button after animation
             setTimeout(() => {

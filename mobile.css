@@ -327,20 +327,38 @@ a.button,
   }
 
   /* Delete button styling */
-  .delete-button {
+  .delete-button-container {
     position: absolute;
     z-index: 0;
-    background-color: #ff3b30;
-    color: white;
-    font-weight: bold;
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 0 6px 6px 0;
+    justify-content: flex-end;
     overflow: hidden;
-    white-space: nowrap;
+    width: 100%;
+  }
+
+  .delete-background {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background-color: #ff3b30;
+    width: 0;
+    z-index: 0;
+  }
+
+  .delete-label {
+    position: relative;
+    padding: 0 15px;
+    color: white;
+    font-weight: bold;
     font-size: 14px;
     text-transform: uppercase;
+    z-index: 1;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    height: 100%;
   }
 }
 
