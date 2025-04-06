@@ -643,8 +643,9 @@ function generateItem(parentId, itemId, insertBeforeElement = null) {
     const isF7Cell = cell.classList.contains('f7-enabled');
     
     // Handle Framework7 structure
-    if (isMobile && isF7Cell && window.Framework7) {
+    if (isMobile && isF7Cell) {
         console.log(`generateItem: Creating item ${itemId} in F7-enabled cell ${parentId}`);
+        console.log(`insertBeforeElement: ${insertBeforeElement ? insertBeforeElement.id : 'none'}`);
         
         // Find or create the notes-list wrapper
         let notesList = cell.querySelector('.notes-list');
@@ -693,19 +694,44 @@ function generateItem(parentId, itemId, insertBeforeElement = null) {
         
         // Handle insertion before another element
         if (insertBeforeElement) {
-            // Find the list item containing the insertBeforeElement
-            const beforeListItem = insertBeforeElement.closest('li.swipeout');
+            // Try to find the list item containing the insertBeforeElement
+            let beforeListItem;
+            
+            // First try direct parent list item if it's a textarea
+            if (insertBeforeElement.tagName && insertBeforeElement.tagName.toLowerCase() === 'textarea') {
+                beforeListItem = insertBeforeElement.closest('li.swipeout');
+            } 
+            // Otherwise, if it's already a list item
+            else if (insertBeforeElement.classList && insertBeforeElement.classList.contains('swipeout')) {
+                beforeListItem = insertBeforeElement;
+            }
+            // If we received an ID string instead of an element
+            else if (typeof insertBeforeElement === 'string') {
+                const beforeElement = document.getElementById(insertBeforeElement);
+                if (beforeElement) {
+                    beforeListItem = beforeElement.closest('li.swipeout');
+                }
+            }
+            
             if (beforeListItem) {
                 listUl.insertBefore(listItem, beforeListItem);
-                console.log(`generateItem: Inserted ${itemId} before ${insertBeforeElement.id} in F7 structure`);
+                console.log(`generateItem: Inserted ${itemId} before list item for ${insertBeforeElement.id || 'unknown'}`);
             } else {
-                // Fallback - just append
-                listUl.appendChild(listItem);
-                console.log(`generateItem: Could not find list item for ${insertBeforeElement.id}, appending instead`);
+                // If we can't find the list item, try to find the first one in the list
+                const firstListItem = listUl.querySelector('li.swipeout');
+                if (firstListItem) {
+                    listUl.insertBefore(listItem, firstListItem);
+                    console.log(`generateItem: Could not find list item for ${insertBeforeElement.id || 'unknown'}, inserting at top of list`);
+                } else {
+                    // Fallback - just append
+                    listUl.appendChild(listItem);
+                    console.log(`generateItem: No list items found, appending instead`);
+                }
             }
         } else {
             // Simple append
             listUl.appendChild(listItem);
+            console.log(`generateItem: Appending ${itemId} to list`);
         }
         
         // Get reference to the new textarea
@@ -714,6 +740,9 @@ function generateItem(parentId, itemId, insertBeforeElement = null) {
         // Set up event handlers
         ta.onkeydown = noteKeyDownHandler;
         ta.onblur = noteBlurHandler;
+        
+        // Ensure the textarea gets properly sized
+        setTimeout(() => recalculateHeight(itemId), 10);
         
         return ta;
     }
@@ -727,9 +756,14 @@ function generateItem(parentId, itemId, insertBeforeElement = null) {
     
     if (insertBeforeElement) {
         cell.insertBefore(ta, insertBeforeElement);
+        console.log(`generateItem: Inserted standard textarea ${itemId} before ${insertBeforeElement.id || 'unknown'}`);
     } else {
         cell.appendChild(ta);
+        console.log(`generateItem: Appended standard textarea ${itemId}`);
     }
+    
+    // Ensure the textarea gets properly sized
+    setTimeout(() => recalculateHeight(itemId), 10);
     
     return ta;
 }
@@ -1627,30 +1661,112 @@ function stepDay(delta) {
     }
 }
 
-/*
- * createEventInFocusedDay()
- *  - Press Enter to create a new note in the currently focused day.
+/**
+ * Creates an event on the day that has the focus.
+ * If there is already a note in focus, create a new one after it.
+ * If there is no note in focus, create a new one at the top.
  */
 function createEventInFocusedDay() {
-    if (!keyboardFocusDate) {
-        showToast("No day is selected");
-        return;
-    }
-    const cellId = idForDate(keyboardFocusDate);
-    const cell = document.getElementById(cellId);
-    if (!cell) {
-        showToast("Focused day not visible");
-        return;
-    }
-    cell.classList.add("clicked-day");
-    setTimeout(() => cell.classList.remove("clicked-day"), 500);
+    let activeTD = null;
+    const textareaInFocus = document.querySelector("textarea:focus");
 
-    const itemId = nextItemId();
-    const note = generateItem(cellId, itemId);
-    if (note) {
-        recalculateHeight(note.id);
-        storeValueForItemId(note.id);
-        note.focus();
+    // First try: Check if a textarea has focus
+    if (textareaInFocus) {
+        const isF7Mobile = window.innerWidth <= 768 && textareaInFocus.closest('.swipeout');
+        
+        // For F7 mobile, get the parent list item 
+        if (isF7Mobile) {
+            const swipeoutItem = textareaInFocus.closest('li.swipeout');
+            if (swipeoutItem) {
+                // Find the parent TD
+                activeTD = swipeoutItem.closest('.day');
+                console.log('Found focused textarea in F7 list item, creating new item');
+                
+                // Insert AFTER the current item instead of before it
+                const nextSwipeout = swipeoutItem.nextElementSibling;
+                
+                // Create a new item after the current one
+                const cellid = activeTD.id;
+                const newid = "ta-" + cellid + "-" + Date.now();
+                
+                let newTextarea;
+                if (nextSwipeout) {
+                    // If there's an item after this one, insert before it
+                    newTextarea = generateItem(cellid, newid, nextSwipeout);
+                    console.log('Inserting new item before next swipeout');
+                } else {
+                    // Otherwise append to the end of the list
+                    newTextarea = generateItem(cellid, newid);
+                    console.log('Appending new item to end of list');
+                }
+                
+                if (newTextarea) {
+                    newTextarea.focus();
+                }
+                
+                return;
+            }
+        } else {
+            // Standard desktop behavior
+            activeTD = textareaInFocus.parentElement;
+            if (activeTD && activeTD.classList.contains("day")) {
+                const cellid = activeTD.id;
+                const newid = "ta-" + cellid + "-" + Date.now();
+                
+                // Create a new textarea after the current one
+                const nextSibling = textareaInFocus.nextElementSibling;
+                const newTextarea = generateItem(cellid, newid, nextSibling);
+                
+                if (newTextarea) {
+                    newTextarea.focus();
+                }
+                
+                return;
+            }
+        }
+    }
+
+    // Second try: Check if a day cell is selected
+    if (!activeTD) {
+        activeTD = document.querySelector("td.day.selected");
+    }
+
+    // Third try: Find the first day in current month
+    if (!activeTD) {
+        const currentMonthCells = document.querySelectorAll("td.day:not(.outside-month)");
+        if (currentMonthCells.length > 0) {
+            activeTD = currentMonthCells[0];
+        }
+    }
+
+    // If we found an active TD, create a note in it
+    if (activeTD) {
+        const cellid = activeTD.id;
+        const newid = "ta-" + cellid + "-" + Date.now();
+        
+        // For F7 mobile, check if there are existing items
+        if (window.innerWidth <= 768) {
+            const notesList = activeTD.querySelector('.notes-list');
+            if (notesList) {
+                const firstListItem = notesList.querySelector('li.swipeout');
+                if (firstListItem) {
+                    // Insert at the beginning of the list for mobile
+                    const newTextarea = generateItem(cellid, newid, firstListItem);
+                    if (newTextarea) {
+                        newTextarea.focus();
+                        console.log('Created new item at top of F7 list');
+                    }
+                    return;
+                }
+            }
+        }
+        
+        // Standard case - create at the top
+        const newTextarea = generateItem(cellid, newid);
+        if (newTextarea) {
+            newTextarea.focus();
+            console.log('Created new item with default position');
+        }
     }
 }
 
