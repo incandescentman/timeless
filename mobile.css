@@ -300,6 +300,21 @@ a.button,
   .week-row-animate.prepend-animate {
     animation-duration: 0.1s !important;
   }
+
+  /* Style for textareas to enable smooth swiping */
+  textarea {
+    position: relative;
+    z-index: 1; /* Above the delete indicator */
+    transform: translateX(0);
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent bg to show indicator */
+    will-change: transform; /* Optimize for animations */
+    -webkit-touch-callout: none; /* Prevent text selection during swipe */
+  }
+  
+  /* Dark mode adjustments */
+  body.dark-mode textarea {
+    background-color: rgba(40, 40, 40, 0.9);
+  }
 }
 
 
@@ -340,17 +355,6 @@ a.button,
     position: relative; /* Needed for absolute positioning of delete indicator */
   }
   
-  /* Style for textareas to enable smooth swiping */
-  textarea {
-    position: relative;
-    z-index: 1;
-    transform: translateX(0);
-    /* Default state with no transition to ensure responsive touch movement */
-    background-color: transparent;
-    will-change: transform; /* Optimize for animations */
-    -webkit-touch-callout: none; /* Prevent text selection during swipe */
-  }
-  
   /* Helper text to indicate swipe-to-delete */
   .swipe-help-text {
     position: absolute;
@@ -367,21 +371,16 @@ a.button,
   /* Delete indicator styling */
   .delete-indicator {
     position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 0;
     background-color: #ff3b30;
     color: white;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding-right: 15px;
+    justify-content: center;
     font-weight: bold;
-    opacity: 0;
-    overflow: hidden;
+    font-size: 16px;
+    text-transform: uppercase;
     box-sizing: border-box;
-    z-index: 0;
+    z-index: 0; /* Under the note */
   }
   
   /* Animation for row insertion/removal */

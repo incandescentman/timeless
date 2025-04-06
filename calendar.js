@@ -3234,14 +3234,19 @@ function setupSwipeToDelete() {
         deleteIndicator.className = 'delete-indicator';
         deleteIndicator.textContent = 'Delete';
         
-        // Position it to the right of the note
+        // Position the indicator as a direct child of the note parent, same dimensions as the note
         const noteParent = noteElem.parentNode;
-        noteParent.style.position = 'relative'; // Ensure parent has positioning
-        noteParent.appendChild(deleteIndicator);
-        
-        // Position the indicator behind the note
         const noteRect = noteElem.getBoundingClientRect();
+        
+        // Position it exactly where the note is
+        deleteIndicator.style.position = 'absolute';
+        deleteIndicator.style.top = noteElem.offsetTop + 'px';
+        deleteIndicator.style.left = noteElem.offsetLeft + 'px';
+        deleteIndicator.style.width = noteElem.offsetWidth + 'px';
         deleteIndicator.style.height = noteElem.offsetHeight + 'px';
+        
+        // Insert the indicator before the note so it's visually behind it
+        noteParent.insertBefore(deleteIndicator, noteElem);
         
         return deleteIndicator;
     }
@@ -3286,14 +3291,10 @@ function setupSwipeToDelete() {
                 transformAmount = deltaX;
                 currentNote.style.transform = `translateX(${transformAmount}px)`;
                 
-                // Calculate how much of the delete indicator to show
-                // Scale it between 0 and 1 based on swipe progress toward threshold
-                const deleteProgress = Math.min(1, Math.abs(transformAmount) / deleteThreshold);
-                
-                // Update the delete indicator visibility
+                // Instead of resizing the delete indicator, position it the same as the note
+                // and use the note's slide to reveal it
                 if (deleteIndicator) {
-                    deleteIndicator.style.opacity = deleteProgress.toFixed(2);
-                    deleteIndicator.style.width = (Math.abs(transformAmount)) + 'px';
+                    deleteIndicator.style.opacity = '1';
                 }
             }
         }
@@ -3308,11 +3309,6 @@ function setupSwipeToDelete() {
             currentNote.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
             currentNote.style.transform = 'translateX(-100%)';
             currentNote.style.opacity = '0';
-            
-            if (deleteIndicator) {
-                deleteIndicator.style.transition = 'width 0.2s ease';
-                deleteIndicator.style.width = '100%';
-            }
             
             // After animation, remove the note
             setTimeout(() => {
@@ -3334,10 +3330,6 @@ function setupSwipeToDelete() {
             
             // Hide the delete indicator
             if (deleteIndicator) {
-                deleteIndicator.style.transition = 'opacity 0.3s ease';
-                deleteIndicator.style.opacity = '0';
-                
-                // Remove it after the transition
                 setTimeout(() => {
                     if (deleteIndicator && deleteIndicator.parentNode) {
                         deleteIndicator.parentNode.removeChild(deleteIndicator);
