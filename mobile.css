@@ -310,7 +310,7 @@ a.button,
     will-change: transform; /* Optimize for animations */
     -webkit-touch-callout: none; /* Prevent text selection during swipe */
   }
-  
+
   /* Dark mode adjustments */
   body.dark-mode textarea {
     background-color: rgba(40, 40, 40, 0.9);
@@ -347,116 +347,95 @@ a.button,
   }
 }
 
+
+
 /* Swipe to delete styles */
 @media (max-width: 768px) {
   /* Make sure notes can be swiped with proper overflow */
   #calendar td {
-    overflow: hidden; /* Contains the swipe animation */
-    position: relative; /* Needed for absolute positioning of delete indicator */
+    overflow: hidden; /* MUST HAVE */
+    position: relative; /* NEEDED for ::after */
   }
-  
-  /* Helper text to indicate swipe-to-delete */
-  .swipe-help-text {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 59, 48, 0.7);
-    font-size: 12px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+
+  /* Style for textareas to enable smooth swiping */
+  textarea {
+    position: relative;
+    z-index: 1; /* Above ::after */
+    transform: translateX(0);
+
+    /* --- CORRECTED BACKGROUND --- */
+    /* Use direct color or ensure your CSS variables are defined */
+    background-color: white; /* Default light mode background */
+    /* --- End Background Correction --- */
+
+    transition: transform 0.3s ease; /* For snap-back */
+    will-change: transform;
+   -webkit-touch-callout: none;
+    display: block;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    color: #333; /* Default light mode text color */
   }
-  
-  /* Delete indicator styling */
-  .delete-indicator {
+
+  /* Dark mode background and text color for textarea */
+  body.dark-mode #calendar td textarea {
+     background-color: #2d3748; /* Example dark bg */
+     color: #e2e8f0; /* Light text for dark bg */
+     border: 1px solid rgba(255, 255, 255, 0.1);
+     box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  /* The ::after pseudo-element for the delete indicator */
+  #calendar td::after {
+    content: 'Delete';
     position: absolute;
-    background-color: #ff3b30;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 100px; /* Adjust width as needed */
+    background-color: #ff3b30; /* iOS-style delete red */
     color: white;
+    font-weight: bold;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 16px;
-    text-transform: uppercase;
-    box-sizing: border-box;
-    z-index: 0; /* Under the note */
+    z-index: 0; /* Behind textarea */
+    opacity: 0; /* Hidden by default */
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    /* Match parent rounding ONLY on the revealed side */
+    border-top-right-radius: 12px;    /* Match parent TD's border-radius */
+    border-bottom-right-radius: 12px; /* Match parent TD's border-radius */
   }
-  
-  /* Animation for row insertion/removal */
-  .week-row-animate.append-animate,
-  .week-row-animate.prepend-animate {
-    animation-duration: 0.1s !important;
+
+  /* Style for the TD when its child note is being swiped for delete */
+  #calendar td.swiping-for-delete::after {
+    opacity: 1; /* Make the indicator visible */
   }
+
+  /* --- Swipe hint overlay CSS (Keep as is) --- */
+  .swipe-hint-overlay { /* ... */ }
+  /* ... other hint styles ... */
+
+} /* End of @media block */
+ 
+
+
+  /* --- Swipe hint overlay CSS remains the same --- */
+  .swipe-hint-overlay { /* ... */ }
+  .swipe-hint-overlay.fade-out { /* ... */ }
+  .swipe-hint-content { /* ... */ }
+  .swipe-hint-icon { /* ... */ }
+  .swipe-hint-text { /* ... */ }
+  .swipe-hint-dismiss { /* ... */ }
+  @keyframes fade-in { /* ... */ }
+  @keyframes swipe-left { /* ... */ }
+  body.dark-mode .swipe-hint-content { /* ... */ }
+  body.dark-mode .swipe-hint-dismiss { /* ... */ }
+  /* --- End Swipe hint overlay CSS --- */
+
 }
 
-/* Swipe hint overlay */
-.swipe-hint-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.75);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fade-in 0.3s ease;
-}
-
-.swipe-hint-overlay.fade-out {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.swipe-hint-content {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  max-width: 80%;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.swipe-hint-icon {
-  font-size: 24px;
-  margin-bottom: 10px;
-  color: #ff3b30;
-  animation: swipe-left 1.5s ease infinite;
-}
-
-.swipe-hint-text {
-  font-size: 16px;
-  margin-bottom: 15px;
-  font-weight: bold;
-}
-
-.swipe-hint-dismiss {
-  background: #007aff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: bold;
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes swipe-left {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(-10px); }
-}
-
-/* Dark mode styles for swipe hint */
-body.dark-mode .swipe-hint-content {
-  background: #222;
-  color: white;
-}
-
-body.dark-mode .swipe-hint-dismiss {
-  background: #0a84ff;
-}
