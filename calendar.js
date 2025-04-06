@@ -3174,3 +3174,135 @@ function pushUndoState() {
     }
 }
 
+/*
+ * setupSwipeToDelete()
+ *  - Enables swipe-to-delete functionality for calendar events on mobile devices.
+ */
+function setupSwipeToDelete() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let currentNote = null;
+    let originalTransform = '';
+    let transformAmount = 0;
+    const deleteThreshold = 100; // Pixels to swipe before triggering delete
+    const isPhone = window.innerWidth <= 768;
+    
+    // Only set up swipe handlers on mobile devices
+    if (!isPhone) return;
+    
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+    
+    // Show a hint about swipe-to-delete if user hasn't seen it before
+    function showSwipeHint(noteElem) {
+        if (localStorage.getItem('has_seen_swipe_hint')) return;
+        
+        // Create hint overlay
+        const hint = document.createElement('div');
+        hint.className = 'swipe-hint-overlay';
+        hint.innerHTML = `
+            <div class="swipe-hint-content">
+                <div class="swipe-hint-icon">←</div>
+                <div class="swipe-hint-text">Swipe left to delete events</div>
+                <button class="swipe-hint-dismiss">Got it</button>
+            </div>
+        `;
+        document.body.appendChild(hint);
+        
+        // Set up dismissal
+        hint.querySelector('.swipe-hint-dismiss').addEventListener('click', () => {
+            hint.classList.add('fade-out');
+            setTimeout(() => hint.remove(), 300);
+            localStorage.setItem('has_seen_swipe_hint', 'true');
+        });
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (document.body.contains(hint)) {
+                hint.classList.add('fade-out');
+                setTimeout(() => hint.remove(), 300);
+                localStorage.setItem('has_seen_swipe_hint', 'true');
+            }
+        }, 5000);
+    }
+    
+    function handleTouchStart(e) {
+        // Only process touch on textareas (calendar events)
+        if (e.target.tagName.toLowerCase() !== 'textarea') return;
+        
+        currentNote = e.target;
+        originalTransform = currentNote.style.transform || '';
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        transformAmount = 0;
+        
+        // Add a transition during the interaction
+        currentNote.style.transition = 'transform 0.1s ease';
+        
+        // Show hint first time user touches a note
+        showSwipeHint(currentNote);
+    }
+    
+    function handleTouchMove(e) {
+        if (!currentNote) return;
+        
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        
+        // Calculate horizontal and vertical movement
+        const deltaX = touchX - touchStartX;
+        const deltaY = touchY - touchStartY;
+        
+        // Only process horizontal swipes (not vertical scrolling)
+        // Check if horizontal movement is greater than vertical
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            e.preventDefault(); // Prevent scrolling while swiping
+            
+            // Only process left swipes (negative deltaX)
+            if (deltaX < 0) {
+                transformAmount = deltaX;
+                currentNote.style.transform = `translateX(${transformAmount}px)`;
+                
+                // Add a red background indicator as swipe progresses
+                const opacity = Math.min(0.8, Math.abs(transformAmount) / deleteThreshold);
+                currentNote.style.backgroundColor = `rgba(255, 59, 48, ${opacity})`;
+            }
+        }
+    }
+    
+    function handleTouchEnd(e) {
+        if (!currentNote) return;
+        
+        // If swiped far enough to delete
+        if (transformAmount < -deleteThreshold) {
+            // Add delete animation
+            currentNote.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            currentNote.style.transform = 'translateX(-100%)';
+            currentNote.style.opacity = '0';
+            
+            // After animation, remove the note
+            setTimeout(() => {
+                // Call the existing remove function
+                removeValueForItemId(currentNote.id);
+                
+                // Also remove the element from DOM if still present
+                if (currentNote.parentNode) {
+                    currentNote.parentNode.removeChild(currentNote);
+                }
+            }, 200);
+        } else {
+            // Reset to original position with animation
+            currentNote.style.transition = 'transform 0.3s ease, background-color 0.3s ease';
+            currentNote.style.transform = originalTransform;
+            currentNote.style.backgroundColor = '';
+        }
+        
+        // Clear the reference
+        currentNote = null;
+    }
+}
+
+// Call this function on page load
+document.addEventListener('DOMContentLoaded', setupSwipeToDelete);
+
