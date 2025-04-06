@@ -366,7 +366,7 @@ a.button,
     margin: 0 !important;
     font-size: inherit !important;
   }
-  
+
   .f7-calendar-item .list ul,
   .f7-calendar-item .list li {
     background: transparent !important;
@@ -374,23 +374,23 @@ a.button,
     margin: 0 !important;
     border: none !important;
   }
-  
+
   .f7-calendar-item .swipeout {
     overflow: hidden !important;
     border-radius: 6px !important;
     margin-bottom: 6px !important;
   }
-  
+
   .f7-calendar-item .swipeout-content {
     background: transparent;
     padding: 0 !important;
   }
-  
+
   .f7-calendar-item .swipeout-content .item-content {
     padding: 0 !important;
     min-height: auto !important;
   }
-  
+
   /* Style the textarea inside the swipeout */
   .f7-calendar-item textarea {
     width: 100% !important;
@@ -404,7 +404,7 @@ a.button,
     line-height: 1.4 !important;
     resize: none !important;
   }
-  
+
   /* Style delete button on swipe */
   .f7-calendar-item .swipeout-actions-right a {
     font-weight: bold !important;
@@ -416,30 +416,30 @@ a.button,
     justify-content: center !important;
     padding: 0 15px !important;
   }
-  
+
   /* Fix for swipe threshold and animation speed */
   .f7-calendar-item .swipeout-actions-right a {
     --f7-swipeout-delete-button-offset: 30px;
     transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) !important;
   }
-  
+
   /* Dark mode adjustments for Framework7 elements */
   body.dark-mode .f7-calendar-item textarea {
     background-color: #2d3748 !important;
     color: #e2e8f0 !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
   }
-  
+
   /* Hide any Framework7 default UI elements we don't need */
   .f7-calendar-item .item-inner {
     padding-right: 0 !important;
     border-bottom: none !important;
   }
-  
+
   .f7-calendar-item .item-media {
     display: none !important;
   }
-  
+
   /* Remove any Framework7 default UI elements we don't need */
   .f7-calendar-item .item-after,
   .f7-calendar-item .item-title {
@@ -520,44 +520,11 @@ a.button,
     /* background-color: #ff3b30; */
   }
 
-  /* Allow Framework7's default styles to take precedence */
-  #calendar td {
-    overflow: hidden; /* Keep this to contain the swipe animation */
-    position: relative;
-  }
-  
-  /* Add some basic spacing for the Framework7 lists */
-  #calendar td .notes-list {
-    margin-top: 8px;
-  }
-  
-  /* Remove any custom styles for Framework7 elements */
-  #calendar .list,
-  #calendar .list ul,
-  #calendar .list li,
-  #calendar .swipeout,
-  #calendar .swipeout-content,
-  #calendar .item-content,
-  #calendar .swipeout-actions-right {
-    /* Let Framework7 defaults apply */
-  }
-  
-  /* Minor adjustments to fit our layout */
-  #calendar .list {
-    margin: 0;
-  }
-  
-  /* Dark mode support - minimal changes */
-  body.dark-mode #calendar .item-content {
-    background-color: #2d3748;
-    color: #e2e8f0;
-  }
-
   /* Hide top header and all buttons on mobile */
   #header {
     display: none !important;
   }
-  
+
   /* The styles below should be OUTSIDE any media query to ensure they always apply */
   /* Framework7 Toolbar Styling - IMPROVED VISIBILITY */
   .f7-toolbar {
@@ -644,7 +611,7 @@ a.button,
     opacity: 0 !important;
     overflow: hidden !important;
   }
-  
+
   /* Adjust calendar container margin when toolbar is present */
   body.has-f7-toolbar #calendarContainer {
     margin-top: 60px !important;
@@ -720,7 +687,7 @@ a.button,
       margin-bottom: 70px !important; /* Space for bottom toolbar */
       padding-bottom: 15px !important;
     }
-    
+
     /* Hide the original mobile action bar if it exists */
     .mobile-action-bar:not(.mobile-action-bar-f7) {
       display: none !important;
@@ -1044,12 +1011,12 @@ body.dark-mode .toolbar .link:active {
     padding-top: 8px !important;
     padding-bottom: 8px !important;
   }
-  
+
   /* Hide the original mobile action bar */
   .mobile-action-bar:not(.mobile-action-bar-f7) {
     display: none !important;
   }
-  
+
   /* Hide header but keep its children */
   #header {
     display: none !important;
