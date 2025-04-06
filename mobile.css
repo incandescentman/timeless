@@ -729,54 +729,107 @@ a.button,
 
 /* Swipe to delete styles */
 @media (max-width: 768px) {
-  /* Make sure notes can be swiped with proper overflow */
-  #calendar td {
-    overflow: hidden; /* MUST HAVE */
-    position: relative; /* NEEDED for positioning */
-  }
 
-  /* Style for textareas to enable smooth swiping */
-  textarea {
-    position: relative;
-    z-index: 1; /* Above the delete button */
-    transform: translateX(0);
-    background-color: white; /* Default light mode background */
-    transition: transform 0.3s ease; /* For snap-back */
-    will-change: transform;
-    -webkit-touch-callout: none;
-    display: block;
-    border-radius: 6px;
-    padding: 8px 12px;
-    margin-bottom: 6px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    color: #333; /* Default light mode text color */
-  }
 
-  /* Dark mode background and text color for textarea */
-  body.dark-mode #calendar td textarea {
-    background-color: #2d3748; /* Example dark bg */
-    color: #e2e8f0; /* Light text for dark bg */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
-  }
 
-  /* Delete button styling */
-  .delete-button {
-    position: absolute;
-    z-index: 0;
-    background-color: #ff3b30;
-    color: white;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0 6px 6px 0;
-    overflow: hidden;
-    white-space: nowrap;
-    font-size: 14px;
-    text-transform: uppercase;
-  }
+
+
+
+/* === START: Replace existing swipe styles with this block === */
+
+/* Make sure notes can be swiped with proper overflow */
+#calendar td {
+  overflow: hidden; /* MUST HAVE */
+  position: relative; /* NEEDED for ::after */
+  /* Include other mobile TD styles like display: block, min-height, padding etc. */
+  display: block;
+  width: 100% !important;
+  min-height: var(--cell-min-height, 90px);
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  /* Background is on the TD itself or inherited */
 }
+
+/* Style for textareas to enable smooth swiping */
+textarea {
+  position: relative;
+  z-index: 1; /* Above ::after */
+  transform: translateX(0);
+  /* CRITICAL: Solid background to hide indicator */
+  background-color: white; /* Or use var(--textarea-mobile-bg, white); */
+  color: #333;
+  transition: transform 0.3s ease; /* For snap-back */
+  will-change: transform;
+ -webkit-touch-callout: none;
+  display: block;
+  width: 100%; /* Ensure full width */
+  /* Add other necessary textarea styles */
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 6px; /* If you want space between textareas */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid #ddd; /* Example border */
+  font-size: 14px; /* Match your desired font size */
+  line-height: 1.4; /* Match your desired line height */
+  box-sizing: border-box; /* Good practice */
+}
+
+/* Dark mode background and text color for textarea */
+body.dark-mode #calendar td textarea {
+   background-color: #2d3748; /* Or use var(--textarea-mobile-bg-dark, #2d3748); */
+   color: #e2e8f0;
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* The ::after pseudo-element for the delete indicator */
+#calendar td::after {
+  content: 'Delete';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 100px; /* Width of revealed red area */
+  background-color: #ff3b30; /* Red delete color */
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0; /* BEHIND the textarea */
+  opacity: 0; /* Hidden by default */
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  /* Match parent rounding on the right */
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Class added by JS to the TD during swipe */
+#calendar td.swiping-for-delete::after {
+  opacity: 1; /* Show indicator */
+}
+
+/* REMOVE any styles for .delete-button or .delete-button-container */
+/* .delete-button { ... } */
+/* .delete-button-container { ... } */
+/* .delete-background { ... } */
+/* .delete-label { ... } */
+
+/* === END: Replacement block === */
+
+/* --- Keep your existing Toolbar styles --- */
+.toolbar.toolbar-bottom.mobile-action-bar-f7 { /* ... */ }
+/* ... etc ... */
+
+/* --- Keep your existing Hint styles --- */
+.swipe-hint-overlay { /* ... */ }
+/* ... etc ... */
+
+
+
 
 /* Swipe hint overlay CSS */
 .swipe-hint-overlay {
@@ -1002,6 +1055,9 @@ body.dark-mode .toolbar .tab-link:active,
 body.dark-mode .toolbar .link:active {
   background-color: rgba(255,255,255,0.05) !important;
 }
+
+} /* End of @media (max-width: 768px) */
+
 
 /* Adjust calendar spacing for toolbars */
 @media (max-width: 768px) {
