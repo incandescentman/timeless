@@ -296,13 +296,10 @@ a.button,
     transform: scale(0.95);
   }
 
-{
   .week-row-animate.append-animate,
   .week-row-animate.prepend-animate {
     animation-duration: 0.1s !important;
   }
- 
-
 }
 
 
@@ -365,6 +362,32 @@ a.button,
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease;
+  }
+  
+  /* Delete indicator styling */
+  .delete-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 0;
+    background-color: #ff3b30;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 15px;
+    font-weight: bold;
+    opacity: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    z-index: 0;
+  }
+  
+  /* Animation for row insertion/removal */
+  .week-row-animate.append-animate,
+  .week-row-animate.prepend-animate {
+    animation-duration: 0.1s !important;
   }
 }
 

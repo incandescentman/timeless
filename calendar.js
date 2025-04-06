@@ -3184,6 +3184,7 @@ function setupSwipeToDelete() {
     let currentNote = null;
     let originalTransform = '';
     let transformAmount = 0;
+    let deleteIndicator = null;
     const deleteThreshold = 100; // Pixels to swipe before triggering delete
     const isPhone = window.innerWidth <= 768;
     
@@ -3227,6 +3228,24 @@ function setupSwipeToDelete() {
         }, 5000);
     }
     
+    function createDeleteIndicator(noteElem) {
+        // Create the delete indicator if it doesn't exist
+        deleteIndicator = document.createElement('div');
+        deleteIndicator.className = 'delete-indicator';
+        deleteIndicator.textContent = 'Delete';
+        
+        // Position it to the right of the note
+        const noteParent = noteElem.parentNode;
+        noteParent.style.position = 'relative'; // Ensure parent has positioning
+        noteParent.appendChild(deleteIndicator);
+        
+        // Position the indicator behind the note
+        const noteRect = noteElem.getBoundingClientRect();
+        deleteIndicator.style.height = noteElem.offsetHeight + 'px';
+        
+        return deleteIndicator;
+    }
+    
     function handleTouchStart(e) {
         // Only process touch on textareas (calendar events)
         if (e.target.tagName.toLowerCase() !== 'textarea') return;
@@ -3236,6 +3255,9 @@ function setupSwipeToDelete() {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         transformAmount = 0;
+        
+        // Create the delete indicator
+        deleteIndicator = createDeleteIndicator(currentNote);
         
         // Add a transition during the interaction
         currentNote.style.transition = 'transform 0.1s ease';
@@ -3264,9 +3286,15 @@ function setupSwipeToDelete() {
                 transformAmount = deltaX;
                 currentNote.style.transform = `translateX(${transformAmount}px)`;
                 
-                // Add a red background indicator as swipe progresses
-                const opacity = Math.min(0.8, Math.abs(transformAmount) / deleteThreshold);
-                currentNote.style.backgroundColor = `rgba(255, 59, 48, ${opacity})`;
+                // Calculate how much of the delete indicator to show
+                // Scale it between 0 and 1 based on swipe progress toward threshold
+                const deleteProgress = Math.min(1, Math.abs(transformAmount) / deleteThreshold);
+                
+                // Update the delete indicator visibility
+                if (deleteIndicator) {
+                    deleteIndicator.style.opacity = deleteProgress.toFixed(2);
+                    deleteIndicator.style.width = (Math.abs(transformAmount)) + 'px';
+                }
             }
         }
     }
@@ -3281,6 +3309,11 @@ function setupSwipeToDelete() {
             currentNote.style.transform = 'translateX(-100%)';
             currentNote.style.opacity = '0';
             
+            if (deleteIndicator) {
+                deleteIndicator.style.transition = 'width 0.2s ease';
+                deleteIndicator.style.width = '100%';
+            }
+            
             // After animation, remove the note
             setTimeout(() => {
                 // Call the existing remove function
@@ -3288,14 +3321,30 @@ function setupSwipeToDelete() {
                 
                 // Also remove the element from DOM if still present
                 if (currentNote.parentNode) {
+                    if (deleteIndicator && deleteIndicator.parentNode) {
+                        deleteIndicator.parentNode.removeChild(deleteIndicator);
+                    }
                     currentNote.parentNode.removeChild(currentNote);
                 }
             }, 200);
         } else {
             // Reset to original position with animation
-            currentNote.style.transition = 'transform 0.3s ease, background-color 0.3s ease';
+            currentNote.style.transition = 'transform 0.3s ease';
             currentNote.style.transform = originalTransform;
-            currentNote.style.backgroundColor = '';
+            
+            // Hide the delete indicator
+            if (deleteIndicator) {
+                deleteIndicator.style.transition = 'opacity 0.3s ease';
+                deleteIndicator.style.opacity = '0';
+                
+                // Remove it after the transition
+                setTimeout(() => {
+                    if (deleteIndicator && deleteIndicator.parentNode) {
+                        deleteIndicator.parentNode.removeChild(deleteIndicator);
+                    }
+                    deleteIndicator = null;
+                }, 300);
+            }
         }
         
         // Clear the reference
