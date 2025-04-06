@@ -3390,4 +3390,264 @@ function setupSwipeToDelete() {
 // Ensure this line is at the VERY END of your script execution flow
 document.addEventListener('DOMContentLoaded', setupSwipeToDelete);
 console.log("DOMContentLoaded listener for setupSwipeToDelete attached."); // <-- LOG 7
+
+// Add this code right after the last function in the file
+
+// Detect if user is on mobile device and conditionally load Framework7
+document.addEventListener("DOMContentLoaded", function() {
+  const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+  if (!isMobile) return; // Stop if not mobile
+
+  // Load Framework7 CSS
+  const fw7CSS = document.createElement('link');
+  fw7CSS.rel = 'stylesheet';
+  fw7CSS.href = 'https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css';
+  document.head.appendChild(fw7CSS);
+
+  // Load Framework7 JS
+  const fw7JS = document.createElement('script');
+  fw7JS.src = 'https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.js';
+  document.head.appendChild(fw7JS);
+
+  // Wait for Framework7 script to load fully
+  const waitForFramework7 = setInterval(function() {
+    if (window.Framework7) {
+      clearInterval(waitForFramework7);
+      
+      // Initialize Framework7
+      const app = new Framework7({ theme: 'auto' });
+
+      // Enable swipe to delete for calendar events
+      enableSwipeToDelete();
+    }
+  }, 50);
+});
+
+// Function to enable Framework7 swipe-to-delete on calendar textareas
+function enableSwipeToDelete() {
+  // Add CSS variables for theming
+  document.documentElement.style.setProperty('--textarea-mobile-bg', 'white');
+  document.documentElement.style.setProperty('--textarea-mobile-bg-dark', '#2d3748');
+
+  // Add appropriate Framework7 classes to calendar cells
+  const dayCells = document.querySelectorAll('#calendar td:not(.extra)');
+  
+  dayCells.forEach(cell => {
+    cell.classList.add('f7-enabled');
+    
+    // Create a wrapper div for all notes in this cell
+    const notesListWrapper = document.createElement('div');
+    notesListWrapper.className = 'notes-list';
+    
+    // Convert existing textareas to Framework7 swipeout elements
+    const textareas = [...cell.querySelectorAll('textarea')];
+    
+    // Only proceed if there are textareas to convert
+    if (textareas.length === 0) return;
+    
+    // Move existing elements that aren't textareas to preserve the cell structure
+    const nonTextareaElements = [];
+    cell.childNodes.forEach(node => {
+      if (node.nodeType === 1 && node.tagName.toLowerCase() !== 'textarea') {
+        nonTextareaElements.push(node);
+      }
+    });
+    
+    // Create Framework7 list structure
+    const listDiv = document.createElement('div');
+    listDiv.className = 'list no-hairlines';
+    
+    const listUl = document.createElement('ul');
+    listDiv.appendChild(listUl);
+    
+    // Process all textareas
+    textareas.forEach(textarea => {
+      // Get the current value and ID
+      const textareaId = textarea.id;
+      const textareaValue = textarea.value;
+      
+      // Create list item with swipeout
+      const listItem = document.createElement('li');
+      listItem.className = 'swipeout';
+      listItem.dataset.textareaId = textareaId;
+      
+      // Create swipeout content
+      const swipeoutContent = document.createElement('div');
+      swipeoutContent.className = 'swipeout-content';
+      
+      // Create item content
+      const itemContent = document.createElement('div');
+      itemContent.className = 'item-content';
+      
+      // Create a new textarea with the same properties
+      const newTextarea = document.createElement('textarea');
+      newTextarea.id = textareaId;
+      newTextarea.value = textareaValue;
+      newTextarea.spellcheck = false;
+      
+      // Copy event handlers
+      newTextarea.onkeydown = noteKeyDownHandler;
+      newTextarea.onblur = noteBlurHandler;
+      
+      // Build the DOM structure
+      itemContent.appendChild(newTextarea);
+      swipeoutContent.appendChild(itemContent);
+      
+      // Create swipeout actions
+      const swipeoutActions = document.createElement('div');
+      swipeoutActions.className = 'swipeout-actions-right';
+      
+      const deleteLink = document.createElement('a');
+      deleteLink.href = '#';
+      deleteLink.className = 'swipeout-delete';
+      deleteLink.textContent = 'Delete';
+      
+      swipeoutActions.appendChild(deleteLink);
+      
+      // Assemble the list item
+      listItem.appendChild(swipeoutContent);
+      listItem.appendChild(swipeoutActions);
+      
+      // Add to the list
+      listUl.appendChild(listItem);
+      
+      // Remove the original textarea
+      if (textarea.parentNode) {
+        textarea.parentNode.removeChild(textarea);
+      }
+    });
+    
+    // Add the list to the notes wrapper
+    notesListWrapper.appendChild(listDiv);
+    
+    // Add non-textarea elements first, then the notes list
+    nonTextareaElements.forEach(elem => {
+      if (elem.parentNode === cell) {
+        elem.parentNode.removeChild(elem);
+      }
+      cell.appendChild(elem);
+    });
+    
+    // Add the notes list to the cell
+    cell.appendChild(notesListWrapper);
+    
+    // Recalculate heights for all textareas
+    textareas.forEach(textarea => {
+      recalculateHeight(textarea.id);
+    });
+  });
+  
+  // Add event listener for Framework7's swipeout delete
+  document.addEventListener('swipeout:deleted', function(e) {
+    // Get the textarea ID from the deleted item
+    const textareaId = e.detail.el.dataset.textareaId;
+    if (textareaId) {
+      // Call our existing remove function
+      removeValueForItemId(textareaId);
+      console.log(`Framework7: Deleted note ${textareaId}`);
+    }
+  });
+  
+  // Observer to handle newly created textareas
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+        mutation.addedNodes.forEach(node => {
+          // Check if the added node is a textarea in an F7-enabled cell
+          // but not already in a swipeout
+          if (node.tagName && node.tagName.toLowerCase() === 'textarea' && 
+              !node.closest('.swipeout-content')) {
+            
+            const cell = node.closest('td.f7-enabled');
+            if (!cell) return;
+            
+            const textareaId = node.id;
+            const textareaValue = node.value;
+            
+            // Find or create the notes-list wrapper
+            let notesList = cell.querySelector('.notes-list');
+            if (!notesList) {
+              notesList = document.createElement('div');
+              notesList.className = 'notes-list';
+              cell.appendChild(notesList);
+            }
+            
+            // Find or create the list container
+            let listDiv = notesList.querySelector('.list');
+            if (!listDiv) {
+              listDiv = document.createElement('div');
+              listDiv.className = 'list no-hairlines';
+              
+              const listUl = document.createElement('ul');
+              listDiv.appendChild(listUl);
+              notesList.appendChild(listDiv);
+            }
+            
+            // Find the UL
+            const listUl = listDiv.querySelector('ul');
+            
+            // Create list item with swipeout
+            const listItem = document.createElement('li');
+            listItem.className = 'swipeout';
+            listItem.dataset.textareaId = textareaId;
+            
+            // Create swipeout content
+            const swipeoutContent = document.createElement('div');
+            swipeoutContent.className = 'swipeout-content';
+            
+            // Create item content
+            const itemContent = document.createElement('div');
+            itemContent.className = 'item-content';
+            
+            // Create a new textarea with the same properties
+            const newTextarea = document.createElement('textarea');
+            newTextarea.id = textareaId;
+            newTextarea.value = textareaValue;
+            newTextarea.spellcheck = false;
+            
+            // Copy event handlers
+            newTextarea.onkeydown = noteKeyDownHandler;
+            newTextarea.onblur = noteBlurHandler;
+            
+            // Build the DOM structure
+            itemContent.appendChild(newTextarea);
+            swipeoutContent.appendChild(itemContent);
+            
+            // Create swipeout actions
+            const swipeoutActions = document.createElement('div');
+            swipeoutActions.className = 'swipeout-actions-right';
+            
+            const deleteLink = document.createElement('a');
+            deleteLink.href = '#';
+            deleteLink.className = 'swipeout-delete';
+            deleteLink.textContent = 'Delete';
+            
+            swipeoutActions.appendChild(deleteLink);
+            
+            // Assemble the list item
+            listItem.appendChild(swipeoutContent);
+            listItem.appendChild(swipeoutActions);
+            
+            // Add to the list
+            listUl.appendChild(listItem);
+            
+            // Remove the original textarea
+            if (node.parentNode) {
+              node.parentNode.removeChild(node);
+            }
+            
+            // Recalculate height
+            recalculateHeight(textareaId);
+          }
+        });
+      }
+    });
+  });
+  
+  // Start observing the entire calendar for new textareas
+  observer.observe(document.getElementById('calendar'), { 
+    childList: true,
+    subtree: true
+  });
+}
  

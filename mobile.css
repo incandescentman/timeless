@@ -360,6 +360,165 @@ a.button,
     align-items: center;
     height: 100%;
   }
+
+  /* Reset Framework7 list styles to fit our calendar UI */
+  .f7-calendar-item.list {
+    margin: 0 !important;
+    font-size: inherit !important;
+  }
+  
+  .f7-calendar-item .list ul,
+  .f7-calendar-item .list li {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+  
+  .f7-calendar-item .swipeout {
+    overflow: hidden !important;
+    border-radius: 6px !important;
+    margin-bottom: 6px !important;
+  }
+  
+  .f7-calendar-item .swipeout-content {
+    background: transparent;
+    padding: 0 !important;
+  }
+  
+  .f7-calendar-item .swipeout-content .item-content {
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+  
+  /* Style the textarea inside the swipeout */
+  .f7-calendar-item textarea {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 6px !important;
+    transition: none !important;
+    /* Preserve existing textarea styles */
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    resize: none !important;
+  }
+  
+  /* Style delete button on swipe */
+  .f7-calendar-item .swipeout-actions-right a {
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    background-color: #ff3b30 !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 15px !important;
+  }
+  
+  /* Fix for swipe threshold and animation speed */
+  .f7-calendar-item .swipeout-actions-right a {
+    --f7-swipeout-delete-button-offset: 30px;
+    transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) !important;
+  }
+  
+  /* Dark mode adjustments for Framework7 elements */
+  body.dark-mode .f7-calendar-item textarea {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  /* Hide any Framework7 default UI elements we don't need */
+  .f7-calendar-item .item-inner {
+    padding-right: 0 !important;
+    border-bottom: none !important;
+  }
+  
+  .f7-calendar-item .item-media {
+    display: none !important;
+  }
+  
+  /* Remove any Framework7 default UI elements we don't need */
+  .f7-calendar-item .item-after,
+  .f7-calendar-item .item-title {
+    display: none !important;
+  }
+
+  /* Style the F7 list container within the TD */
+  #calendar td .notes-list {
+    margin-top: 8px; /* Add some space below the day-top-row */
+  }
+
+  /* Reset F7 list default margins/padding */
+  .list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Style the swipeout LI */
+  .list li.swipeout {
+    /* Remove default F7 list item borders/lines if desired */
+    /* border-bottom: none; */
+    /* background: transparent; */ /* Inherit from TD maybe? */
+    margin-bottom: 6px; /* Space between notes */
+    border-radius: 6px; /* Round the whole swipeable item */
+    overflow: hidden; /* Contain the inner parts */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Add shadow to the LI */
+  }
+
+  /* Style the visible content part */
+  .list li.swipeout .swipeout-content {
+    /* Remove default F7 padding if needed */
+    padding: 0;
+    /* background: var(--textarea-mobile-bg, white); /* Set background HERE */
+    /* border-radius: 6px; /* Apply rounding here */
+  }
+  /* Dark mode for swipeout content */
+  /* body.dark-mode .list li.swipeout .swipeout-content {
+      background: var(--textarea-mobile-bg-dark, #2d3748);
+  } */
+
+
+  /* Style the F7 item-inner if needed */
+  .list li.swipeout .item-inner {
+     padding: 0; /* Remove default F7 inner padding */
+     /* min-height: auto; */ /* Reset F7 min-height if needed */
+  }
+
+  /* Style the TEXTAREA inside the F7 structure */
+  .list li.swipeout textarea {
+    /* Reset styles that might conflict with F7 */
+    margin-bottom: 0; /* Margin now on LI */
+    box-shadow: none; /* Shadow now on LI */
+    border-radius: 0; /* Rounding now on LI or swipeout-content */
+    border: none; /* Remove textarea border */
+    padding: 8px 12px; /* Keep padding */
+    width: 100%;
+    display: block;
+    background-color: var(--textarea-mobile-bg, white); /* Solid background */
+    color: #333;
+    /* Height is still dynamic via JS */
+    z-index: 1; /* Ensure it's above the potential ::after if you were using that */
+    /* Remove transform/transition if set previously, F7 handles movement */
+    /* transform: translateX(0); */
+    /* transition: none; */
+     will-change: auto; /* Let F7 handle this */
+  }
+    /* Dark mode textarea */
+   body.dark-mode .list li.swipeout textarea {
+     background-color: var(--textarea-mobile-bg-dark, #2d3748);
+     color: #e2e8f0;
+   }
+
+
+  /* Style the delete action */
+  .list li.swipeout .swipeout-actions-right a.swipeout-delete {
+    /* Use F7 default red or customize */
+    /* background-color: #ff3b30; */
+  }
 }
 
 
