@@ -3185,6 +3185,7 @@ function setupSwipeToDelete() {
     let touchStartY = 0;
     let currentNote = null;
     let currentCell = null;
+    let deleteBtn = null;
     let originalTransform = '';
     let transformAmount = 0;
     const deleteThreshold = 100; // Pixels to swipe before triggering delete
@@ -3230,6 +3231,36 @@ function setupSwipeToDelete() {
         }, 5000);
     }
     
+    function createDeleteButton(note) {
+        // Create the delete button
+        deleteBtn = document.createElement('div');
+        deleteBtn.className = 'delete-button';
+        deleteBtn.textContent = 'Delete';
+        
+        // Get dimensions and position to match the textarea
+        const rect = note.getBoundingClientRect();
+        
+        // Style the button to match the note's size and position
+        deleteBtn.style.position = 'absolute';
+        deleteBtn.style.top = `${note.offsetTop}px`;
+        deleteBtn.style.height = `${note.offsetHeight}px`;
+        deleteBtn.style.right = '0';
+        deleteBtn.style.backgroundColor = '#ff3b30';
+        deleteBtn.style.color = 'white';
+        deleteBtn.style.fontWeight = 'bold';
+        deleteBtn.style.display = 'flex';
+        deleteBtn.style.alignItems = 'center';
+        deleteBtn.style.justifyContent = 'center';
+        deleteBtn.style.padding = '0 10px';
+        deleteBtn.style.opacity = '0';
+        deleteBtn.style.width = '0px';
+        
+        // Insert the button before the note
+        note.parentNode.insertBefore(deleteBtn, note);
+        
+        return deleteBtn;
+    }
+    
     function handleTouchStart(e) {
         // Only process touch on textareas (calendar events)
         if (e.target.tagName.toLowerCase() !== 'textarea') return;
@@ -3237,17 +3268,23 @@ function setupSwipeToDelete() {
         currentNote = e.target;
         currentCell = currentNote.closest('td'); // Get the parent cell
         
+        // Create the delete button
+        deleteBtn = createDeleteButton(currentNote);
+        
         originalTransform = currentNote.style.transform || '';
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         transformAmount = 0;
+        
+        // Add a transition during the interaction for smoother animation
+        currentNote.style.transition = 'transform 0.1s ease';
         
         // Show hint first time user touches a note
         showSwipeHint(currentNote);
     }
     
     function handleTouchMove(e) {
-        if (!currentNote || !currentCell) return;
+        if (!currentNote || !currentCell || !deleteBtn) return;
         
         const touchX = e.touches[0].clientX;
         const touchY = e.touches[0].clientY;
@@ -3265,18 +3302,18 @@ function setupSwipeToDelete() {
                 transformAmount = deltaX;
                 currentNote.style.transform = `translateX(${transformAmount}px)`;
                 
-                // Add the swiping class to reveal the delete text when swiping left
-                currentCell.classList.add('swiping-for-delete');
+                // Calculate the width and opacity for the delete button
+                const swipeAmount = Math.abs(transformAmount);
                 
-                // Scale the opacity based on swipe progress
-                const swipeProgress = Math.min(1, Math.abs(transformAmount) / deleteThreshold);
-                currentCell.style.setProperty('--swipe-progress', swipeProgress);
+                // Update the delete button's width and opacity
+                deleteBtn.style.width = `${swipeAmount}px`;
+                deleteBtn.style.opacity = '1';
             }
         }
     }
     
     function handleTouchEnd(e) {
-        if (!currentNote || !currentCell) return;
+        if (!currentNote || !currentCell || !deleteBtn) return;
         
         // If swiped far enough to delete
         if (transformAmount < -deleteThreshold) {
@@ -3290,28 +3327,38 @@ function setupSwipeToDelete() {
                 // Call the existing remove function
                 removeValueForItemId(currentNote.id);
                 
+                // Remove the delete button
+                if (deleteBtn.parentNode) {
+                    deleteBtn.parentNode.removeChild(deleteBtn);
+                }
+                
                 // Also remove the element from DOM if still present
                 if (currentNote.parentNode) {
                     currentNote.parentNode.removeChild(currentNote);
                 }
-                
-                // Remove the swiping class
-                currentCell.classList.remove('swiping-for-delete');
-                currentCell.style.removeProperty('--swipe-progress');
             }, 200);
         } else {
             // Reset to original position with animation
             currentNote.style.transition = 'transform 0.3s ease';
             currentNote.style.transform = originalTransform;
             
-            // Remove the swiping class
-            currentCell.classList.remove('swiping-for-delete');
-            currentCell.style.removeProperty('--swipe-progress');
+            // Hide the delete button with animation
+            deleteBtn.style.transition = 'width 0.3s ease, opacity 0.3s ease';
+            deleteBtn.style.width = '0px';
+            deleteBtn.style.opacity = '0';
+            
+            // Remove the delete button after animation
+            setTimeout(() => {
+                if (deleteBtn && deleteBtn.parentNode) {
+                    deleteBtn.parentNode.removeChild(deleteBtn);
+                }
+            }, 300);
         }
         
         // Clear the references
         currentNote = null;
         currentCell = null;
+        deleteBtn = null;
     }
 }
 
