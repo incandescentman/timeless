@@ -649,6 +649,83 @@ a.button,
   body.has-f7-toolbar #calendarContainer {
     margin-top: 60px !important;
   }
+
+  /* Framework7 Bottom Toolbar Styling */
+  .toolbar.toolbar-bottom.mobile-action-bar-f7 {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: #f7f7f8 !important;
+    height: 56px !important;
+    z-index: 2000 !important; /* Ensure it's above everything */
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.2) !important;
+    display: flex !important;
+    border-top: 1px solid rgba(0,0,0,0.1) !important;
+  }
+
+  body.dark-mode .toolbar.toolbar-bottom.mobile-action-bar-f7 {
+    background-color: #1c1c1d !important;
+    color: #fff !important;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.4) !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 .toolbar-inner {
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    height: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 a.link {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    color: #007aff !important; /* iOS blue */
+    text-decoration: none !important;
+    padding: 5px 0 !important;
+    margin: 0 !important;
+    flex: 1 !important;
+  }
+
+  body.dark-mode .toolbar.mobile-action-bar-f7 a.link {
+    color: #0a84ff !important; /* Dark mode iOS blue */
+  }
+
+  .toolbar.mobile-action-bar-f7 a.link:active {
+    background-color: rgba(0,0,0,0.1) !important;
+    opacity: 0.7 !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 .icon {
+    width: 24px !important;
+    height: 24px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 span {
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  /* Adjust the calendar container to make room for both toolbars */
+  @media (max-width: 768px) {
+    #calendarContainer {
+      margin-top: 60px !important; /* Space for top toolbar */
+      margin-bottom: 70px !important; /* Space for bottom toolbar */
+      padding-bottom: 15px !important;
+    }
+    
+    /* Hide the original mobile action bar if it exists */
+    .mobile-action-bar:not(.mobile-action-bar-f7) {
+      display: none !important;
+    }
+  }
 }
 
 
@@ -847,5 +924,135 @@ body.dark-mode .toolbar-date-container input[type="date"] {
 
 body.dark-mode .toolbar-date-container button {
   background: #0a84ff !important;
+}
+
+/* Framework7 Integration for Mobile */
+
+/* Top Toolbar */
+.toolbar.toolbar-top.f7-toolbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: var(--f7-toolbar-bg-color, #f7f7f8) !important;
+  height: 48px !important;
+  z-index: 5000 !important; /* Very high z-index */
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
+  display: flex !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Bottom Toolbar */
+.toolbar.toolbar-bottom.mobile-action-bar-f7 {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: var(--f7-toolbar-bg-color, #f7f7f8) !important;
+  height: 56px !important;
+  z-index: 5000 !important; /* Very high z-index */
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.1) !important;
+  display: flex !important;
+  border-top: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* Toolbar inner container */
+.toolbar-inner {
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Top toolbar links */
+.toolbar.toolbar-top.f7-toolbar .tab-link {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  color: var(--f7-tabbar-link-text-color, #007aff) !important;
+  padding: 0 12px !important;
+  margin: 0 2px !important;
+  text-decoration: none !important;
+  position: relative !important;
+  min-width: 56px !important;
+}
+
+/* Bottom toolbar links */
+.toolbar.toolbar-bottom.mobile-action-bar-f7 .link {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  color: var(--f7-tabbar-link-text-color, #007aff) !important;
+  text-decoration: none !important;
+}
+
+/* Active state for all toolbar links */
+.toolbar .tab-link:active,
+.toolbar .link:active {
+  opacity: 0.7 !important;
+  background-color: rgba(0,0,0,0.05) !important;
+}
+
+/* Icons in both toolbars */
+.toolbar .icon {
+  font-size: 24px !important;
+  height: 24px !important;
+  width: 24px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Text labels in both toolbars */
+.toolbar .tabbar-label,
+.toolbar .link span {
+  font-size: 10px !important;
+  line-height: 1 !important;
+  margin-top: 2px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .toolbar {
+  background-color: var(--f7-toolbar-bg-color-dark, #1c1c1d) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+body.dark-mode .toolbar .tab-link,
+body.dark-mode .toolbar .link {
+  color: var(--f7-tabbar-link-text-color-dark, #0a84ff) !important;
+}
+
+body.dark-mode .toolbar .tab-link:active,
+body.dark-mode .toolbar .link:active {
+  background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Adjust calendar spacing for toolbars */
+@media (max-width: 768px) {
+  #calendarContainer {
+    margin-top: 56px !important; /* Space for top toolbar */
+    margin-bottom: 64px !important; /* Space for bottom toolbar */
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  
+  /* Hide the original mobile action bar */
+  .mobile-action-bar:not(.mobile-action-bar-f7) {
+    display: none !important;
+  }
+  
+  /* Hide header but keep its children */
+  #header {
+    display: none !important;
+  }
 }
 

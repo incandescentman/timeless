@@ -3483,10 +3483,33 @@ function setupSwipeToDelete() {
     }
 }
 
+// CLEAN UP EVENT LISTENER MANAGEMENT
+// Remove any duplicate event listeners - we'll reattach a single one
+const oldSetupSwipeToDeleteListener = window.setupSwipeToDeleteAttached;
+if (oldSetupSwipeToDeleteListener) {
+  document.removeEventListener('DOMContentLoaded', oldSetupSwipeToDeleteListener);
+  console.log("Removed old setupSwipeToDelete listener");
+}
 
-
-// Ensure this line is at the VERY END of your script execution flow
+// Attach a single DOMContentLoaded listener for setupSwipeToDelete
 document.addEventListener('DOMContentLoaded', setupSwipeToDelete);
+window.setupSwipeToDeleteAttached = setupSwipeToDelete;
+console.log("DOMContentLoaded listener for setupSwipeToDelete attached.");
+
+// Clean up any other listeners that might be trying to create toolbars
+const removeExtraListeners = () => {
+  // First, find and remove any duplicate setupSwipeToDelete functions
+  if (typeof window.initializeMobileToolbars === 'function') {
+    console.log("Removing initializeMobileToolbars listeners");
+    document.removeEventListener('DOMContentLoaded', window.initializeMobileToolbars);
+  }
+};
+
+// Call this cleanup now and also on DOMContentLoaded
+removeExtraListeners();
+document.addEventListener('DOMContentLoaded', removeExtraListeners);
+
+// Detect if user is on mobile device and conditionally load Framework7
 console.log("DOMContentLoaded listener for setupSwipeToDelete attached."); // <-- LOG 7
 
 // Add this code right after the last function in the file
@@ -3877,4 +3900,343 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// Function to create Framework7 bottom toolbar for mobile
+function createF7BottomToolbar() {
+  console.log("Creating F7 bottom toolbar for mobile navigation");
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.mobile-action-bar-f7');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'toolbar toolbar-bottom mobile-action-bar-f7';
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createLink(icon, label, onClick) {
+    const link = document.createElement('a');
+    link.className = 'link';
+    link.href = '#';
+    link.innerHTML = `
+      <svg class="icon" viewBox="0 0 24 24">
+        ${icon}
+      </svg>
+      <span>${label}</span>
+    `;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return link;
+  }
+  
+  // Add navigation buttons with SVG icons
+  const buttons = [
+    createLink(
+      '<rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 3v4M8 3v4M4 11h16" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="16" r="2" fill="currentColor"/>',
+      'Today',
+      goToTodayAndRefresh
+    ),
+    createLink(
+      '<path d="M15 6l-6 6l6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Previous',
+      jumpOneMonthBackward
+    ),
+    createLink(
+      '<path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Next',
+      jumpOneMonthForward
+    ),
+    createLink(
+      '<path d="M4 6h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 12h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/>',
+      'Menu',
+      showCommandPalette
+    )
+  ];
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body
+  document.body.appendChild(toolbar);
+  
+  console.log("F7 bottom toolbar created and added to the document");
+}
+
+// Add this to the DOMContentLoaded event handler
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOMContentLoaded event fired");
+  
+  // Check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    console.log("Creating mobile toolbars");
+    
+    // Use requestAnimationFrame to ensure toolbar is created after any other initialization
+    requestAnimationFrame(function() {
+      // Wait a tiny bit to make sure everything is rendered
+      setTimeout(function() {
+        console.log("Creating toolbars with delay");
+        // Create top toolbar
+        createF7Toolbar();
+        // Create bottom toolbar
+        createF7BottomToolbar();
+      }, 100);
+    });
+  }
+});
+
+// Function to initialize mobile toolbars
+function initializeMobileToolbars() {
+  // Only proceed on mobile
+  if (window.innerWidth > 768) return;
+  
+  console.log("Initializing mobile toolbars");
+  
+  // Add class to body to flag that we're using F7 toolbars
+  document.body.classList.add('has-f7-toolbars');
+  
+  // Create both toolbars
+  createF7Toolbar();
+  createF7BottomToolbar();
+  
+  // Create mutation observer to check if Framework7 removes our toolbars
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'childList') {
+        // If our toolbars are missing, recreate them
+        const topToolbar = document.querySelector('.f7-toolbar');
+        const bottomToolbar = document.querySelector('.mobile-action-bar-f7');
+        
+        if (!topToolbar || !bottomToolbar) {
+          console.log("Toolbars were removed, recreating them");
+          if (!topToolbar) createF7Toolbar();
+          if (!bottomToolbar) createF7BottomToolbar();
+        }
+      }
+    });
+  });
+  
+  // Start observing the document for changes
+  observer.observe(document.body, { childList: true, subtree: true });
+  
+  // Also set a periodic check just to be extra safe
+  setInterval(function() {
+    const topToolbar = document.querySelector('.f7-toolbar');
+    const bottomToolbar = document.querySelector('.mobile-action-bar-f7');
+    
+    if (!topToolbar || !bottomToolbar) {
+      console.log("Periodic check: toolbars missing, recreating them");
+      if (!topToolbar) createF7Toolbar();
+      if (!bottomToolbar) createF7BottomToolbar();
+    }
+  }, 2000); // Check every 2 seconds
+}
+
+// Update the DOMContentLoaded handler to use our new function
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOMContentLoaded event fired");
+  
+  // Check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    // First, try immediate creation
+    initializeMobileToolbars();
+    
+    // Then also try with a delay to ensure we run after F7 initialization
+    setTimeout(function() {
+      console.log("Delayed toolbar initialization");
+      initializeMobileToolbars();
+    }, 500);
+    
+    // And also check after a longer delay for extra safety
+    setTimeout(function() {
+      console.log("Final toolbar check");
+      initializeMobileToolbars();
+    }, 2000);
+  }
+});
+
+// Function to create Framework7 bottom toolbar for mobile
+function createF7MobileNavigation() {
+  console.log("Creating F7 mobile navigation (both top and bottom toolbars)");
+  
+  // Create both toolbars
+  createF7TopToolbar();
+  createF7BottomToolbar();
+  
+  // Add class to body to mark initialization
+  document.body.classList.add('has-f7-toolbars');
+}
+
+// Function to create Framework7 top toolbar with navigation buttons
+function createF7TopToolbar() {
+  console.log("Creating F7 top toolbar");
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.f7-toolbar');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'f7-toolbar toolbar toolbar-top';
+  toolbar.style.backgroundColor = '#f7f7f8'; // Force background color
+  toolbar.style.display = 'flex'; // Force display
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createButton(icon, label, onClick) {
+    const button = document.createElement('a');
+    button.className = 'tab-link';
+    button.innerHTML = `
+      <i class="icon">${icon}</i>
+      <span class="tabbar-label">${label}</span>
+    `;
+    button.addEventListener('click', () => {
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return button;
+  }
+  
+  // Add buttons
+  const buttons = [
+    createButton('←', 'Prev', jumpOneMonthBackward),
+    createButton('•', 'Today', goToTodayAndRefresh),
+    createButton('→', 'Next', jumpOneMonthForward),
+    createButton('Y', 'Year', showYearView),
+    createButton('⇄', 'Range', toggleRangeSelection),
+    createButton('?', 'Help', showHelp)
+  ];
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body
+  document.body.insertBefore(toolbar, document.body.firstChild);
+  
+  console.log("F7 top toolbar created");
+}
+
+// Function to create Framework7 bottom toolbar for mobile
+function createF7BottomToolbar() {
+  console.log("Creating F7 bottom toolbar");
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.toolbar-bottom.mobile-action-bar-f7');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'toolbar toolbar-bottom mobile-action-bar-f7';
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createLink(icon, label, onClick) {
+    const link = document.createElement('a');
+    link.className = 'link';
+    link.href = '#';
+    link.innerHTML = `
+      <svg class="icon" viewBox="0 0 24 24">
+        ${icon}
+      </svg>
+      <span>${label}</span>
+    `;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return link;
+  }
+  
+  // Add navigation buttons with SVG icons
+  const buttons = [
+    createLink(
+      '<rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 3v4M8 3v4M4 11h16" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="16" r="2" fill="currentColor"/>',
+      'Today',
+      goToTodayAndRefresh
+    ),
+    createLink(
+      '<path d="M15 6l-6 6l6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Previous',
+      jumpOneMonthBackward
+    ),
+    createLink(
+      '<path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Next',
+      jumpOneMonthForward
+    ),
+    createLink(
+      '<path d="M4 6h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 12h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/>',
+      'Menu',
+      showCommandPalette
+    )
+  ];
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body
+  document.body.appendChild(toolbar);
+  
+  console.log("F7 bottom toolbar created");
+}
+
+// Update setupSwipeToDelete to use our new mobile navigation function
+function setupSwipeToDelete() {
+  console.log("Setting up swipe functionality...");
+  
+  // First check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    // Create the mobile navigation (top and bottom toolbars)
+    createF7MobileNavigation();
+    
+    // Then enable Framework7 swipe-to-delete if needed
+    enableSwipeToDelete();
+  }
+  
+  // Then set up the regular swipe to delete functionality
+  // Only proceed with swipe handlers if on mobile device
+  if (!isPhone) return;
+  
+  console.log("Setting up touch event handlers");
+  
+  // Rest of the setupSwipeToDelete function remains unchanged
+  // ... existing code ...
+}
  
