@@ -3174,11 +3174,6 @@ function pushUndoState() {
     }
 }
 
-/*
- * setupSwipeToDelete()
- *  - Enables swipe-to-delete functionality for calendar events on mobile devices.
- */
-
 
 /*
  * setupSwipeToDelete()
@@ -3188,25 +3183,25 @@ function pushUndoState() {
 function setupSwipeToDelete() {
     let touchStartX = 0;
     let touchStartY = 0;
-    let currentNote = null; // The textarea being swiped
-    let currentCell = null; // The parent TD of the note
+    let currentNote = null;
+    let currentCell = null;
     let originalTransform = '';
     let transformAmount = 0;
     const deleteThreshold = 100; // Pixels to swipe before triggering delete
-    const activateIndicatorThreshold = 10; // Pixels before showing indicator
     const isPhone = window.innerWidth <= 768;
-
+    
+    // Only set up swipe handlers on mobile devices
     if (!isPhone) return;
-
-    // Use capturing phase for touchstart potentially, but check target carefully
+    
     document.addEventListener('touchstart', handleTouchStart, { passive: false });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-    // --- showSwipeHint function remains the same ---
+    
+    // Show a hint about swipe-to-delete if user hasn't seen it before
     function showSwipeHint(noteElem) {
-        // ... (keep existing hint logic) ...
         if (localStorage.getItem('has_seen_swipe_hint')) return;
+        
+        // Create hint overlay
         const hint = document.createElement('div');
         hint.className = 'swipe-hint-overlay';
         hint.innerHTML = `
@@ -3217,11 +3212,15 @@ function setupSwipeToDelete() {
             </div>
         `;
         document.body.appendChild(hint);
+        
+        // Set up dismissal
         hint.querySelector('.swipe-hint-dismiss').addEventListener('click', () => {
             hint.classList.add('fade-out');
             setTimeout(() => hint.remove(), 300);
             localStorage.setItem('has_seen_swipe_hint', 'true');
         });
+        
+        // Auto-dismiss after 5 seconds
         setTimeout(() => {
             if (document.body.contains(hint)) {
                 hint.classList.add('fade-out');
@@ -3230,156 +3229,95 @@ function setupSwipeToDelete() {
             }
         }, 5000);
     }
-    // --- End showSwipeHint ---
-
+    
     function handleTouchStart(e) {
-        // Ensure touch originates on a textarea within our calendar
-        const targetTextArea = e.target.closest('#calendar td textarea');
-        if (!targetTextArea) {
-            currentNote = null; // Ensure reset if touch starts elsewhere
-            currentCell = null;
-            return;
-        }
-
-        currentNote = targetTextArea;
-        currentCell = currentNote.parentNode; // Get the parent TD
-        originalTransform = currentNote.style.transform || 'translateX(0px)'; // Default to 0
+        // Only process touch on textareas (calendar events)
+        if (e.target.tagName.toLowerCase() !== 'textarea') return;
+        
+        currentNote = e.target;
+        currentCell = currentNote.closest('td'); // Get the parent cell
+        
+        originalTransform = currentNote.style.transform || '';
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         transformAmount = 0;
-
-        // Remove transition during active drag for direct response
-        currentNote.style.transition = 'none';
-        // Ensure parent cell doesn't have the indicator class initially
-        if (currentCell) {
-             currentCell.classList.remove('swiping-for-delete');
-        }
-
+        
         // Show hint first time user touches a note
         showSwipeHint(currentNote);
     }
-
+    
     function handleTouchMove(e) {
         if (!currentNote || !currentCell) return;
-
+        
         const touchX = e.touches[0].clientX;
         const touchY = e.touches[0].clientY;
+        
+        // Calculate horizontal and vertical movement
         const deltaX = touchX - touchStartX;
         const deltaY = touchY - touchStartY;
-
-        // Prioritize horizontal swipe
-        if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) { // Require more horizontal movement
-            e.preventDefault(); // Prevent vertical scroll during swipe
-
-            // Only allow left swipe (negative deltaX), don't allow swiping right past origin
-            transformAmount = Math.min(0, deltaX); // Clamp at 0 (no right swipe past start)
-
-            currentNote.style.transform = `translateX(${transformAmount}px)`;
-
-            // Toggle the indicator visibility based on swipe amount
-            if (transformAmount < -activateIndicatorThreshold) {
+        
+        // Only process horizontal swipes (not vertical scrolling)
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            e.preventDefault(); // Prevent scrolling while swiping
+            
+            // Only process left swipes (negative deltaX)
+            if (deltaX < 0) {
+                transformAmount = deltaX;
+                currentNote.style.transform = `translateX(${transformAmount}px)`;
+                
+                // Add the swiping class to reveal the delete text when swiping left
                 currentCell.classList.add('swiping-for-delete');
-            } else {
-                currentCell.classList.remove('swiping-for-delete');
-            }
-
-            // REMOVED: Direct background color change on textarea
-            // const opacity = Math.min(0.8, Math.abs(transformAmount) / deleteThreshold);
-            // currentNote.style.backgroundColor = `rgba(255, 59, 48, ${opacity})`;
-
-        } else {
-            // If swipe becomes more vertical, potentially release the note
-             // Reset if vertical scroll takes over significantly
-            if(Math.abs(deltaY) > Math.abs(deltaX) * 2) {
-                resetSwipeState();
+                
+                // Scale the opacity based on swipe progress
+                const swipeProgress = Math.min(1, Math.abs(transformAmount) / deleteThreshold);
+                currentCell.style.setProperty('--swipe-progress', swipeProgress);
             }
         }
     }
-
+    
     function handleTouchEnd(e) {
         if (!currentNote || !currentCell) return;
-
-        // Use the final transformAmount calculated in touchmove
+        
+        // If swiped far enough to delete
         if (transformAmount < -deleteThreshold) {
-            // Swiped far enough - trigger delete animation and removal
-            console.log(`Deleting note ${currentNote.id}`);
-            // Re-apply transition for the delete animation
+            // Add delete animation
             currentNote.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-            currentNote.style.transform = 'translateX(-105%)'; // Move slightly further
+            currentNote.style.transform = 'translateX(-100%)';
             currentNote.style.opacity = '0';
-
-            // Hide the indicator immediately (or fade it with the note)
-            currentCell.classList.remove('swiping-for-delete'); // Remove class so indicator disappears
-
-            // Store reference for timeout
-            const noteToRemove = currentNote;
-            const cellToRemoveFrom = currentCell;
-
+            
+            // After animation, remove the note
             setTimeout(() => {
-                 // Check if element still exists before removing
-                 if (noteToRemove && noteToRemove.parentNode === cellToRemoveFrom) {
-                      removeValueForItemId(noteToRemove.id); // Delete data
-                      cellToRemoveFrom.removeChild(noteToRemove); // Remove from DOM
-                      console.log(`Removed ${noteToRemove.id}`);
-                      // Crucially, re-evaluate the parent cell's order in localStorage
-                      // after removing an item.
-                      updateLocalStorageOrder(cellToRemoveFrom.id);
-                 }
-            }, 200); // Corresponds to animation duration
-
+                // Call the existing remove function
+                removeValueForItemId(currentNote.id);
+                
+                // Also remove the element from DOM if still present
+                if (currentNote.parentNode) {
+                    currentNote.parentNode.removeChild(currentNote);
+                }
+                
+                // Remove the swiping class
+                currentCell.classList.remove('swiping-for-delete');
+                currentCell.style.removeProperty('--swipe-progress');
+            }, 200);
         } else {
-            // Didn't swipe far enough - snap back
-            resetSwipeState(true); // Pass true to animate snap-back
+            // Reset to original position with animation
+            currentNote.style.transition = 'transform 0.3s ease';
+            currentNote.style.transform = originalTransform;
+            
+            // Remove the swiping class
+            currentCell.classList.remove('swiping-for-delete');
+            currentCell.style.removeProperty('--swipe-progress');
         }
-
-        // Clear references
+        
+        // Clear the references
         currentNote = null;
         currentCell = null;
-        transformAmount = 0; // Reset amount
     }
-
-    // Helper to reset the swipe state
-    function resetSwipeState(animate = false) {
-        if (currentNote) {
-             if (animate) {
-                 currentNote.style.transition = 'transform 0.3s ease'; // Snap back animation
-             } else {
-                  currentNote.style.transition = 'none';
-             }
-             currentNote.style.transform = originalTransform; // Go back to initial state
-             currentNote.style.opacity = '1';
-        }
-         if (currentCell) {
-            currentCell.classList.remove('swiping-for-delete'); // Hide indicator
-         }
-         // Don't clear currentNote/currentCell here, handleTouchEnd does that
-    }
-
-     // Helper function to update localStorage order after deletion
-     function updateLocalStorageOrder(parentId) {
-          const parentCell = document.getElementById(parentId);
-          if (!parentCell) return;
-
-          const notesInOrder = parentCell.querySelectorAll("textarea");
-          const orderedIds = Array.from(notesInOrder)
-                                .map(note => note.id)
-                                .filter(id => localStorage.getItem(id) !== null && localStorage.getItem(id).trim() !== '');
-
-          if (orderedIds.length > 0) {
-              const orderedIdsString = orderedIds.join(',');
-              if (localStorage.getItem(parentId) !== orderedIdsString) {
-                   console.log(`LocalStorage: Updating order for ${parentId} after delete: ${orderedIdsString}`);
-                   localStorage.setItem(parentId, orderedIdsString);
-                   // No need to push undo here, removeValueForItemId already did
-                   debouncedServerSave(); // Trigger save after order change
-              }
-          } else {
-              if (localStorage.getItem(parentId) !== null) {
-                   console.log(`LocalStorage: No valid items left in ${parentId} after delete, removing parent key.`);
-                   localStorage.removeItem(parentId);
-                   debouncedServerSave(); // Trigger save after key removal
-              }
-          }
-     }
 }
 
+
+
+// Ensure this line is at the VERY END of your script execution flow
+document.addEventListener('DOMContentLoaded', setupSwipeToDelete);
+console.log("DOMContentLoaded listener for setupSwipeToDelete attached."); // <-- LOG 7
+ 
