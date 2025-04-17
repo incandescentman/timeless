@@ -428,71 +428,120 @@ function recalculateAllHeights() {
 }
 
 /*
- * storeValueForItemId(itemId)
- *  - Persists the <textarea> content to localStorage, plus adds undo state.
- */
-
-/*
- * Persists the <textarea> content to localStorage and updates the parent's
- * ordered list of item IDs based on the current DOM order.
- * @param {string} itemId - The ID of the textarea being saved.
+ * storeValueForItemId(itemId) - Simpler version
+ *  - Persists textarea content to localStorage. Ensures item ID is in parent list.
+ *  - Called by blur handler or Enter keydown.
+ * @param {string} itemId - ID of the textarea to store
  */
 function storeValueForItemId(itemId) {
     const ta = document.getElementById(itemId);
-    // Basic validation: Ensure textarea and its parent TD exist
-    if (!ta || !ta.parentNode || ta.parentNode.tagName !== 'TD') {
-         console.warn(`storeValueForItemId: Could not find textarea or its parent TD for ID ${itemId}. Aborting save.`);
-         return; // Don't proceed if the element or context is invalid
+    if (!ta) return; // Silent exit if element not found
+
+    const currentValue = ta.value;
+    const storedValue = localStorage.getItem(itemId);
+
+    // Find parent TD - IMPROVED PARENT FINDING
+    let parentCell = null;
+    
+    // Attempt 1: Direct closest() method
+    if (ta.closest) {
+        parentCell = ta.closest('td.day');
     }
-    const parentId = ta.parentNode.id;
-    const parentCell = ta.parentNode;
-    const currentValue = ta.value; // Get value before potentially removing element
-
-    // Don't save if the value is effectively empty (trim check).
-    // Let the blur handler manage removal of empty items.
-    if (!currentValue.trim()) {
-         console.log(`storeValueForItemId: Value for ${itemId} is empty, deferring to blur handler for potential removal.`);
-         // It's important that noteBlurHandler correctly removes the item ID from localStorage[parentId]
-         return;
+    
+    // Attempt 2: Walk up the DOM tree manually
+    if (!parentCell) {
+        let element = ta;
+        while (element && element.tagName !== 'BODY') {
+            element = element.parentElement;
+            if (element && element.tagName === 'TD' && element.classList.contains('day')) {
+                parentCell = element;
+                console.log(`Found parent TD by walking up DOM tree for ${itemId}`);
+                break;
+            }
+        }
+    }
+    
+    // Attempt 3: Try to extract date from itemId
+    if (!parentCell) {
+        // Parse potential date from itemId format like "item-12_25_2023-timestamp"
+        const idParts = itemId.split('-');
+        if (idParts.length > 1) {
+            const potentialDatePart = idParts[1];
+            const potentialTD = document.getElementById(potentialDatePart);
+            if (potentialTD && potentialTD.tagName === 'TD') {
+                parentCell = potentialTD;
+                console.log(`Found parent TD from item ID parsing: ${potentialDatePart}`);
+            }
+        }
+    }
+    
+    // Attempt 4: Last resort - scan all TDs in document
+    if (!parentCell) {
+        // Find any TD with a notes-list containing this textarea
+        const allTDs = document.querySelectorAll('td.day');
+        for (const td of allTDs) {
+            if (td.querySelector(`#${itemId}`)) {
+                parentCell = td;
+                console.log(`Found parent TD by scanning all TDs for ${itemId}`);
+                break;
+            }
+        }
     }
 
-    console.log(`storeValueForItemId: Saving value for ${itemId} in parent ${parentId}`);
-    pushUndoState(); // Store undo state before making changes
+    if (!parentCell) {
+        console.error(`storeValueForItemId: Cannot find parent cell TD for ${itemId}`);
+        
+        // Continue saving the value even if we can't find the parent
+        // This ensures content isn't lost, even if parent association fails
+        localStorage.setItem(itemId, currentValue);
+        
+        if (currentValue.trim()) {
+            localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+            if (typeof debouncedServerSave === 'function') debouncedServerSave();
+        }
+        
+        if (document.getElementById(itemId)) {
+            recalculateHeight(itemId);
+        }
+        
+        return; // Skip parent list management
+    }
+    
+    const parentId = parentCell.id;
+    console.log(`storeValueForItemId: Found parent ${parentId} for ${itemId}`);
 
-    // 1. Save the item's actual value
+    // Push undo state if value changed meaningfully
+    const isNew = storedValue === null;
+    if ((isNew && currentValue.trim()) || (!isNew && storedValue !== currentValue)) {
+         pushUndoState();
+    }
+
+    // Save current value (even if empty, removal is handled by blur)
     localStorage.setItem(itemId, currentValue);
 
-    // 2. Update the parent's ordered list based on current DOM structure
-    const notesInOrder = parentCell.querySelectorAll("textarea"); // Get all textareas within the parent TD in their current DOM order
-    const orderedIds = Array.from(notesInOrder)
-                           .map(note => note.id) // Get their IDs
-                           .filter(id => localStorage.getItem(id) !== null && localStorage.getItem(id).trim() !== ''); // Filter out any potentially lingering IDs for empty notes
+    // --- Update Parent List (Ensure ID Exists if content present) ---
+    if (currentValue.trim()) {
+        let parentIds = localStorage[parentId] ? localStorage[parentId].split(",").filter(id => id) : [];
+        if (!parentIds.includes(itemId)) {
+            // If it's not in the list but has content now, add it (usually append)
+            // The visual re-render handles actual positioning based on the full list read.
+            parentIds.push(itemId);
+            localStorage.setItem(parentId, parentIds.join(','));
+            console.log(`LocalStorage: Added ${itemId} to ${parentId} list during save.`);
+        }
+    }
+    // --- (Removal from parent list is handled in removeValueForItemId) ---
 
-    if (orderedIds.length > 0) {
-        const orderedIdsString = orderedIds.join(',');
-        localStorage.setItem(parentId, orderedIdsString);
-        // console.log(`storeValueForItemId: Updated order for ${parentId}: ${orderedIdsString}`);
-    } else {
-        // If, after filtering, no valid items remain in this cell
-        delete localStorage.removeItem(parentId); // Use removeItem for clarity
-        console.log(`storeValueForItemId: No valid items left in ${parentId}, removing parent key.`);
+    // Update timestamp and sync only if the value was not empty
+    if (currentValue.trim()) {
+        localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+        if (typeof debouncedServerSave === 'function') debouncedServerSave();
     }
 
-    // 3. Optional: Update ISO date key (if you use this feature)
-    //    Note: This simple key might only work well if you expect one main item per day using ISO.
-    //    If multiple items per day should map to ISO, this needs more complex logic.
-    const iso = parseDateFromId(parentId);
-    if (iso) {
-        localStorage.setItem(iso, currentValue); // This overwrites any previous value for that ISO date
+    // Update UI (Height) - No need to process tags here, renderNotesForDay handles initial state
+    if (document.getElementById(itemId)) {
+       recalculateHeight(itemId);
     }
-
-    // 4. Update metadata and trigger sync
-    localStorage.setItem("lastSavedTimestamp", Date.now());
-    debouncedServerSave(); // Trigger server sync
-
-    // 5. Update UI elements related to the note
-//    processNoteTags(ta); // Apply tag styling etc.
-    recalculateHeight(ta.id); // Ensure height is correct after save/tag processing
 }
 
 
@@ -501,87 +550,169 @@ function storeValueForItemId(itemId) {
  *  - Deletes an item from localStorage, removing from parent's item list as well.
  */
 function removeValueForItemId(itemId) {
-    pushUndoState();
-    delete localStorage[itemId];
-    const ta = document.getElementById(itemId);
-    if (!ta) return;
-    const parentId = ta.parentNode.id;
-    if (localStorage[parentId]) {
-        let arr = localStorage[parentId].split(",");
-        arr = arr.filter(id => id !== itemId);
-        if (arr.length) {
-            localStorage[parentId] = arr;
-        } else {
-            delete localStorage[parentId];
+    // First check if we know the parent from cache
+    let parentId = textareaParentCache.has(itemId) ? 
+                 textareaParentCache.get(itemId) : null;
+                 
+    // If not in cache, scan localStorage for the parent
+    if (!parentId) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.match(/^\d+_\d+_\d+$/)) {
+                const items = localStorage[key].split(',').filter(id => id);
+                if (items.includes(itemId)) {
+                    parentId = key;
+                    console.log(`removeValueForItemId: Found parent ${parentId} for ${itemId} in localStorage`);
+                    break;
+                }
+            }
         }
     }
-    // Also remove from ISO date if present
-    const iso = parseDateFromId(parentId);
-    if (iso && localStorage[iso]) {
-        delete localStorage[iso];
+    
+    // If we found the parent, update its child list
+    if (parentId) {
+        let parentList = localStorage[parentId] ? 
+                        localStorage[parentId].split(",").filter(id => id) : [];
+                        
+        // Filter out this ID
+        parentList = parentList.filter(id => id !== itemId);
+        
+        // Update the parent's list
+        localStorage.setItem(parentId, parentList.join(','));
+        console.log(`removeValueForItemId: Removed ${itemId} from parent ${parentId}`);
+        
+        // Remove from our cache
+        textareaParentCache.delete(itemId);
+    } else {
+        console.log(`removeValueForItemId: No parent found for ${itemId}`);
+    }
+    
+    // Remove the item itself
+    localStorage.removeItem(itemId);
+    
+    // Update timestamp
+    localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+    if (typeof debouncedServerSave === 'function') {
+        debouncedServerSave();
     }
 }
 
-/*
- * noteKeyDownHandler(e)
- *  - Handles key events in a day note <textarea>, supporting Ctrl/Command shortcuts.
+/**
+ * Handles keydown events on textareas
+ * Uses the global parent cache for reliable parent finding
  */
 function noteKeyDownHandler(e) {
-    recalculateHeight(this.id);
-    if (e.ctrlKey || e.metaKey) {
-        switch(e.key) {
-        case 'b': // Ctrl+B = bold
-            e.preventDefault();
-            wrapTextSelection(this, '*', '*');
-            break;
-        case 'i': // Ctrl+I = italic
-            e.preventDefault();
-            wrapTextSelection(this, '*', '*');
-            break;
-        case '1': // Ctrl+1 = set [priority:high]
-            e.preventDefault();
-            addTaskPriority(this, 'high');
-            break;
-        case '2': // Ctrl+2 = [priority:medium]
-            e.preventDefault();
-            addTaskPriority(this, 'medium');
-            break;
-        case '3': // Ctrl+3 = [priority:low]
-            e.preventDefault();
-            addTaskPriority(this, 'low');
-            break;
-        case 'd': // Ctrl+D => mark done
-            e.preventDefault();
-            toggleTaskDone(this);
-            break;
-        case 'h': // Ctrl+H => insert hashtag
-            e.preventDefault();
-            insertHashtag(this);
-            break;
-        case 'r': // Ctrl+R => pull updates from server
-            e.preventDefault();
-            pullUpdatesFromServer(this);
-            break;
+    const ta = e.target;
+    
+    // Auto-resize as content changes
+    setTimeout(() => recalculateHeight(ta.id), 0);
+    
+    // Handle Enter key with no modifiers pressed
+    if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        
+        // Store value first using our enhanced system
+        storeValueForItemId(ta.id);
+        
+        // Get parent ID from cache or DOM
+        let parentId = textareaParentCache.has(ta.id) ? 
+                      textareaParentCache.get(ta.id) : null;
+                      
+        // If not in cache, try to find the parent in DOM                
+        if (!parentId) {
+            // Try closest() first
+            const parentCell = ta.closest('td.day');
+            if (parentCell) {
+                parentId = parentCell.id;
+                // Cache it for future use
+                textareaParentCache.set(ta.id, parentId);
+            }
         }
-        return;
-    }
-    if (e.key === "Escape") {
-        e.preventDefault();
-        this.blur();
-        return;
-    }
-    if (e.key === "Enter" && !e.shiftKey) {
-        // Press Enter to save + blur
-        e.preventDefault();
-        storeValueForItemId(this.id);
-        this.blur();
+        
+        // If still no parent, check localStorage
+        if (!parentId) {
+            // Scan localStorage for all cell IDs
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.match(/^\d+_\d+_\d+$/)) {
+                    const items = localStorage[key].split(',').filter(id => id);
+                    if (items.includes(ta.id)) {
+                        parentId = key;
+                        // Cache it for future use
+                        textareaParentCache.set(ta.id, parentId);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // If we found the parent, create a new note
+        if (parentId) {
+            // Create new item
+            const newItemId = nextItemId();
+            
+            // Get existing items for this parent
+            let parentIds = localStorage[parentId] ? 
+                          localStorage[parentId].split(',').filter(id => id) : [];
+                          
+            // Find position of current item
+            const currentIndex = parentIds.indexOf(ta.id);
+            
+            // Insert new item in the correct position (after current)
+            if (currentIndex !== -1) {
+                // Add after current item
+                parentIds.splice(currentIndex + 1, 0, newItemId);
+            } else {
+                // If current item not in list (rare case), add to end
+                parentIds.push(newItemId);
+            }
+            
+            // Update localStorage
+            localStorage.setItem(parentId, parentIds.join(','));
+            localStorage.setItem(newItemId, '');
+            
+            // Also cache the parent for the new item
+            textareaParentCache.set(newItemId, parentId);
+            
+            // Update timestamp
+            localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+            if (typeof debouncedServerSave === 'function') {
+                debouncedServerSave();
+            }
+            
+            // Re-render the day and focus the new note
+            renderNotesForDay(parentId);
+            
+            // Focus the new textarea
+            setTimeout(() => {
+                const newTextarea = document.getElementById(newItemId);
+                if (newTextarea) {
+                    newTextarea.focus();
+                    newTextarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 50);
+        } else {
+            // If we couldn't find the parent, just blur the textarea
+            console.error(`Could not find parent for ${ta.id} when handling Enter key`);
+            ta.blur();
+        }
+        
         return false;
-    } else {
-        // Debounce auto-save while typing
-        if (!this.debouncedSave) {
-            this.debouncedSave = debounce(() => storeValueForItemId(this.id), 1000);
+    }
+    
+    // Special formatting shortcuts with Ctrl/Cmd
+    if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'b') {
+            e.preventDefault();
+            wrapTextSelection(ta, '**', '**');
+            return false;
         }
-        this.debouncedSave();
+        if (e.key === 'i') {
+            e.preventDefault();
+            wrapTextSelection(ta, '*', '*');
+            return false;
+        }
+        // Add more shortcuts as needed...
     }
 }
 
@@ -607,51 +738,93 @@ function wrapTextSelection(textarea, prefix, suffix) {
  *  - If the note is empty when blurred, remove it from localStorage.
  */
 function noteBlurHandler() {
+    // Always store value (our enhanced storeValueForItemId will handle parent finding)
+    storeValueForItemId(this.id);
+    
+    // If empty, remove the note
     if (!this.value.trim()) {
+        console.log(`noteBlurHandler: Removing empty note ${this.id}`);
+        
+        // Get the parent ID from our cache if available
+        let parentId = textareaParentCache.has(this.id) ? 
+                      textareaParentCache.get(this.id) : null;
+        
+        // Remove from localStorage (this also updates the parent's list)
         removeValueForItemId(this.id);
-        this.parentNode.removeChild(this);
+        
+        // If we have the parent ID, re-render that day
+        if (parentId) {
+            const parentCell = document.getElementById(parentId);
+            if (parentCell) {
+                renderNotesForDay(parentId);
+                return;
+            }
+        }
+        
+        // Fallback: Just remove the element from DOM if re-render not possible
+        const elementToRemove = this.closest('li.swipeout') || this;
+        if (elementToRemove && elementToRemove.parentNode) {
+            elementToRemove.parentNode.removeChild(elementToRemove);
+        }
     }
 }
 
 
 
 /*
- * generateItem(parentId, itemId)
- *  - Creates a new <textarea> inside the day cell and returns it.
- */
-/*
- * Creates a new <textarea> inside the day cell and returns it.
- * Can optionally insert the new textarea before a specific existing element.
+ * generateItem(parentId, itemId) - Creates note element (F7 LI or Desktop TEXTAREA)
+ *  - Does NOT append/insert. Returns the element to be placed by the caller (renderNotesForDay).
  * @param {string} parentId - The ID of the parent <td> cell.
  * @param {string} itemId - The unique ID for the new textarea.
- * @param {HTMLElement|null} [insertBeforeElement=null] - If provided and valid, insert the new textarea before this element. Otherwise, append.
- * @returns {HTMLTextAreaElement|null} The created textarea element or null on error.
+ * @returns {HTMLElement|null} LI element for F7 mobile or TEXTAREA for desktop, or null on error.
  */
-function generateItem(parentId, itemId, insertBeforeElement = null) {
+function generateItem(parentId, itemId) {
     const cell = document.getElementById(parentId);
     if (!cell) {
-        console.error(`generateItem: Parent cell with ID ${parentId} not found.`);
+        // console.error(`generateItem Error: Parent cell #${parentId} not found.`); // Keep console minimal for final
         return null;
     }
-    const ta = document.createElement("textarea");
-    ta.id = itemId;
-    ta.onkeydown = noteKeyDownHandler;
-    ta.onblur = noteBlurHandler; // Make sure this triggers the updated storeValueForItemId/removal
-    ta.spellcheck = false;
-    ta.placeholder = "New note..."; // Add placeholder text
+    const isMobile = window.innerWidth <= 768;
+    // Check for F7 readiness AND if the cell is set up for mobile view
+    const useF7 = isMobile && window.Framework7 && cell.querySelector('.day-top-row');
 
-    // Determine where to insert the element
-    if (insertBeforeElement instanceof HTMLElement && cell.contains(insertBeforeElement)) {
-        // Insert before the specified element if it's valid and inside the cell
-        cell.insertBefore(ta, insertBeforeElement);
-        console.log(`generateItem: Inserted ${itemId} before ${insertBeforeElement.id}`);
+    // --- Framework7 Mobile Path ---
+    if (useF7) {
+        const listItem = document.createElement('li');
+        listItem.className = 'swipeout'; // F7 swipeout class
+        listItem.dataset.textareaId = itemId; // Link LI to textarea ID
+
+        // Simple but standard F7 structure for swipeout with item-content
+        listItem.innerHTML = `
+            <div class="swipeout-content item-content">
+              <div class="item-inner">
+                <textarea id="${itemId}" spellcheck="false" placeholder="New note..."></textarea>
+              </div>
+            </div>
+            <div class="swipeout-actions-right">
+              <a href="#" class="swipeout-delete">Delete</a>
+            </div>`;
+
+        const ta = listItem.querySelector('textarea');
+        if (!ta) { console.error("Failed to create textarea within F7 structure"); return null; }
+
+        ta.onkeydown = noteKeyDownHandler;
+        ta.onblur = noteBlurHandler;
+        // Note: recalculateHeight will be called by renderNotesForDay after appending
+
+        return listItem; // Return the whole LI
+
+    // --- Desktop/Non-F7 Path ---
     } else {
-        // Otherwise, append to the end of the cell
-        cell.appendChild(ta);
-        // console.log(`generateItem: Appended ${itemId} to ${parentId}`);
+        const ta = document.createElement("textarea");
+        ta.id = itemId;
+        ta.onkeydown = noteKeyDownHandler;
+        ta.onblur = noteBlurHandler;
+        ta.spellcheck = false;
+        ta.placeholder = "New note...";
+        // Note: recalculateHeight will be called by renderNotesForDay after appending
+        return ta; // Return just the textarea
     }
-
-    return ta;
 }
 
 
@@ -682,48 +855,27 @@ function lookupItemsForParentId(parentId, callback) {
 
 /*
  * generateDay(dayCell, date)
- *  - Populates a single <td> with the day label, number, and any stored notes.
+ *  - Populates a single <td> with the day label, number, and renders notes using helper.
  */
 function generateDay(dayCell, date) {
-    // Weekend shading
-    const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+    // Set classes for weekend/shaded/today
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
     if (isWeekend) dayCell.classList.add("weekend");
-
-    // "Shaded" alternating months
     const isShaded = (date.getMonth() % 2 === 1);
     if (isShaded) dayCell.classList.add("shaded");
+    const todayCheck = new Date(); todayCheck.setHours(0,0,0,0);
+    const dateCheck = new Date(date); dateCheck.setHours(0,0,0,0);
+    if (dateCheck.getTime() === todayCheck.getTime()) dayCell.classList.add("today");
 
-    // Is it "today"? (Comparing against systemToday, not currentCalendarDate for visual "today")
-    const isToday = (
-        date.getFullYear() === systemToday.getFullYear() &&
-        date.getMonth() === systemToday.getMonth() &&
-        date.getDate() === systemToday.getDate()
-    );
-     // Also check if it's the *calendar's* current date for potential different highlight
-    const isCurrentCalendarDay = (
-        date.getFullYear() === currentCalendarDate.getFullYear() &&
-        date.getMonth() === currentCalendarDate.getMonth() &&
-        date.getDate() === currentCalendarDate.getDate()
-    );
-
-    if (isToday) {
-         dayCell.classList.add("today"); // Style for actual system today
-    }
-    if (isCurrentCalendarDay && !isToday) {
-         // Optional: Add a different class if you want to highlight the navigated-to day differently
-         // dayCell.classList.add("current-view-day");
-    }
-
-
-    // Unique ID like "2_10_2025" for each day cell
     dayCell.id = idForDate(date);
+    const isMobile = window.innerWidth <= 768;
 
-    // For mobile, a top-row layout with day label on left, month+day number on right
-    if (window.innerWidth <= 768) {
-        const monthShort = shortMonths[date.getMonth()]; // <-- Use shortMonths here
+    // --- Basic HTML structure ---
+    if (isMobile && window.Framework7) {
+        // Create containers needed by renderNotesForDay
+        const monthShort = shortMonths[date.getMonth()];
         const dowLabel = daysOfWeek[getAdjustedDayIndex(date)];
         const dayNum = date.getDate();
-
         dayCell.innerHTML = `
           <div class="day-top-row">
             <span class="day-label">${dowLabel}</span>
@@ -732,26 +884,21 @@ function generateDay(dayCell, date) {
               <span class="day-number">${dayNum}</span>
             </div>
           </div>
+          <div class="notes-list"> <!-- Container for F7 list -->
+             <div class="list simple-list media-list no-chevron no-hairlines no-margin"><ul></ul></div>
+          </div>
         `;
     } else {
         // Desktop layout
         dayCell.innerHTML = `
           <span class="day-label">${daysOfWeek[getAdjustedDayIndex(date)]}</span>
           <span class="day-number">${date.getDate()}</span>
+          <div class="notes-list-desktop"></div> <!-- Simple container for desktop -->
         `;
     }
 
-    // Restore any notes stored for this day
-    lookupItemsForParentId(dayCell.id, items => {
-        items.forEach(it => {
-            const note = generateItem(dayCell.id, it.itemId);
-            if (note) {
-                note.value = it.itemValue;
-                recalculateHeight(note.id);
-                // processNoteTags(note);
-            }
-        });
-    });
+    // --- Render notes using the helper ---
+    renderNotesForDay(dayCell.id);
 }
 
 
@@ -1547,30 +1694,109 @@ function stepDay(delta) {
     }
 }
 
-/*
- * createEventInFocusedDay()
- *  - Press Enter to create a new note in the currently focused day.
+/**
+ * Creates an event on the day that has the focus.
+ * If there is already a note in focus, create a new one after it.
+ * If there is no note in focus, create a new one at the top.
  */
 function createEventInFocusedDay() {
-    if (!keyboardFocusDate) {
-        showToast("No day is selected");
-        return;
-    }
-    const cellId = idForDate(keyboardFocusDate);
-    const cell = document.getElementById(cellId);
-    if (!cell) {
-        showToast("Focused day not visible");
-        return;
-    }
-    cell.classList.add("clicked-day");
-    setTimeout(() => cell.classList.remove("clicked-day"), 500);
+    let activeTD = null;
+    const textareaInFocus = document.querySelector("textarea:focus");
+    
+    console.log("createEventInFocusedDay: Starting...");
 
-    const itemId = nextItemId();
-    const note = generateItem(cellId, itemId);
-    if (note) {
-        recalculateHeight(note.id);
-        storeValueForItemId(note.id);
-        note.focus();
+    // First try: Check if a textarea has focus
+    if (textareaInFocus) {
+        const isMobile = window.innerWidth <= 768;
+        
+        console.log(`createEventInFocusedDay: Found textarea in focus, isMobile=${isMobile}`);
+        
+        // Find the parent TD
+        activeTD = textareaInFocus.closest('td.day');
+        
+        if (!activeTD) {
+            console.log("createEventInFocusedDay: Could not find parent TD for focused textarea");
+            return;
+        }
+        
+        const cellid = activeTD.id;
+        const newid = "ta-" + cellid + "-" + Date.now();
+        
+        // For mobile Framework7, find the next sibling (if any)
+        if (isMobile && window.Framework7) {
+            console.log("createEventInFocusedDay: Using F7 mobile insertion path");
+            
+            // Find the parent LI (swipeout) 
+            const swipeoutItem = textareaInFocus.closest('li.swipeout');
+            
+            if (swipeoutItem) {
+                // Find the next sibling LI
+                const nextSwipeout = swipeoutItem.nextElementSibling;
+                
+                if (nextSwipeout) {
+                    // If there's a next item, insert before it
+                    const nextTextarea = nextSwipeout.querySelector('textarea');
+                    if (nextTextarea) {
+                        console.log("createEventInFocusedDay: Inserting after focused item, before next item");
+                        const newTextarea = generateItem(cellid, newid, nextTextarea);
+                        if (newTextarea) newTextarea.focus();
+                        return;
+                    }
+                }
+                
+                // If no next item or couldn't find its textarea, insert at the end
+                console.log("createEventInFocusedDay: Inserting at end after focused item");
+                const newTextarea = generateItem(cellid, newid);
+                if (newTextarea) newTextarea.focus();
+                return;
+            }
+        } else {
+            // Standard desktop behavior - insert after the focused textarea
+            console.log("createEventInFocusedDay: Using standard desktop insertion path");
+            const nextSibling = textareaInFocus.nextElementSibling;
+            const newTextarea = generateItem(cellid, newid, nextSibling);
+            if (newTextarea) newTextarea.focus();
+            return;
+        }
+    }
+
+    // Second try: Check if a day cell is selected
+    if (!activeTD) {
+        activeTD = document.querySelector("td.day.selected");
+        console.log("createEventInFocusedDay: Looking for selected day", activeTD ? activeTD.id : "none found");
+    }
+
+    // Third try: Find the first day in current month
+    if (!activeTD) {
+        const currentMonthCells = document.querySelectorAll("td.day:not(.outside-month)");
+        if (currentMonthCells.length > 0) {
+            activeTD = currentMonthCells[0];
+        }
+        console.log("createEventInFocusedDay: Using first day of month", activeTD ? activeTD.id : "none found");
+    }
+
+    // If we found an active TD, create a note in it
+    if (activeTD) {
+        const cellid = activeTD.id;
+        const newid = "ta-" + cellid + "-" + Date.now();
+        
+        // For mobile, check if there are existing items to insert before
+        if (window.innerWidth <= 768 && window.Framework7) {
+            const firstTextarea = activeTD.querySelector('.notes-list li.swipeout textarea');
+            if (firstTextarea) {
+                console.log("createEventInFocusedDay: Mobile - inserting before first existing item");
+                const newTextarea = generateItem(cellid, newid, firstTextarea);
+                if (newTextarea) newTextarea.focus();
+                return;
+            }
+        }
+        
+        // If we get here, just create at default position
+        console.log("createEventInFocusedDay: Creating at default position");
+        const newTextarea = generateItem(cellid, newid);
+        if (newTextarea) newTextarea.focus();
+    } else {
+        console.log("createEventInFocusedDay: No active day found");
     }
 }
 
@@ -1856,63 +2082,56 @@ document.addEventListener("keydown", (e) => {
 
 // ========== CLICK HANDLER FOR CREATING A NEW NOTE ==========
 
-// Existing global click listener...
 document.addEventListener("click", evt => {
-    // Ignore clicks on inputs/buttons in the header etc.
-    if (evt.target.closest('#header')) return;
-    if (evt.target.closest('.mobile-action-bar')) return;
+    if (evt.target.closest('#header, .toolbar, textarea, .note-tag, a.button, button, input, .swipeout-actions-right, .swipeout-delete')) return;
 
     const dayCell = evt.target.closest("td");
-
-    // Ensure it's a valid calendar day cell and not the header/buttons etc.
     if (!dayCell || !dayCell.id || dayCell.classList.contains("extra") || dayCell.closest('#miniCalendar')) return;
+    if (isSelectingRange) { handleRangeSelection(dayCell); return; }
 
-    // If clicked inside an existing <textarea>, let its own handlers manage it
-    if (evt.target.tagName.toLowerCase() === "textarea") return;
+    const parentId = dayCell.id;
+    const isMobile = window.innerWidth <= 768;
 
-    // Handle range selection if active
-    if (isSelectingRange) {
-        handleRangeSelection(dayCell);
-        return;
-    }
-
-    // --- NEW LOGIC STARTS HERE ---
-
-    // Calculate click position within the cell
+    // Determine insertion position based on click location
     const cellRect = dayCell.getBoundingClientRect();
-    const clickY = evt.clientY - cellRect.top;
-    const cellHeight = cellRect.height;
+    const clickYRelativeToCell = evt.clientY - cellRect.top;
+    const topInsertThreshold = cellRect.height * 0.40;
+    // Find first note element (LI for F7, TEXTAREA for desktop)
+    const firstExistingNoteElement = dayCell.querySelector('.notes-list li.swipeout, .notes-list-desktop > textarea');
 
-    // Find existing notes in this cell
-    const existingNotes = dayCell.querySelectorAll("textarea");
-    let insertBeforeElement = null; // Default to append
+    let insertAtStart = (firstExistingNoteElement && clickYRelativeToCell < topInsertThreshold);
+    console.log(`Click Decision: Insert at ${insertAtStart ? 'START' : 'END'} of ${parentId}.`);
 
-    // Determine click zone
-    if (existingNotes.length > 0) {
-        if (clickY < cellHeight / 3) {
-            // Clicked in top third: Insert before the first existing note
-            insertBeforeElement = existingNotes[0];
-            console.log("Click detected in top third. Inserting before:", insertBeforeElement.id);
-        }
-        // No special action for bottom third needed, default append works.
-        // Middle third also defaults to append.
-    }
-    // If existingNotes.length is 0, insertBeforeElement remains null (append).
-
-    // Add visual feedback for the click
-    dayCell.classList.add("clicked-day");
-    setTimeout(() => dayCell.classList.remove("clicked-day"), 500);
-
-    // Generate the new item, potentially inserting it before an existing one
+    // --- Create New Item ID and Update LocalStorage Order FIRST ---
     const newItemId = nextItemId();
-    const note = generateItem(dayCell.id, newItemId, insertBeforeElement); // Pass the target element
 
-    if (note) {
-        // Don't call storeValueForItemId here yet, let blur/enter handle final save
-        recalculateHeight(note.id); // Adjust height immediately
-        note.focus(); // Focus the newly created/inserted note
-    }
-    // --- NEW LOGIC ENDS HERE ---
+    let parentIds = localStorage[parentId] ? localStorage[parentId].split(",").filter(id => id) : [];
+    if (!parentIds.includes(newItemId)) {
+        if (insertAtStart) { parentIds.unshift(newItemId); } else { parentIds.push(newItemId); }
+        localStorage.setItem(parentId, parentIds.join(','));
+        localStorage.setItem(newItemId, ""); // Placeholder
+        localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+        if (typeof debouncedServerSave === 'function') debouncedServerSave();
+        console.log(`LocalStorage: Updated order for ${parentId}: [${parentIds.join(',')}]`);
+    } else { return; } // Avoid duplicates
+
+    // --- Re-render Notes for this Day Cell ---
+    renderNotesForDay(parentId);
+
+    // --- Focus the New Element ---
+    setTimeout(() => {
+        // Find the actual textarea element to focus
+        const newTextarea = document.getElementById(newItemId);
+        if (newTextarea && newTextarea.tagName === 'TEXTAREA') {
+            newTextarea.focus();
+            newTextarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            dayCell.classList.add("clicked-day"); // Add feedback after focus/scroll attempt
+            setTimeout(() => dayCell.classList.remove("clicked-day"), 500);
+        } else {
+            console.error(`Could not find/focus newly added textarea ${newItemId} after re-render.`);
+        }
+    }, 50); // Shorter delay okay now
+
 });
 
 function jumpOneMonthForward() {
@@ -1950,7 +2169,7 @@ function jumpOneMonthForward() {
             currentCalendarDate = targetDate; // update
             showToast("Next Month");
             // Just smooth-scroll into view
-            targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetElem.scrollIntoView({ behavior: "smooth", block: "center" });
             // Possibly update sticky header after a small delay
             setTimeout(updateStickyMonthHeader, 300);
         } else {
@@ -2509,6 +2728,10 @@ function animateRowInsertion(row, direction = 'append') {
 
 window.onload = async function() {
     console.log("window.onload started.");
+    
+    // Run cleanup first to fix data inconsistencies
+    cleanupLocalStorage();
+    
     // Ensure calendarTableElement is defined early, before any potential calendar operations
     calendarTableElement = document.getElementById("calendar");
     if (!calendarTableElement) {
@@ -3181,6 +3404,28 @@ function pushUndoState() {
  *  - Uses a pseudo-element on the parent TD for the delete indicator.
  */
 function setupSwipeToDelete() {
+    console.log("Setting up swipe functionality...");
+    
+    // First check if we're on mobile
+    const isPhone = window.innerWidth <= 768;
+    console.log("Is mobile device:", isPhone);
+    
+    if (isPhone) {
+        // First, ensure we have a toolbar
+        console.log("Creating toolbar for mobile");
+        createF7Toolbar();
+        
+        // Then enable Framework7
+        console.log("Enabling Framework7");
+        enableSwipeToDelete();
+    }
+    
+    // Then set up the regular swipe to delete functionality
+    // Only proceed with swipe handlers if on mobile device
+    if (!isPhone) return;
+    
+    console.log("Setting up touch event handlers");
+    
     let touchStartX = 0;
     let touchStartY = 0;
     let currentNote = null;
@@ -3189,10 +3434,6 @@ function setupSwipeToDelete() {
     let originalTransform = '';
     let transformAmount = 0;
     const deleteThreshold = 100; // Pixels to swipe before triggering delete
-    const isPhone = window.innerWidth <= 768;
-    
-    // Only set up swipe handlers on mobile devices
-    if (!isPhone) return;
     
     document.addEventListener('touchstart', handleTouchStart, { passive: false });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -3232,8 +3473,14 @@ function setupSwipeToDelete() {
     }
     
     function createDeleteButton(note) {
+        // Safety check - return null if note is invalid
+        if (!note || !note.parentNode) {
+            console.warn("createDeleteButton: Invalid note element", note);
+            return null;
+        }
+
         // Create the delete button container
-        deleteBtn = document.createElement('div');
+        const deleteBtn = document.createElement('div');
         deleteBtn.className = 'delete-button-container';
         
         // Create the expanding background element
@@ -3249,18 +3496,27 @@ function setupSwipeToDelete() {
         deleteBtn.appendChild(background);
         deleteBtn.appendChild(label);
         
+        // Get dimensions safely
+        const offsetTop = note.offsetTop || 0;
+        const offsetHeight = note.offsetHeight || 40; // Default height if not available
+        
         // Style the button to match the note's size and position
         deleteBtn.style.position = 'absolute';
-        deleteBtn.style.top = `${note.offsetTop}px`;
-        deleteBtn.style.height = `${note.offsetHeight}px`;
+        deleteBtn.style.top = `${offsetTop}px`;
+        deleteBtn.style.height = `${offsetHeight}px`;
         deleteBtn.style.right = '0';
         deleteBtn.style.overflow = 'hidden';
         
         // Initially the container is not visible
         deleteBtn.style.opacity = '0';
         
-        // Insert the button before the note
-        note.parentNode.insertBefore(deleteBtn, note);
+        // Insert the button before the note if possible
+        try {
+            note.parentNode.insertBefore(deleteBtn, note);
+        } catch (e) {
+            console.error("Failed to insert delete button:", e);
+            return null;
+        }
         
         return deleteBtn;
     }
@@ -3325,6 +3581,15 @@ function setupSwipeToDelete() {
     function handleTouchEnd(e) {
         if (!currentNote || !currentCell || !deleteBtn) return;
         
+        // Capture IDs before the setTimeout to avoid closure issues
+        const noteIdToRemove = currentNote ? currentNote.id : null;
+        const cellIdToRemoveFrom = currentCell ? currentCell.id : null;
+        
+        // Store references to DOM elements before clearing them
+        const noteElement = currentNote;
+        const cellElement = currentCell;
+        const deleteBtnElement = deleteBtn;
+        
         // If swiped far enough to delete
         if (transformAmount < -deleteThreshold) {
             // Add delete animation
@@ -3341,17 +3606,31 @@ function setupSwipeToDelete() {
             
             // After animation, remove the note
             setTimeout(() => {
-                // Call the existing remove function
-                removeValueForItemId(currentNote.id);
-                
-                // Remove the delete button
-                if (deleteBtn.parentNode) {
-                    deleteBtn.parentNode.removeChild(deleteBtn);
-                }
-                
-                // Also remove the element from DOM if still present
-                if (currentNote.parentNode) {
-                    currentNote.parentNode.removeChild(currentNote);
+                try {
+                    // Use the captured IDs and element references
+                    if (noteIdToRemove) {
+                        removeValueForItemId(noteIdToRemove);
+                        console.log(`Removed value for ${noteIdToRemove}`);
+                    }
+                    
+                    // Remove the delete button
+                    if (deleteBtnElement && deleteBtnElement.parentNode) {
+                        deleteBtnElement.parentNode.removeChild(deleteBtnElement);
+                    }
+                    
+                    // Also remove the element from DOM if still present
+                    if (noteElement && noteElement.parentNode) {
+                        noteElement.parentNode.removeChild(noteElement);
+                    }
+                    
+                    // Update storage order using captured cell ID
+                    if (cellIdToRemoveFrom) {
+                        if (typeof updateLocalStorageOrder === 'function') {
+                            updateLocalStorageOrder(cellIdToRemoveFrom);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error in handleTouchEnd cleanup:", err);
                 }
             }, 200);
         } else {
@@ -3372,8 +3651,12 @@ function setupSwipeToDelete() {
             
             // Remove the delete button after animation
             setTimeout(() => {
-                if (deleteBtn && deleteBtn.parentNode) {
-                    deleteBtn.parentNode.removeChild(deleteBtn);
+                if (deleteBtnElement && deleteBtnElement.parentNode) {
+                    try {
+                        deleteBtnElement.parentNode.removeChild(deleteBtnElement);
+                    } catch (err) {
+                        console.error("Error removing delete button during reset:", err);
+                    }
                 }
             }, 300);
         }
@@ -3385,9 +3668,1299 @@ function setupSwipeToDelete() {
     }
 }
 
+// CLEAN UP EVENT LISTENER MANAGEMENT
+// Remove any duplicate event listeners - we'll reattach a single one
+const oldSetupSwipeToDeleteListener = window.setupSwipeToDeleteAttached;
+if (oldSetupSwipeToDeleteListener) {
+  document.removeEventListener('DOMContentLoaded', oldSetupSwipeToDeleteListener);
+  console.log("Removed old setupSwipeToDelete listener");
+}
 
-
-// Ensure this line is at the VERY END of your script execution flow
+// Attach a single DOMContentLoaded listener for setupSwipeToDelete
 document.addEventListener('DOMContentLoaded', setupSwipeToDelete);
+window.setupSwipeToDeleteAttached = setupSwipeToDelete;
+console.log("DOMContentLoaded listener for setupSwipeToDelete attached.");
+
+// Clean up any other listeners that might be trying to create toolbars
+const removeExtraListeners = () => {
+  // First, find and remove any duplicate setupSwipeToDelete functions
+  if (typeof window.initializeMobileToolbars === 'function') {
+    console.log("Removing initializeMobileToolbars listeners");
+    document.removeEventListener('DOMContentLoaded', window.initializeMobileToolbars);
+  }
+};
+
+// Call this cleanup now and also on DOMContentLoaded
+removeExtraListeners();
+document.addEventListener('DOMContentLoaded', removeExtraListeners);
+
+// Detect if user is on mobile device and conditionally load Framework7
 console.log("DOMContentLoaded listener for setupSwipeToDelete attached."); // <-- LOG 7
+
+// Add this code right after the last function in the file
+
+// Detect if user is on mobile device and conditionally load Framework7
+document.addEventListener("DOMContentLoaded", function() {
+  const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+  if (!isMobile) return; // Stop if not mobile
+
+  // Load Framework7 CSS
+  const fw7CSS = document.createElement('link');
+  fw7CSS.rel = 'stylesheet';
+  fw7CSS.href = 'https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css';
+  document.head.appendChild(fw7CSS);
+
+  // Load Framework7 JS
+  const fw7JS = document.createElement('script');
+  fw7JS.src = 'https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.js';
+  document.head.appendChild(fw7JS);
+
+  // Wait for Framework7 script to load fully
+  const waitForFramework7 = setInterval(function() {
+    if (window.Framework7) {
+      clearInterval(waitForFramework7);
+      
+      // Initialize Framework7
+      const app = new Framework7({ theme: 'auto' });
+
+      // Enable swipe to delete for calendar events
+      enableSwipeToDelete();
+    }
+  }, 50);
+});
+
+// Function to enable Framework7 swipe-to-delete on calendar textareas
+function enableSwipeToDelete() {
+  // Check if already initialized
+  if (document.querySelector('.f7-enabled')) {
+    console.log("Framework7 already initialized");
+    return;
+  }
+  
+  // Add appropriate Framework7 classes to calendar cells
+  const dayCells = document.querySelectorAll('#calendar td:not(.extra)');
+  
+  if (!dayCells.length) {
+    console.log("No day cells found to enable Framework7");
+    return;
+  }
+  
+  console.log(`Enabling Framework7 swipe-to-delete on ${dayCells.length} day cells`);
+  
+  dayCells.forEach(cell => {
+    cell.classList.add('f7-enabled');
+    
+    // Create a wrapper div for all notes in this cell
+    const notesListWrapper = document.createElement('div');
+    notesListWrapper.className = 'notes-list';
+    
+    // Convert existing textareas to Framework7 swipeout elements
+    const textareas = [...cell.querySelectorAll('textarea')];
+    
+    // Only proceed if there are textareas to convert
+    if (textareas.length === 0) return;
+    
+    // Move existing elements that aren't textareas to preserve the cell structure
+    const nonTextareaElements = [];
+    cell.childNodes.forEach(node => {
+      if (node.nodeType === 1 && node.tagName.toLowerCase() !== 'textarea') {
+        nonTextareaElements.push(node);
+      }
+    });
+    
+    // Create Framework7 list structure - use Framework7's default classes
+    const listDiv = document.createElement('div');
+    listDiv.className = 'list media-list';
+    
+    const listUl = document.createElement('ul');
+    listDiv.appendChild(listUl);
+    
+    // Process all textareas
+    textareas.forEach(textarea => {
+      // Get the current value and ID
+      const textareaId = textarea.id;
+      const textareaValue = textarea.value;
+      
+      // Create list item with Framework7's default swipeout structure
+      const listItem = document.createElement('li');
+      listItem.className = 'swipeout';
+      listItem.dataset.textareaId = textareaId;
+      
+      // Create inner structure with Framework7's default classes
+      listItem.innerHTML = `
+        <div class="swipeout-content">
+          <a href="#" class="item-link item-content">
+            <div class="item-inner">
+              <div class="item-title-row">
+                <div class="item-title">
+                  <textarea id="${textareaId}" spellcheck="false">${textareaValue}</textarea>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="swipeout-actions-right">
+          <a href="#" class="swipeout-delete">Delete</a>
+        </div>
+      `;
+      
+      // Add to the list
+      listUl.appendChild(listItem);
+      
+      // Get the new textarea reference
+      const newTextarea = listItem.querySelector('textarea');
+      
+      // Make sure it has the necessary event handlers
+      newTextarea.onkeydown = noteKeyDownHandler;
+      newTextarea.onblur = noteBlurHandler;
+      
+      // Remove the original textarea
+      if (textarea.parentNode) {
+        textarea.parentNode.removeChild(textarea);
+      }
+    });
+    
+    // Add the list to the notes wrapper
+    notesListWrapper.appendChild(listDiv);
+    
+    // Add non-textarea elements first, then the notes list
+    nonTextareaElements.forEach(elem => {
+      if (elem.parentNode === cell) {
+        elem.parentNode.removeChild(elem);
+      }
+      cell.appendChild(elem);
+    });
+    
+    // Add the notes list to the cell
+    cell.appendChild(notesListWrapper);
+    
+    // Recalculate heights for all textareas
+    textareas.forEach(textarea => {
+      recalculateHeight(textarea.id);
+    });
+  });
+  
+  // Add event listener for Framework7's swipeout delete
+  document.addEventListener('swipeout:deleted', function(e) {
+    // Get the textarea ID from the deleted item
+    const textareaId = e.detail.el.dataset.textareaId;
+    if (textareaId) {
+      // Call our existing remove function
+      removeValueForItemId(textareaId);
+      console.log(`Framework7: Deleted note ${textareaId}`);
+    }
+  });
+}
+
+// Add the observer to handle newly created textareas
+function setupFramework7Observer() {
+    // Observer to handle newly created textareas
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(node => {
+                    // Check if the added node is a textarea in an F7-enabled cell
+                    // but not already in a swipeout
+                    if (node.tagName && node.tagName.toLowerCase() === 'textarea' && 
+                        !node.closest('.swipeout-content')) {
+                        
+                        const cell = node.closest('td.f7-enabled');
+                        if (!cell) return;
+                        
+                        const textareaId = node.id;
+                        const textareaValue = node.value;
+                        
+                        // Find or create the notes-list wrapper
+                        let notesList = cell.querySelector('.notes-list');
+                        if (!notesList) {
+                            notesList = document.createElement('div');
+                            notesList.className = 'notes-list';
+                            cell.appendChild(notesList);
+                        }
+                        
+                        // Find or create the list container
+                        let listDiv = notesList.querySelector('.list');
+                        if (!listDiv) {
+                            listDiv = document.createElement('div');
+                            listDiv.className = 'list media-list';
+                            
+                            const listUl = document.createElement('ul');
+                            listDiv.appendChild(listUl);
+                            notesList.appendChild(listDiv);
+                        }
+                        
+                        // Find the UL
+                        const listUl = listDiv.querySelector('ul');
+                        
+                        // Create list item with Framework7's default structure
+                        const listItem = document.createElement('li');
+                        listItem.className = 'swipeout';
+                        listItem.dataset.textareaId = textareaId;
+                        
+                        // Create inner structure with Framework7's default classes
+                        listItem.innerHTML = `
+                            <div class="swipeout-content">
+                                <a href="#" class="item-link item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title">
+                                                <textarea id="${textareaId}" spellcheck="false">${textareaValue}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="swipeout-actions-right">
+                                <a href="#" class="swipeout-delete">Delete</a>
+                            </div>
+                        `;
+                        
+                        // Add to the list
+                        listUl.appendChild(listItem);
+                        
+                        // Get the new textarea reference
+                        const newTextarea = listItem.querySelector('textarea');
+                        
+                        // Copy event handlers
+                        newTextarea.onkeydown = noteKeyDownHandler;
+                        newTextarea.onblur = noteBlurHandler;
+                        
+                        // Remove the original textarea
+                        if (node.parentNode) {
+                            node.parentNode.removeChild(node);
+                        }
+                        
+                        // Recalculate height
+                        recalculateHeight(textareaId);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Start observing the entire calendar for new textareas
+    observer.observe(document.getElementById('calendar'), { 
+        childList: true,
+        subtree: true
+    });
+}
+
+// Update the function that enables Framework7
+function enableSwipeToDelete() {
+    // Check if already initialized
+    if (document.querySelector('.f7-enabled')) {
+        console.log("Framework7 already initialized");
+        return;
+    }
+    
+    // Add appropriate Framework7 classes to calendar cells
+    const dayCells = document.querySelectorAll('#calendar td:not(.extra)');
+    
+    if (!dayCells.length) {
+        console.log("No day cells found to enable Framework7");
+        return;
+    }
+    
+    console.log(`Enabling Framework7 swipe-to-delete on ${dayCells.length} day cells`);
+    
+    // Create Framework7 toolbar with navigation buttons
+    createF7Toolbar();
+    
+    // Set up the observer for new textareas
+    setupFramework7Observer();
+    
+    // Rest of the function remains the same...
+}
+
+// Function to create Framework7 toolbar with navigation buttons
+function createF7Toolbar() {
+  console.log("Creating F7 toolbar for mobile navigation");
+  
+  // Add class to body
+  document.body.classList.add('has-f7-toolbar');
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.f7-toolbar');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'f7-toolbar';
+  toolbar.style.backgroundColor = '#f7f7f8'; // Force background color
+  toolbar.style.display = 'flex'; // Force display
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createButton(icon, label, onClick) {
+    const button = document.createElement('a');
+    button.className = 'tab-link';
+    button.innerHTML = `
+      <i class="icon">${icon}</i>
+      <span class="tabbar-label">${label}</span>
+    `;
+    button.addEventListener('click', () => {
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return button;
+  }
+  
+  // Add all buttons
+  const buttons = [
+    createButton('←', 'Prev', jumpOneMonthBackward),
+    createButton('•', 'Today', goToTodayAndRefresh),
+    createButton('→', 'Next', jumpOneMonthForward),
+    createButton('Y', 'Year', showYearView),
+    createButton('⇄', 'Range', toggleRangeSelection),
+    createButton('↑', 'Export', downloadMarkdownEvents),
+    createButton('↓', 'Import', () => {
+      // Trigger file input click
+      document.getElementById('fileInput').click();
+    }),
+    createButton('↻', 'Sync', pullUpdatesFromServer),
+    createButton('?', 'Help', showHelp),
+    createButton('↩', 'Undo', undoLastChange)
+  ];
+  
+  // Jump to date
+  const dateContainer = document.createElement('div');
+  dateContainer.className = 'toolbar-date-container';
+  dateContainer.innerHTML = `
+    <input type="date" id="jumpDateMobile" min="2000-01-01" max="2050-12-31" />
+    <button onclick="jumpToDateMobile()">Go</button>
+  `;
+  
+  // Add function to jump to date from mobile
+  window.jumpToDateMobile = function() {
+    const dateInput = document.getElementById('jumpDateMobile');
+    if (dateInput && dateInput.value) {
+      // Use the existing jumpToDate function but with the mobile input
+      const originalInput = document.getElementById('jumpDate');
+      const originalValue = originalInput.value;
+      originalInput.value = dateInput.value;
+      jumpToDate();
+      originalInput.value = originalValue; // Restore the original value
+    }
+  };
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  // Add date container to toolbar
+  toolbarInner.appendChild(dateContainer);
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body, directly at the top
+  document.body.insertBefore(toolbar, document.body.firstChild);
+  
+  console.log("F7 toolbar created and added to the document");
+}
+
+// Add this code at the end of the file, right before the final </script> tag
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOMContentLoaded event fired");
+  
+  // Check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    console.log("Creating mobile toolbar");
+    
+    // Use requestAnimationFrame to ensure toolbar is created after any other initialization
+    requestAnimationFrame(function() {
+      // Wait a tiny bit to make sure everything is rendered
+      setTimeout(function() {
+        console.log("Creating toolbar with delay");
+        // Directly create the toolbar for mobile
+        createF7Toolbar();
+      }, 100);
+    });
+  }
+});
+
+// Function to create Framework7 bottom toolbar for mobile
+function createF7BottomToolbar() {
+  console.log("Creating F7 bottom toolbar for mobile navigation");
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.mobile-action-bar-f7');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'toolbar toolbar-bottom mobile-action-bar-f7';
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createLink(icon, label, onClick) {
+    const link = document.createElement('a');
+    link.className = 'link';
+    link.href = '#';
+    link.innerHTML = `
+      <svg class="icon" viewBox="0 0 24 24">
+        ${icon}
+      </svg>
+      <span>${label}</span>
+    `;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return link;
+  }
+  
+  // Add navigation buttons with SVG icons
+  const buttons = [
+    createLink(
+      '<rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 3v4M8 3v4M4 11h16" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="16" r="2" fill="currentColor"/>',
+      'Today',
+      goToTodayAndRefresh
+    ),
+    createLink(
+      '<path d="M15 6l-6 6l6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Previous',
+      jumpOneMonthBackward
+    ),
+    createLink(
+      '<path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Next',
+      jumpOneMonthForward
+    ),
+    createLink(
+      '<path d="M4 6h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 12h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/>',
+      'Menu',
+      showCommandPalette
+    )
+  ];
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body
+  document.body.appendChild(toolbar);
+  
+  console.log("F7 bottom toolbar created and added to the document");
+}
+
+// Add this to the DOMContentLoaded event handler
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOMContentLoaded event fired");
+  
+  // Check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    console.log("Creating mobile toolbars");
+    
+    // Use requestAnimationFrame to ensure toolbar is created after any other initialization
+    requestAnimationFrame(function() {
+      // Wait a tiny bit to make sure everything is rendered
+      setTimeout(function() {
+        console.log("Creating toolbars with delay");
+        // Create top toolbar
+        createF7Toolbar();
+        // Create bottom toolbar
+        createF7BottomToolbar();
+      }, 100);
+    });
+  }
+});
+
+// Function to initialize mobile toolbars
+function initializeMobileToolbars() {
+  // Only proceed on mobile
+  if (window.innerWidth > 768) return;
+  
+  console.log("Initializing mobile toolbars");
+  
+  // Add class to body to flag that we're using F7 toolbars
+  document.body.classList.add('has-f7-toolbars');
+  
+  // Create both toolbars
+  createF7Toolbar();
+  createF7BottomToolbar();
+  
+  // Create mutation observer to check if Framework7 removes our toolbars
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'childList') {
+        // If our toolbars are missing, recreate them
+        const topToolbar = document.querySelector('.f7-toolbar');
+        const bottomToolbar = document.querySelector('.mobile-action-bar-f7');
+        
+        if (!topToolbar || !bottomToolbar) {
+          console.log("Toolbars were removed, recreating them");
+          if (!topToolbar) createF7Toolbar();
+          if (!bottomToolbar) createF7BottomToolbar();
+        }
+      }
+    });
+  });
+  
+  // Start observing the document for changes
+  observer.observe(document.body, { childList: true, subtree: true });
+  
+  // Also set a periodic check just to be extra safe
+  setInterval(function() {
+    const topToolbar = document.querySelector('.f7-toolbar');
+    const bottomToolbar = document.querySelector('.mobile-action-bar-f7');
+    
+    if (!topToolbar || !bottomToolbar) {
+      console.log("Periodic check: toolbars missing, recreating them");
+      if (!topToolbar) createF7Toolbar();
+      if (!bottomToolbar) createF7BottomToolbar();
+    }
+  }, 2000); // Check every 2 seconds
+}
+
+// Update the DOMContentLoaded handler to use our new function
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOMContentLoaded event fired");
+  
+  // Check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    // First, try immediate creation
+    initializeMobileToolbars();
+    
+    // Then also try with a delay to ensure we run after F7 initialization
+    setTimeout(function() {
+      console.log("Delayed toolbar initialization");
+      initializeMobileToolbars();
+    }, 500);
+    
+    // And also check after a longer delay for extra safety
+    setTimeout(function() {
+      console.log("Final toolbar check");
+      initializeMobileToolbars();
+    }, 2000);
+  }
+});
+
+// Function to create Framework7 bottom toolbar for mobile
+function createF7MobileNavigation() {
+  console.log("Creating F7 mobile navigation (both top and bottom toolbars)");
+  
+  // Create both toolbars
+  createF7TopToolbar();
+  createF7BottomToolbar();
+  
+  // Add class to body to mark initialization
+  document.body.classList.add('has-f7-toolbars');
+}
+
+// Function to create Framework7 top toolbar with navigation buttons
+function createF7TopToolbar() {
+  console.log("Creating F7 top toolbar");
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.f7-toolbar');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'f7-toolbar toolbar toolbar-top';
+  toolbar.style.backgroundColor = '#f7f7f8'; // Force background color
+  toolbar.style.display = 'flex'; // Force display
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createButton(icon, label, onClick) {
+    const button = document.createElement('a');
+    button.className = 'tab-link';
+    button.innerHTML = `
+      <i class="icon">${icon}</i>
+      <span class="tabbar-label">${label}</span>
+    `;
+    button.addEventListener('click', () => {
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return button;
+  }
+  
+  // Add buttons
+  const buttons = [
+    createButton('←', 'Prev', jumpOneMonthBackward),
+    createButton('•', 'Today', goToTodayAndRefresh),
+    createButton('→', 'Next', jumpOneMonthForward),
+    createButton('Y', 'Year', showYearView),
+    createButton('⇄', 'Range', toggleRangeSelection),
+    createButton('?', 'Help', showHelp)
+  ];
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body
+  document.body.insertBefore(toolbar, document.body.firstChild);
+  
+  console.log("F7 top toolbar created");
+}
+
+// Function to create Framework7 bottom toolbar for mobile
+function createF7BottomToolbar() {
+  console.log("Creating F7 bottom toolbar");
+  
+  // Remove existing toolbar if it exists
+  const existingToolbar = document.querySelector('.toolbar-bottom.mobile-action-bar-f7');
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  // Create new toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'toolbar toolbar-bottom mobile-action-bar-f7';
+  
+  const toolbarInner = document.createElement('div');
+  toolbarInner.className = 'toolbar-inner';
+  
+  // Create button helper function
+  function createLink(icon, label, onClick) {
+    const link = document.createElement('a');
+    link.className = 'link';
+    link.href = '#';
+    link.innerHTML = `
+      <svg class="icon" viewBox="0 0 24 24">
+        ${icon}
+      </svg>
+      <span>${label}</span>
+    `;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log(`${label} button clicked`);
+      onClick();
+    });
+    return link;
+  }
+  
+  // Add navigation buttons with SVG icons
+  const buttons = [
+    createLink(
+      '<rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 3v4M8 3v4M4 11h16" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="16" r="2" fill="currentColor"/>',
+      'Today',
+      goToTodayAndRefresh
+    ),
+    createLink(
+      '<path d="M15 6l-6 6l6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Previous',
+      jumpOneMonthBackward
+    ),
+    createLink(
+      '<path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      'Next',
+      jumpOneMonthForward
+    ),
+    createLink(
+      '<path d="M4 6h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 12h16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/>',
+      'Menu',
+      showCommandPalette
+    )
+  ];
+  
+  // Add all buttons to toolbar
+  buttons.forEach(button => {
+    toolbarInner.appendChild(button);
+  });
+  
+  toolbar.appendChild(toolbarInner);
+  
+  // Add toolbar to the body
+  document.body.appendChild(toolbar);
+  
+  console.log("F7 bottom toolbar created");
+}
+
+// Update setupSwipeToDelete to use our new mobile navigation function
+function setupSwipeToDelete() {
+  console.log("Setting up swipe functionality...");
+  
+  // First check if we're on mobile
+  const isPhone = window.innerWidth <= 768;
+  console.log("Is mobile device:", isPhone);
+  
+  if (isPhone) {
+    // Create the mobile navigation (top and bottom toolbars)
+    createF7MobileNavigation();
+    
+    // Then enable Framework7 swipe-to-delete if needed
+    enableSwipeToDelete();
+  }
+  
+  // Then set up the regular swipe to delete functionality
+  // Only proceed with swipe handlers if on mobile device
+  if (!isPhone) return;
+  
+  console.log("Setting up touch event handlers");
+  
+  // Rest of the setupSwipeToDelete function remains unchanged
+  // ... existing code ...
+}
+
+/**
+ * Debug helper for mobile layout issues - logs DOM structure
+ */
+function debugMobileLayout(tdElement, label = "Mobile Layout Debug") {
+    if (window.innerWidth > 768) return; // Only run on mobile
+    
+    console.group(label);
+    
+    if (!tdElement) {
+        console.log("No TD element provided");
+        console.groupEnd();
+        return;
+    }
+    
+    console.log("TD ID:", tdElement.id);
+    
+    // Check for notes-list
+    const notesList = tdElement.querySelector('.notes-list');
+    if (!notesList) {
+        console.log("No .notes-list found");
+        console.groupEnd();
+        return;
+    }
+    
+    // Check for list div
+    const listDiv = notesList.querySelector('.list');
+    if (!listDiv) {
+        console.log(".notes-list exists but no .list found");
+        console.groupEnd();
+        return;
+    }
+    
+    // Check for UL
+    const listUl = listDiv.querySelector('ul');
+    if (!listUl) {
+        console.log(".list exists but no UL found");
+        console.groupEnd();
+        return;
+    }
+    
+    // Count and log list items
+    const listItems = listUl.querySelectorAll('li.swipeout');
+    console.log(`Found ${listItems.length} list items:`);
+    
+    // Log each list item's info
+    listItems.forEach((li, index) => {
+        const textarea = li.querySelector('textarea');
+        const id = textarea ? textarea.id : "unknown";
+        const rect = li.getBoundingClientRect();
+        console.log(`Item #${index+1}: ID=${id}, Top=${rect.top}, Height=${rect.height}`);
+    });
+    
+    // Check for DOM structure issues
+    const directTextareas = tdElement.querySelectorAll('textarea:not(.notes-list textarea)');
+    if (directTextareas.length > 0) {
+        console.warn(`Found ${directTextareas.length} textareas outside .notes-list structure!`);
+    }
+    
+    console.groupEnd();
+}
+
+// Add debug call to end of generateItem and createEventInFocusedDay
+const originalGenerateItem = generateItem;
+const originalCreateEventInFocusedDay = createEventInFocusedDay;
+
+generateItem = function(parentId, itemId, insertBeforeElement = null) {
+    const result = originalGenerateItem(parentId, itemId, insertBeforeElement);
+    if (result && window.innerWidth <= 768) {
+        const cell = document.getElementById(parentId);
+        setTimeout(() => debugMobileLayout(cell, `generateItem Debug: ${itemId}`), 50);
+    }
+    return result;
+};
+
+createEventInFocusedDay = function() {
+    originalCreateEventInFocusedDay();
+    if (window.innerWidth <= 768) {
+        const activeTD = document.querySelector("td.day.selected") || 
+                       document.querySelector("textarea:focus")?.closest('td.day');
+        if (activeTD) {
+            setTimeout(() => debugMobileLayout(activeTD, "createEventInFocusedDay Debug"), 50);
+        }
+    }
+};
+
+/**
+ * Clears and re-renders all note elements for a given day cell
+ * based on the order stored in localStorage. Handles F7 wrapping.
+ * @param {string} parentId - The ID of the parent <td> cell.
+ */
+function renderNotesForDay(parentId) {
+    const cell = document.getElementById(parentId);
+    if (!cell) return;
+
+    const isMobile = window.innerWidth <= 768;
+    const useF7 = isMobile && window.Framework7 && cell.querySelector('.day-top-row');
+
+    let targetContainer; // Where notes should be appended/inserted
+
+    if (useF7) {
+        // Ensure necessary F7 containers exist
+        let notesListDiv = cell.querySelector('.notes-list');
+        if (!notesListDiv) {
+            notesListDiv = document.createElement('div');
+            notesListDiv.className = 'notes-list';
+            const topRow = cell.querySelector('.day-top-row');
+             if (topRow && topRow.nextSibling) cell.insertBefore(notesListDiv, topRow.nextSibling);
+             else cell.appendChild(notesListDiv);
+        }
+        let listUl = notesListDiv.querySelector('ul');
+        if (!listUl) {
+             let listDiv = notesListDiv.querySelector('.list');
+             if (!listDiv) { listDiv = document.createElement('div'); listDiv.className = 'list simple-list media-list no-chevron no-hairlines no-margin'; notesListDiv.appendChild(listDiv); }
+             listUl = document.createElement('ul');
+             listDiv.appendChild(listUl);
+        }
+        targetContainer = listUl;
+    } else {
+        // Desktop: Use a simple div or append directly to cell
+        targetContainer = cell.querySelector('.notes-list-desktop');
+        if (!targetContainer) {
+            targetContainer = document.createElement('div');
+            targetContainer.className = 'notes-list-desktop';
+             const dayNum = cell.querySelector('.day-number');
+             if(dayNum && dayNum.nextSibling) cell.insertBefore(targetContainer, dayNum.nextSibling);
+             else cell.appendChild(targetContainer);
+        }
+         // Clear only textareas previously added by this method
+         const existingTextareas = targetContainer.querySelectorAll(':scope > textarea');
+         existingTextareas.forEach(ta => ta.remove());
+    }
+
+    // Clear previous notes *within the target container*
+    targetContainer.innerHTML = '';
+
+    // Re-Add Notes from localStorage Order
+    const itemIds = localStorage.getItem(parentId)?.split(',').filter(id => id) || [];
+    
+    if (itemIds.length === 0) return; // Nothing to render
+    
+    // Track which items were invalid for cleanup
+    let invalidItems = [];
+    let validItems = [];
+
+    itemIds.forEach(itemId => {
+        const itemValue = localStorage.getItem(itemId);
+        if (itemValue !== null) { // Render even empty placeholders initially
+            validItems.push(itemId);
+            const noteElementOrLi = generateItem(parentId, itemId); // Generate LI or TEXTAREA
+
+            if (noteElementOrLi) {
+                const textarea = (noteElementOrLi.tagName === 'LI') ? noteElementOrLi.querySelector('textarea') : noteElementOrLi;
+                if (textarea) {
+                    textarea.value = itemValue;
+                    targetContainer.appendChild(noteElementOrLi); // Append the element
+                    recalculateHeight(itemId); // Recalc height *after* appending
+                    
+                    // Store in parent cache
+                    if (typeof textareaParentCache !== 'undefined') {
+                        textareaParentCache.set(itemId, parentId);
+                    }
+                }
+            }
+        } else {
+            // Item referenced but not found - add to invalid list
+            invalidItems.push(itemId);
+        }
+    });
+
+    // Clean up invalid items references if needed
+    if (invalidItems.length > 0) {
+        // Only log once per day cell to avoid console spam
+        console.warn(`Day ${parentId} has ${invalidItems.length} missing items that will be cleaned up.`);
+        
+        // Update localStorage with only valid items
+        localStorage.setItem(parentId, validItems.join(','));
+        
+        // Update timestamp for sync
+        localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+        if (typeof debouncedServerSave === 'function') {
+            debouncedServerSave();
+        }
+    }
+}
+
+// Add a special touch handler for mobile textareas to ensure they can be focused
+if (window.innerWidth <= 768) {
+    document.addEventListener('touchend', function(evt) {
+        // Check if the touch ended on or inside a textarea element
+        const target = evt.target;
+        const textarea = target.tagName === 'TEXTAREA' ? 
+            target : 
+            target.closest('.calendar-note-item')?.querySelector('textarea');
+            
+        if (textarea) {
+            console.log('Touch ended on textarea', textarea.id);
+            
+            // Delay focus slightly to avoid conflicts with other handlers
+            setTimeout(() => {
+                textarea.focus();
+                console.log('Focus applied from touch handler');
+                
+                // Check if the textarea actually received focus
+                if (document.activeElement === textarea) {
+                    console.log('Focus verified after touch');
+                } else {
+                    console.log('Focus failed after touch');
+                    
+                    // Try a more direct approach - click first
+                    textarea.click();
+                    textarea.focus();
+                }
+            }, 50);
+        }
+    }, { passive: false });
+    
+    console.log('Added special touch handler for mobile textareas');
+}
+
+/**
+ * Special touch handler for mobile textareas 
+ * Helps ensure keyboard appears when tapping on textarea
+ */
+function setupMobileTextareaFocus() {
+    // Only add this handler on mobile devices
+    if (window.innerWidth > 768) return;
+    
+    console.log('Setting up special mobile textarea focus handler');
+    
+    document.addEventListener('touchend', function(evt) {
+        // Get the target and check if it's a textarea or inside one
+        const target = evt.target;
+        const textarea = target.tagName === 'TEXTAREA' ? target : target.closest('textarea');
+        
+        if (textarea) {
+            console.log('Touch detected on textarea:', textarea.id);
+            
+            // Delay slightly to avoid conflict with other handlers
+            setTimeout(() => {
+                console.log('Applying focus to textarea:', textarea.id);
+                textarea.focus({preventScroll: false});
+                
+                // Verify if focus was applied
+                setTimeout(() => {
+                    const activeElement = document.activeElement;
+                    const focusSuccess = activeElement === textarea;
+                    console.log('Focus successful?', focusSuccess);
+                    
+                    // If focus failed, try clicking then focusing
+                    if (!focusSuccess) {
+                        console.log('Focus failed, attempting click + focus');
+                        textarea.click();
+                        textarea.focus({preventScroll: false});
+                    }
+                }, 50);
+            }, 50);
+            
+            // Prevent any competing actions
+            evt.preventDefault();
+        }
+    }, {passive: false});
+}
+
+// Call this during initialization
+document.addEventListener('DOMContentLoaded', setupMobileTextareaFocus);
+
+/**
+ * Debug function to help diagnose parent finding issues
+ * Logs DOM structure and relationships between elements
+ */
+function debugParentFinding(itemId) {
+    console.log(`======= DEBUG PARENT FINDING for ${itemId} =======`);
+    const textarea = document.getElementById(itemId);
+    
+    if (!textarea) {
+        console.log("❌ Textarea not found in DOM");
+        return;
+    }
+    
+    console.log("✅ Textarea found in DOM");
+    
+    // Check Item ID format and try to extract date
+    const idMatch = itemId.match(/item(\d+)/);
+    if (idMatch) {
+        console.log(`✅ Item ID format matches expected pattern: ${idMatch[0]}`);
+    } else {
+        console.log("❌ Item ID format doesn't match expected pattern");
+    }
+    
+    // Log DOM path
+    let element = textarea;
+    let path = [];
+    let foundTD = false;
+    
+    while (element && element.tagName !== 'BODY') {
+        const classes = element.className ? ` class="${element.className}"` : '';
+        const id = element.id ? ` id="${element.id}"` : '';
+        path.push(`${element.tagName.toLowerCase()}${id}${classes}`);
+        
+        if (element.tagName === 'TD' && element.classList.contains('day')) {
+            foundTD = true;
+            console.log(`✅ Found TD in DOM path: ${element.id}`);
+        }
+        
+        element = element.parentElement;
+    }
+    
+    console.log("DOM Path:", path.join(' > '));
+    
+    if (!foundTD) {
+        console.log("❌ No TD.day found in DOM path");
+    }
+    
+    // Check all TDs to see if any contain this textarea
+    const allTDs = document.querySelectorAll('td.day');
+    let containingTD = null;
+    
+    for (const td of allTDs) {
+        if (td.querySelector(`#${itemId}`)) {
+            containingTD = td;
+            console.log(`✅ Found containing TD by query: ${td.id}`);
+            break;
+        }
+    }
+    
+    if (!containingTD) {
+        console.log("❌ No TD contains this textarea according to querySelector");
+    }
+    
+    // Get all items in localStorage for this date
+    if (containingTD) {
+        const parentIds = localStorage[containingTD.id] ? 
+                         localStorage[containingTD.id].split(",").filter(id => id) : [];
+        
+        console.log(`Items in localStorage for ${containingTD.id}:`, parentIds);
+        if (parentIds.includes(itemId)) {
+            console.log(`✅ Item ID found in localStorage parent list`);
+        } else {
+            console.log(`❌ Item ID NOT found in localStorage parent list`);
+        }
+    }
+    
+    console.log("======= END DEBUG =======");
+}
+
+/**
+ * GLOBAL CACHE: Map to store textarea parent relationships
+ * This helps with frequent parent lookups even if DOM changes
+ */
+const textareaParentCache = new Map();
+
+/**
+ * Enhanced storeValueForItemId with better parent finding
+ * Uses a global cache and completely reliable ID mapping system
+ */
+function storeValueForItemId(itemId) {
+    // Get the textarea
+    const ta = document.getElementById(itemId);
+    if (!ta) {
+        console.error(`storeValueForItemId: Textarea #${itemId} not found in DOM`);
+        return;
+    }
+
+    const currentValue = ta.value;
+    const storedValue = localStorage.getItem(itemId);
+    
+    // Extract the item timestamp from item ID (for debug/cache key)
+    const itemTimestamp = itemId.replace(/^item/, '');
+    
+    // STEP 1: Find the parent cell ID using multiple approaches
+    let parentId = null;
+    
+    // First check our cache
+    if (textareaParentCache.has(itemId)) {
+        parentId = textareaParentCache.get(itemId);
+        console.log(`Using cached parent ID ${parentId} for ${itemId}`);
+    }
+    
+    // If not in cache, or if we want to verify:
+    if (!parentId) {
+        // First try the DOM
+        let parentCell = null;
+        
+        // Try closest() first
+        if (!parentCell && ta.closest) {
+            parentCell = ta.closest('td.day');
+            if (parentCell) {
+                parentId = parentCell.id;
+                console.log(`Found parent by closest(): ${parentId}`);
+            }
+        }
+        
+        // Try DOM scanning if closest() fails
+        if (!parentCell) {
+            const allTDs = document.querySelectorAll('td.day');
+            for (const td of allTDs) {
+                if (td.contains(ta) || td.querySelector(`#${itemId}`)) {
+                    parentCell = td;
+                    parentId = td.id;
+                    console.log(`Found parent by scanning: ${parentId}`);
+                    break;
+                }
+            }
+        }
+        
+        // If DOM methods fail, check localStorage for relationships
+        if (!parentId) {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                // Only look at keys that might be day cells
+                if (key && key.match(/^\d+_\d+_\d+$/)) {
+                    const items = localStorage[key].split(',').filter(id => id);
+                    if (items.includes(itemId)) {
+                        parentId = key;
+                        console.log(`Found parent in localStorage: ${parentId}`);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // If we found a parent, cache it
+        if (parentId) {
+            textareaParentCache.set(itemId, parentId);
+        }
+    }
+    
+    // STEP 2: Handle cases where parent can't be found
+    if (!parentId) {
+        console.error(`storeValueForItemId: Cannot find parent cell TD for ${itemId}`);
+        // Run debug to help diagnose
+        debugParentFinding(itemId);
+        
+        // Save the content anyway to prevent data loss
+        localStorage.setItem(itemId, currentValue);
+        
+        if (currentValue.trim() && (typeof debouncedServerSave === 'function')) {
+            localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+            debouncedServerSave();
+        }
+        
+        if (document.getElementById(itemId)) {
+            recalculateHeight(itemId);
+        }
+        
+        return;
+    }
+    
+    // STEP 3: Now that we have parent ID, save as normal
+    console.log(`Storing value for ${itemId} in parent ${parentId}`);
+    
+    // Push undo state if meaningful change
+    const isNew = storedValue === null;
+    const hasChanged = storedValue !== currentValue;
+    if ((isNew && currentValue.trim()) || (!isNew && hasChanged)) {
+        pushUndoState();
+    }
+    
+    // Save the content
+    localStorage.setItem(itemId, currentValue);
+    
+    // Update parent list if needed
+    if (currentValue.trim()) {
+        // Get the existing list from localStorage
+        let parentIds = localStorage[parentId] ? 
+                      localStorage[parentId].split(",").filter(id => id) : [];
+                      
+        // Add this item if not already in list
+        if (!parentIds.includes(itemId)) {
+            parentIds.push(itemId);
+            localStorage.setItem(parentId, parentIds.join(','));
+            console.log(`Added ${itemId} to ${parentId} list`);
+        }
+    }
+    
+    // Update timestamp and trigger sync
+    if (currentValue.trim()) {
+        localStorage.setItem("lastSavedTimestamp", Date.now().toString());
+        if (typeof debouncedServerSave === 'function') debouncedServerSave();
+    }
+    
+    // Update height
+    if (document.getElementById(itemId)) {
+        recalculateHeight(itemId);
+    }
+}
+
+/**
+ * Cleans up localStorage by removing references to missing items
+ * This fixes the "Value not found, skipping render" warnings
+ */
+function cleanupLocalStorage() {
+    console.log("Cleaning up localStorage data consistency...");
+    let itemsRemoved = 0;
+    let daysFixed = 0;
+    
+    // Check all keys in localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        
+        // Only process day cell entries (format: M_D_Y)
+        if (key && key.match(/^\d+_\d+_\d+$/)) {
+            const itemList = localStorage[key].split(',').filter(id => id);
+            const originalLength = itemList.length;
+            
+            // Filter out items that don't exist in localStorage
+            const validItems = itemList.filter(itemId => {
+                return localStorage.getItem(itemId) !== null;
+            });
+            
+            // If items were removed, update the list
+            if (validItems.length < originalLength) {
+                itemsRemoved += (originalLength - validItems.length);
+                daysFixed++;
+                
+                // Save the cleaned list back to localStorage
+                if (validItems.length > 0) {
+                    localStorage.setItem(key, validItems.join(','));
+                    console.log(`Fixed day ${key}: Removed ${originalLength - validItems.length} missing items`);
+                } else {
+                    // If no valid items remain, remove the day entry completely
+                    localStorage.removeItem(key);
+                    console.log(`Removed empty day ${key} with no valid items`);
+                }
+            }
+        }
+    }
+    
+    console.log(`Cleanup complete: Fixed ${daysFixed} days, removed ${itemsRemoved} invalid items`);
+}
+
+// Call the cleanup during initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Clean up localStorage first
+    cleanupLocalStorage();
+    
+    // Other initialization can follow...
+});
  
