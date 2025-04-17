@@ -57,24 +57,22 @@ body {
 
   /* Day card styles */
   #calendar td {
+    overflow: hidden; /* MUST HAVE to clip swipe animation/reveal */
+    position: relative; /* NEEDED for the ::after pseudo-element */
+    /* Keep other essential mobile TD styles */
     display: block;
-    width: 100% !important;
-    min-height: var(--cell-min-height);
+    width: 100% !important; /* Adjust if possible without !important */
+    min-height: var(--cell-min-height, 90px);
+    height: auto; /* Allow to grow */
     margin-bottom: 12px;
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transform: none !important;
+    padding: 10px 12px; /* Adjust padding as needed */
+    border-radius: 10px;
+    background: white; /* Or your light mode variable */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
-  #calendar td:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-  }
-  #calendar td:active {
-    transform: scale(0.98) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    transition: transform 0.1s, box-shadow 0.1s;
+  body.dark-mode #calendar td {
+      background: #222; /* Or your dark mode variable */
+      /* border: 1px solid #444; */ /* Optional */
   }
 
   /* Extra cells (month headings or blank) and today highlight */
@@ -453,108 +451,110 @@ a.button,
     width: 100% !important;
   }
 
-  /* Force block layout for list container */
-  #calendar td .notes-list .list {
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-    width: 100% !important;
-  }
-  
-  /* Force vertical stacking for the UL */
-  #calendar td .notes-list .list ul {
-    padding: 0 !important;
-    margin: 0 !important;
-    list-style: none !important;
-    display: block !important;
-    width: 100% !important;
-  }
+  /* Reset F7 list defaults ONLY if they cause issues */
+  /* Start commenting these out, uncomment only if needed */
+   #calendar td .notes-list .list {
+     margin: 0;
+     padding: 0;
+   }
+   #calendar td .notes-list .list ul {
+     list-style: none;
+     padding: 0;
+     margin: 0;
+   }
 
-  /* Style the LI wrapper (the swipeout element) with !important flags */
+  /* Basic stacking and spacing for the LI (swipeout element) */
   #calendar td .notes-list li.swipeout {
-    display: block !important; /* Force block stacking */
-    position: relative !important; /* Override potential absolute positioning from F7 */
-    height: auto !important; /* Force height based on content */
-    width: 100% !important; /* Take full width */
-    margin: 0 0 8px 0 !important; /* Ensure margin forces vertical space */
-    overflow: hidden !important; /* Keep */
-    background-color: transparent !important; /* Keep */
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important; /* Keep */
-    z-index: auto !important; /* Avoid interfering z-index issues */
-    transform: none !important; /* Override any transform that might affect layout */
-    float: none !important; /* Prevent float layout */
-    clear: both !important; /* Clear floats */
-    top: auto !important; /* Reset any absolute positioning */
-    left: auto !important;
+    display: block; /* Default for LI, ensures stacking */
+    position: relative; /* Needed for z-index stacking */
+    height: auto; /* CRITICAL: Let content dictate height */
+    margin: 0 0 6px 0; /* Space below each note */
+    border-radius: 6px; /* Round the swipeable item */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Optional shadow on item */
+    overflow: hidden; /* Contain F7's inner content/actions */
+    /* background-color: #f8f8f8; */ /* Optional subtle bg for LI */
   }
+   /* body.dark-mode #calendar td .notes-list li.swipeout {
+       background-color: #333;
+       box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+   } */
 
-  /* Ensure all inner content doesn't constrain height */
+
+  /* Minimal overrides for F7 inner structure if needed */
+  /* These ensure F7's padding/min-height don't interfere */
   #calendar td .notes-list .swipeout-content,
   #calendar td .notes-list .item-content,
-  #calendar td .notes-list .item-inner,
-  #calendar td .notes-list .item-title,
-  #calendar td .notes-list .item-title-row {
-    height: auto !important;
-    min-height: auto !important;
-    padding: 0 !important; /* Remove padding that might affect layout */
-    position: static !important; /* Override potential absolute/relative */
-    display: block !important; /* Ensure block layout */
-    width: 100% !important;
+  #calendar td .notes-list .item-inner {
+      padding: 0 !important; /* Remove F7 padding */
+      min-height: auto !important; /* Remove F7 min-height */
+      /* Avoid setting display/position unless debugging shows it's necessary */
+      /* position: static !important; */
+      /* display: block !important; */
   }
 
-  /* Style the TEXTAREA itself inside the F7 structure */
+  /* Style the TEXTAREA - This is the visible note */
   #calendar td .notes-list textarea {
-    display: block;
+    display: block; /* Takes full width of container */
     width: 100%;
-    box-sizing: border-box;
-    position: relative; /* Should be fine */
-    z-index: 1; /* Above delete action */
-    margin: 0;
-    padding: 8px 12px; /* Your padding */
-    border-radius: 6px; /* Can apply rounding here */
-    border: none; /* F7 often handles borders on items */
-    background-color: white; /* Solid background */
+    box-sizing: border-box; /* Padding included in width */
+    position: relative; /* Keep relative positioning */
+    z-index: 1; /* Ensure it's above the ::after */
+    margin: 0; /* No margin on textarea itself */
+    padding: 8px 12px; /* Your desired padding */
+    border-radius: 6px; /* Can round textarea corners */
+    border: none; /* No border needed, LI has shadow/bg */
+    background-color: white; /* MUST be opaque - Or use CSS var */
     color: #333;
-    font-size: 14px;
-    line-height: 1.4;
-    min-height: 38px; /* Min height */
-    height: auto; /* Dynamic height */
-    box-shadow: none; /* Shadow is on the LI now */
-    transition: none !important; /* Prevent transitions interfering with F7 */
-    transform: none !important; /* Prevent transforms interfering */
-    will-change: auto;
-    -webkit-touch-callout: none;
+    font-size: 14px; /* Your font size */
+    line-height: 1.4; /* Your line height */
+    min-height: 38px; /* Min touch height */
+    height: auto; /* Let JS recalculate height */
+    box-shadow: none; /* Shadow applied to parent LI */
+    /* Remove styles that might conflict with F7 swipe */
+    transition: none !important;
+    transform: none !important;
+    will-change: auto; /* Reset from previous attempts */
+    -webkit-touch-callout: default; /* Allow text interaction */
+    touch-action: manipulation; /* Allow vertical scroll/tap */
+    pointer-events: auto;
+    cursor: text;
   }
 
-  /* Fix any nested links that might interfere with layout */
-  #calendar td .notes-list a.item-link {
-    display: block !important;
-    height: auto !important;
-    width: 100% !important;
-    position: static !important;
-  }
-
-  /* Dark Mode Textarea inside F7 */
+  /* Dark Mode Textarea */
   body.dark-mode #calendar td .notes-list textarea {
-    background-color: #2d3748;
-    color: #e2e8f0;
-    /* border: 1px solid rgba(255, 255, 255, 0.1); */ /* Optional border */
+     background-color: #2d3748; /* Or your dark mode var */
+     color: #e2e8f0;
+     /* border: 1px solid rgba(255, 255, 255, 0.1); */ /* Optional */
   }
 
-  /* Ensure delete action doesn't interfere with layout */
-   #calendar td .notes-list .swipeout-actions-right {
-     position: absolute !important;
-     top: 0 !important;
-     height: 100% !important;
-     right: 0 !important;
-   }
-   
+  /* Delete indicator revealed behind */
+  #calendar td::after {
+    content: 'Delete';
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: 100px; /* Adjust width */
+    background-color: #ff3b30;
+    color: white;
+    font-weight: bold; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 0; /* Behind textarea */
+    opacity: 0; /* Hidden by default */
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    /* Match TD rounding ONLY on the right */
+    border-top-right-radius: 10px;    /* Match TD's border-radius */
+    border-bottom-right-radius: 10px; /* Match TD's border-radius */
+  }
+
+  /* Class added by JS to the TD during swipe */
+  #calendar td.swiping-for-delete::after {
+    opacity: 1; /* Show indicator */
+  }
+
+  /* F7 Delete Action Button (Optional Styling) */
    #calendar td .notes-list .swipeout-actions-right a.swipeout-delete {
-      background-color: #ff3b30 !important; /* Style the delete button */
-      height: 100% !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
+      /* background-color: #ff3b30 !important; */ /* Already red by default */
+      /* Add any other F7 button overrides if needed */
    }
 
   /* Hide top header and all buttons on mobile */
@@ -822,240 +822,6 @@ a.button,
       color: #fff;
     }
   }
-
-  /* --- START: Simpler CSS for F7 List Items --- */
-
-  /* Ensure TD can contain the swipe */
-  #calendar td {
-    overflow: hidden; /* Keep this */
-    position: relative; /* Keep this */
-    /* Keep other mobile TD styles */
-  }
-
-  /* Container for notes */
-  #calendar td .notes-list {
-    margin-top: 8px;
-  }
-
-  /* Reset F7 list defaults if needed */
-  #calendar td .notes-list .list {
-    margin: 0;
-    padding: 0;
-  }
-  #calendar td .notes-list .list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  /* Basic stacking and spacing for the LI */
-  #calendar td .notes-list li.swipeout {
-    display: block; /* Stack vertically */
-    position: relative; /* Allow z-index stacking */
-    margin-bottom: 6px; /* Space between notes */
-    /* Let F7 control internal height/overflow unless necessary */
-    height: auto;
-    /* Add rounding and shadow to the item itself */
-    border-radius: 6px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    overflow: hidden; /* Important for containing F7 content */
-  }
-
-   /* Ensure swipeout content is block level */
-   #calendar td .notes-list .swipeout-content {
-      display: block;
-      padding: 0 !important; /* Remove F7 padding */
-      min-height: auto !important; /* Override F7 min-height */
-   }
-   #calendar td .notes-list .item-content {
-       padding: 0 !important; /* Remove F7 padding */
-       min-height: auto !important;
-   }
-   #calendar td .notes-list .item-inner {
-      padding: 0 !important; /* Remove F7 padding */
-      min-height: auto !important;
-      /* Remove any default F7 borders/lines if desired */
-      /* background-image: none !important; */
-   }
-
-  /* Style the TEXTAREA within the F7 structure */
-  #calendar td .notes-list textarea {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    position: relative; /* Should be fine */
-    z-index: 1; /* Above delete action */
-    margin: 0;
-    padding: 8px 12px; /* Your padding */
-    border-radius: 6px; /* Can apply rounding here */
-    border: none; /* F7 often handles borders on items */
-    background-color: white; /* Solid background */
-    color: #333;
-    font-size: 14px;
-    line-height: 1.4;
-    min-height: 38px; /* Min height */
-    height: auto; /* Dynamic height */
-    box-shadow: none; /* Shadow is on the LI now */
-    transition: none !important; /* Prevent transitions interfering with F7 */
-    transform: none !important; /* Prevent transforms interfering */
-    will-change: auto;
-    -webkit-touch-callout: none;
-  }
-
-  /* Dark Mode Textarea */
-  body.dark-mode #calendar td .notes-list textarea {
-     background-color: #2d3748;
-     color: #e2e8f0;
-     /* border: 1px solid rgba(255, 255, 255, 0.1); */ /* Optional border */
-  }
-
-  /* Delete action styling */
-  #calendar td .notes-list .swipeout-actions-right a.swipeout-delete {
-    background-color: #ff3b30 !important; /* Use important if needed to override F7 */
-    /* Let F7 handle text/layout */
-  }
-  /* --- END: Simpler CSS --- */
-
-  /* --- CRITICAL FIX: Forceful CSS for F7 List Items --- */
-  /* Target each swipeout item by order to ensure stacking */
-  #calendar td .notes-list .list ul li.swipeout {
-    position: static !important; /* Force static positioning */
-    display: block !important;
-    width: 100% !important;
-    margin-bottom: 8px !important;
-    height: auto !important;
-    min-height: 44px !important;
-    transform: none !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    float: none !important;
-    clear: both !important;
-    z-index: auto !important;
-  }
-
-  /* Fix container itself to be block with normal flow */
-  #calendar td .notes-list {
-    position: static !important;
-    display: block !important;
-    width: 100% !important;
-  }
-
-  /* Fix the list container */
-  #calendar td .notes-list .list {
-    position: static !important;
-    display: block !important;
-    width: 100% !important;
-  }
-
-  /* Fix the ul container */
-  #calendar td .notes-list .list ul {
-    position: static !important;
-    display: block !important;
-    width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    flex-direction: column !important;
-  }
-
-  /* Force textarea to be more accessible */
-  #calendar td .notes-list textarea {
-    -webkit-user-select: text !important;
-    user-select: text !important;
-    -webkit-touch-callout: default !important;
-    touch-action: auto !important;
-    pointer-events: auto !important;
-    cursor: text !important;
-    z-index: 10 !important;
-  }
-
-  /* --- START: TEMPORARY DIAGNOSTIC CSS for Stacking --- */
-  #calendar td {
-     /* Keep overflow: hidden and position: relative if needed for swipe later */
-     overflow: hidden;
-     position: relative;
-     /* Keep other basic TD styles */
-     display: block;
-     min-height: var(--cell-min-height, 90px);
-     padding: 12px 16px;
-     margin-bottom: 12px;
-     border-radius: 12px;
-     background: white; /* Simple background for testing */
-  }
-  body.dark-mode #calendar td {
-      background: #222; /* Simple dark background */
-  }
-
-
-  /* Force basic block layout for everything inside the TD's notes area */
-  #calendar td .notes-list,
-  #calendar td .notes-list .list,
-  #calendar td .notes-list ul,
-  #calendar td .notes-list li.swipeout,
-  #calendar td .notes-list .swipeout-content,
-  #calendar td .notes-list .item-content,
-  #calendar td .notes-list .item-inner {
-    display: block !important; /* Force block display */
-    position: static !important; /* Force static positioning */
-    height: auto !important; /* Force auto height */
-    width: 100% !important; /* Force full width */
-    margin: 0 !important; /* Remove margins */
-    padding: 0 !important; /* Remove padding */
-    border: none !important; /* Remove borders */
-    box-shadow: none !important; /* Remove shadows */
-    background: transparent !important; /* Make containers transparent */
-    float: none !important;
-    clear: both !important;
-    overflow: visible !important; /* Allow content to show */
-  }
-
-  /* Style only the textarea directly */
-  #calendar td .notes-list textarea {
-    display: block !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
-    margin: 0 0 6px 0 !important; /* Add margin ONLY below textarea */
-    padding: 8px 12px !important; /* Keep your padding */
-    border-radius: 6px !important;
-    border: 1px solid #ccc !important; /* Basic border */
-    background-color: white !important; /* Solid background */
-    color: #333 !important;
-    font-size: 14px !important;
-    line-height: 1.4 !important;
-    min-height: 38px !important;
-    height: auto !important; /* Dynamic height */
-    position: static !important; /* Ensure static */
-    transform: none !important; /* Reset any transform */
-    z-index: auto !important;
-  }
-
-  body.dark-mode #calendar td .notes-list textarea {
-     background-color: #333 !important;
-     color: #eee !important;
-     border-color: #555 !important;
-  }
-
-  /* Hide F7 delete actions during this test */
-  #calendar td .notes-list .swipeout-actions-right {
-    display: none !important;
-  }
-
-  /* Hide the ::after pseudo element during this test */
-   #calendar td::after {
-      display: none !important;
-   }
-  
-  /* --- Keep your existing Toolbar styles --- */
-  .toolbar.toolbar-bottom.mobile-action-bar-f7 { /* ... */ }
-  /* ... etc ... */
-
-  /* --- Keep your existing Hint styles --- */
-  .swipe-hint-overlay { /* ... */ }
-  /* ... etc ... */
-
-
-
 
   /* Swipe hint overlay CSS */
   .swipe-hint-overlay {
