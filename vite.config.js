@@ -6,13 +6,14 @@ export default defineConfig({
   plugins: [react()],
 
   server: {
-    host: "0.0.0.0", // or true
+    host: "0.0.0.0",
     port: 5000,
-    allowedHosts: "all", // or ['.janeway.replit.dev']
+    allowedHosts: "all",
     hmr: {
       host: "0.0.0.0",
       port: 5000,
-  }, // ← closes server  ✅
+    }
+  },
 
   build: {
     outDir: "dist",
