@@ -1,6 +1,6 @@
-
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// vite.config.js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
@@ -11,13 +11,10 @@ export default defineConfig({
     hmr: {
       host: '0.0.0.0',
       port: 5000
-    }
   },
   build: {
     outDir: 'dist',
-    rollupOptions: {
-      input: './index.html'
-    }
+    rollupOptions: { input: './index.html' }
   },
   esbuild: {
     loader: 'jsx',
@@ -26,9 +23,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     esbuildOptions: {
-      loader: {
-        '.js': 'jsx'
-      }
+      loader: { '.js': 'jsx' }
     }
   }
-})
+}); 
