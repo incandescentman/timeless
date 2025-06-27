@@ -273,6 +273,7 @@ const App = () => {
         )}
         <div
           className={cellClasses}
+          data-date={date.toISOString()}
           onClick={(e) => handleDayClick(date, e)}
         >
           <div className="day-info">
@@ -331,7 +332,25 @@ const App = () => {
 
       {/* Calendar */}
       <div id="calendarContainer" className="calendar-container">
-        <div className="calendar-days" ref={calendarRef}>
+        <div
+          className="calendar-days"
+          ref={calendarRef}
+          onMouseDownCapture={e => {
+            const active = document.activeElement;
+            if (active?.classList.contains('note-item')) {
+              const dayCell = e.target.closest('.day-cell');
+              active.blur();
+              if (dayCell && calendarRef.current.contains(dayCell)) {
+                e.preventDefault();
+                e.stopPropagation();
+                const dateStr = dayCell.getAttribute('data-date');
+                handleDayClick(new Date(dateStr), e);
+              } else {
+                e.stopPropagation();
+              }
+            }
+          }}
+        >
           {days.map(date => renderDayRow(date))}
         </div>
       </div>
@@ -379,13 +398,15 @@ const NoteItem = ({ itemId, value, onChange, onDelete }) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onChange(localValue);
-      // Could create new note here
+      if (textareaRef.current) textareaRef.current.blur();
     }
   };
 
   return (
     <textarea
+      onClick={e => e.stopPropagation()}
       ref={textareaRef}
+      autoFocus={value === ''}
       className="note-item"
       value={localValue}
       onChange={handleChange}
