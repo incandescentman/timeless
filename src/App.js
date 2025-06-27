@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useOutsideClick } from '@floating-ui/react';
 import './App.css';
 
 const App = () => {
@@ -136,8 +137,16 @@ const App = () => {
       return;
     }
     
+    // Check if there's an active text input - if so, don't create new event
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement.classList.contains('note-item')) {
+      return;
+    }
+    
     const dateId = idForDate(date);
     const newItemId = nextItemId();
+    
+    pushUndoState();
     
     // Add new item to calendar data
     setCalendarData(prev => {
@@ -335,21 +344,6 @@ const App = () => {
         <div
           className="calendar-days"
           ref={calendarRef}
-          onMouseDownCapture={e => {
-            const active = document.activeElement;
-            if (active?.classList.contains('note-item')) {
-              const dayCell = e.target.closest('.day-cell');
-              active.blur();
-              if (dayCell && calendarRef.current.contains(dayCell)) {
-                e.preventDefault();
-                e.stopPropagation();
-                const dateStr = dayCell.getAttribute('data-date');
-                handleDayClick(new Date(dateStr), e);
-              } else {
-                e.stopPropagation();
-              }
-            }
-          }}
         >
           {days.map(date => renderDayRow(date))}
         </div>
@@ -368,10 +362,19 @@ const App = () => {
 // Note item component
 const NoteItem = ({ itemId, value, onChange, onDelete }) => {
   const [localValue, setLocalValue] = useState(value);
+  const [isEditing, setIsEditing] = useState(value === '');
   const textareaRef = useRef(null);
+
+  // Handle outside clicks using floating-ui
+  const outsideClickRefs = useOutsideClick(() => {
+    if (isEditing) {
+      handleSave();
+    }
+  });
 
   useEffect(() => {
     setLocalValue(value);
+    setIsEditing(value === '');
   }, [value]);
 
   useEffect(() => {
@@ -382,11 +385,8 @@ const NoteItem = ({ itemId, value, onChange, onDelete }) => {
     }
   }, [localValue]);
 
-  const handleChange = (e) => {
-    setLocalValue(e.target.value);
-  };
-
-  const handleBlur = () => {
+  const handleSave = () => {
+    setIsEditing(false);
     if (localValue.trim() === '') {
       onDelete();
     } else {
@@ -394,10 +394,18 @@ const NoteItem = ({ itemId, value, onChange, onDelete }) => {
     }
   };
 
+  const handleChange = (e) => {
+    setLocalValue(e.target.value);
+  };
+
+  const handleFocus = () => {
+    setIsEditing(true);
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      onChange(localValue);
+      handleSave();
       if (textareaRef.current) textareaRef.current.blur();
     }
   };
@@ -405,12 +413,15 @@ const NoteItem = ({ itemId, value, onChange, onDelete }) => {
   return (
     <textarea
       onClick={e => e.stopPropagation()}
-      ref={textareaRef}
+      ref={(node) => {
+        textareaRef.current = node;
+        outsideClickRefs.reference = node;
+      }}
       autoFocus={value === ''}
       className="note-item"
       value={localValue}
       onChange={handleChange}
-      onBlur={handleBlur}
+      onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       placeholder="Add a note..."
       spellCheck={false}
