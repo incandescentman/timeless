@@ -19,3 +19,7 @@ args = "npm run dev"
 [deployment]
 run = ["sh", "-c", "npm run preview"]
 build = ["sh", "-c", "npm run build"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
