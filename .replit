@@ -1,0 +1,25 @@
+modules = ["nodejs-20", "web", "php-8.2"]
+run = "npm run start"
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Start React App"
+
+[[workflows.workflow]]
+name = "Start React App"
+author = 22705713
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[deployment]
+run = ["sh", "-c", "npm run preview"]
+build = ["sh", "-c", "npm run build"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
