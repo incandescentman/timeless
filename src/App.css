@@ -83,13 +83,13 @@
   transform: scale(0.98);
 }
 
-.calendar {
+.calendar-days {
   width: 90%;
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
-  table-layout: fixed;
-  border-spacing: 3px;
-  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .day-cell {
@@ -110,6 +110,59 @@
   white-space: normal;
   overflow: visible;
   position: relative;
+}
+
+.day-row {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  padding: 16px 20px;
+  margin: 0;
+  min-height: 80px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.dark-mode .day-row {
+  background: rgba(45,55,72,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.day-info {
+  flex: 0 0 200px;
+  margin-right: 20px;
+}
+
+.day-row .day-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 0;
+}
+
+.day-row .notes-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.full-date {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.month-header {
+  font-family: var(--font-month-heading);
+  font-size: 24px;
+  font-weight: 600;
+  padding: 20px 0 10px 0;
+  color: var(--accent);
+  text-align: center;
+  border-bottom: 2px solid var(--month-boundary);
+  margin: 20px 0 10px 0;
 }
 
 .day-cell::before {

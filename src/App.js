@@ -109,35 +109,24 @@ const App = () => {
     });
   }, [calendarData]);
 
-  // Generate calendar weeks
-  const generateCalendarWeeks = useCallback(() => {
-    const weeks = [];
+  // Generate calendar days
+  const generateCalendarDays = useCallback(() => {
+    const days = [];
     const startDate = new Date(currentCalendarDate);
     
-    // Find Monday of the week containing currentCalendarDate
-    while (getAdjustedDayIndex(startDate) !== 0) {
-      startDate.setDate(startDate.getDate() - 1);
+    // Start from 30 days before current date
+    startDate.setDate(startDate.getDate() - 30);
+    
+    // Generate 90 days total (30 before, current, 59 after)
+    const daysToShow = 90;
+    
+    for (let dayIndex = 0; dayIndex < daysToShow; dayIndex++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + dayIndex);
+      days.push(date);
     }
     
-    // Generate 12 weeks (6 before, current, 5 after)
-    const weeksToShow = 12;
-    const startWeek = new Date(startDate);
-    startWeek.setDate(startWeek.getDate() - (6 * 7));
-    
-    for (let weekIndex = 0; weekIndex < weeksToShow; weekIndex++) {
-      const week = [];
-      const weekStart = new Date(startWeek);
-      weekStart.setDate(weekStart.getDate() + (weekIndex * 7));
-      
-      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-        const date = new Date(weekStart);
-        date.setDate(date.getDate() + dayIndex);
-        week.push(date);
-      }
-      weeks.push(week);
-    }
-    
-    return weeks;
+    return days;
   }, [currentCalendarDate]);
 
   // Handle day click
@@ -250,8 +239,8 @@ const App = () => {
     showToast(isSelectingRange ? 'Range selection cancelled' : 'Select range start date');
   };
 
-  // Render day cell
-  const renderDayCell = (date) => {
+  // Render day row
+  const renderDayRow = (date) => {
     const dateId = idForDate(date);
     const isToday = date.toDateString() === systemToday.toDateString();
     const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -263,7 +252,7 @@ const App = () => {
     
     const itemIds = calendarData[dateId] ? calendarData[dateId].split(',').filter(Boolean) : [];
     
-    let cellClasses = 'day-cell';
+    let cellClasses = 'day-cell day-row';
     if (isToday) cellClasses += ' today';
     if (isWeekend) cellClasses += ' weekend';
     if (isShaded) cellClasses += ' shaded';
@@ -272,33 +261,45 @@ const App = () => {
     if (isRangeStart) cellClasses += ' selected-range-start';
     if (isRangeEnd) cellClasses += ' selected-range-end';
 
+    // Check if this is the first day of a new month
+    const showMonthHeader = date.getDate() === 1;
+
     return (
-      <td
-        key={dateId}
-        className={cellClasses}
-        onClick={(e) => handleDayClick(date, e)}
-      >
-        <div className="day-header">
-          <span className="day-label">{daysOfWeek[getAdjustedDayIndex(date)]}</span>
-          <span className="day-number">{date.getDate()}</span>
+      <React.Fragment key={dateId}>
+        {showMonthHeader && (
+          <div className="month-header">
+            {months[date.getMonth()]} {date.getFullYear()}
+          </div>
+        )}
+        <div
+          className={cellClasses}
+          onClick={(e) => handleDayClick(date, e)}
+        >
+          <div className="day-info">
+            <div className="day-header">
+              <span className="day-label">{daysOfWeek[getAdjustedDayIndex(date)]}</span>
+              <span className="day-number">{date.getDate()}</span>
+              <span className="full-date">{date.toLocaleDateString()}</span>
+            </div>
+          </div>
+          
+          <div className="notes-container">
+            {itemIds.map(itemId => (
+              <NoteItem
+                key={itemId}
+                itemId={itemId}
+                value={calendarData[itemId] || ''}
+                onChange={(value) => handleNoteChange(itemId, value)}
+                onDelete={() => handleNoteDelete(itemId, dateId)}
+              />
+            ))}
+          </div>
         </div>
-        
-        <div className="notes-container">
-          {itemIds.map(itemId => (
-            <NoteItem
-              key={itemId}
-              itemId={itemId}
-              value={calendarData[itemId] || ''}
-              onChange={(value) => handleNoteChange(itemId, value)}
-              onDelete={() => handleNoteDelete(itemId, dateId)}
-            />
-          ))}
-        </div>
-      </td>
+      </React.Fragment>
     );
   };
 
-  const weeks = generateCalendarWeeks();
+  const days = generateCalendarDays();
 
   return (
     <div className={`app ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -330,30 +331,9 @@ const App = () => {
 
       {/* Calendar */}
       <div id="calendarContainer" className="calendar-container">
-        <table id="calendar" className="calendar" ref={calendarRef}>
-          <tbody>
-            {weeks.map((week, weekIndex) => {
-              // Add month header if this is the first week of a new month
-              const firstDayOfWeek = week[0];
-              const showMonthHeader = firstDayOfWeek.getDate() <= 7;
-              
-              return (
-                <React.Fragment key={weekIndex}>
-                  {showMonthHeader && (
-                    <tr className="month-boundary">
-                      <td className="extra" colSpan={7}>
-                        {months[firstDayOfWeek.getMonth()]} {firstDayOfWeek.getFullYear()}
-                      </td>
-                    </tr>
-                  )}
-                  <tr>
-                    {week.map(date => renderDayCell(date))}
-                  </tr>
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="calendar-days" ref={calendarRef}>
+          {days.map(date => renderDayRow(date))}
+        </div>
       </div>
 
       {/* Toast notifications */}
