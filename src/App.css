@@ -1,7 +1,7 @@
 
 /* Import base styles */
-@import url('./styles.css');
-@import url('./mobile.css');
+@import "./css/styles.css";
+@import "./css/mobile.css";
 
 .app {
   min-height: 100vh;
@@ -298,6 +298,41 @@
   overflow: hidden;
   white-space: normal;
   height: auto;
+}
+
+.note-display {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.note-display:hover {
+  background-color: rgba(255,255,255,0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.note-placeholder {
+  opacity: 0.6;
+  font-style: italic;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.note-placeholder:hover {
+  opacity: 0.8;
+  background-color: rgba(255,255,255,0.7);
+}
+
+.floating-textarea {
+  font-family: inherit;
+  line-height: 1.4;
+  word-wrap: break-word;
+  transition: all 0.2s ease;
+}
+
+.floating-textarea:focus {
+  border-color: #4361ee;
+  box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
 }
 
 .note-item:focus {

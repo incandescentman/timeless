@@ -10,52 +10,29 @@ the wording imperative so you can copy-paste items directly into
 user-stories, issues, or acceptance tests. Feel free to trim or
 reorganize.
 
-# Timeless Calendar Development Guide
-
 ## Project Overview
 Timeless is a web-based infinitely scrolling calendar built with vanilla JavaScript, HTML, and CSS. It's designed to help visualize time continuously as you plan your life. The app features:
 
 - Infinitely scrolling calendar in both past and future directions
 - Local storage for privacy (all data stored client-side)
-- European-style week layout (weeks start on Monday)
 - Backup/export functionality using JSON
-- Smooth undo/redo functionality (Ctrl+Z, Ctrl+Shift+Z)
+- Smooth undo/redo functionality (command+Z, command+Y)
 - Keyboard navigation mode (toggle with 'i' key, exit with 'q' or Escape)
-- Multi-line note support (Shift+Enter for new lines)
+- Multi-line note support (Shift+Enter to add newlines)
 - Mini-calendar overview with multi-month display
 - Org-mode export functionality
 
-## Live Demo
-https://incandescentman.github.io/timeless/
-
-## Commands
-- No formal build process or package manager
-- Open `index.html` in a browser to run the application
-- No automated testing infrastructure in place
-
 ## Code Style Guidelines
-- **JavaScript**:
-  - Use camelCase for variables and functions
-  - Include JSDoc-style comments for functions
-  - Use ES6 syntax (const/let, arrow functions)
-  - Throttle/debounce scroll handlers and other performance-critical functions
+- Throttle/debounce scroll handlers and other performance-critical functions
   - Use meaningful variable names that describe purpose
 
-- **CSS**:
-  - Mobile-specific styles go in `mobile.css`
-  - General styles go in `styles.css`
-  - Use class selectors for styling
-  - Follow existing naming conventions
-
 - **HTML**:
-  - Use semantic HTML elements
-  - Include aria-labels for accessibility
+
   - Use SVG for icons
 
 ## Key Features & Functionality
 - **Navigation**: Click/tap days to add notes, arrow keys for day-by-day navigation
 - **Note Creation**: Single-click on empty space creates new note, Enter saves, Shift+Enter for multi-line
-- **Data Storage**: All data stored in localStorage for complete privacy
 - **Export/Import**: JSON backup functionality, Org-mode export for integration with Emacs
 - **Visual Effects**: Modern pastel palette, hover effects, ripple animations, glassmorphism for notes
 - **Keyboard Shortcuts**: 
@@ -64,36 +41,24 @@ https://incandescentman.github.io/timeless/
   - Enter to create note on highlighted day
   - Delete to remove entries (with confirmation)
   - Escape to exit modes or cancel editing
-  - Ctrl+Z/Ctrl+Y for undo/redo
-
-## File Structure
-- `index.html` - Main application entry point
-- `css/styles.css` - General styles
-- `css/mobile.css` - Mobile-specific styles
-- `js/calendar.js` - Core calendar functionality
 
 ## Technical Specifications
 
 ### Core Calendar Mechanics
-- Week-row, infinitely scrolling table with month/year boundary rows
+- Days, infinitely scrolling table 
 - Smooth grow/shrink animations for dynamic content
-- Day cell IDs follow pattern: `{monthIndex}_{day}_{year}` (zero-based month)
 - Timezone-safe date calculations using local-midnight clones
-- Sticky month header updates on scroll (throttled to 100ms)
+- Sticky month header updates on scroll 
 - Jump-to-today functionality with smooth scroll
 - Month navigation (Alt ↑/↓ on desktop, toolbar arrows on mobile)
 
 ### Data & Persistence
-- **Local Storage Schema**:
-  - Keys matching `^\d+_\d+_\d+$` store comma-separated note-IDs
-  - Each note-ID (`item<numericCounter>`) stores note text
-  - `nextId` tracks auto-increment counter
-  - `lastSavedTimestamp` records last save
 - **Undo/Redo**: Two arrays of JSON snapshots (capped at 5), with `pushUndoState()` capturing localStorage
+- Dates are stored on server. I am the ONLY user, so a simple api.php is sufficient``.
 - **Server Sync**: POST/GET with `api.php`, 5-minute auto-pull timer, timestamp comparison for conflict resolution
 
-### Note Editing System
-- **Creation**: Click empty space, Enter in textarea, Enter in keyboard-nav mode
+### Event Creation and Editing System
+- **Creation**: Click on a day to create an event. Enter or click outside text box to save. If note is empty, then cancel. 
 - **Content**: Auto-resizing textareas (desktop) or Framework7 swipeout items (mobile)
 - **Saving**: Debounced 2-second remote save after changes
 - **Deletion**: Blank textarea on blur (desktop) or swipe left ≥100px (mobile)
@@ -101,7 +66,7 @@ https://incandescentman.github.io/timeless/
 ### Modes & Shortcuts
 - **Command Palette**: Ctrl/Cmd+K or `/` - filterable action overlay
 - **Keyboard Navigation**: `i` to enter, arrows move ±1 day or ±7 days, Enter adds, Delete clears, `q`/Esc exits
-- **Global Shortcuts**: `T` for today, `y` for year view, Shift+B for backup, Shift+D for diary export
+- **Global Shortcuts**: `T` for today, `y` for year view, Shift+B to download a backup of all events in JSON format, Shift+D for diary export in Emacs diary format.
 
 ### Views & Widgets
 - **Mini-Calendar**: Shows prev/current/next months, clickable days recenter main view
@@ -126,14 +91,10 @@ https://incandescentman.github.io/timeless/
 - **Markdown Diary**: Groups by year/month, downloads as `jay-diary.md` and copies to clipboard
 
 ### Robustness & Maintenance
-- Local storage cleaner removes orphaned note IDs
-- `textareaParentCache` maps note-ID → parent-day for DOM lookup optimization
-- Debug helpers for development (`debugParentFinding`, `debugMobileLayout`)
 
+## Core Calendar Mechanics
 
-1.  Core Calendar Mechanics
-
-- Week-row, infinitely scrolling table
+- Infinitely scrolling table
 - Insert a \"Month Year\" boundary row whenever the 1st of a month
   appears.
 - Smooth grow/shrink animations
@@ -153,7 +114,7 @@ https://incandescentman.github.io/timeless/
 - Alt ↑ / Alt ↓ (desktop) or toolbar arrows (mobile) load + scroll to
   the first of the previous/next month.
 
-1.  Data & Persistence
+## Data & Persistence
 
 - Local storage schema
 - Keys matching \^`\d+`{=latex}\_`\d+`{=latex}\_`\d+`{=latex}\$ store
@@ -174,7 +135,7 @@ https://incandescentman.github.io/timeless/
 - on manual pulls prompts, backs up local JSON, then overwrites.
 - Five-minute auto-pull timer.
 
-1.  Note (Event) Editing
+## Note (Event) Editing
 
 - Creation paths
 - Click in empty space inside a day cell → new note.
@@ -190,7 +151,7 @@ https://incandescentman.github.io/timeless/
 - Desktop: blanking a textarea on blur removes it.
 - Mobile: swipe left ≥100 px (or F7 swipeout delete) removes.
 
-1.  Modes & Shortcuts
+## Modes & Shortcuts
 
 - Command palette (Ctrl/Cmd K or /) - overlay with filterable list of
   actions (see list in code).
@@ -198,7 +159,7 @@ https://incandescentman.github.io/timeless/
 - Arrow keys move focus by ±1 day or ±7 days.
 - Enter adds, Delete/Backspace clears, q or Esc exits.
 
-1.  Views & Widgets
+## Views & Widgets
 
 - Mini-calendar sidebar
 - Shows previous, current, next months; clicking a day recenters main
@@ -209,14 +170,14 @@ https://incandescentman.github.io/timeless/
 - Clicking any day closes view and jumps.
 - Mini-calendar is scrollable up and down via trackpad
 
-1.  Mobile-specific UX
+## Mobile-specific UX
 
 - Top toolbar (prev / today / next / year / range / help) and bottom
   toolbar (today / prev / next / command palette).
 - Swipe-to-delete and pull-to-refresh animations.
 - Touchend helper ensures keyboard focus on textarea.
 
-1.  Visual / Theme
+## Visual / Theme
 
 - Weekend shading & alternating month background tint.
 - Animated row insertion (CSS keyframes) for prepend/append.
@@ -224,7 +185,7 @@ https://incandescentman.github.io/timeless/
 - Toast system - single instance, fades after 3 s (configurable).
 - Loading spinner overlay for long scroll jumps and server ops.
 
-1.  Import / Export
+## Import / Export
 
 - JSON backup
 - downloadLocalStorageData() - Shift B key or palette.
@@ -234,7 +195,7 @@ https://incandescentman.github.io/timeless/
 - Groups by \# Year, \* Month Year, then dates & bullet points;
   downloads jay-diary.md and copies to clipboard.
 
-1.  Robustness & Maintenance
+## Robustness & Maintenance
 
 - Local-storage cleaner runs on load: strips note IDs that have no
   value.
@@ -243,12 +204,12 @@ https://incandescentman.github.io/timeless/
 - Debug helpers (debugParentFinding, debugMobileLayout)---not required
   in production but useful while porting.
 
-1.  Suggested React Component Decomposition
+## Suggested React Component Decomposition
 
 (You can adapt, but this maps 1-to-1 with existing functionality.)
 
 - \<Calendar\> - owns scroll container, week list, sentinel observers,
-  and global state (today, undo/redo stacks, dark-mode).
+  and global state (today, undo/redo stacks).
 - \<DayCell\> - renders label, notes list, click handler, highlight
   states.
 - \<NotesList\> - desktop vs. mobile variant (conditional render).
@@ -263,22 +224,21 @@ Acceptance Checklist
 
 Use this condensed list when QA-ing the React port:
 
-1.  Infinite scroll up/down never \"runs out\" of weeks.
+## Infinite scroll up/down never \"runs out\" of weeks.
 2.  Adding/editing/deleting notes persists after page reload
     (localStorage) and after server round-trip.
-3.  Undo/Redo (plain z / Ctrl Z / Ctrl Shift Z) restores prior states up
+3.  Undo/Redo (command Z, command Y) restores prior states up
     to 5 steps.
 4.  Every keyboard shortcut from the vanilla version works identically.
-5.  Dark-mode, sticky header, mini calendar, year view, quick date
+5. Sticky header, mini calendar, year view, quick date
     input, command palette all function.
 6.  On mobile (≤ 768 px width):
 
 - Framework7 toolbars show; swipe-to-delete works; tapping a note
   summons keyboard.
-  1.  JSON import/export and Markdown diary export produce identical
+
+## JSON import/export and Markdown diary export produce identical
       data to vanilla app.
   2.  No visible timezone drift---\"today\" is correct at local midnight
       rollover.
 
-Delivering on all items above will reproduce the behavior of the
-original \"Timeless\" calendar in a modern Vite + React stack.
