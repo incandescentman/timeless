@@ -1,18 +1,5 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  useFloating,
-  autoUpdate,
-  offset,
-  flip,
-  shift,
-  useClick,
-  useDismiss,
-  useRole,
-  useInteractions,
-  FloatingFocusManager,
-  FloatingPortal
-} from '@floating-ui/react';
 import './App.css';
 
 const App = () => {
@@ -375,51 +362,15 @@ const App = () => {
 const NoteItem = ({ itemId, value, onChange, onDelete }) => {
   const [localValue, setLocalValue] = useState(value);
   const [isEditing, setIsEditing] = useState(value === '');
-  const [isFloatingOpen, setIsFloatingOpen] = useState(false);
-
-  // Floating UI setup
-  const {
-    refs,
-    floatingStyles,
-    context
-  } = useFloating({
-    open: isEditing,
-    onOpenChange: setIsFloatingOpen,
-    middleware: [
-      offset(5),
-      flip({
-        fallbackAxisSideDirection: "start",
-      }),
-      shift({ padding: 5 })
-    ],
-    whileElementsMounted: autoUpdate,
-  });
-
-  // Interaction hooks
-  const click = useClick(context);
-  const dismiss = useDismiss(context, {
-    outsidePress: true,
-    escapeKey: true,
-  });
-  const role = useRole(context);
-
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    click,
-    dismiss,
-    role,
-  ]);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     setLocalValue(value);
     setIsEditing(value === '');
-    if (value === '') {
-      setIsFloatingOpen(true);
-    }
   }, [value]);
 
   const handleSave = useCallback(() => {
     setIsEditing(false);
-    setIsFloatingOpen(false);
     if (localValue.trim() === '') {
       onDelete();
     } else {
@@ -429,11 +380,9 @@ const NoteItem = ({ itemId, value, onChange, onDelete }) => {
 
   const handleChange = (e) => {
     setLocalValue(e.target.value);
-  };
-
-  const handleFocus = () => {
-    setIsEditing(true);
-    setIsFloatingOpen(true);
+    // Auto-resize
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
   };
 
   const handleKeyDown = (e) => {
@@ -442,104 +391,64 @@ const NoteItem = ({ itemId, value, onChange, onDelete }) => {
       handleSave();
     } else if (e.key === 'Escape') {
       e.preventDefault();
-      handleSave();
+      setLocalValue(value); // Reset to original value
+      setIsEditing(false);
     }
   };
 
-  // Auto-resize function
-  const autoResize = useCallback((textarea) => {
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, []);
+  const startEditing = (e) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    // Focus textarea after state update
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(localValue.length, localValue.length);
+      }
+    }, 10);
+  };
 
-  // Regular display mode (non-editing)
-  if (!isEditing && localValue.trim()) {
+  // Editing mode
+  if (isEditing) {
+    return (
+      <textarea
+        ref={textareaRef}
+        autoFocus
+        className="note-item"
+        value={localValue}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onBlur={() => {
+          setTimeout(handleSave, 100);
+        }}
+        placeholder=""
+        spellCheck={false}
+      />
+    );
+  }
+
+  // Display mode
+  if (localValue.trim()) {
     return (
       <div
-        onClick={e => {
-          e.stopPropagation();
-          setIsEditing(true);
-          setIsFloatingOpen(true);
-        }}
-        ref={refs.setReference}
+        onClick={startEditing}
         className="note-item note-display"
         style={{ cursor: 'pointer' }}
-        {...getReferenceProps()}
       >
         {localValue}
       </div>
     );
   }
 
-  // Editing mode or new note
+  // Placeholder for new notes
   return (
-    <>
-      <div
-        ref={refs.setReference}
-        className="note-item note-placeholder"
-        onClick={e => {
-          e.stopPropagation();
-          setIsEditing(true);
-          setIsFloatingOpen(true);
-        }}
-        {...getReferenceProps()}
-      >
-        {localValue || "Click to add note..."}
-      </div>
-      
-      {isEditing && (
-        <FloatingPortal>
-          <FloatingFocusManager context={context} modal={false}>
-            <div
-              ref={refs.setFloating}
-              style={{
-                ...floatingStyles,
-                zIndex: 1000,
-              }}
-              {...getFloatingProps()}
-            >
-              <textarea
-                autoFocus
-                className="floating-textarea"
-                value={localValue}
-                onChange={(e) => {
-                  handleChange(e);
-                  autoResize(e.target);
-                }}
-                onKeyDown={handleKeyDown}
-                onBlur={() => {
-                  // Small delay to allow clicking on save button if needed
-                  setTimeout(handleSave, 100);
-                }}
-                placeholder="Add a note..."
-                spellCheck={false}
-                ref={(textarea) => {
-                  if (textarea) {
-                    autoResize(textarea);
-                  }
-                }}
-                style={{
-                  background: 'rgba(255,255,255,0.95)',
-                  border: '2px solid #4361ee',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                  backdropFilter: 'blur(8px)',
-                  minWidth: '200px',
-                  minHeight: '60px',
-                  resize: 'none',
-                  outline: 'none',
-                }}
-              />
-            </div>
-          </FloatingFocusManager>
-        </FloatingPortal>
-      )}
-    </>
+    <div
+      onClick={startEditing}
+      className="note-item note-placeholder"
+      style={{ cursor: 'pointer' }}
+    >
+      Click to add note...
+    </div>
   );
 };
 
