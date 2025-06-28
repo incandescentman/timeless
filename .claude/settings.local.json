@@ -7,7 +7,9 @@
       "Bash(npx vite:*)",
       "Bash(timeout 30 npx vite build)",
       "Bash(node:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(rg:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

@@ -348,9 +348,9 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       margin: 2px;
       transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-      text-align: right;
+      text-align: left;
       vertical-align: top;
-      width: 150px;
+      width: 120px;
       min-height: var(--cell-min-height);
       height: var(--cell-min-height);
       cursor: pointer;
@@ -586,7 +586,7 @@
     /* Glassmorphism for notes: frosted glass effect */
     textarea {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-      font-size:80%;
+      font-size: 14px;
       padding: 8px;
       border-radius: 8px;
       background-color: rgba(255,255,255,0.6);
