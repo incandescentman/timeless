@@ -8,7 +8,7 @@ import '../styles/header.css';
 
 function Header({ onShowYearView, onShowHelp }) {
   const { toggleDarkMode } = useTheme();
-  const { undo, canUndo } = useCalendar();
+  const { undo, canUndo, syncWithServer } = useCalendar();
   const fileInputRef = useRef(null);
   const { query } = useKBar();
 
@@ -38,6 +38,12 @@ function Header({ onShowYearView, onShowHelp }) {
         const success = importCalendarData(jsonData);
         if (!success) {
           throw new Error('Import failed');
+        }
+
+        try {
+          await syncWithServer({ manual: true });
+        } catch (err) {
+          console.warn('Manual server sync failed after import:', err);
         }
 
         window.location.reload();
