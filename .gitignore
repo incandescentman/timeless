@@ -3,3 +3,5 @@
 /.vite
 dist/
 .env.local
+.env.development.local
+.vercel
