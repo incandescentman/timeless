@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCalendar } from '../contexts/CalendarContext';
 import MiniCalendar from './MiniCalendar';
-import { downloadCalendarData, downloadMarkdownDiary } from '../utils/storage';
+import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from '../utils/storage';
 import { useKBar } from 'kbar';
 import '../styles/header.css';
 
@@ -28,12 +28,18 @@ function Header({ onShowYearView, onShowHelp }) {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
-        const data = JSON.parse(event.target.result);
-        Object.entries(data).forEach(([key, value]) => {
-          localStorage.setItem(key, value);
-        });
+        const jsonData = event.target.result;
+        if (typeof jsonData !== 'string') {
+          throw new Error('Invalid file contents');
+        }
+
+        const success = importCalendarData(jsonData);
+        if (!success) {
+          throw new Error('Import failed');
+        }
+
         window.location.reload();
       } catch (error) {
         alert('Error importing data. Please check the file format.');
