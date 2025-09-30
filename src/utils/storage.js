@@ -8,8 +8,13 @@ const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const ITEM_KEY_REGEX = /^item\d+$/;
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-const API_ENDPOINT = `${API_BASE}/api.php`;
+const rawApiBase = import.meta.env.VITE_API_BASE_URL || '';
+const trimmedBase = rawApiBase.replace(/\/$/, '');
+const API_ENDPOINT = trimmedBase
+  ? /\.php$/i.test(trimmedBase)
+    ? trimmedBase
+    : `${trimmedBase}/api/calendar`
+  : '/api/calendar';
 
 function readLocalStorageEntries() {
   const entries = {};
