@@ -1,5 +1,20 @@
 /* Calendar-specific styles */
 
+/* Wrapper to create solid background behind sticky elements */
+.calendar-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  background: white;
+  z-index: 90;
+}
+
+body.dark-mode .calendar-wrapper {
+  background: #222;
+}
+
 #calendarContainer {
   position: relative;
   padding: 20px;
@@ -18,26 +33,20 @@
 #calendar thead {
   position: sticky;
   top: 80px;
-  z-index: 100;
-}
-
-#calendar thead::before {
-  content: '';
-  position: absolute;
-  top: -80px;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: var(--bg-primary);
-  z-index: -1;
+  z-index: 500;
 }
 
 #calendar thead th {
-  background: var(--header-solid-bg);
+  background: white;
   padding: 10px;
   font-weight: 600;
   text-align: center;
   border-bottom: 2px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
+}
+
+body.dark-mode #calendar thead th {
+  background: #222;
 }
 
 .week-row {

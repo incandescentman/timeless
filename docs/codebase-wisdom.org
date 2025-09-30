@@ -1,0 +1,90 @@
+* The 30-Minute Header Gap: When CSS Sticky Meets Fixed Positioning
+  Date: 2025-10-01
+
+** The Bug
+   The day-of-week headers in the React calendar kept overlapping with the fixed header buttons at the top. When trying to fix it, the headers would either:
+   - Disappear completely behind the buttons
+   - Show transparent gaps above them revealing scrolling content
+   - Create new overlaps when "fixed"
+
+** The Truth
+   CSS `position: sticky` and `position: fixed` create different stacking contexts that don't play well together. The sticky element leaves a "hole" in the document flow where the background shows through. I was trying to patch this hole with increasingly complex pseudo-elements (::before, ::after) with different positioning, but each patch created new edge cases.
+
+** Why This Took 30+ Minutes
+   1. **Wrong mental model**: Thought in terms of "filling gaps" instead of "creating layers"
+   2. **Incremental patching**: Each fix (adjusting top, z-index, padding) seemed to work until it created a new problem
+   3. **Pseudo-element rabbit hole**: Kept adding ::before/::after elements with different position values (absolute, fixed, sticky)
+   4. **Not stepping back**: Instead of redesigning, kept tweaking the broken approach
+
+** The Fix
+   Created a three-layer architecture:
+   #+begin_src css
+   /* Layer 1: Background (z-index: 90) */
+   .calendar-wrapper {
+     position: fixed;
+     top: 0;
+     height: 140px;
+     background: white;  /* Solid fill, no transparency! */
+     z-index: 90;
+   }
+
+   /* Layer 2: Sticky content (z-index: 500) */
+   #calendar thead {
+     position: sticky;
+     top: 80px;
+     z-index: 500;
+     background: white;  /* Must be solid */
+   }
+
+   /* Layer 3: Fixed UI (z-index: 1000) */
+   #header {
+     position: fixed;
+     top: 0;
+     z-index: 1000;
+   }
+   #+end_src
+
+** Lessons Learned / Prevention Checklist
+   - [ ] **Draw the layer stack first** - Visualize z-index layers before coding
+   - [ ] **Use solid background wrapper** - Don't try to patch gaps, prevent them
+   - [ ] **Avoid pseudo-element gap-filling** - If you're using ::before to fill space, rethink the approach
+   - [ ] **Check all color modes** - Transparent backgrounds often reveal themselves in dark mode
+   - [ ] **Step back after 3 failed attempts** - If tweaking isn't working, the approach is wrong
+
+* Vite CSS @import Errors: Why CSS Imports Failed in React
+  Date: 2025-10-01
+
+** The Bug
+   After converting to React/Vite, got persistent console errors:
+   ```
+   [vite:css] @import must precede all other statements (besides @charset or empty @layer)
+   ```
+   Even after moving @imports to the top of the CSS file, errors persisted.
+
+** The Truth
+   Vite processes CSS imports differently than vanilla HTML. Even a single blank line or comment before @import breaks it. But more importantly, Vite actually prefers JavaScript imports over CSS @imports for better HMR (Hot Module Replacement) and bundling.
+
+** Why This Took Multiple Attempts
+   1. **First attempt**: Moved @imports to top but left blank line above them
+   2. **Second attempt**: Removed blank line but kept comment above
+   3. **Third attempt**: Clean @imports at top, but Vite cache held old errors
+   4. **Wrong approach entirely**: Should have used JS imports from the start
+
+** The Fix
+   Import CSS files in JavaScript instead of using CSS @import:
+   #+begin_src javascript
+   // In main.jsx - import all CSS here
+   import './styles/calendar.css';
+   import './styles/day-cell.css';
+   import './styles/header.css';
+   import './styles/mini-calendar.css';
+   import './styles/overlays.css';
+   import './styles/mobile.css';
+   import './styles/index.css';  // Variables last if others depend on them
+   #+end_src
+
+** Lessons Learned / Prevention Checklist
+   - [ ] **Use JS imports for CSS in Vite** - Don't use CSS @import statements
+   - [ ] **Clear Vite cache after CSS changes** - `rm -rf node_modules/.vite`
+   - [ ] **Order matters** - Import dependencies before files that use them
+   - [ ] **Check bundler docs first** - Vite/webpack handle CSS differently than vanilla HTML

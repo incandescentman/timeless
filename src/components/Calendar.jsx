@@ -178,6 +178,7 @@ function Calendar() {
 
   return (
     <>
+      <div className="calendar-wrapper" />
       <div id="stickyMonthHeader">{stickyMonthHeader}</div>
 
       <div id="calendarContainer" ref={calendarRef}>
