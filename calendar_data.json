@@ -1,138 +1,421 @@
 {
-    "5_29_2024": "fly to Ottawa?",
-    "7_16_2024": "Aaron and Masha in the Hamptons",
-    "2_28_2025": "AWP",
-    "1_20_2025": "offsite in Napa\nmeet Mom at Plaza where the bus comes in at 6pm. Go to park at the top of Sales Force Tower\nMom stays with me",
-    "5_2_2025": "d",
-    "4_30_2025": "item7",
-    "5_21_2024": "Claire dinner",
-    "6_5_2024": "holiday!!",
-    "2_20_2025": "speak in Fresno",
-    "2_27_2025": "AWP",
-    "8_4_2024": "last day with Bailey",
-    "5_7_2024": "meet with Bailey in Fort Greene",
-    "1_5_2025": "Fly to Boston",
-    "2_19_2025": "Sora Selects Screening in L.A.",
-    "2_15_2025": "Tim in town",
-    "10_22_2024": "speak at Carleton?",
-    "4_24_2024": "Coffee with the President",
-    "4_18_2024": "party?",
-    "1_23_2025": "Stay at Carmel or Big Sur",
-    "10_28_2024": "Thanksgiving in Tahoe",
-    "2_11_2025": "Colbert with Tim",
-    "4_2_2024": "fly back to NYC",
-    "1_22_2025": "Neil and Diana arrive. Drive to Carmel and Big Sur\nStay at Carmel or Big Sur",
-    "5_6_2024": "fly to NYC",
-    "6_11_2024": "Chris Byrd birthday",
-    "8_6_2024": "TIFF",
-    "5_15_2024": "Tribeca Sora screening",
-    "6_25_2024": "fly to NYC",
-    "6_2_2024": "holiday!!",
-    "2_1_2025": "claire is here",
-    "5_22_2024": "Ryan warehousewarming party",
-    "11_16_2024": "in office in NYC",
-    "2_12_2025": "Tim in town",
-    "2_3_2025": "Martha in town",
-    "8_9_2024": "Sloan Science in Film",
-    "5_1_2025": "hi",
-    "3_1_2025": "April in New York?",
-    "6_1_2024": "holiday!!",
-    "5_4_2025": "test",
-    "0_31_2025": "Launch newsletter\nReviews due",
-    "4_16_2024": "fly to NYC",
-    "2_26_2025": "AWP",
-    "4_22_2024": "Encaenia; President's Dinner",
-    "1_28_2025": "Mia",
-    "6_3_2024": "holiday!!",
-    "5_8_2024": "Sunjay birthday party",
-    "8_13_2024": "fly to Ottawa",
-    "10_6_2024": "speak at Carleton?",
-    "3_11_2025": "See Drop with Claire and Jada",
-    "4_9_2024": "Speakeasy Magic with Keely and Arthur",
-    "4_19_2024": "bay to breakers",
-    "9_9_2024": "Writers event in New York",
-    "9_27_2024": "fly back to NYC",
-    "1_12_2025": "CS50",
-    "2_4_2025": "Speak to Shakil's class at Virginia Tech",
-    "9_24_2024": "fly to NYC",
-    "5_10_2024": "fly to Florida",
-    "5_11_2024": "Sunjay's birthday\nspeak at Poynter",
-    "5_3_2025": "item2",
-    "4_23_2024": "King\u2019s Chapel; Photos and Procession",
-    "10_27_2024": "fly to Tahoe",
-    "11_23_2024": "Christmas holidays begin",
-    "1_2_2025": "Deep Research goes live",
-    "5_30_2024": "OpenAI New York barbecue",
-    "7_17_2024": "Aaron and Masha in the Hamptons",
-    "8_12_2024": "meet with Natalie",
-    "7_30_2024": "go to DUMBO. take care of Charlie",
-    "5_7_2025": "hi",
-    "10_15_2024": "CS50",
-    "2_17_2025": "item245",
-    "1_13_2025": "fly back to NYC",
-    "5_5_2025": "item8",
-    "2_29_2025": "AWP",
-    "11_15_2024": "Ronnie Chieng\nfly back from Norway",
-    "8_16_2024": "in Ottawa",
-    "6_9_2024": "Claire's birthday\ndrinks with Mia",
-    "4_3_2024": "Neil's birthday dinner",
-    "6_14_2024": "fly to SF",
-    "5_12_2024": "Poynter\nfly back from Florida",
-    "0_1_2025": "New Year's Day Holiday",
-    "1_8_2025": "Fly back",
-    "5_2_2024": "move to Fairmont\nsee comedy?",
-    "4_10_2024": "meet with Natalie",
-    "7_31_2024": "party at Neil's place",
-    "6_10_2024": "OpenAI happy hour\nDad's birthday",
-    "11_12_2024": "fly to Norway",
-    "5_6_2025": "item2",
-    "1_21_2025": "Mom stays with me",
-    "2_14_2025": "Tim in town",
-    "2_5_2025": "Martha in town",
-    "1_17_2025": "MLK Day Holiday",
-    "4_31_2025": "item5",
-    "6_17_2024": "Comms all-hands",
-    "9_19_2024": "QKED Fest",
-    "9_25_2024": "fly to Ottawa to surprise mom",
-    "1_3_2025": "Talk to Ken Liu?",
-    "1_19_2025": "offsite in Napa",
-    "1_7_2025": "Tribeca Sora screening",
-    "2_13_2025": "Tim in town",
-    "1_24_2025": "Take vacation day\nDrive to where I can fly back",
-    "10_13_2024": "Wharton",
-    "5_14_2024": "Colin's birthday party",
-    "4_8_2024": "fly to SF",
-    "6_7_2024": "holiday!!",
-    "3_29_2024": "Cookbook due to Eric",
-    "5_8_2025": "dd",
-    "1_11_2025": "Fly to Boston",
-    "9_10_2024": "Ronnie Chieng",
-    "10_3_2024": "stephen?",
-    "9_2_2025": "test",
-    "1_15_2025": "Casablanca",
-    "2_6_2025": "fly to SXSW",
-    "4_21_2024": "fly to Halifax",
-    "1_6_2025": "Speak at Babson",
-    "5_11_2025": "My birthday",
-    "7_4_2024": "fly to SF for Town Hall",
-    "2_30_2025": "fly back from L.A.",
-    "1_4_2025": "Mia",
-    "6_4_2024": "holiday!!",
-    "9_17_2024": "fly to SF?",
-    "1_16_2025": "go to Claire's place",
-    "6_6_2024": "holiday!!",
-    "8_25_2024": "Writers event in New York",
-    "5_23_2024": "fly to SF?",
-    "7_15_2024": "Aaron and Masha in the Hamptons",
-    "2_2_2025": "Oscars",
-    "8_22_2024": "fly to New York",
-    "4_26_2024": "fly to New York\nfly to SF",
-    "8_5_2024": "Louis Vuitton workshop\nfly to Toronto",
-    "11_6_2024": "fly to Sweden",
-    "7_18_2024": "Aaron and Masha in the Hamptons",
-    "0_6_2025": "in office",
-    "1_18_2025": "Fly to SF",
-    "11_1_2024": "fly back from Tahoe",
-    "9_3_2025": "test",
-    "lastSavedTimestamp": "1759261483057"
+    "5_29_2024": [
+        "fly to Ottawa?"
+    ],
+    "7_16_2024": [
+        "Aaron and Masha in the Hamptons"
+    ],
+    "2_28_2025": [
+        "AWP"
+    ],
+    "1_20_2025": [
+        "offsite in Napa",
+        "meet Mom at Plaza where the bus comes in at 6pm. Go to park at the top of Sales Force Tower",
+        "Mom stays with me"
+    ],
+    "5_2_2025": [
+        "d"
+    ],
+    "4_30_2025": [
+        "item7"
+    ],
+    "5_21_2024": [
+        "Claire dinner"
+    ],
+    "6_5_2024": [
+        "holiday!!"
+    ],
+    "2_20_2025": [
+        "speak in Fresno"
+    ],
+    "2_27_2025": [
+        "AWP"
+    ],
+    "8_4_2024": [
+        "last day with Bailey"
+    ],
+    "5_7_2024": [
+        "meet with Bailey in Fort Greene"
+    ],
+    "1_5_2025": [
+        "Fly to Boston"
+    ],
+    "2_19_2025": [
+        "Sora Selects Screening in L.A."
+    ],
+    "2_15_2025": [
+        "Tim in town"
+    ],
+    "10_22_2024": [
+        "speak at Carleton?"
+    ],
+    "4_24_2024": [
+        "Coffee with the President"
+    ],
+    "4_18_2024": [
+        "party?"
+    ],
+    "1_23_2025": [
+        "Stay at Carmel or Big Sur"
+    ],
+    "10_28_2024": [
+        "Thanksgiving in Tahoe"
+    ],
+    "2_11_2025": [
+        "Colbert with Tim"
+    ],
+    "4_2_2024": [
+        "fly back to NYC"
+    ],
+    "1_22_2025": [
+        "Neil and Diana arrive. Drive to Carmel and Big Sur",
+        "Stay at Carmel or Big Sur"
+    ],
+    "5_6_2024": [
+        "fly to NYC"
+    ],
+    "6_11_2024": [
+        "Chris Byrd birthday"
+    ],
+    "8_6_2024": [
+        "TIFF"
+    ],
+    "5_15_2024": [
+        "Tribeca Sora screening"
+    ],
+    "6_25_2024": [
+        "fly to NYC"
+    ],
+    "6_2_2024": [
+        "holiday!!"
+    ],
+    "2_1_2025": [
+        "claire is here"
+    ],
+    "5_22_2024": [
+        "Ryan warehousewarming party"
+    ],
+    "11_16_2024": [
+        "in office in NYC"
+    ],
+    "2_12_2025": [
+        "Tim in town"
+    ],
+    "2_3_2025": [
+        "Martha in town"
+    ],
+    "8_9_2024": [
+        "Sloan Science in Film"
+    ],
+    "5_1_2025": [
+        "hi"
+    ],
+    "3_1_2025": [
+        "April in New York?"
+    ],
+    "6_1_2024": [
+        "holiday!!"
+    ],
+    "5_4_2025": [
+        "test"
+    ],
+    "0_31_2025": [
+        "Launch newsletter",
+        "Reviews due"
+    ],
+    "4_16_2024": [
+        "fly to NYC"
+    ],
+    "2_26_2025": [
+        "AWP"
+    ],
+    "4_22_2024": [
+        "Encaenia; President's Dinner"
+    ],
+    "1_28_2025": [
+        "Mia"
+    ],
+    "6_3_2024": [
+        "holiday!!"
+    ],
+    "5_8_2024": [
+        "Sunjay birthday party"
+    ],
+    "8_13_2024": [
+        "fly to Ottawa"
+    ],
+    "10_6_2024": [
+        "speak at Carleton?"
+    ],
+    "3_11_2025": [
+        "See Drop with Claire and Jada"
+    ],
+    "4_9_2024": [
+        "Speakeasy Magic with Keely and Arthur"
+    ],
+    "4_19_2024": [
+        "bay to breakers"
+    ],
+    "9_9_2024": [
+        "Writers event in New York"
+    ],
+    "9_27_2024": [
+        "fly back to NYC"
+    ],
+    "1_12_2025": [
+        "CS50"
+    ],
+    "2_4_2025": [
+        "Speak to Shakil's class at Virginia Tech"
+    ],
+    "9_24_2024": [
+        "fly to NYC"
+    ],
+    "5_10_2024": [
+        "fly to Florida"
+    ],
+    "5_11_2024": [
+        "Sunjay's birthday",
+        "speak at Poynter"
+    ],
+    "5_3_2025": [
+        "item2"
+    ],
+    "4_23_2024": [
+        "King\u2019s Chapel; Photos and Procession"
+    ],
+    "10_27_2024": [
+        "fly to Tahoe"
+    ],
+    "11_23_2024": [
+        "Christmas holidays begin"
+    ],
+    "1_2_2025": [
+        "Deep Research goes live"
+    ],
+    "5_30_2024": [
+        "OpenAI New York barbecue"
+    ],
+    "7_17_2024": [
+        "Aaron and Masha in the Hamptons"
+    ],
+    "8_12_2024": [
+        "meet with Natalie"
+    ],
+    "7_30_2024": [
+        "go to DUMBO. take care of Charlie"
+    ],
+    "5_7_2025": [
+        "hi"
+    ],
+    "10_15_2024": [
+        "CS50"
+    ],
+    "2_17_2025": [
+        "item245"
+    ],
+    "1_13_2025": [
+        "fly back to NYC"
+    ],
+    "5_5_2025": [
+        "item8"
+    ],
+    "2_29_2025": [
+        "AWP"
+    ],
+    "11_15_2024": [
+        "Ronnie Chieng",
+        "fly back from Norway"
+    ],
+    "8_16_2024": [
+        "in Ottawa"
+    ],
+    "6_9_2024": [
+        "Claire's birthday",
+        "drinks with Mia"
+    ],
+    "4_3_2024": [
+        "Neil's birthday dinner"
+    ],
+    "6_14_2024": [
+        "fly to SF"
+    ],
+    "5_12_2024": [
+        "Poynter",
+        "fly back from Florida"
+    ],
+    "0_1_2025": [
+        "New Year's Day Holiday"
+    ],
+    "1_8_2025": [
+        "Fly back"
+    ],
+    "5_2_2024": [
+        "move to Fairmont",
+        "see comedy?"
+    ],
+    "4_10_2024": [
+        "meet with Natalie"
+    ],
+    "7_31_2024": [
+        "party at Neil's place"
+    ],
+    "6_10_2024": [
+        "OpenAI happy hour",
+        "Dad's birthday"
+    ],
+    "11_12_2024": [
+        "fly to Norway"
+    ],
+    "5_6_2025": [
+        "item2"
+    ],
+    "1_21_2025": [
+        "Mom stays with me"
+    ],
+    "2_14_2025": [
+        "Tim in town"
+    ],
+    "2_5_2025": [
+        "Martha in town"
+    ],
+    "1_17_2025": [
+        "MLK Day Holiday"
+    ],
+    "4_31_2025": [
+        "item5"
+    ],
+    "6_17_2024": [
+        "Comms all-hands"
+    ],
+    "9_19_2024": [
+        "QKED Fest"
+    ],
+    "9_3_2025": [
+        "test"
+    ],
+    "9_25_2024": [
+        "fly to Ottawa to surprise mom"
+    ],
+    "1_3_2025": [
+        "Talk to Ken Liu?"
+    ],
+    "1_19_2025": [
+        "offsite in Napa"
+    ],
+    "1_7_2025": [
+        "Tribeca Sora screening"
+    ],
+    "2_13_2025": [
+        "Tim in town"
+    ],
+    "1_24_2025": [
+        "Take vacation day",
+        "Drive to where I can fly back"
+    ],
+    "10_13_2024": [
+        "Wharton"
+    ],
+    "5_14_2024": [
+        "Colin's birthday party"
+    ],
+    "4_8_2024": [
+        "fly to SF"
+    ],
+    "6_7_2024": [
+        "holiday!!"
+    ],
+    "3_29_2024": [
+        "Cookbook due to Eric"
+    ],
+    "5_8_2025": [
+        "dd"
+    ],
+    "1_11_2025": [
+        "Fly to Boston"
+    ],
+    "9_10_2024": [
+        "Ronnie Chieng"
+    ],
+    "10_3_2024": [
+        "stephen?"
+    ],
+    "9_2_2025": [
+        "test"
+    ],
+    "1_15_2025": [
+        "Casablanca"
+    ],
+    "2_6_2025": [
+        "fly to SXSW"
+    ],
+    "4_21_2024": [
+        "fly to Halifax"
+    ],
+    "1_6_2025": [
+        "Speak at Babson"
+    ],
+    "5_11_2025": [
+        "My birthday"
+    ],
+    "7_4_2024": [
+        "fly to SF for Town Hall"
+    ],
+    "2_30_2025": [
+        "fly back from L.A."
+    ],
+    "1_4_2025": [
+        "Mia"
+    ],
+    "6_4_2024": [
+        "holiday!!"
+    ],
+    "9_17_2024": [
+        "fly to SF?"
+    ],
+    "1_16_2025": [
+        "go to Claire's place"
+    ],
+    "6_6_2024": [
+        "holiday!!"
+    ],
+    "8_25_2024": [
+        "Writers event in New York"
+    ],
+    "5_23_2024": [
+        "fly to SF?"
+    ],
+    "7_15_2024": [
+        "Aaron and Masha in the Hamptons"
+    ],
+    "2_2_2025": [
+        "Oscars"
+    ],
+    "8_22_2024": [
+        "fly to New York"
+    ],
+    "4_26_2024": [
+        "fly to New York",
+        "fly to SF"
+    ],
+    "8_5_2024": [
+        "Louis Vuitton workshop",
+        "fly to Toronto"
+    ],
+    "11_6_2024": [
+        "fly to Sweden"
+    ],
+    "7_18_2024": [
+        "Aaron and Masha in the Hamptons"
+    ],
+    "0_6_2025": [
+        "in office"
+    ],
+    "1_18_2025": [
+        "Fly to SF"
+    ],
+    "11_1_2024": [
+        "fly back from Tahoe"
+    ],
+    "lastSavedTimestamp": "1759266262201"
 }

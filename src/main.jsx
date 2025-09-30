@@ -7,6 +7,7 @@ import './styles/day-cell.css';
 import './styles/header.css';
 import './styles/mini-calendar.css';
 import './styles/overlays.css';
+import './styles/experimental.css';  // Experimental mode styles
 import './styles/mobile.css';  // Mobile overrides last
 
 ReactDOM.createRoot(document.getElementById('root')).render(

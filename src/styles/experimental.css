@@ -1,0 +1,404 @@
+/* Experimental Mode Styles */
+
+/* ==========================================
+   COMPACT VARIANT
+   ========================================== */
+[data-experimental-variant="compact"] {
+  --day-cell-size: 90px;
+  --day-cell-font-size: 13px;
+  --month-header-height: 36px;
+}
+
+[data-experimental-variant="compact"] .day-cell {
+  width: var(--day-cell-size);
+  height: var(--day-cell-size);
+  font-size: var(--day-cell-font-size);
+  padding: 6px;
+}
+
+[data-experimental-variant="compact"] .month-header {
+  height: var(--month-header-height);
+  padding: 8px 20px;
+}
+
+[data-experimental-variant="compact"] .month-header__label {
+  gap: 8px;
+}
+
+[data-experimental-variant="compact"] .month-header__month {
+  font-size: 18px;
+}
+
+[data-experimental-variant="compact"] .month-header__year {
+  font-size: 14px;
+}
+
+/* ==========================================
+   MODERN VARIANT - Polished & Refined UI
+   ========================================== */
+[data-experimental-variant="modern"] {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --shadow-elegant: 0 8px 32px rgba(31, 38, 135, 0.15);
+  --shadow-subtle: 0 2px 8px rgba(31, 38, 135, 0.08);
+}
+
+/* Modern calendar wrapper with subtle gradient */
+[data-experimental-variant="modern"] .calendar-wrapper {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(249, 250, 251, 0.9) 100%
+  );
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Modern day cells with glassmorphism */
+[data-experimental-variant="modern"] .day-cell {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-experimental-variant="modern"] .day-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-experimental-variant="modern"] .day-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elegant);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-experimental-variant="modern"] .day-cell:hover::before {
+  opacity: 1;
+}
+
+/* Modern today highlight */
+[data-experimental-variant="modern"] .day-cell.today {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border: 2px solid;
+  border-image: var(--primary-gradient) 1;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Modern day numbers */
+[data-experimental-variant="modern"] .day-number {
+  font-weight: 600;
+  font-size: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+[data-experimental-variant="modern"] .day-cell.weekend .day-number {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modern notes with elegant styling */
+[data-experimental-variant="modern"] .day-note {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: var(--shadow-subtle);
+  transition: all 0.2s ease;
+}
+
+[data-experimental-variant="modern"] .day-note:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(31, 38, 135, 0.12);
+}
+
+/* Modern month headers */
+[data-experimental-variant="modern"] .month-header {
+  padding: 20px 32px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+  position: relative;
+}
+
+[data-experimental-variant="modern"] .month-header__label {
+  gap: 16px;
+  z-index: 1;
+  position: relative;
+}
+
+[data-experimental-variant="modern"] .month-header__month {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
+}
+
+[data-experimental-variant="modern"] .month-header__year {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(118, 75, 162, 0.8);
+  letter-spacing: 0.5px;
+}
+
+[data-experimental-variant="modern"] .month-header__rule {
+  height: 2px;
+  background: var(--primary-gradient);
+  opacity: 0.3;
+  margin-left: 16px;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+/* Modern weekday headers */
+[data-experimental-variant="modern"] .calendar-day-labels {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(249, 250, 251, 0.95) 100%
+  );
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid;
+  border-image: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent) 1;
+  padding: 16px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+[data-experimental-variant="modern"] .day-label {
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #667eea;
+  position: relative;
+  padding-bottom: 4px;
+}
+
+[data-experimental-variant="modern"] .day-label:nth-child(6),
+[data-experimental-variant="modern"] .day-label:nth-child(7) {
+  color: #f093fb;
+}
+
+/* Modern header with glassmorphism */
+[data-experimental-variant="modern"] .header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+[data-experimental-variant="modern"] .header-title {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Modern buttons */
+[data-experimental-variant="modern"] button {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #667eea;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-experimental-variant="modern"] button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-experimental-variant="modern"] button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+[data-experimental-variant="modern"] button:hover::before {
+  opacity: 0.1;
+}
+
+/* Modern animations */
+@keyframes modern-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-experimental-variant="modern"] .day-cell {
+  animation: modern-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   MINIMAL VARIANT
+   ========================================== */
+[data-experimental-variant="minimal"] {
+  --minimal-text: #1a1a1a;
+  --minimal-border: #e5e7eb;
+  --minimal-bg: #ffffff;
+  --minimal-hover: #f9fafb;
+}
+
+[data-experimental-variant="minimal"] .calendar-wrapper {
+  background: var(--minimal-bg);
+  box-shadow: none;
+}
+
+[data-experimental-variant="minimal"] .day-cell {
+  background: transparent;
+  border: 1px solid var(--minimal-border);
+  border-radius: 0;
+  transition: background 0.2s ease;
+}
+
+[data-experimental-variant="minimal"] .day-cell:hover {
+  background: var(--minimal-hover);
+}
+
+[data-experimental-variant="minimal"] .day-cell.today {
+  background: var(--minimal-bg);
+  border: 2px solid var(--minimal-text);
+  font-weight: 600;
+}
+
+[data-experimental-variant="minimal"] .day-number {
+  color: var(--minimal-text);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+[data-experimental-variant="minimal"] .month-header {
+  border-bottom: 1px solid var(--minimal-border);
+  padding: 16px 24px;
+  background: transparent;
+}
+
+[data-experimental-variant="minimal"] .month-header__month {
+  color: var(--minimal-text);
+  font-weight: 500;
+  font-size: 20px;
+  text-transform: none;
+}
+
+[data-experimental-variant="minimal"] .month-header__year {
+  color: #6b7280;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+[data-experimental-variant="minimal"] .month-header__rule {
+  display: none;
+}
+
+[data-experimental-variant="minimal"] .calendar-day-labels {
+  background: var(--minimal-bg);
+  border-bottom: 1px solid var(--minimal-border);
+  padding: 12px 0;
+}
+
+[data-experimental-variant="minimal"] .day-label {
+  color: #6b7280;
+  font-weight: 400;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+[data-experimental-variant="minimal"] .header {
+  background: var(--minimal-bg);
+  border-bottom: 1px solid var(--minimal-border);
+  box-shadow: none;
+}
+
+[data-experimental-variant="minimal"] button {
+  background: transparent;
+  border: 1px solid var(--minimal-border);
+  color: var(--minimal-text);
+  font-weight: 400;
+}
+
+[data-experimental-variant="minimal"] button:hover {
+  background: var(--minimal-hover);
+}
+
+/* Dark mode adjustments for modern variant */
+[data-theme="dark"][data-experimental-variant="modern"] {
+  --glass-bg: rgba(0, 0, 0, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow-elegant: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"][data-experimental-variant="modern"] .calendar-wrapper {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+}
+
+[data-theme="dark"][data-experimental-variant="modern"] .day-note {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"][data-experimental-variant="modern"] .calendar-day-labels {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+}
+
+[data-theme="dark"][data-experimental-variant="modern"] .header {
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"][data-experimental-variant="modern"] button {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #a5b4fc;
+}

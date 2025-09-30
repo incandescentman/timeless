@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { KBarProvider, useKBar } from 'kbar';
+import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Header from './components/Header';
@@ -237,6 +238,39 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
 }
 
 function App() {
+  const experimentalMode = useExperimentalMode({
+    variants: [
+      {
+        key: 'default',
+        label: 'Default UI',
+        description: 'Standard calendar interface'
+      },
+      {
+        key: 'compact',
+        label: 'Compact View',
+        description: 'Smaller cells and tighter spacing'
+      },
+      {
+        key: 'modern',
+        label: 'Modern UI',
+        description: 'Enhanced glassmorphism and animations'
+      },
+      {
+        key: 'minimal',
+        label: 'Minimal UI',
+        description: 'Clean and distraction-free interface'
+      }
+    ],
+    defaultKey: 'default',
+    experimentalDefaultKey: 'modern',
+    cycleHotkey: {
+      code: 'KeyE',
+      altKey: true,
+      shiftKey: false,
+      preventDefault: true
+    }
+  });
+
   return (
     <ThemeProvider>
       <CalendarProvider>
