@@ -176,7 +176,7 @@ body.dark-mode .header-action--ghost:hover {
 .app-header__calendar {
   flex: 0 0 auto;
   max-width: 260px;
-  padding: 4px 0 0;
+  padding: 16px 0 0;
 }
 
 .app-header__calendar .mini-calendar-container {
@@ -188,6 +188,7 @@ body.dark-mode .header-action--ghost:hover {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 18px;
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+  margin-top: 12px;
 }
 
 body.dark-mode .app-header__calendar .mini-month {
