@@ -3,17 +3,22 @@
 .day-cell {
   position: relative;
   min-height: var(--cell-min-height);
-  padding: 10px;
-  border: var(--border-width) solid var(--border-color);
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 18px;
   background: var(--bg-primary);
-  vertical-align: top;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .day-cell:hover {
-  background: var(--shaded-month);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
 }
 
 .day-cell.today {
@@ -22,6 +27,7 @@
     var(--today-gradient-to) 100%);
   color: white;
   font-weight: bold;
+  box-shadow: 0 14px 32px rgba(220, 38, 38, 0.45);
 }
 
 .day-cell.weekend {
@@ -37,31 +43,32 @@
 }
 
 .day-cell.selected {
-  background: var(--color-info);
-  color: white;
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
 }
 
 .day-number {
   font-family: var(--font-day-number);
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 600;
   color: inherit;
+  opacity: 0.75;
 }
 
 .day-cell textarea {
   width: 100%;
   min-height: 60px;
-  padding: 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
   font-family: 'Inter', sans-serif;
   font-size: 0.95em;
   line-height: 1.5;
   resize: vertical;
   background: rgba(255, 255, 255, 0.9);
   color: var(--text-primary);
-  transition: all 0.2s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 body.dark-mode .day-cell textarea {
@@ -71,16 +78,16 @@ body.dark-mode .day-cell textarea {
 
 .day-cell textarea:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+  border-color: rgba(67, 97, 238, 0.6);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.18);
 }
 
 .day-cell.has-notes {
-  background: var(--color-light);
+  background: rgba(226, 232, 240, 0.45);
 }
 
 body.dark-mode .day-cell.has-notes {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(148, 163, 184, 0.18);
 }
 
 /* Parallax Background */

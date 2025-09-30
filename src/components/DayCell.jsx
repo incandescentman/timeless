@@ -143,10 +143,12 @@ function DayCell({ date }) {
   ].filter(Boolean).join(' ');
 
   return (
-    <td
+    <div
       className={className}
       data-date-id={dateId}
       onClick={handleCellClick}
+      role="gridcell"
+      aria-label={`Notes for ${date.toDateString()}`}
     >
       <div className="day-number">{dayNumber}</div>
 
@@ -162,7 +164,7 @@ function DayCell({ date }) {
           rows={1}
         />
       )}
-    </td>
+    </div>
   );
 }
 

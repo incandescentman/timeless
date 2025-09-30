@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 import { getWeekStart, getWeekDays, addDays, months } from '../utils/dateUtils';
 import DayCell from './DayCell';
-import MiniCalendar from './MiniCalendar';
 import '../styles/calendar.css';
 
 const BUFFER_WEEKS = 26; // Load 26 weeks above and below
@@ -10,7 +9,6 @@ const BUFFER_WEEKS = 26; // Load 26 weeks above and below
 function Calendar() {
   const { systemToday } = useCalendar();
   const [weeks, setWeeks] = useState([]);
-  const [stickyMonthHeader, setStickyMonthHeader] = useState({ month: '', year: '' });
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
@@ -106,84 +104,55 @@ function Calendar() {
     setWeeks(prev => [...prev, ...newWeeks]);
   }, [weeks]);
 
-  // Update sticky month header on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      const visibleCells = document.querySelectorAll('.day-cell');
-      if (visibleCells.length === 0) return;
+  // Group weeks by month for rendering month sections
+  const renderMonthSections = () => {
+    const monthGroups = [];
+    let currentGroup = null;
 
-      // Find the first visible cell
-      const viewportTop = window.scrollY + 100;
-      let firstVisibleCell = null;
-
-      for (const cell of visibleCells) {
-        const rect = cell.getBoundingClientRect();
-        if (rect.top + window.scrollY >= viewportTop) {
-          firstVisibleCell = cell;
-          break;
-        }
-      }
-
-      if (firstVisibleCell) {
-        const dateId = firstVisibleCell.dataset.dateId;
-        if (dateId) {
-          const [month, , year] = dateId.split('_').map(Number);
-          setStickyMonthHeader({ month: months[month], year: year });
-        }
-      }
-    };
-
-    const throttledScroll = throttle(handleScroll, 100);
-    window.addEventListener('scroll', throttledScroll);
-    handleScroll(); // Initial call
-
-    return () => window.removeEventListener('scroll', throttledScroll);
-  }, [weeks]);
-
-  // Group weeks by month for rendering month boundaries
-  const renderWeeks = () => {
-    const rows = [];
-    let currentMonth = null;
-
-    weeks.forEach((week, index) => {
+    weeks.forEach((week) => {
       const middleDay = week.days[3]; // Wednesday
       const month = middleDay.getMonth();
       const year = middleDay.getFullYear();
       const monthKey = `${year}-${month}`;
 
-      // Add month boundary row if month changed
-      if (monthKey !== currentMonth) {
-        currentMonth = monthKey;
-        rows.push(
-          <tr key={`month-${monthKey}`} className="month-boundary">
-            <td colSpan="7">
-              <div className="month-header" aria-label={`${months[month]} ${year}`}>
-                <span className="month-header__line" aria-hidden="true" />
-                <time
-                  className="month-header__label"
-                  dateTime={`${year}-${String(month + 1).padStart(2, '0')}-01`}
-                >
-                  <span className="month-header__month">{months[month]}</span>
-                  <span className="month-header__year">{year}</span>
-                </time>
-                <span className="month-header__line" aria-hidden="true" />
-              </div>
-            </td>
-          </tr>
-        );
+      if (!currentGroup || currentGroup.key !== monthKey) {
+        currentGroup = {
+          key: monthKey,
+          month,
+          year,
+          weeks: []
+        };
+        monthGroups.push(currentGroup);
       }
 
-      // Add week row
-      rows.push(
-        <tr key={week.weekStart} className="week-row">
-          {week.days.map(day => (
-            <DayCell key={day.toISOString()} date={day} />
-          ))}
-        </tr>
-      );
+      currentGroup.weeks.push(week);
     });
 
-    return rows;
+    return monthGroups.map(group => (
+      <section
+        key={group.key}
+        className="month-section"
+        data-month-key={group.key}
+      >
+        <header className="month-header" aria-label={`${months[group.month]} ${group.year}`}>
+          <div className="month-header__label">
+            <span className="month-header__month">{months[group.month]}</span>
+            <span className="month-header__year">{group.year}</span>
+          </div>
+          <div className="month-header__rule" aria-hidden="true" />
+        </header>
+
+        <div className="month-weeks">
+          {group.weeks.map(week => (
+            <div key={week.weekStart} className="week-row">
+              {week.days.map(day => (
+                <DayCell key={day.toISOString()} date={day} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
+    ));
   };
 
   return (
@@ -191,54 +160,23 @@ function Calendar() {
       <div className="calendar-wrapper" />
       <div id="calendarContainer" ref={calendarRef}>
         <div ref={topSentinelRef} id="top-sentinel" style={{ height: '10px' }} />
+        <div className="calendar-grid" role="grid" aria-label="Infinite calendar grid">
+          <div className="calendar-day-labels" role="row">
+            <div className="day-label" title="Monday - Start of the week">Monday</div>
+            <div className="day-label" title="Tuesday">Tuesday</div>
+            <div className="day-label" title="Wednesday">Wednesday</div>
+            <div className="day-label" title="Thursday">Thursday</div>
+            <div className="day-label" title="Friday">Friday</div>
+            <div className="day-label" title="Saturday - Weekend">Saturday</div>
+            <div className="day-label" title="Sunday - Weekend">Sunday</div>
+          </div>
 
-        <table id="calendar">
-          <thead>
-            <tr>
-              <th title="Monday - Start of the week">
-                <span className="day-label">Monday</span>
-              </th>
-              <th title="Tuesday">
-                <span className="day-label">Tuesday</span>
-              </th>
-              <th title="Wednesday">
-                <span className="day-label">Wednesday</span>
-              </th>
-              <th title="Thursday">
-                <span className="day-label">Thursday</span>
-              </th>
-              <th title="Friday">
-                <span className="day-label">Friday</span>
-              </th>
-              <th title="Saturday - Weekend">
-                <span className="day-label">Saturday</span>
-              </th>
-              <th title="Sunday - Weekend">
-                <span className="day-label">Sunday</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {renderWeeks()}
-          </tbody>
-        </table>
+          {renderMonthSections()}
+        </div>
 
         <div ref={bottomSentinelRef} id="bottom-sentinel" style={{ height: '10px' }} />
       </div>
     </>
   );
 }
-
-// Throttle helper
-function throttle(func, delay) {
-  let lastCall = 0;
-  return function(...args) {
-    const now = Date.now();
-    if (now - lastCall >= delay) {
-      lastCall = now;
-      func.apply(this, args);
-    }
-  };
-}
-
 export default Calendar;
