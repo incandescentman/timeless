@@ -7,6 +7,7 @@ import { generateDayId } from './dateUtils';
 const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const ITEM_KEY_REGEX = /^item\d+$/;
+const API_ENDPOINT = 'api.php';
 
 function readLocalStorageEntries() {
   const entries = {};
@@ -130,7 +131,7 @@ export function loadFromLocalStorage() {
 /**
  * Save calendar data to localStorage
  */
-export function saveToLocalStorage(calendarData) {
+export function saveToLocalStorage(calendarData, timestamp = Date.now().toString()) {
   removeLegacyKeys(calendarData);
 
   Object.entries(calendarData).forEach(([key, value]) => {
@@ -139,8 +140,60 @@ export function saveToLocalStorage(calendarData) {
     }
   });
 
-  // Update timestamp
-  localStorage.setItem('lastSavedTimestamp', Date.now().toString());
+  localStorage.setItem('lastSavedTimestamp', timestamp);
+}
+
+export function getLocalTimestamp() {
+  const raw = localStorage.getItem('lastSavedTimestamp');
+  const parsed = parseInt(raw ?? '0', 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function createServerPayload(calendarData, timestamp) {
+  return {
+    ...calendarData,
+    lastSavedTimestamp: timestamp
+  };
+}
+
+export async function fetchServerCalendar() {
+  const response = await fetch(`${API_ENDPOINT}?t=${Date.now()}`, {
+    headers: {
+      'Accept': 'application/json'
+    },
+    cache: 'no-store'
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server responded with ${response.status}`);
+  }
+
+  const rawData = await response.json();
+  const timestamp = parseInt(rawData?.lastSavedTimestamp ?? '0', 10) || 0;
+  const calendarData = normaliseCalendarEntries(rawData || {});
+
+  return {
+    calendarData,
+    lastSavedTimestamp: timestamp
+  };
+}
+
+export async function saveCalendarToServer(calendarData, timestamp) {
+  const payload = createServerPayload(calendarData, timestamp);
+
+  const response = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server responded with ${response.status}`);
+  }
+
+  return response.json();
 }
 
 /**

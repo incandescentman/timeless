@@ -1,5 +1,12 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { saveToLocalStorage, loadFromLocalStorage, getAllCalendarData } from '../utils/storage';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import {
+  saveToLocalStorage,
+  loadFromLocalStorage,
+  getAllCalendarData,
+  getLocalTimestamp,
+  fetchServerCalendar,
+  saveCalendarToServer
+} from '../utils/storage';
 import { generateDayId, parseDate } from '../utils/dateUtils';
 
 const CalendarContext = createContext();
@@ -28,9 +35,60 @@ export function CalendarProvider({ children }) {
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
 
-  // Save calendar data to localStorage whenever it changes
+  // Sync state
+  const [lastSavedTimestamp, setLastSavedTimestamp] = useState(() => getLocalTimestamp());
+  const [isSyncingWithServer, setIsSyncingWithServer] = useState(false);
+  const [serverStatus, setServerStatus] = useState('idle');
+  const pendingTimestampRef = useRef(null);
+  const skipServerSaveRef = useRef(false);
+  const saveTimeoutRef = useRef(null);
+  const initialisedRef = useRef(false);
+  const calendarDataRef = useRef(calendarData);
+
   useEffect(() => {
-    saveToLocalStorage(calendarData);
+    calendarDataRef.current = calendarData;
+  }, [calendarData]);
+
+  useEffect(() => {
+    if (!initialisedRef.current) {
+      initialisedRef.current = true;
+      return;
+    }
+
+    const timestamp = pendingTimestampRef.current ?? Date.now().toString();
+    pendingTimestampRef.current = null;
+
+    saveToLocalStorage(calendarData, timestamp);
+    setLastSavedTimestamp(parseInt(timestamp, 10));
+
+    if (skipServerSaveRef.current) {
+      skipServerSaveRef.current = false;
+      return;
+    }
+
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    const payloadData = calendarDataRef.current;
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        await saveCalendarToServer(payloadData, timestamp);
+        setServerStatus('synced');
+      } catch (error) {
+        console.error('Error saving calendar to server:', error);
+        setServerStatus('error');
+      } finally {
+        saveTimeoutRef.current = null;
+      }
+    }, 1200);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+    };
   }, [calendarData]);
 
   // Push current state to undo stack
@@ -171,6 +229,52 @@ export function CalendarProvider({ children }) {
     setSelectedDays([]);
   }, [selectedDays, pushUndoState]);
 
+  const performServerSync = useCallback(async ({ manual = false } = {}) => {
+    try {
+      setIsSyncingWithServer(true);
+      setServerStatus('syncing');
+
+      const localTimestamp = getLocalTimestamp();
+      const { calendarData: serverCalendarData, lastSavedTimestamp: serverTimestamp } = await fetchServerCalendar();
+
+      if (serverTimestamp > localTimestamp) {
+        skipServerSaveRef.current = true;
+        pendingTimestampRef.current = serverTimestamp.toString();
+        setCalendarData(serverCalendarData);
+        setLastSavedTimestamp(serverTimestamp);
+        setServerStatus('server-newer');
+      } else if (localTimestamp > serverTimestamp) {
+        await saveCalendarToServer(calendarDataRef.current, localTimestamp.toString());
+        setServerStatus('local-newer');
+      } else {
+        setServerStatus('synced');
+      }
+    } catch (error) {
+      console.error('Error synchronising with server:', error);
+      setServerStatus(manual ? 'manual-error' : 'error');
+      throw error;
+    } finally {
+      setIsSyncingWithServer(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const runInitialSync = async () => {
+      try {
+        await performServerSync();
+      } catch (error) {
+        // already logged inside performServerSync
+      }
+    };
+
+    runInitialSync();
+    const interval = setInterval(() => {
+      performServerSync().catch(() => {});
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [performServerSync]);
+
   const value = {
     // Data
     calendarData,
@@ -207,7 +311,13 @@ export function CalendarProvider({ children }) {
     isSelectingRange,
     setRangeStart,
     setRangeEnd,
-    setIsSelectingRange
+    setIsSelectingRange,
+
+    // Server sync
+    lastSavedTimestamp,
+    isSyncingWithServer,
+    serverStatus,
+    syncWithServer: performServerSync
   };
 
   return (

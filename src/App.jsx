@@ -18,7 +18,14 @@ function AppContent() {
   const [showHelp, setShowHelp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toggleDarkMode } = useTheme();
-  const { undo, redo, canUndo, canRedo } = useCalendar();
+  const {
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    syncWithServer,
+    isSyncingWithServer
+  } = useCalendar();
 
   const goToToday = useCallback(() => {
     const todayCell = document.querySelector('.day-cell.today');
@@ -134,6 +141,13 @@ function AppContent() {
       }
     },
     {
+      id: 'sync-server',
+      name: isSyncingWithServer ? 'Syncing with Server…' : 'Sync with Server',
+      section: 'Data',
+      subtitle: isSyncingWithServer ? 'Hang tight…' : 'Pull latest changes from server',
+      perform: () => syncWithServer({ manual: true }).catch(() => {})
+    },
+    {
       id: 'export-json',
       name: 'Export JSON Backup',
       section: 'Data',
@@ -159,7 +173,9 @@ function AppContent() {
     handleJumpToDate,
     redo,
     toggleDarkMode,
-    undo
+    undo,
+    syncWithServer,
+    isSyncingWithServer
   ]);
 
   return (
