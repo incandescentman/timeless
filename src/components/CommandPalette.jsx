@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import {
   KBarPortal,
   KBarPositioner,
@@ -7,8 +8,40 @@ import {
   useMatches
 } from 'kbar';
 
-function CommandPalette() {
+const CommandPalette = memo(function CommandPalette() {
   const { results } = useMatches();
+
+  const renderResult = useCallback(({ item, active }) => {
+    if (typeof item === 'string') {
+      return (
+        <div className="kbar-section" key={item}>
+          {item}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={item.id}
+        className={`kbar-result ${active ? 'kbar-result--active' : ''}`}
+      >
+        <div className="kbar-result__meta">
+          <div className="kbar-result__name">{item.name}</div>
+          {item.subtitle && (
+            <div className="kbar-result__subtitle">{item.subtitle}</div>
+          )}
+        </div>
+
+        {item.shortcut?.length ? (
+          <div className="kbar-result__shortcut" aria-hidden="true">
+            {item.shortcut.map((shortcut, index) => (
+              <kbd key={shortcut + index}>{shortcut}</kbd>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    );
+  }, []);
 
   return (
     <KBarPortal>
@@ -16,42 +49,22 @@ function CommandPalette() {
         <KBarAnimator className="kbar-animator">
           <KBarSearch
             className="kbar-search"
-            placeholder="Type a command or search…"
+            placeholder="Type a command…"
+            aria-label="Command palette search"
           />
 
           <KBarResults
-            items={results}
-            onRender={({ item, active }) => {
-              if (typeof item === 'string') {
-                return (
-                  <div className="kbar-section" key={item}>
-                    {item}
-                  </div>
-                );
-              }
-
-              return (
-                <div
-                  key={item.id}
-                  className={`kbar-result ${active ? 'kbar-result--active' : ''}`}
-                >
-                  <div className="kbar-result__meta">
-                    <div className="kbar-result__name">{item.name}</div>
-                    {item.subtitle && (
-                      <div className="kbar-result__subtitle">{item.subtitle}</div>
-                    )}
-                  </div>
-
-                  {item.shortcut?.length ? (
-                    <div className="kbar-result__shortcut" aria-hidden="true">
-                      {item.shortcut.map((shortcut, index) => (
-                        <kbd key={shortcut + index}>{shortcut}</kbd>
-                      ))}
+            className="kbar-results"
+            items={results.length ? results : ['No results']}
+            onRender={({ item, active }) =>
+              typeof item === 'string'
+                ? (
+                    <div className="kbar-empty" key="empty">
+                      {item}
                     </div>
-                  ) : null}
-                </div>
-              );
-            }}
+                  )
+                : renderResult({ item, active })
+            }
           />
 
           <div className="kbar-hint" aria-hidden="true">
@@ -61,6 +74,6 @@ function CommandPalette() {
       </KBarPositioner>
     </KBarPortal>
   );
-}
+});
 
 export default CommandPalette;

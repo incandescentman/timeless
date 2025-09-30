@@ -163,7 +163,16 @@ function AppContent() {
   ]);
 
   return (
-    <KBarProvider actions={kbarActions} options={{ enableHistory: true }}>
+    <KBarProvider
+      actions={kbarActions}
+      options={{
+        enableHistory: true,
+        animations: {
+          enterMs: 0,
+          exitMs: 0
+        }
+      }}
+    >
       <CommandPalette />
       <AppShell
         showYearView={showYearView}
