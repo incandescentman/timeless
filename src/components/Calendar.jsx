@@ -194,13 +194,27 @@ function Calendar() {
         <table id="calendar">
           <thead>
             <tr>
-              <th><span className="day-label">Monday</span></th>
-              <th><span className="day-label">Tuesday</span></th>
-              <th><span className="day-label">Wednesday</span></th>
-              <th><span className="day-label">Thursday</span></th>
-              <th><span className="day-label">Friday</span></th>
-              <th><span className="day-label">Saturday</span></th>
-              <th><span className="day-label">Sunday</span></th>
+              <th title="Monday - Start of the week">
+                <span className="day-label">Monday</span>
+              </th>
+              <th title="Tuesday">
+                <span className="day-label">Tuesday</span>
+              </th>
+              <th title="Wednesday">
+                <span className="day-label">Wednesday</span>
+              </th>
+              <th title="Thursday">
+                <span className="day-label">Thursday</span>
+              </th>
+              <th title="Friday">
+                <span className="day-label">Friday</span>
+              </th>
+              <th title="Saturday - Weekend">
+                <span className="day-label">Saturday</span>
+              </th>
+              <th title="Sunday - Weekend">
+                <span className="day-label">Sunday</span>
+              </th>
             </tr>
           </thead>
           <tbody>
