@@ -6,9 +6,10 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  display: flex;
-  align-items: flex-start;
-  gap: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: clamp(1.5rem, 4vw, 3rem);
+  row-gap: 20px;
   padding: 20px clamp(1.5rem, 4vw, 3rem) 16px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(249, 250, 251, 0.96));
   border-bottom: 1px solid rgba(148, 163, 184, 0.28);
@@ -27,7 +28,6 @@ body.dark-mode .app-header {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -174,9 +174,9 @@ body.dark-mode .header-action--ghost:hover {
 }
 
 .app-header__calendar {
-  flex: 0 0 auto;
+  align-self: start;
   max-width: 260px;
-  margin-top: 52px;
+  padding-top: 56px;
 }
 
 .app-header__calendar .mini-calendar-container {
@@ -185,7 +185,7 @@ body.dark-mode .header-action--ghost:hover {
 }
 
 .app-header__calendar .mini-calendar-container > * {
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
 .app-header__calendar .mini-month {
@@ -209,7 +209,7 @@ body.dark-mode .app-header__calendar .mini-month {
   .app-header__calendar {
     width: 100%;
     max-width: none;
-    order: 3;
+    padding-top: 0;
   }
 
   .app-header__calendar .mini-calendar-container {
