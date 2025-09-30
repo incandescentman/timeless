@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCalendar } from '../contexts/CalendarContext';
 import MiniCalendar from './MiniCalendar';
@@ -6,7 +7,8 @@ import '../styles/header.css';
 
 function Header({ onShowYearView, onShowHelp, onShowCommandPalette }) {
   const { toggleDarkMode } = useTheme();
-  const { undo, canUndo, systemToday } = useCalendar();
+  const { undo, canUndo } = useCalendar();
+  const fileInputRef = useRef(null);
 
   const goToToday = () => {
     const todayCell = document.querySelector('.day-cell.today');
@@ -15,8 +17,12 @@ function Header({ onShowYearView, onShowHelp, onShowCommandPalette }) {
     }
   };
 
+  const triggerImport = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleImport = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
@@ -34,102 +40,184 @@ function Header({ onShowYearView, onShowHelp, onShowCommandPalette }) {
     reader.readAsText(file);
   };
 
+  const primaryActions = [
+    {
+      key: 'today',
+      label: 'Today',
+      description: 'Jump to the current day',
+      onClick: goToToday,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
+          <path d="M16 3v4" stroke="currentColor" strokeWidth="2" />
+          <path d="M8 3v4" stroke="currentColor" strokeWidth="2" />
+          <path d="M4 11h16" stroke="currentColor" strokeWidth="2" />
+          <circle cx="12" cy="16" r="2" fill="currentColor" />
+        </svg>
+      )
+    },
+    {
+      key: 'command',
+      label: 'Command',
+      description: 'Open the command palette',
+      onClick: onShowCommandPalette,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="2" fill="none" />
+          <path d="M9 9h6M9 12h6M9 15h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )
+    },
+    {
+      key: 'year',
+      label: 'Year View',
+      description: 'See the entire year at a glance',
+      onClick: onShowYearView,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="4" y="5" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="2" fill="none" />
+          <path d="M8 9h0M12 9h0M16 9h0M8 13h0M12 13h0M16 13h0M8 17h0M12 17h0M16 17h0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )
+    }
+  ];
+
+  const secondaryActions = [
+    {
+      key: 'dark-mode',
+      label: 'Dark Mode',
+      description: 'Toggle theme',
+      onClick: toggleDarkMode,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" stroke="currentColor" strokeWidth="2" fill="none" />
+        </svg>
+      )
+    },
+    {
+      key: 'undo',
+      label: 'Undo',
+      description: 'Step back to the previous change',
+      onClick: undo,
+      disabled: !canUndo,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 9H4V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M4 9a9 9 0 1 0 3.05-6.745" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    },
+    {
+      key: 'help',
+      label: 'Help',
+      description: 'View keyboard shortcuts',
+      onClick: onShowHelp,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+          <path d="M12 17h0M12 13.5V12a2 2 0 1 1 2-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    }
+  ];
+
+  const dataActions = [
+    {
+      key: 'export-json',
+      label: 'Export JSON',
+      description: 'Download your calendar backup',
+      onClick: downloadCalendarData,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path d="M8 11l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="4" y="17" width="16" height="4" rx="1" fill="currentColor" />
+        </svg>
+      )
+    },
+    {
+      key: 'export-md',
+      label: 'Export Diary',
+      description: 'Save as Markdown diary',
+      onClick: downloadMarkdownDiary,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="2" fill="none" />
+          <path d="M9 9v6M9 9l2 3l2-3v6M15 15v-2a2 2 0 1 1 4 0v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    },
+    {
+      key: 'import',
+      label: 'Import',
+      description: 'Restore from a JSON backup',
+      onClick: triggerImport,
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 21V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path d="M16 13l-4-4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="4" y="3" width="16" height="4" rx="1" fill="currentColor" />
+        </svg>
+      )
+    }
+  ];
+
   return (
-    <div id="header">
-      <MiniCalendar />
+    <header id="header" className="app-header">
+      <div className="app-header__shell">
+        <div className="app-header__brand" aria-label="Timeless calendar branding">
+          <span className="brand-mark">Timeless</span>
+          <span className="brand-subtitle">The Infinite Calendar</span>
+        </div>
 
-      <div className="header-controls">
-        <span className="brand">
-          <strong>Timeless:</strong> The Infinite Calendar 🪐✨
-        </span>
+        <nav className="app-header__actions" aria-label="Calendar primary actions">
+          <div className="action-group action-group--primary">
+            {primaryActions.map(action => (
+              <HeaderAction key={action.key} {...action} variant="primary" />
+            ))}
+          </div>
 
-        <button
-          className="button"
-          onClick={toggleDarkMode}
-          data-tooltip="Toggle Dark Mode"
-        >
-          <svg className="icon" viewBox="0 0 24 24">
-            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="currentColor"/>
-          </svg>
-        </button>
+          <div className="action-group action-group--secondary">
+            {secondaryActions.map(action => (
+              <HeaderAction key={action.key} {...action} />
+            ))}
+          </div>
 
-        <button
-          className="button"
-          onClick={goToToday}
-          data-tooltip="Scroll to Today"
-        >
-          <svg className="icon" viewBox="0 0 24 24">
-            <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
-            <path d="M16 3v4" stroke="currentColor" strokeWidth="2"/>
-            <path d="M8 3v4" stroke="currentColor" strokeWidth="2"/>
-            <path d="M4 11h16" stroke="currentColor" strokeWidth="2"/>
-            <path d="M12 16m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" fill="currentColor"/>
-          </svg>
-        </button>
-
-        <button
-          className="button"
-          onClick={onShowYearView}
-          data-tooltip="Year View"
-        >
-          <svg className="icon" viewBox="0 0 24 24">
-            <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
-            <line x1="8" y1="9" x2="8" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            <line x1="12" y1="9" x2="12" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            <line x1="16" y1="9" x2="16" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </button>
-
-        <button
-          className="button"
-          onClick={downloadMarkdownDiary}
-          data-tooltip="Export Emacs Diary"
-        >
-          <svg className="icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
-          </svg>
-        </button>
-
-        <button
-          className="button"
-          onClick={() => document.getElementById('fileInput').click()}
-          data-tooltip="Import Calendar Data"
-        >
-          <svg className="icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 8l4 4h-3v8h-2v-8H8l4-4zm-7-2h14v2H5v-2z"/>
-          </svg>
-        </button>
-
-        <button
-          className="button"
-          onClick={onShowHelp}
-          data-tooltip="Help"
-        >
-          <svg className="icon" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none"/>
-            <line x1="12" y1="17" x2="12" y2="17.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M12 13.5v-1.5a2 2 0 1 1 2 -2" stroke="currentColor" strokeWidth="2"/>
-          </svg>
-        </button>
-
-        <button
-          className="button"
-          onClick={undo}
-          disabled={!canUndo}
-          data-tooltip="Undo"
-        >
-          Undo
-        </button>
-
-        <input
-          type="file"
-          id="fileInput"
-          onChange={handleImport}
-          accept=".json"
-          style={{ display: 'none' }}
-        />
+          <div className="action-group action-group--data">
+            {dataActions.map(action => (
+              <HeaderAction key={action.key} {...action} variant="ghost" />
+            ))}
+          </div>
+        </nav>
       </div>
-    </div>
+
+      <aside className="app-header__calendar" aria-label="Three month mini calendar">
+        <MiniCalendar />
+      </aside>
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImport}
+        accept=".json"
+        style={{ display: 'none' }}
+      />
+    </header>
+  );
+}
+
+function HeaderAction({ label, description, icon, onClick, disabled, variant = 'default' }) {
+  return (
+    <button
+      type="button"
+      className={`header-action header-action--${variant}`}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={description || label}
+    >
+      <span className="header-action__icon" aria-hidden="true">{icon}</span>
+      <span className="header-action__label">{label}</span>
+    </button>
   );
 }
 

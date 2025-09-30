@@ -121,25 +121,6 @@
       pointer-events: none;
     }
 
-    /* Fixed header styling with dynamic solid effect */
-    #header {
-      background: linear-gradient(135deg, var(--header-gradient-from) 0%, var(--header-gradient-to) 100%);
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      padding: 10px 20px;
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--header-height);
-      line-height: var(--header-height);
-      z-index: 999;
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-    #header.solid {
-      background: var(--header-solid-bg);
-      box-shadow: 0 2px 15px rgba(0,0,0,0.2);
-    }
-
     /* Timeless brand link styling and SVG animation support */
     a.timeless {
       font-size: 150%;

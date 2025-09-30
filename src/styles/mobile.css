@@ -171,38 +171,7 @@ text-transform:uppercase !important;
   color: #333;
 }
 
-  /* Header and button styles */
-  #header {
-    flex-direction: column;
-    padding: 8px;
-    height: auto;
-    padding-top: 15px;
-  }
-  #header > div:last-child {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    white-space: nowrap;
-    width: 100%;
-    padding-bottom: 6px;
- -webkit-overflow-scrolling: touch;
-  }
-  a.button,
-  button {
-    padding: 6px 10px;
-    margin: 3px;
-    font-size: 14px;
-    min-width: 40px;
-    flex-shrink: 0;
-  }
-
-button,
-a.button,
-.my-action-element {
-  /* Tells modern mobile browsers that gestures are "manipulations"
-     (like taps) rather than "zoom" or "pan" gestures. */
-  touch-action: manipulation;
-}
+  /* Header adjustments handled in header.css */
 
   /* Mobile-specific adjustments for sticky header */
   @media (max-width: 768px) {
@@ -240,17 +209,6 @@ a.button,
     font-size: 12px;
   }
 
-  /* Additional mobile improvements */
-  #header > div:last-child span:first-of-type {
-    display: block;
-    width: 100%;
-    margin: 10px 0 5px;
-    text-align: center;
-  }
-  #jumpDate,
-  #header > div:last-child button {
-    margin: 0 5px 10px 5px;
-  }
   textarea {
     font-size: 14px;
     padding: 10px;
@@ -566,11 +524,6 @@ a.button,
       /* Add any other F7 button overrides if needed */
    }
 
-  /* Hide top header and all buttons on mobile */
-  #header {
-    display: none !important;
-  }
-
   /* The styles below should be OUTSIDE any media query to ensure they always apply */
   /* Framework7 Toolbar Styling - IMPROVED VISIBILITY */
   .f7-toolbar {
@@ -648,19 +601,6 @@ a.button,
       margin-top: 60px !important; /* Increased to ensure enough space */
       padding-top: 10px !important;
     }
-  }
-
-  /* When using our toolbar, make sure original header is hidden completely */
-  body.has-f7-toolbar #header {
-    height: 0 !important;
-    min-height: 0 !important;
-    opacity: 0 !important;
-    overflow: hidden !important;
-  }
-
-  /* Adjust calendar container margin when toolbar is present */
-  body.has-f7-toolbar #calendarContainer {
-    margin-top: 60px !important;
   }
 
   /* Framework7 Bottom Toolbar Styling */
@@ -1074,10 +1014,6 @@ a.button,
     display: none !important;
   }
 
-  /* Hide header but keep its children */
-  #header {
-    display: none !important;
-  }
 }
 
 /* Small mobile devices */
@@ -1090,4 +1026,3 @@ a.button,
     padding: 2px;
   }
 }
-
