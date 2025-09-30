@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- …but be aware it will completely remove pinch-zoom, which is unfriendly to many users.  -->
+
+    <link rel="apple-touch-icon" href="https://jaydixit.com/timeless/_img/ios-icon.png">
+<link rel="icon" href="https://jaydixit.com/timeless/_img/favicon.png" type="image/png">
+    <title>Timeless: The Infinite Calendar</title>
+    <!-- Import fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Fira+Code:wght@400;700&display=swap"
+       rel="stylesheet"
+    />
+    <!-- Main CSS (desktop + general) -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Mobile-specific CSS -->
+    <link rel="stylesheet" href="mobile.css" media="(max-width: 768px)" />
+
+  </head>
+  <body>
+    <!-- Parallax background -->
+    <div class="parallax-bg"></div>
+
+    <!-- Fixed header -->
+    <div id="header">
+      <div id="miniCalendar"></div>
+      <div>
+        <span class="brand"><strong>Timeless:</strong> The Infinite Calendar 🪐✨ </span>
+        <button class="button" onclick="toggleDarkMode()" data-tooltip="Toggle Dark Mode">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="currentColor"/>
+          </svg>
+        </button>
+        <!--
+             Commented out bc now that it lives on server, this is not needed. I can still access it from the command palette.
+             <button class="button" onclick="document.getElementById('fileInput').click()" data-tooltip="Import Calendar Data">
+             <svg class="icon" viewBox="0 0 24 24">
+             <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
+             <path d="M12 12v4" stroke="currentColor" stroke-width="2"/>
+             <path d="M10 14l2 2l2 -2" stroke="currentColor" stroke-width="2"/>
+             </svg>
+             </a> -->
+
+        <!--
+             Commented out bc now that it lives on server, this is not needed. I can still access it from the command palette.
+             <button class="button" onclick="downloadLocalStorageData()" data-tooltip="Download Calendar Data">
+             <svg class="icon" viewBox="0 0 24 24">
+             <path d="M4 16v-8l4-4h8l4 4v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" stroke="currentColor" stroke-width="2" fill="none"/>
+             <path d="M12 12v-4" stroke="currentColor" stroke-width="2"/>
+             <path d="M10 10l2 -2l2 2" stroke="currentColor" stroke-width="2"/>
+             </svg>
+             </a> -->
+
+        <button class="button" onclick="goToTodayAndRefresh()" data-tooltip="Scroll to Today">
+          <svg class="icon" viewBox="0 0 24 24">
+            <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M16 3v4" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 3v4" stroke="currentColor" stroke-width="2"/>
+            <path d="M4 11h16" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 16m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" fill="currentColor"/>
+          </svg>
+        </button>
+
+
+        <button class="button" onclick="showYearView()" data-tooltip="Year View">
+          <svg class="icon" viewBox="0 0 24 24">
+            <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+            <line x1="8" y1="9" x2="8" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="8" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="13" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="8" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="17" x2="12" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="17" x2="16" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="button" onclick="toggleRangeSelection()" data-tooltip="Select Date Range">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M9 6l6 6l-6 6" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+        </button>
+        <button class="button" onclick="pullUpdatesFromServer()" data-tooltip="Sync with Server">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M7 16a4 4 0 0 1 -4 -4a5 5 0 0 1 .3 -1.5a4 4 0 0 1 -1.3 -2.5a5 5 0 0 1 5 -5h9c3 0 5 1.343 5 3a3 3 0 0 1 -3 3h-3.5" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M14 16l3 -3l3 3" stroke="currentColor" stroke-width="2"/>
+            <path d="M17 13v9" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+
+        <!-- Export Emacs Diary (arrow UP) -->
+        <button class="button" onclick="downloadMarkdownEvents()" data-tooltip="Export Emacs Diary">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <!-- Arrow pointing upward, plus horizontal bar at the bottom -->
+            <path d="M12 16l4-4h-3V4h-2v8H8l4 4zm-7 2h14v2H5v-2z"/>
+          </svg>
+        </button>
+
+        <!-- Import from Emacs Diary (arrow DOWN) -->
+        <button class="button" onclick="importFromDiaryFile()" data-tooltip="Import from Emacs Diary">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <!-- Exact vertical mirror of the above arrow, with the bar at the top -->
+            <path d="M12 8l4 4h-3v8h-2v-8H8l4-4zm-7-2h14v2H5v-2z"/>
+          </svg>
+        </button>
+        <button class="button" onclick="showHelp()" data-tooltip="Help">
+          <svg class="icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
+            <line x1="12" y1="17" x2="12" y2="17.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 13.5v-1.5a2 2 0 1 1 2 -2" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+        <input type="file" id="fileInput" onchange="loadDataFromFile()" />
+        <span>Jump to date:</span>
+        <input type="date" id="jumpDate" min="2000-01-01" max="2050-12-31" />
+        <button onclick="jumpToDate()" aria-label="Go to selected date">Go</button>
+        <button onclick="undoLastChange()" aria-label="Undo last change">Undo</button>
+      </div>
+    </div>
+
+    <!-- Sticky month heading -->
+    <div id="stickyMonthHeader"></div>
+
+    <!-- Help overlay -->
+    <div id="help">
+      <div>
+        <ul>
+          <li>Press <code>⌘+K</code> or <code>/</code> to open command palette with all available actions</li>
+          <li>Press <code>d</code> to quickly jump to a specific date with natural language ("tomorrow", "next friday")</li>
+          <li>Press <code>m</code> to enter multi-day selection mode, then use arrow keys and <code>Space</code> to select days</li>
+          <li>In multi-select mode: <code>Ctrl+C</code> to clear all notes, <code>Ctrl+N</code> to add a note to all selected days</li>
+          <li>Click on a day (empty space) to add a note (Shift+Enter for multi-line, Enter to save)</li>
+          <li>Click on an existing note to focus/edit it</li>
+          <li>Press <code>i</code> to toggle keyboard navigation mode (arrow keys then move day-by-day)</li>
+          <li>When in keyboard navigation mode, press <code>↑</code> or <code>↓</code> to move vertically by one week; otherwise they scroll normally</li>
+          <li>Press <code>←</code> or <code>→</code> to move day by day (no skipping!)</li>
+          <li>Press <code>Enter</code> to add an event to the currently highlighted day</li>
+          <li>Press <code>Delete</code> to delete all entries on the highlighted day</li>
+          <li>Press <code>t</code> to jump to Today</li>
+          <li>Press <code>Ctrl+D</code> to toggle dark mode</li>
+          <li>Use the Date Range button (📏) to select a range of dates</li>
+          <li>Press <kbd>Shift+D</kbd> to download upcoming events as Markdown</li>
+          <li>Press <code>?</code> to toggle this help overlay</li>
+          <li>Press <code>Esc</code> to close overlays or cancel range selection (and exit keyboard navigation mode)</li>
+          <li>Press <code>g</code> to focus the "Jump to date" field</li>
+          <li>Press <code>y</code> to toggle Year View</li>
+          <li>Press <code>Alt+↓</code> to jump one month forward</li>
+          <li>Press <code>Ctrl+Z</code> or <code>z</code> to undo last change</li>
+          <li>Press <code>Ctrl+Shift+Z</code> or <code>Ctrl+Y</code> to redo last change</li>
+          <li><strong>When editing notes:</strong> <code>Ctrl+B</code> for bold, <code>Ctrl+I</code> for italic</li>
+          <li><code>Ctrl+1/2/3</code> to set high/medium/low priority, <code>Ctrl+D</code> to mark as done</li>
+          <li><code>Ctrl+H</code> to insert a hashtag</li>
+        </ul>
+        <a href="#" onclick="hideHelp()">Close</a>
+      </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div class="loading" id="loadingIndicator"></div>
+
+    <!-- Main calendar container -->
+    <div id="calendarContainer">
+      <div id="top-sentinel"></div>
+      <table id="calendar"></table>
+      <div id="bottom-sentinel"></div>
+    </div>
+
+    <!-- Year view overlay -->
+    <div id="yearViewContainer">
+      <div style="text-align:center; margin-bottom:20px;">
+        <h2 id="yearViewTitle">2023 at a Glance</h2>
+        <button onclick="hideYearView()">Close</button>
+      </div>
+      <div id="yearViewGrid"></div>
+    </div>
+    <script src="calendar.js"></script>
+
+<!-- Mobile action bar for most common actions -->
+<div class="mobile-action-bar" id="mobileActions">
+
+<button onclick="goToTodayAndRefresh()">
+  <svg class="icon" viewBox="0 0 24 24">
+    <!-- Outer calendar rectangle -->
+    <rect x="4" y="5" width="16" height="16" rx="2"
+          stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- "Wire" for top bar (like old calendar tabs) -->
+    <path d="M16 3v4M8 3v4M4 11h16"
+          stroke="currentColor" stroke-width="2" fill="none"/>
+    <!-- Dot in the lower part for "today" -->
+    <circle cx="12" cy="16" r="2" fill="currentColor"/>
+  </svg>
+  <span>Today</span>
+</button>
+
+
+<button onclick="jumpOneMonthBackward()">
+  <svg class="icon" viewBox="0 0 24 24">
+    <!-- Left arrow (chevron) -->
+    <path d="M15 6l-6 6l6 6"
+          stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span>Previous</span>
+</button>
+
+
+<button onclick="jumpOneMonthForward()">
+  <svg class="icon" viewBox="0 0 24 24">
+    <!-- Right arrow (chevron) -->
+    <path d="M9 6l6 6l-6 6"
+          stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span>Next</span>
+</button>
+
+
+<button onclick="showCommandPalette()">
+  <svg class="icon" viewBox="0 0 24 24">
+    <!-- Three horizontal lines for a "menu" -->
+    <path d="M4 6h16" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M4 12h16" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/>
+  </svg>
+  <span>Menu</span>
+</button>
+
+
+</div>
+
+  </body>
+</html>

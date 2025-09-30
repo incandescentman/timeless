@@ -1,0 +1,68 @@
+/* Calendar-specific styles */
+
+#calendarContainer {
+  position: relative;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+#calendar {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+#calendar thead th {
+  background: var(--header-solid-bg);
+  padding: 10px;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.week-row {
+  animation: fadeInRow 0.3s ease-out;
+}
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.month-boundary {
+  background: var(--month-boundary);
+}
+
+.month-boundary td {
+  padding: 15px;
+  text-align: center;
+  font-size: 1.4em;
+  font-family: var(--font-month-heading);
+  color: var(--month-heading-text);
+}
+
+#stickyMonthHeader {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  background: var(--header-solid-bg);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+  box-shadow: var(--shadow);
+}

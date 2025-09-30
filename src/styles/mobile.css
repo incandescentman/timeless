@@ -1,0 +1,1084 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;
+ -webkit-overflow-scrolling: touch; /* helps iOS Safari smoothly scroll */
+}
+
+
+
+
+.changing-month {
+pointer-events: none;
+}
+
+#calendarContainer {
+transition: opacity 0.2s ease;
+}
+
+
+/* =======================
+   MOBILE LAYOUT (<= 768px)
+   ======================= */
+@media (max-width: 768px) {
+
+body {
+  overscroll-behavior-y: contain; /* or none */
+}
+
+  /* Hide miniCalendar on mobile */
+  #miniCalendar {
+    display: none !important;
+  }
+
+  /* Root variable adjustments */
+  :root {
+ --cell-min-height: 90px;
+ --header-height: auto;
+  }
+
+  /* General layout */
+  body {
+    padding-bottom: 70px;
+  }
+  #calendar {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 8px;
+    table-layout: auto;
+  }
+  #calendar tbody,
+  #calendar tr {
+    display: block;
+    width: 100%;
+  }
+
+  /* Day card styles */
+  #calendar td {
+    overflow: hidden; /* MUST HAVE to clip swipe animation/reveal */
+    position: relative; /* NEEDED for the ::after pseudo-element */
+    /* Keep other essential mobile TD styles */
+    display: block;
+    width: 100% !important; /* Adjust if possible without !important */
+    min-height: var(--cell-min-height, 90px);
+    height: auto; /* Allow to grow */
+    margin-bottom: 12px;
+    padding: 10px 12px; /* Adjust padding as needed */
+    border-radius: 10px;
+    background: white; /* Or your light mode variable */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  body.dark-mode #calendar td {
+      background: #222; /* Or your dark mode variable */
+      /* border: 1px solid #444; */ /* Optional */
+  }
+
+  /* Extra cells (month headings or blank) and today highlight */
+  #calendar td.extra {
+    margin-top: 24px;
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: transparent;
+    box-shadow: none;
+    text-align: center;
+    border-radius: 0;
+  }
+  #calendar td.extra:empty {
+    display: none;
+  }
+  #calendar td.today {
+    border-left: 4px solid var(--today-gradient-from);
+    background: linear-gradient(to right, rgba(229, 62, 62, 0.05), transparent);
+    transform: none !important;
+  }
+
+  /* Textarea and top row adjustments */
+  #calendar td textarea {
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 8px 12px;
+  }
+
+
+
+/* Force day/month labels and day-number inline on mobile */
+  #calendar td .day-label,
+  #calendar td .month-label,
+  #calendar td .day-number {
+    display: inline-block !important;
+background: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    vertical-align: middle;
+     padding:0 !important;
+  }
+
+#calendar td.today .day-label,
+#calendar td.today .month-label,
+#calendar td.today .day-number {
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: #000 !important;
+}
+
+  /* Override any extra margin in special cells */
+  #calendar td.today span {
+    margin-bottom: 0 !important;
+  }
+
+
+.day-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 6px;
+}
+
+/* Large day label, left side */
+.day-label {
+  font-size: 16px !important;
+  font-weight: 600;
+  color: #333;
+    text-align: left;
+text-transform:uppercase !important;
+}
+
+
+/* Month + day number container on the right */
+.month-day-container {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.month-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #aaa !important;
+  text-transform: uppercase;
+}
+
+.day-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+  /* Header and button styles */
+  #header {
+    flex-direction: column;
+    padding: 8px;
+    height: auto;
+    padding-top: 15px;
+  }
+  #header > div:last-child {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    padding-bottom: 6px;
+ -webkit-overflow-scrolling: touch;
+  }
+  a.button,
+  button {
+    padding: 6px 10px;
+    margin: 3px;
+    font-size: 14px;
+    min-width: 40px;
+    flex-shrink: 0;
+  }
+
+button,
+a.button,
+.my-action-element {
+  /* Tells modern mobile browsers that gestures are "manipulations"
+     (like taps) rather than "zoom" or "pan" gestures. */
+  touch-action: manipulation;
+}
+
+  #stickyMonthHeader {
+    font-size: 18px;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: center;
+  }
+  #calendarContainer {
+    margin-top: 80px;
+  }
+
+  /* Vertical "day card" layout overrides */
+  #calendar.vertical td.extra.mobile-month-header {
+    margin: 20px 0 8px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .day-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+  .notes-container {
+    font-size: 12px;
+  }
+
+  /* Additional mobile improvements */
+  #header > div:last-child span:first-of-type {
+    display: block;
+    width: 100%;
+    margin: 10px 0 5px;
+    text-align: center;
+  }
+  #jumpDate,
+  #header > div:last-child button {
+    margin: 0 5px 10px 5px;
+  }
+  textarea {
+    font-size: 14px;
+    padding: 10px;
+    line-height: 1.4;
+  }
+
+  /* Dark mode adjustments */
+  body.dark-mode #calendar td {
+    background: rgba(40, 40, 40, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  body.dark-mode .day-number {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  body.dark-mode .mobile-action-bar {
+    background: rgba(30, 30, 30, 0.95);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Mobile bottom action bar */
+  .mobile-action-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--header-solid-bg);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    justify-content: space-around;
+    padding: 10px;
+    z-index: 990;
+  }
+  .mobile-action-bar button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+    font-size: 12px;
+    margin: 0;
+    padding: 5px;
+  }
+  .mobile-action-bar .icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 2px;
+  }
+  .mobile-action-bar button:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+
+  .week-row-animate.append-animate,
+  .week-row-animate.prepend-animate {
+    animation-duration: 0.1s !important;
+  }
+
+  /* Style for textareas to enable smooth swiping */
+  textarea {
+    position: relative;
+    z-index: 1; /* Above the delete button */
+    transform: translateX(0);
+    background-color: white; /* Default light mode background */
+    transition: transform 0.3s ease; /* For snap-back */
+    will-change: transform;
+    -webkit-touch-callout: none;
+    display: block;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    color: #333; /* Default light mode text color */
+  }
+
+  /* Dark mode adjustments */
+  body.dark-mode #calendar td textarea {
+    background-color: #2d3748; /* Example dark bg */
+    color: #e2e8f0; /* Light text for dark bg */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  /* Delete button styling */
+  .delete-button-container {
+    position: absolute;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .delete-background {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background-color: #ff3b30;
+    width: 0;
+    z-index: 0;
+  }
+
+  .delete-label {
+    position: relative;
+    padding: 0 15px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    z-index: 1;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  /* Reset Framework7 list styles to fit our calendar UI */
+  .f7-calendar-item.list {
+    margin: 0 !important;
+    font-size: inherit !important;
+  }
+
+  .f7-calendar-item .list ul,
+  .f7-calendar-item .list li {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+
+  .f7-calendar-item .swipeout {
+    overflow: hidden !important;
+    border-radius: 6px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .f7-calendar-item .swipeout-content {
+    background: transparent;
+    padding: 0 !important;
+  }
+
+  .f7-calendar-item .swipeout-content .item-content {
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+
+  /* Style the textarea inside the swipeout */
+  .f7-calendar-item textarea {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 6px !important;
+    transition: none !important;
+    /* Preserve existing textarea styles */
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    resize: none !important;
+  }
+
+  /* Style delete button on swipe */
+  .f7-calendar-item .swipeout-actions-right a {
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    background-color: #ff3b30 !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 15px !important;
+  }
+
+  /* Fix for swipe threshold and animation speed */
+  .f7-calendar-item .swipeout-actions-right a {
+    --f7-swipeout-delete-button-offset: 30px;
+    transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) !important;
+  }
+
+  /* Dark mode adjustments for Framework7 elements */
+  body.dark-mode .f7-calendar-item textarea {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Hide any Framework7 default UI elements we don't need */
+  .f7-calendar-item .item-inner {
+    padding-right: 0 !important;
+    border-bottom: none !important;
+  }
+
+  .f7-calendar-item .item-media {
+    display: none !important;
+  }
+
+  /* Remove any Framework7 default UI elements we don't need */
+  .f7-calendar-item .item-after,
+  .f7-calendar-item .item-title {
+    display: none !important;
+  }
+
+  /* Style the F7 list container within the TD */
+  #calendar td .notes-list {
+    margin-top: 8px; /* Space below day header */
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* Reset F7 list defaults ONLY if they cause issues */
+  /* Start commenting these out, uncomment only if needed */
+   #calendar td .notes-list .list {
+     margin: 0;
+     padding: 0;
+   }
+   #calendar td .notes-list .list ul {
+     list-style: none;
+     padding: 0;
+     margin: 0;
+   }
+
+  /* Basic stacking and spacing for the LI (swipeout element) */
+  #calendar td .notes-list li.swipeout {
+    display: block; /* Default for LI, ensures stacking */
+    position: relative; /* Needed for z-index stacking */
+    height: auto; /* CRITICAL: Let content dictate height */
+    margin: 0 0 6px 0; /* Space below each note */
+    border-radius: 6px; /* Round the swipeable item */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Optional shadow on item */
+    overflow: hidden; /* Contain F7's inner content/actions */
+    /* background-color: #f8f8f8; */ /* Optional subtle bg for LI */
+  }
+   /* body.dark-mode #calendar td .notes-list li.swipeout {
+       background-color: #333;
+       box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+   } */
+
+
+  /* Minimal overrides for F7 inner structure if needed */
+  /* These ensure F7's padding/min-height don't interfere */
+  #calendar td .notes-list .swipeout-content,
+  #calendar td .notes-list .item-content,
+  #calendar td .notes-list .item-inner {
+      padding: 0 !important; /* Remove F7 padding */
+      min-height: auto !important; /* Remove F7 min-height */
+      /* Avoid setting display/position unless debugging shows it's necessary */
+      /* position: static !important; */
+      /* display: block !important; */
+  }
+
+  /* Style the TEXTAREA - This is the visible note */
+  #calendar td .notes-list textarea {
+    display: block; /* Takes full width of container */
+    width: 100%;
+    box-sizing: border-box; /* Padding included in width */
+    position: relative; /* Keep relative positioning */
+    z-index: 1; /* Ensure it's above the ::after */
+    margin: 0; /* No margin on textarea itself */
+    padding: 8px 12px; /* Your desired padding */
+    border-radius: 6px; /* Can round textarea corners */
+    border: none; /* No border needed, LI has shadow/bg */
+    background-color: white; /* MUST be opaque - Or use CSS var */
+    color: #333;
+    font-size: 14px; /* Your font size */
+    line-height: 1.4; /* Your line height */
+    min-height: 38px; /* Min touch height */
+    height: auto; /* Let JS recalculate height */
+    box-shadow: none; /* Shadow applied to parent LI */
+    /* Remove styles that might conflict with F7 swipe */
+    transition: none !important;
+    transform: none !important;
+    will-change: auto; /* Reset from previous attempts */
+    -webkit-touch-callout: default; /* Allow text interaction */
+    touch-action: manipulation; /* Allow vertical scroll/tap */
+    pointer-events: auto;
+    cursor: text;
+  }
+
+  /* Dark Mode Textarea */
+  body.dark-mode #calendar td .notes-list textarea {
+     background-color: #2d3748; /* Or your dark mode var */
+     color: #e2e8f0;
+     /* border: 1px solid rgba(255, 255, 255, 0.1); */ /* Optional */
+  }
+
+  /* Delete indicator revealed behind */
+  #calendar td::after {
+    content: 'Delete';
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: 100px; /* Adjust width */
+    background-color: #ff3b30;
+    color: white;
+    font-weight: bold; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 0; /* Behind textarea */
+    opacity: 0; /* Hidden by default */
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    /* Match TD rounding ONLY on the right */
+    border-top-right-radius: 10px;    /* Match TD's border-radius */
+    border-bottom-right-radius: 10px; /* Match TD's border-radius */
+  }
+
+  /* Class added by JS to the TD during swipe */
+  #calendar td.swiping-for-delete::after {
+    opacity: 1; /* Show indicator */
+  }
+
+  /* F7 Delete Action Button (Optional Styling) */
+   #calendar td .notes-list .swipeout-actions-right a.swipeout-delete {
+      /* background-color: #ff3b30 !important; */ /* Already red by default */
+      /* Add any other F7 button overrides if needed */
+   }
+
+  /* Hide top header and all buttons on mobile */
+  #header {
+    display: none !important;
+  }
+
+  /* The styles below should be OUTSIDE any media query to ensure they always apply */
+  /* Framework7 Toolbar Styling - IMPROVED VISIBILITY */
+  .f7-toolbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: #f7f7f8 !important;
+    height: 50px !important;
+    z-index: 2000 !important; /* Ensure it's above everything */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    display: flex !important;
+    border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+    overflow-x: auto !important; /* Allow horizontal scrolling for many buttons */
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  body.dark-mode .f7-toolbar {
+    background-color: #1c1c1d !important;
+    color: #fff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+  }
+
+  .f7-toolbar .toolbar-inner {
+    display: flex !important;
+    justify-content: flex-start !important; /* Change to flex-start to allow scrolling */
+    align-items: center !important;
+    height: 100% !important;
+    width: auto !important; /* Changed from 100% to allow overflow */
+    padding: 0 5px !important;
+  }
+
+  .f7-toolbar .tab-link {
+    flex: 0 0 auto !important; /* Don't stretch buttons */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    color: #007aff !important; /* iOS blue */
+    text-decoration: none !important;
+    position: relative !important;
+    padding: 0 10px !important; /* Add horizontal padding */
+    margin: 0 2px !important; /* Add spacing between buttons */
+    min-width: 60px !important; /* Ensure minimum tap target size */
+  }
+
+  body.dark-mode .f7-toolbar .tab-link {
+    color: #0a84ff !important; /* Dark mode iOS blue */
+  }
+
+  .f7-toolbar .tab-link:active {
+    background-color: rgba(0,0,0,0.1) !important;
+  }
+
+  .f7-toolbar .icon {
+    font-size: 24px !important;
+    margin-bottom: 3px !important;
+    font-weight: bold !important;
+  }
+
+  .f7-toolbar .tabbar-label {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Adjust the calendar container's margin to make room for the toolbar */
+  @media (max-width: 768px) {
+    #calendarContainer {
+      margin-top: 60px !important; /* Increased to ensure enough space */
+      padding-top: 10px !important;
+    }
+  }
+
+  /* When using our toolbar, make sure original header is hidden completely */
+  body.has-f7-toolbar #header {
+    height: 0 !important;
+    min-height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Adjust calendar container margin when toolbar is present */
+  body.has-f7-toolbar #calendarContainer {
+    margin-top: 60px !important;
+  }
+
+  /* Framework7 Bottom Toolbar Styling */
+  .toolbar.toolbar-bottom.mobile-action-bar-f7 {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: #f7f7f8 !important;
+    height: 56px !important;
+    z-index: 2000 !important; /* Ensure it's above everything */
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.2) !important;
+    display: flex !important;
+    border-top: 1px solid rgba(0,0,0,0.1) !important;
+  }
+
+  body.dark-mode .toolbar.toolbar-bottom.mobile-action-bar-f7 {
+    background-color: #1c1c1d !important;
+    color: #fff !important;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.4) !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 .toolbar-inner {
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    height: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 a.link {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    color: #007aff !important; /* iOS blue */
+    text-decoration: none !important;
+    padding: 5px 0 !important;
+    margin: 0 !important;
+    flex: 1 !important;
+  }
+
+  body.dark-mode .toolbar.mobile-action-bar-f7 a.link {
+    color: #0a84ff !important; /* Dark mode iOS blue */
+  }
+
+  .toolbar.mobile-action-bar-f7 a.link:active {
+    background-color: rgba(0,0,0,0.1) !important;
+    opacity: 0.7 !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 .icon {
+    width: 24px !important;
+    height: 24px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .toolbar.mobile-action-bar-f7 span {
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  /* Adjust the calendar container to make room for both toolbars */
+  @media (max-width: 768px) {
+    #calendarContainer {
+      margin-top: 60px !important; /* Space for top toolbar */
+      margin-bottom: 70px !important; /* Space for bottom toolbar */
+      padding-bottom: 15px !important;
+    }
+
+    /* Hide the original mobile action bar if it exists */
+    .mobile-action-bar:not(.mobile-action-bar-f7) {
+      display: none !important;
+    }
+  }
+  /* Ensure textareas within Framework7 structure have proper display */
+  #calendar td .notes-list .list ul li.swipeout textarea {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 0 !important;
+    min-height: 44px !important; /* Ensure minimum touch target height */
+  }
+
+  /* Keep content more compact on mobile */
+  #calendar table {
+    margin-top: 10px;
+  }
+
+  /* Adjust day cells for better mobile display */
+  #calendar .day {
+    min-height: 60px;
+    position: relative;
+  }
+
+  /* Style for the notes list in mobile view */
+  .notes-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* Ensure list items stack properly */
+  .notes-list .list {
+    width: 100%;
+  }
+
+  .notes-list .list ul {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* Fix for overlapping items */
+  .notes-list .list li.swipeout {
+    position: relative !important;
+    display: block;
+    width: 100%;
+    margin: 2px 0;
+    z-index: 1;
+  }
+
+  /* Ensure textareas don't overflow */
+  .notes-list textarea {
+    width: 100%;
+    min-height: 24px;
+    padding: 4px;
+    box-sizing: border-box;
+    margin: 0;
+  }
+
+  /* Framework7 toolbar styling */
+  .toolbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 500;
+  }
+
+  .toolbar-top {
+    top: 0;
+  }
+
+  .toolbar-bottom {
+    bottom: 0;
+  }
+
+  /* Adjust spacing between buttons */
+  .toolbar .toolbar-inner .link {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 5px;
+  }
+  
+  /* Style for dark mode */
+  @media (prefers-color-scheme: dark) {
+    .toolbar {
+      background-color: #1c1c1e;
+      color: #fff;
+    }
+    
+    .toolbar .link {
+      color: #fff;
+    }
+  }
+
+  /* Swipe hint overlay CSS */
+  .swipe-hint-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fade-in 0.3s ease;
+  }
+
+  .swipe-hint-overlay.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .swipe-hint-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    max-width: 80%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .swipe-hint-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #ff3b30;
+    animation: swipe-left 1.5s ease infinite;
+  }
+
+  .swipe-hint-text {
+    font-size: 16px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  .swipe-hint-dismiss {
+    background: #007aff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes swipe-left {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-10px); }
+  }
+
+  /* Dark mode styles for swipe hint */
+  body.dark-mode .swipe-hint-content {
+    background: #222;
+    color: white;
+  }
+
+  body.dark-mode .swipe-hint-dismiss {
+    background: #0a84ff;
+  }
+
+  /* Style the date picker in the toolbar */
+  .toolbar-date-container {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 5px !important;
+    height: 36px !important;
+    background-color: rgba(255,255,255,0.1) !important;
+    border-radius: 6px !important;
+    margin: 0 5px !important;
+  }
+
+  .toolbar-date-container input[type="date"] {
+    background: transparent !important;
+    border: none !important;
+    color: #007aff !important;
+    font-size: 12px !important;
+    padding: 4px !important;
+    width: 120px !important;
+    height: 30px !important;
+  }
+
+  .toolbar-date-container button {
+    background: #007aff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    font-size: 11px !important;
+    height: 24px !important;
+    margin-left: 4px !important;
+  }
+
+  body.dark-mode .toolbar-date-container {
+    background-color: rgba(0,0,0,0.2) !important;
+  }
+
+  body.dark-mode .toolbar-date-container input[type="date"] {
+    color: #0a84ff !important;
+  }
+
+  body.dark-mode .toolbar-date-container button {
+    background: #0a84ff !important;
+  }
+
+  /* Framework7 Integration for Mobile */
+
+  /* Top Toolbar */
+  .toolbar.toolbar-top.f7-toolbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: var(--f7-toolbar-bg-color, #f7f7f8) !important;
+    height: 48px !important;
+    z-index: 5000 !important; /* Very high z-index */
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Bottom Toolbar */
+  .toolbar.toolbar-bottom.mobile-action-bar-f7 {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: var(--f7-toolbar-bg-color, #f7f7f8) !important;
+    height: 56px !important;
+    z-index: 5000 !important; /* Very high z-index */
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.1) !important;
+    display: flex !important;
+    border-top: 1px solid rgba(0,0,0,0.1) !important;
+  }
+
+  /* Toolbar inner container */
+  .toolbar-inner {
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Top toolbar links */
+  .toolbar.toolbar-top.f7-toolbar .tab-link {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    color: var(--f7-tabbar-link-text-color, #007aff) !important;
+    padding: 0 12px !important;
+    margin: 0 2px !important;
+    text-decoration: none !important;
+    position: relative !important;
+    min-width: 56px !important;
+  }
+
+  /* Bottom toolbar links */
+  .toolbar.toolbar-bottom.mobile-action-bar-f7 .link {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    color: var(--f7-tabbar-link-text-color, #007aff) !important;
+    text-decoration: none !important;
+  }
+
+  /* Active state for all toolbar links */
+  .toolbar .tab-link:active,
+  .toolbar .link:active {
+    opacity: 0.7 !important;
+    background-color: rgba(0,0,0,0.05) !important;
+  }
+
+  /* Icons in both toolbars */
+  .toolbar .icon {
+    font-size: 24px !important;
+    height: 24px !important;
+    width: 24px !important;
+    margin-bottom: 2px !important;
+  }
+
+  /* Text labels in both toolbars */
+  .toolbar .tabbar-label,
+  .toolbar .link span {
+    font-size: 10px !important;
+    line-height: 1 !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Dark mode adjustments */
+  body.dark-mode .toolbar {
+    background-color: var(--f7-toolbar-bg-color-dark, #1c1c1d) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+  }
+
+  body.dark-mode .toolbar .tab-link,
+  body.dark-mode .toolbar .link {
+    color: var(--f7-tabbar-link-text-color-dark, #0a84ff) !important;
+  }
+
+  body.dark-mode .toolbar .tab-link:active,
+  body.dark-mode .toolbar .link:active {
+    background-color: rgba(255,255,255,0.05) !important;
+  }
+
+} /* End of @media (max-width: 768px) */
+
+
+/* Adjust calendar spacing for toolbars */
+@media (max-width: 768px) {
+  #calendarContainer {
+    margin-top: 56px !important; /* Space for top toolbar */
+    margin-bottom: 64px !important; /* Space for bottom toolbar */
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* Hide the original mobile action bar */
+  .mobile-action-bar:not(.mobile-action-bar-f7) {
+    display: none !important;
+  }
+
+  /* Hide header but keep its children */
+  #header {
+    display: none !important;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 375px) {
+  #calendar table {
+    font-size: 0.9em;
+  }
+  
+  #calendar td.day {
+    padding: 2px;
+  }
+}
+

@@ -1,0 +1,226 @@
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { saveToLocalStorage, loadFromLocalStorage, getAllCalendarData } from '../utils/storage';
+import { generateDayId, parseDate } from '../utils/dateUtils';
+
+const CalendarContext = createContext();
+
+const MAX_UNDO = 5;
+
+export function CalendarProvider({ children }) {
+  // Core calendar state
+  const [calendarData, setCalendarData] = useState(() => loadFromLocalStorage());
+  const [systemToday, setSystemToday] = useState(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
+
+  // UI state
+  const [keyboardFocusDate, setKeyboardFocusDate] = useState(null);
+  const [selectedDays, setSelectedDays] = useState([]);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const [rangeStart, setRangeStart] = useState(null);
+  const [rangeEnd, setRangeEnd] = useState(null);
+  const [isSelectingRange, setIsSelectingRange] = useState(false);
+
+  // Undo/redo state
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
+
+  // Save calendar data to localStorage whenever it changes
+  useEffect(() => {
+    saveToLocalStorage(calendarData);
+  }, [calendarData]);
+
+  // Push current state to undo stack
+  const pushUndoState = useCallback(() => {
+    const snapshot = JSON.stringify(getAllCalendarData());
+    setUndoStack(prev => {
+      const newStack = [...prev, snapshot];
+      return newStack.slice(-MAX_UNDO);
+    });
+    setRedoStack([]); // Clear redo stack when new action is performed
+  }, []);
+
+  // Add or update a note
+  const addNote = useCallback((dateId, text) => {
+    if (!text || text.trim() === '') {
+      removeNote(dateId);
+      return;
+    }
+
+    pushUndoState();
+    setCalendarData(prev => ({
+      ...prev,
+      [dateId]: text
+    }));
+  }, [pushUndoState]);
+
+  // Remove a note
+  const removeNote = useCallback((dateId) => {
+    pushUndoState();
+    setCalendarData(prev => {
+      const newData = { ...prev };
+      delete newData[dateId];
+      return newData;
+    });
+  }, [pushUndoState]);
+
+  // Undo last change
+  const undo = useCallback(() => {
+    if (undoStack.length === 0) return;
+
+    const currentState = JSON.stringify(getAllCalendarData());
+    const previousState = undoStack[undoStack.length - 1];
+
+    setRedoStack(prev => [...prev, currentState].slice(-MAX_UNDO));
+    setUndoStack(prev => prev.slice(0, -1));
+
+    // Restore previous state
+    const restoredData = JSON.parse(previousState);
+    localStorage.clear();
+    Object.entries(restoredData).forEach(([key, value]) => {
+      localStorage.setItem(key, value);
+    });
+    setCalendarData(loadFromLocalStorage());
+  }, [undoStack]);
+
+  // Redo last undone change
+  const redo = useCallback(() => {
+    if (redoStack.length === 0) return;
+
+    const currentState = JSON.stringify(getAllCalendarData());
+    const nextState = redoStack[redoStack.length - 1];
+
+    setUndoStack(prev => [...prev, currentState].slice(-MAX_UNDO));
+    setRedoStack(prev => prev.slice(0, -1));
+
+    // Restore next state
+    const restoredData = JSON.parse(nextState);
+    localStorage.clear();
+    Object.entries(restoredData).forEach(([key, value]) => {
+      localStorage.setItem(key, value);
+    });
+    setCalendarData(loadFromLocalStorage());
+  }, [redoStack]);
+
+  // Get notes for a specific date
+  const getNotesForDate = useCallback((date) => {
+    const dateId = generateDayId(date);
+    return calendarData[dateId] || '';
+  }, [calendarData]);
+
+  // Check if a date has notes
+  const hasNotes = useCallback((date) => {
+    const dateId = generateDayId(date);
+    return !!calendarData[dateId];
+  }, [calendarData]);
+
+  // Toggle multi-select mode
+  const toggleMultiSelectMode = useCallback(() => {
+    setIsMultiSelectMode(prev => !prev);
+    if (isMultiSelectMode) {
+      setSelectedDays([]);
+    }
+  }, [isMultiSelectMode]);
+
+  // Select/deselect a day
+  const toggleDaySelection = useCallback((date) => {
+    const dateId = generateDayId(date);
+    setSelectedDays(prev => {
+      if (prev.includes(dateId)) {
+        return prev.filter(id => id !== dateId);
+      }
+      return [...prev, dateId];
+    });
+  }, []);
+
+  // Clear all selected days
+  const clearSelectedDays = useCallback(() => {
+    setSelectedDays([]);
+  }, []);
+
+  // Add note to all selected days
+  const addNoteToSelectedDays = useCallback((text) => {
+    if (selectedDays.length === 0) return;
+
+    pushUndoState();
+    setCalendarData(prev => {
+      const newData = { ...prev };
+      selectedDays.forEach(dateId => {
+        newData[dateId] = text;
+      });
+      return newData;
+    });
+    setSelectedDays([]);
+  }, [selectedDays, pushUndoState]);
+
+  // Clear notes from all selected days
+  const clearNotesFromSelectedDays = useCallback(() => {
+    if (selectedDays.length === 0) return;
+
+    pushUndoState();
+    setCalendarData(prev => {
+      const newData = { ...prev };
+      selectedDays.forEach(dateId => {
+        delete newData[dateId];
+      });
+      return newData;
+    });
+    setSelectedDays([]);
+  }, [selectedDays, pushUndoState]);
+
+  const value = {
+    // Data
+    calendarData,
+    systemToday,
+
+    // Note operations
+    addNote,
+    removeNote,
+    getNotesForDate,
+    hasNotes,
+
+    // Undo/redo
+    undo,
+    redo,
+    canUndo: undoStack.length > 0,
+    canRedo: redoStack.length > 0,
+
+    // Keyboard navigation
+    keyboardFocusDate,
+    setKeyboardFocusDate,
+
+    // Multi-select
+    isMultiSelectMode,
+    selectedDays,
+    toggleMultiSelectMode,
+    toggleDaySelection,
+    clearSelectedDays,
+    addNoteToSelectedDays,
+    clearNotesFromSelectedDays,
+
+    // Range selection
+    rangeStart,
+    rangeEnd,
+    isSelectingRange,
+    setRangeStart,
+    setRangeEnd,
+    setIsSelectingRange
+  };
+
+  return (
+    <CalendarContext.Provider value={value}>
+      {children}
+    </CalendarContext.Provider>
+  );
+}
+
+export function useCalendar() {
+  const context = useContext(CalendarContext);
+  if (!context) {
+    throw new Error('useCalendar must be used within CalendarProvider');
+  }
+  return context;
+}

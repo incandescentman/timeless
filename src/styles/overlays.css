@@ -1,0 +1,220 @@
+/* Overlay Styles */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.overlay-content {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Help Overlay */
+#help ul {
+  list-style: none;
+  padding: 0;
+  line-height: 1.8;
+}
+
+#help li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+#help code, #help kbd {
+  background: var(--shaded-month);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-day-number);
+  font-size: 0.9em;
+}
+
+/* Year View */
+#yearViewContainer {
+  padding: 40px;
+}
+
+.year-view-content {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.year-view-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.year-view-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.year-view-month {
+  background: var(--shaded-month);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.year-view-month-name {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+
+.year-view-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.year-view-day-header {
+  font-size: 0.8em;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+  opacity: 0.7;
+}
+
+.year-view-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.85em;
+  transition: all 0.2s;
+}
+
+.year-view-day:hover {
+  background: var(--accent);
+  color: white;
+  transform: scale(1.1);
+}
+
+.year-view-day.empty {
+  cursor: default;
+}
+
+.year-view-day.today {
+  background: var(--today-gradient-from);
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.year-view-day.has-notes {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Command Palette */
+.command-palette {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.command-palette input {
+  width: 100%;
+  padding: 20px;
+  font-size: 1.2em;
+  border: none;
+  background: var(--shaded-month);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.command-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.command-item {
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s;
+}
+
+.command-item:hover {
+  background: var(--shaded-month);
+}
+
+.command-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.command-item kbd {
+  background: var(--month-boundary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-day-number);
+  font-size: 0.85em;
+}
+
+.command-palette-footer {
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 0.85em;
+  opacity: 0.7;
+  background: var(--shaded-month);
+}
+
+/* Loading Spinner */
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10001;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

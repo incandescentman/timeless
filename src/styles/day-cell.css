@@ -1,0 +1,95 @@
+/* Day Cell Styles */
+
+.day-cell {
+  position: relative;
+  min-height: var(--cell-min-height);
+  padding: 10px;
+  border: var(--border-width) solid var(--border-color);
+  background: var(--bg-primary);
+  vertical-align: top;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day-cell:hover {
+  background: var(--shaded-month);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.day-cell.today {
+  background: linear-gradient(135deg,
+    var(--today-gradient-from) 0%,
+    var(--today-gradient-to) 100%);
+  color: white;
+  font-weight: bold;
+}
+
+.day-cell.weekend {
+  background: linear-gradient(135deg,
+    var(--weekend-gradient-from) 0%,
+    var(--weekend-gradient-to) 100%);
+}
+
+.day-cell.keyboard-focused {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.day-cell.selected {
+  background: var(--color-info);
+  color: white;
+}
+
+.day-number {
+  font-family: var(--font-day-number);
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+.day-cell textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95em;
+  line-height: 1.5;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+
+body.dark-mode .day-cell textarea {
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+}
+
+.day-cell textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+}
+
+.day-cell.has-notes {
+  background: var(--color-light);
+}
+
+body.dark-mode .day-cell.has-notes {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Parallax Background */
+.parallax-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-pattern);
+  z-index: -1;
+}
