@@ -50,6 +50,13 @@
    }
    #+end_src
 
+   **Quick diagnostic test to use next time:**
+   #+begin_src css
+   /* Add this temporarily to visualize the problem */
+   * { background: rgba(255, 0, 0, 0.1) !important; }
+   #+end_src
+   This makes all transparent areas obvious - would have revealed the gap issue immediately.
+
 ** Lessons Learned / Prevention Checklist
    - [ ] **Draw the layer stack first** - Visualize z-index layers before coding
    - [ ] **Use solid background wrapper** - Don't try to patch gaps, prevent them

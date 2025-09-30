@@ -1,0 +1,102 @@
+#+title: Timeless React Development Guide
+
+* Project Overview
+Timeless is now implemented as a React application bootstrapped with Vite. The core experience remains an infinitely scrolling, Monday-start calendar that stores data locally for privacy, but the codebase is reorganized into components, React contexts, and modular CSS. Modern overlays (command palette, year view, help) and a mobile action bar enhance usability across devices.
+
+* Live Demo
+- Deploy the production bundle (~/dist/~) to a static host such as Vercel, Netlify, or GitHub Pages. Update ~vite.config.js~ ~base~ if hosting under a subpath.
+- Development server runs at http://localhost:5000 via ~npm run dev~.
+
+* Commands
+- Install dependencies: ~npm install~
+- Start development server: ~npm run dev~
+- Build production assets: ~npm run build~
+- Preview production build: ~npm run preview~
+
+* Code Style Guidelines
+- **React & JavaScript**
+  - Use functional components with hooks; lift shared state into contexts when multiple branches need access.
+  - Name props and state descriptively; colocate effects with the data they observe.
+  - Memoize expensive callbacks with ~useCallback~ when passing to deep children or observers.
+  - Keep DOM queries (e.g., ~document.querySelector~) inside helpers and guard against null results.
+- **CSS**
+  - Styles live in ~src/styles/~. Base styles load first (~index.css~), feature styles next (calendar, day cell, overlays), and mobile overrides last (~mobile.css~).
+  - Adhere to existing class naming (e.g., ~day-cell~, ~today~, ~has-notes~) so components and CSS stay in sync.
+- **Utilities**
+  - Add shared helpers under ~src/utils/~ (~dateUtils.js~, ~storage.js~) instead of duplicating logic.
+- **Assets & Icons**
+  - Inline SVGs continue to be used for controls; keep them lightweight and accessible with ~aria-label~/~title~ attributes when needed.
+
+* Key Features & Functionality
+- Infinite calendar rendering with IntersectionObserver-driven week loading (past and future).
+- Local-only storage of notes with undo/redo history and multi-select batch editing.
+- Keyboard navigation mode, command palette (Cmd/Ctrl+K or ~/~), and help overlay with shortcut reference.
+- Mini-calendar (3-month strip), year-at-a-glance overlay, mobile action bar, and markdown diary export.
+- Dark mode toggle persisted to localStorage.
+
+* File Structure
+- ~vite.config.js~ – Vite + React plugin configuration (dev server on port 5000).
+- ~src/main.jsx~ – React entry point; loads global styles.
+- ~src/App.jsx~ – Root component; wires providers and overlays.
+- ~src/components/~ – Calendar UI modules (Calendar, DayCell, Header, MiniCalendar, YearView, HelpOverlay, CommandPalette, MobileActionBar, LoadingSpinner).
+- ~src/contexts/~ – ~CalendarContext.jsx~ (calendar data, selection, undo/redo) and ~ThemeContext.jsx~ (dark mode).
+- ~src/hooks/useKeyboardShortcuts.js~ – Centralized keyboard bindings.
+- ~src/utils/dateUtils.js~, ~storage.js~ – Date helpers and localStorage import/export helpers.
+- ~src/styles/~ – Layered CSS for base layout, calendar grid, day cells, overlays, mini calendar, and mobile tweaks.
+- Legacy vanilla implementation resides in ~index-vanilla.html~, ~calendar.js~, and ~old-assets/~ for reference.
+
+* Technical Specifications
+** Core Calendar Mechanics
+- Calendar renders a table of weeks with month boundary rows; ±26 weeks hydrate initially.
+- ~IntersectionObserver~ instances on top/bottom sentinels extend weeks in batches of 10 when scrolled near edges.
+- Sticky month header updates based on the first visible ~.day-cell~; scroll handler throttled to reduce layout thrash.
+- ~DayCell~ components derive IDs via ~generateDayId(date)~ (zero-based month_day_year) and mark today/weekends/selected states for CSS.
+
+** Data & Persistence
+- ~CalendarContext~ loads data from ~storage.getAllCalendarData()~ on mount and writes to localStorage through ~saveToLocalStorage()~ whenever notes change.
+- Current schema expects day keys (e.g., ~"1_20_2025"~) mapped directly to note text. Empty or whitespace-only notes are pruned.
+- Undo/redo stacks capture serialized snapshots (~JSON.stringify(getAllCalendarData())~) with a MAX_UNDO of 5; redo stack clears when new actions occur.
+- Legacy backups that map day keys to ~itemNNN~ strings must be normalized so each date key stores the resolved text before import (or importer must translate IDs to text).
+
+** Note Editing System
+- Clicking an empty day toggles an inline textarea; auto-resizes using scrollHeight.
+- Keyboard shortcuts: Enter saves (unless Shift for new line), Escape cancels, Cmd/Ctrl+B and Cmd/Ctrl+I wrap selection in markdown markers, Cmd/Ctrl+H inserts a ~#~ tag.
+- Multi-select mode (toggle with ~m~) tracks selected day IDs; batch add/clear functions operate on ~selectedDays~.
+- Keyboard focus mode highlights a day and allows Enter/Delete actions without clicking.
+
+** Modes & Shortcuts
+- Global shortcuts handled in ~useKeyboardShortcuts~: command palette (Cmd/Ctrl+K or ~/~), help (~?~), year view (~y~), jump to today (~t~), multi-select (~m~), dark mode (Cmd/Ctrl+D), undo/redo (Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z, Cmd/Ctrl+Y), focus mode (~i~ to enter, ~q~/Esc to exit).
+- Arrow keys move focus ±1 day/±1 week when in focus mode; Alt+Up/Down triggers month-sized scroll steps.
+
+** Views & Widgets
+- ~MiniCalendar~ renders previous/current/next months with note indicators and wheel-based month navigation; clicking a day scrolls main calendar into view.
+- ~YearView~ overlay shows 12 mini grids with note/today indicators and year increment/decrement controls.
+- ~CommandPalette~ filters predefined commands; “Jump to Date…” parses natural language via ~parseNaturalDate~ and scrolls accordingly.
+- ~HelpOverlay~ lists shortcuts; ~MobileActionBar~ surfaces prev/today/next/month navigation and palette button for touch devices.
+
+** Mobile-Specific Features
+- Responsive styling via ~src/styles/mobile.css~ adjusts layout for narrow viewports.
+- Mobile action bar anchors navigation buttons at the bottom for quick thumb access.
+- Scroll interactions continue to drive week loading; large scroll deltas shift months in mobile action bar handlers.
+
+** Visual & Theme System
+- ~ThemeContext~ toggles the ~dark-mode~ class on ~document.body~ and persists preference to localStorage (~darkMode~ key).
+- CSS modules handle weekend shading, selected states, and overlays; transitions keep interactions smooth (e.g., ~DayCell~ textarea growth).
+- Parallax background element (~.parallax-bg~) layers behind the calendar for depth.
+
+** Import/Export Features
+- ~downloadCalendarData()~ serializes current notes to a JSON blob (filtered to date keys) and triggers download.
+- ~importCalendarData(json)~ clears existing date keys, writes new entries, and returns success/failure; Header’s file input reads JSON and reloads the page to refresh context state.
+- ~exportAsMarkdownDiary()~ sorts entries chronologically and groups output by year/month; ~downloadMarkdownDiary()~ downloads and copies to clipboard when available.
+
+** Robustness & Maintenance
+- Undo/redo operations fully restore localStorage state before reloading context to maintain parity with stored snapshots.
+- Multi-select lists clear after batch operations; range-selection state is available for future enhancements.
+- Keyboard handlers bail out early when focus is inside input/textarea to avoid hijacking typing.
+- Utility modules keep date math and storage interactions centralized for easier testing and updates.
+
+* Error Handling
+- Import routines guard JSON parsing with try/catch, log errors via ~console.error~, and surface feedback through ~alert()~ on failure.
+- Undo/redo guards prevent stack underflow (no-ops when stacks are empty).
+- Keyboard shortcuts respect focused inputs and confirm destructive actions (Delete in focus mode).
+- Developers should wrap new async or parsing operations with defensive checks and user-facing messaging consistent with existing alerts.

@@ -179,15 +179,6 @@ function Calendar() {
   return (
     <>
       <div className="calendar-wrapper" />
-      <div id="stickyMonthHeader">
-        {stickyMonthHeader.month && (
-          <>
-            <span className="month-text">{stickyMonthHeader.month}</span>
-            <span className="year-text">{stickyMonthHeader.year}</span>
-          </>
-        )}
-      </div>
-
       <div id="calendarContainer" ref={calendarRef}>
         <div ref={topSentinelRef} id="top-sentinel" style={{ height: '10px' }} />
 

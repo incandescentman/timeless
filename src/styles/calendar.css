@@ -37,88 +37,76 @@ body.dark-mode .calendar-wrapper {
 }
 
 #calendar thead th {
-  background: linear-gradient(180deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(249, 250, 252, 0.95) 100%);
-  padding: 16px 12px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 1.2px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 18px 16px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
   text-align: center;
-  color: #64748b;
-  border-bottom: 2px solid rgba(226, 232, 240, 0.8);
-  border-top: 1px solid rgba(226, 232, 240, 0.3);
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.4);
+  border-top: none;
   position: relative;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 -1px 0 rgba(226, 232, 240, 0.2);
 }
 
-/* Animated underline on hover */
+/* Elegant underline accent */
 #calendar thead th::after {
   content: '';
   position: absolute;
-  bottom: -2px;
-  left: 10%;
-  right: 10%;
-  height: 3px;
-  background: linear-gradient(90deg,
-    #3b82f6 0%,
-    #6366f1 50%,
-    #8b5cf6 100%);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  border-radius: 3px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #calendar thead th:hover::after {
-  transform: scaleX(1);
+  transform: translateX(-50%) scaleX(2);
+  opacity: 0.6;
 }
 
 #calendar thead th:hover {
-  color: #0f172a;
-  background: linear-gradient(180deg,
-    rgba(248, 250, 255, 1) 0%,
-    rgba(241, 245, 249, 1) 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  color: #475569;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-0.5px);
 }
 
+/* Subtle day differentiation */
+#calendar thead th .day-label {
+  display: inline-block;
+  position: relative;
+  padding-bottom: 2px;
+}
 
-/* Weekend styling - more subtle */
+/* Weekend styling - elegant and subtle */
 #calendar thead th:nth-child(6),
 #calendar thead th:nth-child(7) {
-  color: #dc2626;
-  background: linear-gradient(180deg,
-    rgba(254, 249, 249, 0.95) 0%,
-    rgba(254, 242, 242, 0.95) 100%);
+  color: #e11d48;
+  opacity: 0.9;
 }
 
 #calendar thead th:nth-child(6):hover,
 #calendar thead th:nth-child(7):hover {
-  background: linear-gradient(180deg,
-    rgba(254, 242, 242, 1) 0%,
-    rgba(254, 226, 226, 1) 100%);
-  color: #b91c1c;
+  color: #be123c;
+  opacity: 1;
 }
 
-/* Monday (first day) - week start indicator */
+/* Monday (first day) - minimal emphasis */
 #calendar thead th:first-child {
-  color: #2563eb;
-  font-weight: 700;
-  background: linear-gradient(180deg,
-    rgba(249, 250, 255, 0.95) 0%,
-    rgba(239, 246, 255, 0.95) 100%);
+  color: #3b82f6;
+  font-weight: 600;
 }
 
 #calendar thead th:first-child:hover {
-  background: linear-gradient(180deg,
-    rgba(239, 246, 255, 1) 0%,
-    rgba(219, 234, 254, 1) 100%);
-  color: #1d4ed8;
+  color: #2563eb;
 }
 
 /* Dark mode styling */
@@ -294,7 +282,7 @@ body.dark-mode .month-boundary td::after {
   letter-spacing: 0.3px;
   color: #1e293b;
   overflow: hidden;
-  display: block !important; /* Force visible */
+  display: none; /* Hide for now to debug */
 }
 
 /* Subtle gradient overlay effect */
