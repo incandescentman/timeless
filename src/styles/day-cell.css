@@ -48,6 +48,31 @@
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
 }
 
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.day-meta {
+  display: none;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(15, 23, 42, 0.5);
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.day-meta__separator {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
+body.dark-mode .day-meta {
+  color: rgba(226, 232, 240, 0.55);
+}
+
 .day-number {
   font-family: var(--font-day-number);
   font-size: 1rem;
@@ -177,6 +202,21 @@ body.dark-mode .day-event__composer button {
 
 body.dark-mode .day-event__composer button:hover {
   background: rgba(96, 165, 250, 0.28);
+}
+
+@media (max-width: 768px) {
+  .day-meta {
+    display: inline-flex;
+  }
+
+  .day-number {
+    font-size: 1.2rem;
+  }
+
+  .day-meta__weekday,
+  .day-meta__month {
+    font-size: 0.7rem;
+  }
 }
 
 /* Parallax Background */

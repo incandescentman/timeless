@@ -77,6 +77,8 @@ function DayCell({ date }) {
 
   const dateId = generateDayId(date);
   const dayNumber = date.getDate();
+  const dayLabel = date.toLocaleDateString(undefined, { weekday: 'short' });
+  const monthLabel = date.toLocaleDateString(undefined, { month: 'long' });
   const isTodayDate = isToday(date, systemToday);
   const isWeekendDate = isWeekend(date);
   const isKeyboardFocused = keyboardFocusDate && generateDayId(keyboardFocusDate) === dateId;
@@ -168,7 +170,14 @@ function DayCell({ date }) {
       role="gridcell"
       aria-label={`Notes for ${date.toDateString()}`}
     >
-      <div className="day-number">{dayNumber}</div>
+      <div className="day-header">
+        <div className="day-number">{dayNumber}</div>
+        <div className="day-meta">
+          <span className="day-meta__weekday">{dayLabel}</span>
+          <span className="day-meta__separator">•</span>
+          <span className="day-meta__month">{monthLabel}</span>
+        </div>
+      </div>
       <div className="day-events">
         {events.map((event, idx) => (
           <DayEventRow
