@@ -3,12 +3,14 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useCalendar } from '../contexts/CalendarContext';
 import MiniCalendar from './MiniCalendar';
 import { downloadCalendarData, downloadMarkdownDiary } from '../utils/storage';
+import { useKBar } from 'kbar';
 import '../styles/header.css';
 
-function Header({ onShowYearView, onShowHelp, onShowCommandPalette }) {
+function Header({ onShowYearView, onShowHelp }) {
   const { toggleDarkMode } = useTheme();
   const { undo, canUndo } = useCalendar();
   const fileInputRef = useRef(null);
+  const { query } = useKBar();
 
   const goToToday = () => {
     const todayCell = document.querySelector('.day-cell.today');
@@ -60,7 +62,7 @@ function Header({ onShowYearView, onShowHelp, onShowCommandPalette }) {
       key: 'command',
       label: 'Command',
       description: 'Open the command palette',
-      onClick: onShowCommandPalette,
+      onClick: () => query.toggle(),
       icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="2" fill="none" />

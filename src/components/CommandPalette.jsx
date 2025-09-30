@@ -1,94 +1,65 @@
-import { useState } from 'react';
-import { useCalendar } from '../contexts/CalendarContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { downloadCalendarData, downloadMarkdownDiary } from '../utils/storage';
-import { parseNaturalDate, generateDayId } from '../utils/dateUtils';
+import {
+  KBarPortal,
+  KBarPositioner,
+  KBarAnimator,
+  KBarSearch,
+  KBarResults,
+  useMatches
+} from 'kbar';
 
-function CommandPalette({ onClose }) {
-  const [query, setQuery] = useState('');
-  const { toggleDarkMode } = useTheme();
-  const { undo, redo, canUndo, canRedo } = useCalendar();
-
-  const commands = [
-    { name: 'Jump to Today', key: 't', action: goToToday },
-    { name: 'Toggle Dark Mode', key: 'Ctrl+D', action: toggleDarkMode },
-    { name: 'Year View', key: 'y', action: () => {} }, // Handled by parent
-    { name: 'Undo', key: 'Ctrl+Z', action: undo, disabled: !canUndo },
-    { name: 'Redo', key: 'Ctrl+Shift+Z', action: redo, disabled: !canRedo },
-    { name: 'Export as JSON', action: downloadCalendarData },
-    { name: 'Export as Markdown', action: downloadMarkdownDiary },
-    { name: 'Jump to Date...', action: handleJumpToDate }
-  ];
-
-  const filteredCommands = commands.filter(cmd =>
-    cmd.name.toLowerCase().includes(query.toLowerCase())
-  );
-
-  function goToToday() {
-    const todayCell = document.querySelector('.day-cell.today');
-    if (todayCell) {
-      todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      onClose();
-    }
-  }
-
-  function handleJumpToDate() {
-    const input = prompt('Enter a date (e.g., "tomorrow", "next friday", "2024-12-25"):');
-    if (!input) return;
-
-    const date = parseNaturalDate(input);
-    if (date) {
-      const dateId = generateDayId(date);
-      const cell = document.querySelector(`[data-date-id="${dateId}"]`);
-      if (cell) {
-        cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        onClose();
-      } else {
-        alert('Date not found in loaded calendar.');
-      }
-    } else {
-      alert('Could not parse date. Try "tomorrow", "next monday", or "YYYY-MM-DD".');
-    }
-  }
-
-  const handleCommandClick = (cmd) => {
-    if (!cmd.disabled) {
-      cmd.action();
-      if (cmd.name !== 'Jump to Date...') {
-        onClose();
-      }
-    }
-  };
+function CommandPalette() {
+  const { results } = useMatches();
 
   return (
-    <div className="overlay" onClick={onClose}>
-      <div className="command-palette" onClick={(e) => e.stopPropagation()}>
-        <input
-          type="text"
-          placeholder="Type a command..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          autoFocus
-        />
+    <KBarPortal>
+      <KBarPositioner className="kbar-positioner">
+        <KBarAnimator className="kbar-animator">
+          <KBarSearch
+            className="kbar-search"
+            placeholder="Type a command or search…"
+          />
 
-        <div className="command-list">
-          {filteredCommands.map((cmd, i) => (
-            <div
-              key={i}
-              className={`command-item ${cmd.disabled ? 'disabled' : ''}`}
-              onClick={() => handleCommandClick(cmd)}
-            >
-              <span>{cmd.name}</span>
-              {cmd.key && <kbd>{cmd.key}</kbd>}
-            </div>
-          ))}
-        </div>
+          <KBarResults
+            items={results}
+            onRender={({ item, active }) => {
+              if (typeof item === 'string') {
+                return (
+                  <div className="kbar-section" key={item}>
+                    {item}
+                  </div>
+                );
+              }
 
-        <div className="command-palette-footer">
-          Press <kbd>Esc</kbd> to close
-        </div>
-      </div>
-    </div>
+              return (
+                <div
+                  key={item.id}
+                  className={`kbar-result ${active ? 'kbar-result--active' : ''}`}
+                >
+                  <div className="kbar-result__meta">
+                    <div className="kbar-result__name">{item.name}</div>
+                    {item.subtitle && (
+                      <div className="kbar-result__subtitle">{item.subtitle}</div>
+                    )}
+                  </div>
+
+                  {item.shortcut?.length ? (
+                    <div className="kbar-result__shortcut" aria-hidden="true">
+                      {item.shortcut.map((shortcut, index) => (
+                        <kbd key={shortcut + index}>{shortcut}</kbd>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            }}
+          />
+
+          <div className="kbar-hint" aria-hidden="true">
+            Press <kbd>Esc</kbd> to close • <kbd>↑</kbd>/<kbd>↓</kbd> to navigate
+          </div>
+        </KBarAnimator>
+      </KBarPositioner>
+    </KBarPortal>
   );
 }
 

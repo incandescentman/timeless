@@ -134,65 +134,165 @@
   text-decoration: underline;
 }
 
-/* Command Palette */
-.command-palette {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border-radius: 12px;
-  width: 100%;
-  max-width: 600px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
+/* Command Palette (kbar) */
+.kbar-positioner {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 1.5rem 2rem;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1200;
 }
 
-.command-palette input {
+.kbar-animator {
+  width: min(680px, 100%);
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 18px;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body.dark-mode .kbar-animator {
+  background: rgba(17, 24, 39, 0.92);
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  box-shadow: 0 28px 60px rgba(2, 6, 23, 0.7);
+}
+
+.kbar-search {
   width: 100%;
-  padding: 20px;
-  font-size: 1.2em;
+  padding: 1.1rem 1.5rem;
+  font-size: 1.05rem;
   border: none;
-  background: var(--shaded-month);
+  background: transparent;
   color: var(--text-primary);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
   outline: none;
 }
 
-.command-list {
-  max-height: 400px;
+body.dark-mode .kbar-search {
+  color: #e2e8f0;
+  border-bottom-color: rgba(71, 85, 105, 0.6);
+}
+
+.kbar-results {
+  max-height: 340px;
   overflow-y: auto;
+  padding: 0.5rem 0;
 }
 
-.command-item {
-  padding: 15px 20px;
-  cursor: pointer;
+.kbar-section {
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.45);
+  padding: 0.8rem 1.5rem 0.4rem;
+}
+
+body.dark-mode .kbar-section {
+  color: rgba(148, 163, 184, 0.55);
+}
+
+.kbar-result {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-color);
-  transition: background 0.2s;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  color: var(--text-primary);
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.command-item:hover {
-  background: var(--shaded-month);
+.kbar-result__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.command-item.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.kbar-result__name {
+  font-size: 0.98rem;
+  font-weight: 600;
 }
 
-.command-item kbd {
-  background: var(--month-boundary);
-  padding: 4px 8px;
-  border-radius: 4px;
+.kbar-result__subtitle {
+  font-size: 0.78rem;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.kbar-result__shortcut {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.kbar-result__shortcut kbd {
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
   font-family: var(--font-day-number);
-  font-size: 0.85em;
+  font-size: 0.72rem;
+  color: rgba(15, 23, 42, 0.7);
+  background: rgba(241, 245, 249, 0.8);
 }
 
-.command-palette-footer {
-  padding: 10px 20px;
-  text-align: center;
-  font-size: 0.85em;
-  opacity: 0.7;
-  background: var(--shaded-month);
+.kbar-result--active {
+  background: rgba(37, 99, 235, 0.08);
+  border-left-color: rgba(37, 99, 235, 0.5);
+}
+
+body.dark-mode .kbar-result {
+  color: #e2e8f0;
+}
+
+body.dark-mode .kbar-result__subtitle {
+  color: rgba(148, 163, 184, 0.6);
+}
+
+body.dark-mode .kbar-result__shortcut kbd {
+  border-color: rgba(94, 106, 139, 0.6);
+  background: rgba(30, 41, 59, 0.6);
+  color: rgba(226, 232, 240, 0.85);
+}
+
+body.dark-mode .kbar-result--active {
+  background: rgba(59, 130, 246, 0.18);
+  border-left-color: rgba(96, 165, 250, 0.65);
+}
+
+.kbar-hint {
+  padding: 0.9rem 1.5rem 1.1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.kbar-hint kbd {
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  font-family: var(--font-day-number);
+  font-size: 0.7rem;
+}
+
+body.dark-mode .kbar-hint {
+  color: rgba(148, 163, 184, 0.5);
+  border-top-color: rgba(71, 85, 105, 0.45);
+}
+
+body.dark-mode .kbar-hint kbd {
+  border-color: rgba(94, 106, 139, 0.6);
 }
 
 /* Loading Spinner */

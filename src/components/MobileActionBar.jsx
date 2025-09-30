@@ -1,8 +1,10 @@
 import { addMonths, generateDayId } from '../utils/dateUtils';
 import { useCalendar } from '../contexts/CalendarContext';
+import { useKBar } from 'kbar';
 
-function MobileActionBar({ onShowCommandPalette }) {
+function MobileActionBar() {
   const { systemToday } = useCalendar();
+  const { query } = useKBar();
 
   const goToToday = () => {
     const todayCell = document.querySelector('.day-cell.today');
@@ -59,7 +61,7 @@ function MobileActionBar({ onShowCommandPalette }) {
         <span>Next</span>
       </button>
 
-      <button onClick={onShowCommandPalette}>
+      <button onClick={() => query.toggle()}>
         <svg className="icon" viewBox="0 0 24 24">
           <path d="M4 6h16" stroke="currentColor" strokeWidth="2" fill="none"/>
           <path d="M4 12h16" stroke="currentColor" strokeWidth="2" fill="none"/>
