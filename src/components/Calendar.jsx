@@ -157,7 +157,17 @@ function Calendar() {
         rows.push(
           <tr key={`month-${monthKey}`} className="month-boundary">
             <td colSpan="7">
-              <strong>{months[month]} {year}</strong>
+              <div className="month-header" aria-label={`${months[month]} ${year}`}>
+                <span className="month-header__line" aria-hidden="true" />
+                <time
+                  className="month-header__label"
+                  dateTime={`${year}-${String(month + 1).padStart(2, '0')}-01`}
+                >
+                  <span className="month-header__month">{months[month]}</span>
+                  <span className="month-header__year">{year}</span>
+                </time>
+                <span className="month-header__line" aria-hidden="true" />
+              </div>
             </td>
           </tr>
         );

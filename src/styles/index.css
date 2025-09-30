@@ -1,5 +1,5 @@
 /* CSS Variables for consistent theming */
-    :root {
+   :root {
    --today-gradient-from: rgba(229, 62, 62, 0.9);
    --today-gradient-to: rgba(197, 48, 48, 0.9);
    --border-width: 1px;
@@ -28,15 +28,18 @@
    --header-gradient-from: transparent;
    --header-gradient-to: transparent;
    --header-solid-bg: rgba(255,255,255,0.95);
-   --month-heading-bg: rgba(255,255,255,0.95);
-   --month-heading-text: #333;
-      /* Typography */
+   --month-header-surface: rgba(255, 255, 255, 0.82);
+   --month-header-border: rgba(15, 23, 42, 0.08);
+   --month-header-foreground: #0f172a;
+   --month-header-muted: rgba(15, 23, 42, 0.55);
+   --month-header-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+     /* Typography */
    --font-month-heading: 'Playfair Display', serif;
    --font-day-number: 'Fira Code', monospace;
     }
 
     /* Dark mode colors */
-    body.dark-mode {
+   body.dark-mode {
    --bg-primary: #222;
    --bg-pattern: rgba(255,255,255,0.05);
    --text-primary: #eee;
@@ -49,8 +52,11 @@
    --header-gradient-from: #2c3e50;
    --header-gradient-to: #1a1a2e;
    --header-solid-bg: rgba(40, 40, 40, 0.95);
-   --month-heading-bg: #2c2c2c;
-   --month-heading-text: #ddd;
+   --month-header-surface: rgba(15, 23, 42, 0.7);
+   --month-header-border: rgba(148, 163, 184, 0.28);
+   --month-header-foreground: #f8fafc;
+   --month-header-muted: rgba(148, 163, 184, 0.65);
+   --month-header-shadow: 0 22px 38px rgba(2, 6, 23, 0.55);
     }
 
     /* Base styles + animated dot grid background */
@@ -908,4 +914,3 @@
       text-decoration: line-through;
       opacity: 0.7;
     }
-
