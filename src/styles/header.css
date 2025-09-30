@@ -88,6 +88,12 @@ body.dark-mode .brand-subtitle {
   gap: 8px;
 }
 
+@media (max-width: 768px) {
+  .action-group--data {
+    display: none;
+  }
+}
+
 .header-action {
   position: relative;
   display: inline-flex;
