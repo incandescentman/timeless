@@ -37,16 +37,114 @@ body.dark-mode .calendar-wrapper {
 }
 
 #calendar thead th {
-  background: white;
-  padding: 10px;
-  font-weight: 600;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  padding: 12px 8px;
+  font-weight: 500;
   text-align: center;
-  border-bottom: 2px solid var(--border-color);
-  border-top: 1px solid var(--border-color);
+  border-bottom: 3px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+#calendar thead th::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+#calendar thead th:hover::after {
+  width: 80%;
 }
 
 body.dark-mode #calendar thead th {
-  background: #222;
+  background: linear-gradient(to bottom, #1a1a1a, #262626);
+  border-color: #404040;
+}
+
+/* Day labels styling */
+.day-label {
+  display: block;
+}
+
+.day-short {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.day-full {
+  display: none;
+}
+
+/* Show full day names on larger screens and hide short names */
+@media (min-width: 1024px) {
+  .day-short {
+    display: none;
+  }
+
+  .day-full {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #64748b;
+  }
+
+  #calendar thead th {
+    padding: 14px 10px;
+  }
+}
+
+/* Weekend styling */
+#calendar thead th.weekend {
+  background: linear-gradient(to bottom, #fef2f2, #fee2e2);
+}
+
+body.dark-mode #calendar thead th.weekend {
+  background: linear-gradient(to bottom, #2a1a1a, #362626);
+}
+
+#calendar thead th.weekend .day-short {
+  color: #ef4444;
+}
+
+#calendar thead th.weekend .day-full {
+  color: #f87171;
+}
+
+body.dark-mode #calendar thead th.weekend .day-short {
+  color: #f87171;
+}
+
+body.dark-mode #calendar thead th.weekend .day-full {
+  color: #fca5a5;
+}
+
+/* Weekday specific hover effects */
+#calendar thead th.weekday:hover {
+  background: linear-gradient(to bottom, #f0f9ff, #e0f2fe);
+}
+
+#calendar thead th.weekend:hover {
+  background: linear-gradient(to bottom, #fef2f2, #fecaca);
+}
+
+body.dark-mode #calendar thead th.weekday:hover {
+  background: linear-gradient(to bottom, #1e293b, #334155);
+}
+
+body.dark-mode #calendar thead th.weekend:hover {
+  background: linear-gradient(to bottom, #3f1a1a, #4a2626);
 }
 
 .week-row {
@@ -81,12 +179,100 @@ body.dark-mode #calendar thead th {
   top: 60px;
   left: 0;
   right: 0;
-  padding: 10px;
+  padding: 12px 20px;
   text-align: center;
-  font-size: 1.2em;
-  font-weight: bold;
-  background: var(--header-solid-bg);
-  border-bottom: 1px solid var(--border-color);
+  font-size: 1.4em;
+  font-weight: 600;
+  font-family: var(--font-month-heading, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 249, 252, 0.98) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   z-index: 100;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  color: #1e293b;
+  overflow: hidden;
+  display: block !important; /* Ensure it's visible */
+}
+
+/* Subtle gradient overlay effect */
+#stickyMonthHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.05) 50%,
+    transparent 100%);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 200%;
+  }
+}
+
+/* Month/Year split design */
+#stickyMonthHeader .month-text {
+  display: inline-block;
+  font-weight: 700;
+  color: #0f172a;
+  margin-right: 8px;
+}
+
+#stickyMonthHeader .year-text {
+  display: inline-block;
+  font-weight: 400;
+  color: #64748b;
+  font-size: 0.9em;
+}
+
+/* Dark mode styles for sticky header */
+body.dark-mode #stickyMonthHeader {
+  background: linear-gradient(135deg,
+    rgba(30, 30, 30, 0.98) 0%,
+    rgba(40, 40, 40, 0.98) 100%);
+  border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+  color: #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2),
+              0 2px 4px -1px rgba(0, 0, 0, 0.15);
+}
+
+body.dark-mode #stickyMonthHeader .month-text {
+  color: #f1f5f9;
+}
+
+body.dark-mode #stickyMonthHeader .year-text {
+  color: #94a3b8;
+}
+
+body.dark-mode #stickyMonthHeader::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.08) 50%,
+    transparent 100%);
+}
+
+/* Hover effect */
+#stickyMonthHeader:hover {
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.08),
+              0 3px 5px -1px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+body.dark-mode #stickyMonthHeader:hover {
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.3),
+              0 3px 5px -1px rgba(0, 0, 0, 0.2);
 }

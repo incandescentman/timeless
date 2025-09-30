@@ -10,7 +10,7 @@ const BUFFER_WEEKS = 26; // Load 26 weeks above and below
 function Calendar() {
   const { systemToday } = useCalendar();
   const [weeks, setWeeks] = useState([]);
-  const [stickyMonthHeader, setStickyMonthHeader] = useState('');
+  const [stickyMonthHeader, setStickyMonthHeader] = useState({ month: '', year: '' });
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
@@ -128,7 +128,7 @@ function Calendar() {
         const dateId = firstVisibleCell.dataset.dateId;
         if (dateId) {
           const [month, , year] = dateId.split('_').map(Number);
-          setStickyMonthHeader(`${months[month]} ${year}`);
+          setStickyMonthHeader({ month: months[month], year: year });
         }
       }
     };
@@ -179,21 +179,63 @@ function Calendar() {
   return (
     <>
       <div className="calendar-wrapper" />
-      <div id="stickyMonthHeader">{stickyMonthHeader}</div>
+      <div id="stickyMonthHeader">
+        {stickyMonthHeader.month && (
+          <>
+            <span className="month-text">{stickyMonthHeader.month}</span>
+            <span className="year-text">{stickyMonthHeader.year}</span>
+          </>
+        )}
+      </div>
 
       <div id="calendarContainer" ref={calendarRef}>
         <div ref={topSentinelRef} id="top-sentinel" style={{ height: '10px' }} />
 
         <table id="calendar">
           <thead>
-            <tr>
-              <th>Mon</th>
-              <th>Tues</th>
-              <th>Wed</th>
-              <th>Thurs</th>
-              <th>Fri</th>
-              <th>Sat</th>
-              <th>Sun</th>
+            <tr className="days-header">
+              <th className="weekday">
+                <div className="day-label">
+                  <span className="day-short">Mon</span>
+                  <span className="day-full">Monday</span>
+                </div>
+              </th>
+              <th className="weekday">
+                <div className="day-label">
+                  <span className="day-short">Tue</span>
+                  <span className="day-full">Tuesday</span>
+                </div>
+              </th>
+              <th className="weekday">
+                <div className="day-label">
+                  <span className="day-short">Wed</span>
+                  <span className="day-full">Wednesday</span>
+                </div>
+              </th>
+              <th className="weekday">
+                <div className="day-label">
+                  <span className="day-short">Thu</span>
+                  <span className="day-full">Thursday</span>
+                </div>
+              </th>
+              <th className="weekday">
+                <div className="day-label">
+                  <span className="day-short">Fri</span>
+                  <span className="day-full">Friday</span>
+                </div>
+              </th>
+              <th className="weekend">
+                <div className="day-label">
+                  <span className="day-short">Sat</span>
+                  <span className="day-full">Saturday</span>
+                </div>
+              </th>
+              <th className="weekend">
+                <div className="day-label">
+                  <span className="day-short">Sun</span>
+                  <span className="day-full">Sunday</span>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
