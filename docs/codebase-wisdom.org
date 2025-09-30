@@ -10,6 +10,12 @@
 ** The Truth
    CSS `position: sticky` and `position: fixed` create different stacking contexts that don't play well together. The sticky element leaves a "hole" in the document flow where the background shows through. I was trying to patch this hole with increasingly complex pseudo-elements (::before, ::after) with different positioning, but each patch created new edge cases.
 
+   **Key insight that would have saved time:**
+   - `position: sticky` elements exist in normal document flow until they "stick", then create a new stacking context
+   - When stuck, they leave empty space in the document flow that shows whatever background is behind
+   - Pseudo-elements with different positioning contexts (absolute vs fixed vs sticky) compound the problem
+   - **The answer is always a dedicated background layer**, not patching with pseudo-elements
+
 ** Why This Took 30+ Minutes
    1. **Wrong mental model**: Thought in terms of "filling gaps" instead of "creating layers"
    2. **Incremental patching**: Each fix (adjusting top, z-index, padding) seemed to work until it created a new problem
@@ -50,6 +56,10 @@
    - [ ] **Avoid pseudo-element gap-filling** - If you're using ::before to fill space, rethink the approach
    - [ ] **Check all color modes** - Transparent backgrounds often reveal themselves in dark mode
    - [ ] **Step back after 3 failed attempts** - If tweaking isn't working, the approach is wrong
+   - [ ] **Remember the three-layer pattern** for sticky + fixed:
+     1. Fixed background layer (lowest z-index) - prevents any gaps
+     2. Sticky content layer (middle z-index) - your scrolling headers
+     3. Fixed UI layer (highest z-index) - navigation that stays on top
 
 * Vite CSS @import Errors: Why CSS Imports Failed in React
   Date: 2025-10-01
