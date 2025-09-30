@@ -174,21 +174,41 @@ function Header({ onShowYearView, onShowHelp }) {
 
         <nav className="app-header__actions" aria-label="Calendar primary actions">
           <div className="action-group action-group--primary">
-            {primaryActions.map(action => (
-              <HeaderAction key={action.key} {...action} variant="primary" />
-            ))}
+            {primaryActions.map(action => {
+              const { key, ...actionProps } = action;
+              return (
+                <HeaderAction
+                  key={key}
+                  {...actionProps}
+                  variant="primary"
+                />
+              );
+            })}
           </div>
 
           <div className="action-group action-group--secondary">
-            {secondaryActions.map(action => (
-              <HeaderAction key={action.key} {...action} />
-            ))}
+            {secondaryActions.map(action => {
+              const { key, ...actionProps } = action;
+              return (
+                <HeaderAction
+                  key={key}
+                  {...actionProps}
+                />
+              );
+            })}
           </div>
 
           <div className="action-group action-group--data">
-            {dataActions.map(action => (
-              <HeaderAction key={action.key} {...action} variant="ghost" />
-            ))}
+            {dataActions.map(action => {
+              const { key, ...actionProps } = action;
+              return (
+                <HeaderAction
+                  key={key}
+                  {...actionProps}
+                  variant="ghost"
+                />
+              );
+            })}
           </div>
         </nav>
       </div>
