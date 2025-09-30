@@ -183,6 +183,10 @@ body.dark-mode #calendar thead th:first-child:hover {
   padding: 26px 12px 20px 4px;
   text-align: left;
   cursor: default;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  background: transparent !important;
 }
 
 .month-header {
@@ -203,6 +207,18 @@ body.dark-mode #calendar thead th:first-child:hover {
     rgba(15, 23, 42, 0.18) 45%,
     rgba(15, 23, 42, 0.32) 55%,
     transparent 100%);
+}
+
+.month-boundary td::before {
+  content: none !important;
+}
+
+.month-boundary td:hover,
+.month-boundary td:focus-within {
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  background: transparent !important;
 }
 
 .month-header__line:first-child {
