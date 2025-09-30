@@ -27,6 +27,53 @@ body {
   overscroll-behavior-y: contain; /* or none */
 }
 
+@media (max-width: 768px) {
+  .calendar-day-labels {
+    display: none !important;
+  }
+
+  .calendar-grid {
+    gap: 32px;
+    padding: 0 14px;
+  }
+
+  .month-section {
+    gap: 18px;
+  }
+
+  .week-row {
+    display: flex !important;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .day-cell {
+    width: 100% !important;
+    max-width: none;
+    padding: 18px;
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.15);
+  }
+
+  body.dark-mode .day-cell {
+    box-shadow: 0 14px 30px rgba(2, 6, 23, 0.55);
+  }
+
+  .day-number {
+    font-size: 0.85rem;
+    opacity: 0.65;
+  }
+
+  .day-cell textarea {
+    font-size: 1rem;
+    min-height: 80px;
+  }
+
+  .month-header {
+    padding-left: 4px;
+  }
+}
+
   /* Hide miniCalendar on mobile */
   #miniCalendar {
     display: none !important;
