@@ -191,9 +191,9 @@ function Header({ onShowYearView, onShowHelp, onShowCommandPalette }) {
         </nav>
       </div>
 
-      <aside className="app-header__calendar" aria-label="Three month mini calendar">
+      <div className="app-header__calendar" aria-label="Three month mini calendar">
         <MiniCalendar />
-      </aside>
+      </div>
 
       <input
         type="file"

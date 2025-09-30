@@ -176,12 +176,16 @@ body.dark-mode .header-action--ghost:hover {
 .app-header__calendar {
   flex: 0 0 auto;
   max-width: 260px;
-  padding: 4px 0 0;
+  margin-top: 52px;
 }
 
 .app-header__calendar .mini-calendar-container {
   box-shadow: none;
   background: transparent;
+}
+
+.app-header__calendar .mini-calendar-container > * {
+  margin-top: 12px;
 }
 
 .app-header__calendar .mini-month {
