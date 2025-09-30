@@ -7,7 +7,9 @@ import { generateDayId } from './dateUtils';
 const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const ITEM_KEY_REGEX = /^item\d+$/;
-const API_ENDPOINT = 'api.php';
+
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const API_ENDPOINT = `${API_BASE}/api.php`;
 
 function readLocalStorageEntries() {
   const entries = {};
