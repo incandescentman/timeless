@@ -1,0 +1,106 @@
+.experimental-mode-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10000;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+
+.experimental-mode-indicator.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.experimental-mode-indicator:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+}
+
+.experimental-mode-indicator__content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.experimental-mode-indicator__label {
+  opacity: 0.9;
+}
+
+.experimental-mode-indicator__value {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.experimental-mode-indicator__hint {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Pulse animation on first show */
+@keyframes experimental-pulse {
+  0% {
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 48px rgba(102, 126, 234, 0.5);
+  }
+  100% {
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  }
+}
+
+.experimental-mode-indicator.visible {
+  animation: experimental-pulse 2s ease-in-out;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .experimental-mode-indicator {
+  background: linear-gradient(135deg, #4c5fd5 0%, #6b46c1 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Minimal variant style */
+[data-experimental-variant="minimal"] .experimental-mode-indicator {
+  background: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+}
+
+[data-experimental-variant="minimal"] .experimental-mode-indicator:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .experimental-mode-indicator {
+    bottom: 80px; /* Above mobile action bar */
+    right: 10px;
+    padding: 10px 16px;
+    border-radius: 20px;
+  }
+
+  .experimental-mode-indicator__content {
+    font-size: 13px;
+  }
+
+  .experimental-mode-indicator__hint {
+    display: none;
+  }
+}

@@ -10,11 +10,12 @@ import YearView from './components/YearView';
 import HelpOverlay from './components/HelpOverlay';
 import CommandPalette from './components/CommandPalette';
 import LoadingSpinner from './components/LoadingSpinner';
+import ExperimentalModeIndicator from './components/ExperimentalModeIndicator';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { parseNaturalDate, generateDayId } from './utils/dateUtils';
 import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from './utils/storage';
 
-function AppContent() {
+function AppContent({ experimentalMode }) {
   const [showYearView, setShowYearView] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +84,8 @@ function AppContent() {
     input.click();
   }, []);
 
-  const kbarActions = useMemo(() => [
+  const kbarActions = useMemo(() => {
+    const baseActions = [
     {
       id: 'go-today',
       name: 'Go to Today',
@@ -166,7 +168,29 @@ function AppContent() {
       section: 'Data',
       perform: handleImport
     }
-  ], [
+  ];
+
+    // Add experimental mode actions if experimental mode is enabled
+    if (experimentalMode && experimentalMode.enabled) {
+      const variantActions = experimentalMode.variants.map(variant => ({
+        id: `variant-${variant.key}`,
+        name: variant.label,
+        section: 'UI Variants',
+        subtitle: variant.description,
+        perform: () => experimentalMode.setActiveKey(variant.key)
+      }));
+
+      baseActions.push(...variantActions, {
+        id: 'cycle-variant',
+        name: 'Cycle UI Variant',
+        shortcut: ['alt', 'e'],
+        section: 'UI Variants',
+        perform: () => experimentalMode.cycleVariant()
+      });
+    }
+
+    return baseActions;
+  }, [
     canRedo,
     canUndo,
     goToToday,
@@ -176,7 +200,8 @@ function AppContent() {
     toggleDarkMode,
     undo,
     syncWithServer,
-    isSyncingWithServer
+    isSyncingWithServer,
+    experimentalMode
   ]);
 
   return (
@@ -197,12 +222,13 @@ function AppContent() {
         showHelp={showHelp}
         setShowHelp={setShowHelp}
         isLoading={isLoading}
+        experimentalMode={experimentalMode}
       />
     </KBarProvider>
   );
 }
 
-function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoading }) {
+function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoading, experimentalMode }) {
   const { query } = useKBar();
 
   useKeyboardShortcuts({
@@ -233,6 +259,8 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
       )}
 
       {isLoading && <LoadingSpinner />}
+
+      <ExperimentalModeIndicator experimentalMode={experimentalMode} />
     </>
   );
 }
@@ -274,7 +302,7 @@ function App() {
   return (
     <ThemeProvider>
       <CalendarProvider>
-        <AppContent />
+        <AppContent experimentalMode={experimentalMode} />
       </CalendarProvider>
     </ThemeProvider>
   );
