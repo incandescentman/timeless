@@ -5,6 +5,7 @@
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  padding-top: 140px;
 }
 
 #calendar {
@@ -14,15 +15,29 @@
   table-layout: fixed;
 }
 
+#calendar thead {
+  position: sticky;
+  top: 80px;
+  z-index: 100;
+}
+
+#calendar thead::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: var(--bg-primary);
+  z-index: -1;
+}
+
 #calendar thead th {
   background: var(--header-solid-bg);
   padding: 10px;
   font-weight: 600;
   text-align: center;
   border-bottom: 2px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 .week-row {
