@@ -264,28 +264,12 @@ body.dark-mode #calendar thead th:first-child:hover {
   font-variant-numeric: tabular-nums;
 }
 
-.month-boundary td:hover .month-header__label,
-.month-boundary td:focus-within .month-header__label {
-  background: var(--month-header-surface);
-  background: color-mix(in srgb, var(--month-header-surface) 88%, white 12%);
-  border-color: rgba(37, 99, 235, 0.28);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-}
-
 body.dark-mode .month-header__line {
   background: linear-gradient(90deg,
     transparent 0%,
     rgba(148, 163, 184, 0.26) 45%,
     rgba(148, 163, 184, 0.4) 55%,
     transparent 100%);
-}
-
-body.dark-mode .month-boundary td:hover .month-header__label,
-body.dark-mode .month-boundary td:focus-within .month-header__label {
-  background: var(--month-header-surface);
-  background: color-mix(in srgb, var(--month-header-surface) 82%, rgba(148, 163, 184, 0.2) 18%);
-  border-color: rgba(96, 165, 250, 0.32);
-  box-shadow: 0 18px 32px rgba(2, 6, 23, 0.48);
 }
 
 body.dark-mode .month-header__label::before {
