@@ -204,11 +204,20 @@ a.button,
   touch-action: manipulation;
 }
 
-  #stickyMonthHeader {
-    font-size: 18px;
-    padding: 8px 12px;
-    width: 100%;
-    text-align: center;
+  /* Mobile-specific adjustments for sticky header */
+  @media (max-width: 768px) {
+    #stickyMonthHeader {
+      font-size: 1.1em;  /* Smaller font on mobile */
+      padding: 8px 12px;
+    }
+
+    #stickyMonthHeader .month-text {
+      font-size: 1em;
+    }
+
+    #stickyMonthHeader .year-text {
+      font-size: 0.85em;
+    }
   }
   #calendarContainer {
     margin-top: 80px;

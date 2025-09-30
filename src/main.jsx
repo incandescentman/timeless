@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './styles/calendar.css';
+import './styles/index.css';  // Base styles first
+import './styles/calendar.css';  // Then specific component styles
 import './styles/day-cell.css';
 import './styles/header.css';
 import './styles/mini-calendar.css';
 import './styles/overlays.css';
-import './styles/mobile.css';
-import './styles/index.css';
+import './styles/mobile.css';  // Mobile overrides last
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -193,49 +193,14 @@ function Calendar() {
 
         <table id="calendar">
           <thead>
-            <tr className="days-header">
-              <th className="weekday">
-                <div className="day-label">
-                  <span className="day-short">Mon</span>
-                  <span className="day-full">Monday</span>
-                </div>
-              </th>
-              <th className="weekday">
-                <div className="day-label">
-                  <span className="day-short">Tue</span>
-                  <span className="day-full">Tuesday</span>
-                </div>
-              </th>
-              <th className="weekday">
-                <div className="day-label">
-                  <span className="day-short">Wed</span>
-                  <span className="day-full">Wednesday</span>
-                </div>
-              </th>
-              <th className="weekday">
-                <div className="day-label">
-                  <span className="day-short">Thu</span>
-                  <span className="day-full">Thursday</span>
-                </div>
-              </th>
-              <th className="weekday">
-                <div className="day-label">
-                  <span className="day-short">Fri</span>
-                  <span className="day-full">Friday</span>
-                </div>
-              </th>
-              <th className="weekend">
-                <div className="day-label">
-                  <span className="day-short">Sat</span>
-                  <span className="day-full">Saturday</span>
-                </div>
-              </th>
-              <th className="weekend">
-                <div className="day-label">
-                  <span className="day-short">Sun</span>
-                  <span className="day-full">Sunday</span>
-                </div>
-              </th>
+            <tr>
+              <th><span className="day-label">Monday</span></th>
+              <th><span className="day-label">Tuesday</span></th>
+              <th><span className="day-label">Wednesday</span></th>
+              <th><span className="day-label">Thursday</span></th>
+              <th><span className="day-label">Friday</span></th>
+              <th><span className="day-label">Saturday</span></th>
+              <th><span className="day-label">Sunday</span></th>
             </tr>
           </thead>
           <tbody>
