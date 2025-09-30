@@ -99,19 +99,20 @@ All original features have been preserved:
 - Infinite scroll with Intersection Observer
 - Throttled scroll handlers
 - Efficient React rendering with proper keys
-- Local storage persistence with optional server-side sync (Vercel KV)
+- Local storage persistence with optional server-side sync (Redis)
 
 ### Data Sync
 - `src/utils/storage.js` normalises local data and calls `/api/calendar`
 - `src/contexts/CalendarContext.jsx` compares timestamps, merges fresher server data, and debounces saves
-- Serverless API lives in `api/calendar.js` and stores payloads in Vercel KV (`calendar:data` key)
+- Serverless API lives in `api/calendar.js` and stores payloads in Redis (key `calendar:data`)
 
 ## 🌐 Deployment
 
-### Backend (Vercel KV + Serverless API)
-1. Add **Vercel KV** to your project so the env vars `KV_URL`, `KV_REST_API_URL`, and `KV_REST_API_TOKEN` are available.
-2. Deploy this repository to Vercel. The route `api/calendar.js` becomes a serverless function that reads/writes the `calendar:data` key in KV.
-3. (Optional) Seed the store once deployed:
+### Backend (Redis + Serverless API)
+1. Provision a Redis instance (Vercel’s Upstash integration, Redis Cloud, etc.) and note the connection URL.
+2. Set the environment variable `REDIS_URL` in your Vercel project (and locally via `.env.local` if needed).
+3. Deploy this repository to Vercel. The route `api/calendar.js` becomes a serverless function that reads/writes the `calendar:data` hash via `ioredis`.
+4. (Optional) Seed the store once deployed:
    ```bash
    curl -X POST "https://<your-app>.vercel.app/api/calendar" \
      -H "Content-Type: application/json" \
@@ -124,11 +125,10 @@ All original features have been preserved:
 
 ### Local Development
 1. `npm install`
-2. Create `.env.local` with `VITE_API_BASE_URL`:
-   - Use `vercel dev` to emulate KV + the serverless function locally; or
-   - Point to a deployed API (e.g. `https://<your-app>.vercel.app`).
-3. `npm run dev`
-4. Use the command palette (“Sync with Server”) to verify round-trips.
+2. Create `.env.local` with `VITE_API_BASE_URL` (and `REDIS_URL` if you’re running a local Redis instance or connecting to a cloud instance from your machine).
+3. Start a local API (`vercel dev` is recommended so the serverless function can reach Redis using the pulled credentials).
+4. `npm run dev`
+5. Use the command palette (“Sync with Server”) to verify round-trips.
 
 ## 🔄 Migration Notes
 

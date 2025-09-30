@@ -1,6 +1,7 @@
-import { kv } from '@vercel/kv';
+import Redis from 'ioredis';
 
 const KEY = 'calendar:data';
+const redis = new Redis(process.env.REDIS_URL);
 
 function parseRequestBody(req) {
   if (!req.body) {
@@ -36,8 +37,17 @@ function sendJson(res, status, body) {
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const data = await kv.get(KEY);
-      const payload = typeof data === 'object' && data !== null ? data : {};
+      const raw = await redis.get(KEY);
+      let payload = {};
+
+      if (raw) {
+        try {
+          payload = JSON.parse(raw);
+        } catch (error) {
+          console.error('Failed to parse calendar payload from Redis:', error);
+        }
+      }
+
       sendJson(res, 200, payload);
       return;
     }
@@ -57,10 +67,13 @@ export default async function handler(req, res) {
       }
 
       const timestamp = Date.now().toString();
-      await kv.set(KEY, {
-        ...payload,
-        lastSavedTimestamp: timestamp
-      });
+      await redis.set(
+        KEY,
+        JSON.stringify({
+          ...payload,
+          lastSavedTimestamp: timestamp
+        })
+      );
 
       sendJson(res, 200, { status: 'ok', savedTimestamp: timestamp });
       return;
@@ -69,7 +82,7 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'GET, POST');
     sendJson(res, 405, { error: 'Method not allowed' });
   } catch (error) {
-    console.error('KV handler error:', error);
+    console.error('Redis handler error:', error);
     sendJson(res, 500, { status: 'error', message: 'Internal server error' });
   }
 }

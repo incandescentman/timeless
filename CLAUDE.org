@@ -6,7 +6,7 @@
 - Feature set matches the original Timeless calendar—local-only storage, infinite past/future weeks, keyboard navigation, multi-select, natural-language jumps—now organized into reusable components.
 
 * State & Utilities
-- ~src/contexts/CalendarContext.jsx:1~ centralizes calendar data, undo/redo stacks, selection/range state, and exposes helpers like ~addNote~, ~toggleDaySelection~, and ~getNotesForDate~; it now also orchestrates server sync (timestamp comparison, debounced saves to KV).
+- ~src/contexts/CalendarContext.jsx:1~ centralizes calendar data, undo/redo stacks, selection/range state, and exposes helpers like ~addNote~, ~toggleDaySelection~, and ~getNotesForDate~; it now also orchestrates server sync (timestamp comparison, debounced saves to Redis).
 - Storage helpers in ~src/utils/storage.js:1~ normalise localStorage data and talk to the serverless endpoint at ~api/calendar.js~, falling back to `/api.php` only if ~VITE_API_BASE_URL~ points to the legacy PHP route.
 - Date utilities in ~src/utils/dateUtils.js:1~ cover ID generation, week/month math, natural-language parsing (“next friday”), and display formatting; they keep the app calendar-agnostic and reusable.
 - ~src/contexts/ThemeContext.jsx:1~ toggles dark mode by flipping a body class and persisting a ~darkMode~ flag.
@@ -20,9 +20,9 @@
 - ~src/components/YearView.jsx:1~ overlays an annual grid, tracks the chosen year, highlights notes/today, and closes after jumping to a day.
 - ~src/components/CommandPalette.jsx:1~, ~HelpOverlay.jsx:1~, and ~MobileActionBar.jsx:1~ provide palette actions (go to today, dark mode, exports, jump dialog), shortcut documentation, and mobile-first navigation buttons.
 
-- Install and launch with ~npm install~ then ~npm run dev~ (Vite defaults to port 5000 in ~vite.config.js:1~; host is exposed for LAN/Replit access). Create ~.env.local~ with ~VITE_API_BASE_URL~ pointing at your dev API (e.g., `http://127.0.0.1:3000` when using ~vercel dev~).
+- Install and launch with ~npm install~ then ~npm run dev~ (Vite defaults to port 5000 in ~vite.config.js:1~; host is exposed for LAN/Replit access). Create ~.env.local~ with ~VITE_API_BASE_URL~ (and ~REDIS_URL~ if you’re connecting to a remote Redis instance) or run ~vercel dev~ which injects both.
 - ~docs/~, ~README-REACT.md~, and the various ~README.*~ files capture migration notes and original design intent; legacy vanilla assets remain in ~index-vanilla.html~, ~calendar.js~, and ~old-assets/~ for reference.
-- Server sync uses the ~api/calendar.js~ serverless function backed by Vercel KV (configure ~KV_URL~, ~KV_REST_API_URL~, ~KV_REST_API_TOKEN~, and ~VITE_API_BASE_URL~); the legacy PHP stub remains only for reference.
+- Server sync uses the ~api/calendar.js~ serverless function backed by Redis (configure ~REDIS_URL~ alongside ~VITE_API_BASE_URL~); the legacy PHP stub remains only for reference.
 - Styles live under ~src/styles/~ and are imported globally, so any adjustments there cascade through the whole UI.
 
 * Next Steps (Optional)
