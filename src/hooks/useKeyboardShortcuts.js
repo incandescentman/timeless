@@ -151,9 +151,9 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
           const dateId = generateDayId(keyboardFocusDate);
           const cell = document.querySelector(`[data-date-id="${dateId}"]`);
           if (cell) {
-            const textarea = cell.querySelector('textarea');
-            if (textarea) {
-              textarea.focus();
+            const composerInput = cell.querySelector('.day-event__composer input');
+            if (composerInput) {
+              composerInput.focus();
             } else {
               cell.click();
             }

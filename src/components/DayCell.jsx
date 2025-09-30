@@ -1,11 +1,67 @@
 import { useState, useRef, useEffect } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend } from '../utils/dateUtils';
+
+function DayEventRow({
+  event,
+  index,
+  isEditing,
+  draftText,
+  onStartEdit,
+  onChange,
+  onBlur,
+  onKeyDown,
+  onDelete,
+  editInputRef
+}) {
+  const handlers = useSwipeable({
+    onSwipedRight: () => onDelete(index),
+    preventScrollOnSwipe: true,
+    trackTouch: true,
+    delta: 40
+  });
+
+  return (
+    <div
+      className={`day-event ${isEditing ? 'editing' : ''}`}
+      {...handlers}
+      onClick={() => !isEditing && onStartEdit(index)}
+    >
+      {isEditing ? (
+        <input
+          ref={editInputRef}
+          className="day-event__input"
+          value={draftText}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          placeholder="Edit event"
+        />
+      ) : (
+        <span className="day-event__text">{event}</span>
+      )}
+      <button
+        type="button"
+        className="day-event__delete"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(index);
+        }}
+        aria-label="Delete event"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
 
 function DayCell({ date }) {
   const {
     getNotesForDate,
     addNote,
+    updateEvent,
+    removeEvent,
     systemToday,
     keyboardFocusDate,
     isMultiSelectMode,
@@ -13,9 +69,11 @@ function DayCell({ date }) {
     toggleDaySelection
   } = useCalendar();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [noteText, setNoteText] = useState('');
-  const textareaRef = useRef(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [draftText, setDraftText] = useState('');
+  const [newEventText, setNewEventText] = useState('');
+  const inputRef = useRef(null);
+  const editInputRef = useRef(null);
 
   const dateId = generateDayId(date);
   const dayNumber = date.getDate();
@@ -23,19 +81,12 @@ function DayCell({ date }) {
   const isWeekendDate = isWeekend(date);
   const isKeyboardFocused = keyboardFocusDate && generateDayId(keyboardFocusDate) === dateId;
   const isSelected = selectedDays.includes(dateId);
+  const events = getNotesForDate(date);
 
-  // Load initial note text
   useEffect(() => {
-    setNoteText(getNotesForDate(date) || '');
-  }, [date, getNotesForDate]);
-
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-    }
-  }, [noteText, isEditing]);
+    setEditingIndex(null);
+    setDraftText('');
+  }, [events]);
 
   const handleCellClick = (e) => {
     // Don't start editing if clicking on textarea or in multi-select mode
@@ -46,91 +97,58 @@ function DayCell({ date }) {
       return;
     }
 
-    if (!noteText && !isEditing) {
-      setIsEditing(true);
-      setTimeout(() => textareaRef.current?.focus(), 0);
+    if (!events.length && !isMultiSelectMode) {
+      inputRef.current?.focus();
     }
   };
 
-  const handleTextareaClick = (e) => {
-    e.stopPropagation();
-  };
-
-  const handleTextareaChange = (e) => {
-    setNoteText(e.target.value);
-  };
-
-  const handleTextareaBlur = () => {
-    addNote(dateId, noteText);
-    if (!noteText.trim()) {
-      setIsEditing(false);
-    }
-  };
-
-  const handleTextareaKeyDown = (e) => {
-    // Save on Enter (unless Shift is held for multi-line)
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleNewEventKeyDown = (e) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      addNote(dateId, noteText);
-      textareaRef.current?.blur();
-      setIsEditing(false);
+      handleAddEvent();
     }
+  };
 
-    // Cancel on Escape
+  const handleAddEvent = () => {
+    const trimmed = newEventText.trim();
+    if (!trimmed) return;
+    addNote(dateId, trimmed);
+    setNewEventText('');
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const startEditing = (idx) => {
+    if (isMultiSelectMode) return;
+    setEditingIndex(idx);
+    setDraftText(events[idx] ?? '');
+    setTimeout(() => editInputRef.current?.focus(), 0);
+  };
+
+  const handleEditKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitEdit();
+    }
     if (e.key === 'Escape') {
       e.preventDefault();
-      setNoteText(getNotesForDate(date) || '');
-      setIsEditing(false);
-      textareaRef.current?.blur();
-    }
-
-    // Text formatting shortcuts
-    if (e.ctrlKey || e.metaKey) {
-      if (e.key === 'b') {
-        e.preventDefault();
-        insertFormatting('**', '**');
-      } else if (e.key === 'i') {
-        e.preventDefault();
-        insertFormatting('*', '*');
-      } else if (e.key === 'h') {
-        e.preventDefault();
-        insertText('#');
-      }
+      cancelEdit();
     }
   };
 
-  const insertFormatting = (before, after) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const selectedText = text.substring(start, end);
-
-    const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
-    setNoteText(newText);
-
-    // Restore cursor position
-    setTimeout(() => {
-      textarea.selectionStart = textarea.selectionEnd = start + before.length + selectedText.length;
-      textarea.focus();
-    }, 0);
+  const commitEdit = () => {
+    if (editingIndex === null) return;
+    updateEvent(dateId, editingIndex, draftText);
+    setEditingIndex(null);
+    setDraftText('');
   };
 
-  const insertText = (text) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setDraftText('');
+  };
 
-    const start = textarea.selectionStart;
-    const value = textarea.value;
-    const newText = value.substring(0, start) + text + value.substring(start);
-    setNoteText(newText);
-
-    setTimeout(() => {
-      textarea.selectionStart = textarea.selectionEnd = start + text.length;
-      textarea.focus();
-    }, 0);
+  const handleRemoveEvent = (idx) => {
+    removeEvent(dateId, idx);
   };
 
   const className = [
@@ -139,7 +157,7 @@ function DayCell({ date }) {
     isWeekendDate && 'weekend',
     isKeyboardFocused && 'keyboard-focused',
     isSelected && 'selected',
-    noteText && 'has-notes'
+    events.length > 0 && 'has-notes'
   ].filter(Boolean).join(' ');
 
   return (
@@ -151,18 +169,38 @@ function DayCell({ date }) {
       aria-label={`Notes for ${date.toDateString()}`}
     >
       <div className="day-number">{dayNumber}</div>
+      <div className="day-events">
+        {events.map((event, idx) => (
+          <DayEventRow
+            key={`${dateId}-event-${idx}`}
+            event={event}
+            index={idx}
+            isEditing={editingIndex === idx}
+            draftText={editingIndex === idx ? draftText : ''}
+            onStartEdit={startEditing}
+            onChange={setDraftText}
+            onBlur={commitEdit}
+            onKeyDown={handleEditKeyDown}
+            onDelete={handleRemoveEvent}
+            editInputRef={editInputRef}
+          />
+        ))}
+      </div>
 
-      {(noteText || isEditing) && (
-        <textarea
-          ref={textareaRef}
-          value={noteText}
-          onChange={handleTextareaChange}
-          onBlur={handleTextareaBlur}
-          onKeyDown={handleTextareaKeyDown}
-          onClick={handleTextareaClick}
-          placeholder="Add a note..."
-          rows={1}
-        />
+      {!isMultiSelectMode && (
+        <div className="day-event__composer">
+          <input
+            ref={inputRef}
+            className="day-event__input"
+            value={newEventText}
+            onChange={(e) => setNewEventText(e.target.value)}
+            onKeyDown={handleNewEventKeyDown}
+            placeholder="Add event"
+          />
+          <button type="button" onClick={handleAddEvent} aria-label="Add event">
+            +
+          </button>
+        </div>
       )}
     </div>
   );

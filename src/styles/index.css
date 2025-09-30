@@ -1,7 +1,8 @@
 /* CSS Variables for consistent theming */
    :root {
-   --today-gradient-from: rgba(229, 62, 62, 0.9);
-   --today-gradient-to: rgba(197, 48, 48, 0.9);
+   --today-gradient-from: rgba(201, 34, 40, 0.92);
+   --today-gradient-to: rgba(201, 34, 40, 0.72);
+   --today-gradient-from-rgb: 201, 34, 40;
    --border-width: 1px;
    --border-color: black;
    --header-height: 27px;
@@ -9,7 +10,7 @@
    --cell-min-height: 120px;
       /* Color Palette for Light Mode */
    --color-primary: #4361ee;
-   --color-secondary: #ff6b6b;
+   --color-secondary: #C92228;
    --color-success: #2ecc71;
    --color-info: #3498db;
    --color-warning: #f39c12;
@@ -46,8 +47,9 @@
    --weekend-gradient-from: #303542;
    --weekend-gradient-to: #232731;
    --shaded-month: #2a2a2a;
-   --today-gradient-from: rgba(229, 62, 62, 0.8);
-   --today-gradient-to: rgba(197, 48, 48, 0.8);
+   --today-gradient-from: rgba(201, 34, 40, 0.85);
+   --today-gradient-to: rgba(201, 34, 40, 0.65);
+   --today-gradient-from-rgb: 201, 34, 40;
    --month-boundary: #555;
    --header-gradient-from: #2c3e50;
    --header-gradient-to: #1a1a2e;

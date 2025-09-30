@@ -82,6 +82,7 @@ All original features have been preserved:
 - ✅ Markdown diary export
 - ✅ JSON import/export
 - ✅ Mini-calendar with 3-month view
+- ✅ Multiple events per day with swipe-to-delete on mobile
 
 ## 🏗️ Architecture Highlights
 

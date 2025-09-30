@@ -67,6 +67,39 @@ function resolveItemTokens(rawValue, itemMap) {
   return containsItems ? resolvedTokens.join('\n') : rawValue.trim();
 }
 
+function toEventArray(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+          .filter(Boolean);
+      }
+    } catch (error) {
+      // fall through to splitting
+    }
+
+    return trimmed
+      .split(/[\n,]/)
+      .map(entry => entry.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 function normaliseCalendarEntries(entries) {
   const itemMap = {};
   Object.entries(entries).forEach(([key, value]) => {
@@ -79,20 +112,26 @@ function normaliseCalendarEntries(entries) {
 
   Object.entries(entries).forEach(([key, value]) => {
     const normalisedKey = normaliseEntryKey(key);
-    if (!normalisedKey || typeof value !== 'string') {
+    if (!normalisedKey) {
       return;
     }
 
-    const trimmed = value.trim();
-    if (!trimmed) {
+    if (Array.isArray(value)) {
+      const events = toEventArray(value);
+      if (events.length) {
+        calendarData[normalisedKey] = events;
+      }
       return;
     }
 
-    const resolvedValue = resolveItemTokens(trimmed, itemMap);
-    const finalValue = resolvedValue.trim();
+    if (typeof value !== 'string') {
+      return;
+    }
 
-    if (finalValue) {
-      calendarData[normalisedKey] = finalValue;
+    const resolvedValue = resolveItemTokens(value.trim(), itemMap);
+    const events = toEventArray(resolvedValue);
+    if (events.length) {
+      calendarData[normalisedKey] = events;
     }
   });
 
@@ -142,8 +181,8 @@ export function saveToLocalStorage(calendarData, timestamp = Date.now().toString
   removeLegacyKeys(calendarData);
 
   Object.entries(calendarData).forEach(([key, value]) => {
-    if (value && value.trim() !== '') {
-      localStorage.setItem(key, value.trim());
+    if (Array.isArray(value) && value.length > 0) {
+      localStorage.setItem(key, JSON.stringify(value));
     }
   });
 
@@ -228,7 +267,7 @@ export function importCalendarData(jsonData) {
     removeLegacyKeys();
 
     Object.entries(normalised).forEach(([key, value]) => {
-      localStorage.setItem(key, value);
+      localStorage.setItem(key, JSON.stringify(value));
     });
 
     localStorage.setItem('lastSavedTimestamp', Date.now().toString());
@@ -244,17 +283,18 @@ export function importCalendarData(jsonData) {
  */
 export function exportAsMarkdownDiary() {
   const data = getAllCalendarData();
-  const entries = Object.entries(data).map(([dateId, text]) => {
+  const entries = Object.entries(data).map(([dateId, events]) => {
     const [month, day, year] = dateId.split('_').map(Number);
     const date = new Date(year, month, day);
-    return { date, text };
+    const list = Array.isArray(events) ? events : toEventArray(events);
+    return { date, events: list };
   }).sort((a, b) => a.date - b.date);
 
   let markdown = '# Calendar Diary\n\n';
   let currentYear = null;
   let currentMonth = null;
 
-  entries.forEach(({ date, text }) => {
+  entries.forEach(({ date, events }) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const day = date.getDate();
@@ -271,7 +311,14 @@ export function exportAsMarkdownDiary() {
       markdown += `### ${monthNames[month]}\n\n`;
     }
 
-    markdown += `**${day}**: ${text}\n\n`;
+    if (!events || events.length === 0) {
+      return;
+    }
+
+    events.forEach((event, idx) => {
+      const prefix = events.length > 1 ? `**${day} (${idx + 1})**` : `**${day}**`;
+      markdown += `${prefix}: ${event}\n\n`;
+    });
   });
 
   return markdown;

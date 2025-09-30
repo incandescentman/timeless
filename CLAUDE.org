@@ -15,6 +15,7 @@
 * Interface Modules
 - ~src/components/Calendar.jsx:1~ builds the infinite week table, prerenders ±26 weeks, scrolls to today on mount, observes sentinel rows to extend upward/downward, and injects month boundary headers.
 - ~src/components/DayCell.jsx:1~ handles per-day note editing: in-cell textarea with auto-resize, markdown-ish shortcuts (Ctrl+B/I/H), escape/enter behavior, multi-select toggles, and visual states for today/weekends/selection.
+- ~src/components/DayCell.jsx:1~ now renders multiple events per day (list of cards) with inline editing, add-input composer, and swipe-to-delete (via ~react-swipeable~).
 - ~src/components/Header.jsx:1~ combines the mini calendar, branding, and controls for dark mode, jump-to-today, year view, exports/imports, help, undo, and opens the kbar command palette.
 - ~src/components/MiniCalendar.jsx:1~ renders three months side-by-side, coloring today and noted days, with wheel-driven month navigation and smooth scrolling to clicked dates.
 - ~src/components/YearView.jsx:1~ overlays an annual grid, tracks the chosen year, highlights notes/today, and closes after jumping to a day.

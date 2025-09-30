@@ -103,16 +103,19 @@ export function CalendarProvider({ children }) {
 
   // Add or update a note
   const addNote = useCallback((dateId, text) => {
-    if (!text || text.trim() === '') {
-      removeNote(dateId);
+    const trimmed = (text || '').trim();
+    if (!trimmed) {
       return;
     }
 
     pushUndoState();
-    setCalendarData(prev => ({
-      ...prev,
-      [dateId]: text
-    }));
+    setCalendarData(prev => {
+      const current = Array.isArray(prev[dateId]) ? prev[dateId] : [];
+      return {
+        ...prev,
+        [dateId]: [...current, trimmed]
+      };
+    });
   }, [pushUndoState]);
 
   // Remove a note
@@ -122,6 +125,50 @@ export function CalendarProvider({ children }) {
       const newData = { ...prev };
       delete newData[dateId];
       return newData;
+    });
+  }, [pushUndoState]);
+
+  const updateEvent = useCallback((dateId, index, text) => {
+    const trimmed = (text || '').trim();
+    pushUndoState();
+    setCalendarData(prev => {
+      const current = Array.isArray(prev[dateId]) ? [...prev[dateId]] : [];
+      if (!current[index]) {
+        return prev;
+      }
+
+      if (!trimmed) {
+        current.splice(index, 1);
+      } else {
+        current[index] = trimmed;
+      }
+
+      const next = { ...prev };
+      if (current.length === 0) {
+        delete next[dateId];
+      } else {
+        next[dateId] = current;
+      }
+      return next;
+    });
+  }, [pushUndoState]);
+
+  const removeEvent = useCallback((dateId, index) => {
+    pushUndoState();
+    setCalendarData(prev => {
+      const current = Array.isArray(prev[dateId]) ? [...prev[dateId]] : [];
+      if (!current[index]) {
+        return prev;
+      }
+
+      current.splice(index, 1);
+      const next = { ...prev };
+      if (current.length === 0) {
+        delete next[dateId];
+      } else {
+        next[dateId] = current;
+      }
+      return next;
     });
   }, [pushUndoState]);
 
@@ -139,7 +186,9 @@ export function CalendarProvider({ children }) {
     const restoredData = JSON.parse(previousState);
     localStorage.clear();
     Object.entries(restoredData).forEach(([key, value]) => {
-      localStorage.setItem(key, value);
+      if (Array.isArray(value)) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
     });
     setCalendarData(loadFromLocalStorage());
   }, [undoStack]);
@@ -158,7 +207,9 @@ export function CalendarProvider({ children }) {
     const restoredData = JSON.parse(nextState);
     localStorage.clear();
     Object.entries(restoredData).forEach(([key, value]) => {
-      localStorage.setItem(key, value);
+      if (Array.isArray(value)) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
     });
     setCalendarData(loadFromLocalStorage());
   }, [redoStack]);
@@ -166,13 +217,14 @@ export function CalendarProvider({ children }) {
   // Get notes for a specific date
   const getNotesForDate = useCallback((date) => {
     const dateId = generateDayId(date);
-    return calendarData[dateId] || '';
+    return calendarData[dateId] || [];
   }, [calendarData]);
 
   // Check if a date has notes
   const hasNotes = useCallback((date) => {
     const dateId = generateDayId(date);
-    return !!calendarData[dateId];
+    const events = calendarData[dateId];
+    return Array.isArray(events) && events.length > 0;
   }, [calendarData]);
 
   // Toggle multi-select mode
@@ -201,13 +253,15 @@ export function CalendarProvider({ children }) {
 
   // Add note to all selected days
   const addNoteToSelectedDays = useCallback((text) => {
-    if (selectedDays.length === 0) return;
+    const trimmed = (text || '').trim();
+    if (selectedDays.length === 0 || !trimmed) return;
 
     pushUndoState();
     setCalendarData(prev => {
       const newData = { ...prev };
       selectedDays.forEach(dateId => {
-        newData[dateId] = text;
+        const current = Array.isArray(newData[dateId]) ? newData[dateId] : [];
+        newData[dateId] = [...current, trimmed];
       });
       return newData;
     });
@@ -304,6 +358,8 @@ export function CalendarProvider({ children }) {
     clearSelectedDays,
     addNoteToSelectedDays,
     clearNotesFromSelectedDays,
+    updateEvent,
+    removeEvent,
 
     // Range selection
     rangeStart,
