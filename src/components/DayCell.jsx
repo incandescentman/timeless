@@ -59,7 +59,6 @@ function DayEventRow({
 function DayCell({ date }) {
   const {
     getNotesForDate,
-    addNote,
     updateEvent,
     removeEvent,
     systemToday,
@@ -71,8 +70,6 @@ function DayCell({ date }) {
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [draftText, setDraftText] = useState('');
-  const [newEventText, setNewEventText] = useState('');
-  const inputRef = useRef(null);
   const editInputRef = useRef(null);
 
   const dateId = generateDayId(date);
@@ -91,33 +88,15 @@ function DayCell({ date }) {
   }, [events]);
 
   const handleCellClick = (e) => {
-    // Don't start editing if clicking on textarea or in multi-select mode
+    // Don't toggle selection if clicking on an event or in multi-select mode
     if (e.target.tagName === 'TEXTAREA' || isMultiSelectMode) {
       if (isMultiSelectMode) {
         toggleDaySelection(date);
       }
       return;
     }
-
-    if (!events.length && !isMultiSelectMode) {
-      inputRef.current?.focus();
-    }
   };
 
-  const handleNewEventKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddEvent();
-    }
-  };
-
-  const handleAddEvent = () => {
-    const trimmed = newEventText.trim();
-    if (!trimmed) return;
-    addNote(dateId, trimmed);
-    setNewEventText('');
-    setTimeout(() => inputRef.current?.focus(), 0);
-  };
 
   const startEditing = (idx) => {
     if (isMultiSelectMode) return;
@@ -196,21 +175,6 @@ function DayCell({ date }) {
         ))}
       </div>
 
-      {!isMultiSelectMode && (
-        <div className="day-event__composer">
-          <input
-            ref={inputRef}
-            className="day-event__input"
-            value={newEventText}
-            onChange={(e) => setNewEventText(e.target.value)}
-            onKeyDown={handleNewEventKeyDown}
-            placeholder="Add event"
-          />
-          <button type="button" onClick={handleAddEvent} aria-label="Add event">
-            +
-          </button>
-        </div>
-      )}
     </div>
   );
 }
