@@ -1,7 +1,7 @@
 .variant-switcher {
   position: sticky;
-  top: 72px;
-  z-index: 20;
+  top: 120px;
+  z-index: 950;
   margin: 24px auto 0;
   padding: 0 24px;
   width: min(880px, 100%);
@@ -18,6 +18,7 @@
   box-shadow: 0 32px 60px rgba(15, 23, 42, 0.18);
   filter: blur(18px);
   z-index: -1;
+  pointer-events: none;
 }
 
 .variant-switcher .em-toggle {
@@ -36,14 +37,14 @@
 
 @media (max-width: 1024px) {
   .variant-switcher {
-    top: 64px;
+    top: 108px;
     padding: 0 20px;
   }
 }
 
 @media (max-width: 768px) {
   .variant-switcher {
-    top: 56px;
+    top: 88px;
     margin-top: 16px;
     padding: 0 16px;
   }
