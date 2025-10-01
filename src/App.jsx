@@ -247,6 +247,8 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
         onShowHelp={() => setShowHelp(true)}
       />
 
+      <VariantSwitcher experimentalMode={experimentalMode} />
+
       <Calendar />
 
       <MobileActionBar />
@@ -261,7 +263,6 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
 
       {isLoading && <LoadingSpinner />}
 
-      <VariantSwitcher experimentalMode={experimentalMode} />
       <ExperimentalModeIndicator experimentalMode={experimentalMode} />
     </>
   );
