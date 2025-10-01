@@ -273,22 +273,26 @@ function App() {
       {
         key: 'default',
         label: 'Default UI',
-        description: 'Standard calendar interface'
+        description:
+          'WHAT: Baseline calendar layout with spacious cells and balanced typography. | WHY: Provides the familiar Timeless reading experience for day-by-day planning. | TO TEST: Scroll through months and hover day cells to confirm classic spacing and highlight behavior. | ASK: Does this remain the most readable option for long-form review?'
       },
       {
         key: 'compact',
         label: 'Compact View',
-        description: 'Smaller cells and tighter spacing'
+        description:
+          'WHAT: Tightens vertical rhythm and reduces gutter space for dense review weeks. | WHY: Maximizes information density when scanning multiple months quickly. | TO TEST: Toggle to Compact and compare month headers and day-cell padding versus Default. | ASK: Is the denser layout useful for planning sprints or does it feel cramped?'
       },
       {
         key: 'modern',
         label: 'Modern UI',
-        description: 'Enhanced glassmorphism and animations'
+        description:
+          'WHAT: Applies glassmorphism layers, glow hover states, and animated focus cues. | WHY: Adds delight for daily journaling sessions and matches Canonical’s memorialized aesthetic. | TO TEST: Hover active days, open the action bar, and switch themes to observe gradients and motion. | ASK: Do the effects elevate the experience without distracting from writing?'
       },
       {
         key: 'minimal',
         label: 'Minimal UI',
-        description: 'Clean and distraction-free interface'
+        description:
+          'WHAT: Strips embellishments, flattens chrome, and softens color to foreground text. | WHY: Supports deep-focus writing sessions where minimal contrast helps reduce cognitive load. | TO TEST: Switch to Minimal and note button chrome, typography weight, and hover treatments vs. Default. | ASK: Does the quiet styling aid focus or feel too subdued for navigation?'
       }
     ],
     defaultKey: 'default',
@@ -314,7 +318,7 @@ function App() {
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [experimentalMode]);
+  }, [experimentalMode?.enabled, experimentalMode?.cycleVariant]);
 
   return (
     <ThemeProvider>
