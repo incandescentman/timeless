@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { KBarProvider, useKBar } from 'kbar';
 import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
@@ -292,14 +292,29 @@ function App() {
       }
     ],
     defaultKey: 'default',
-    experimentalDefaultKey: 'modern',
-    cycleHotkey: {
-      code: 'KeyE',
-      altKey: true,
-      shiftKey: false,
-      preventDefault: true
-    }
+    experimentalDefaultKey: 'modern'
   });
+
+  useEffect(() => {
+    if (!experimentalMode?.enabled) return;
+
+    const handler = (event) => {
+      const isAltE =
+        event.code === 'KeyE' &&
+        event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.shiftKey;
+
+      if (!isAltE) return;
+
+      event.preventDefault();
+      experimentalMode.cycleVariant();
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [experimentalMode]);
 
   return (
     <ThemeProvider>

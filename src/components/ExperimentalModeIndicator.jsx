@@ -31,13 +31,13 @@ function ExperimentalModeIndicator({ experimentalMode }) {
     <div
       className={`experimental-mode-indicator ${isVisible ? 'visible' : ''}`}
       onClick={() => experimentalMode.cycleVariant()}
-      title="Click to cycle UI variant (Alt+E)"
+      title="Click to cycle UI variant (Option+X or Alt+E)"
     >
       <div className="experimental-mode-indicator__content">
         <span className="experimental-mode-indicator__label">UI Mode:</span>
         <span className="experimental-mode-indicator__value">{activeVariant?.label}</span>
       </div>
-      <div className="experimental-mode-indicator__hint">Alt+E to switch</div>
+      <div className="experimental-mode-indicator__hint">Option+X (Alt+E) to switch</div>
     </div>
   );
 }
