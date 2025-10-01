@@ -21,18 +21,13 @@
   pointer-events: none;
 }
 
-.variant-switcher .em-toggle {
-  width: 100%;
+.variant-switcher .variant-nav {
   box-shadow: 0 18px 50px rgba(15, 23, 42, 0.20);
-  border-radius: 20px;
 }
 
-.variant-switcher .em-toggle__switcher {
-  justify-content: center;
-}
-
-.variant-switcher .em-toggle__panel {
-  margin-top: 8px;
+.variant-switcher .instructions-box {
+  margin-top: 16px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.16);
 }
 
 @media (max-width: 1024px) {
@@ -53,7 +48,7 @@
     inset: -16px -16px 8px;
   }
 
-  .variant-switcher .em-toggle {
+  .variant-switcher .variant-nav {
     box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
   }
 }
