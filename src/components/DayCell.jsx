@@ -230,7 +230,7 @@ function DayCell({ date }) {
             onChange={(e) => setNewEventText(e.target.value)}
             onKeyDown={handleNewEventKeyDown}
             onBlur={handleNewEventBlur}
-            placeholder="Type event and press Enter"
+            placeholder=""
             autoFocus
           />
         </div>
