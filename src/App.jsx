@@ -11,6 +11,7 @@ import HelpOverlay from './components/HelpOverlay';
 import CommandPalette from './components/CommandPalette';
 import LoadingSpinner from './components/LoadingSpinner';
 import ExperimentalModeIndicator from './components/ExperimentalModeIndicator';
+import VariantSwitcher from './components/VariantSwitcher';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { parseNaturalDate, generateDayId } from './utils/dateUtils';
 import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from './utils/storage';
@@ -260,6 +261,7 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
 
       {isLoading && <LoadingSpinner />}
 
+      <VariantSwitcher experimentalMode={experimentalMode} />
       <ExperimentalModeIndicator experimentalMode={experimentalMode} />
     </>
   );
