@@ -59,6 +59,7 @@ function DayEventRow({
 function DayCell({ date }) {
   const {
     getNotesForDate,
+    addNote,
     updateEvent,
     removeEvent,
     systemToday,
@@ -70,6 +71,9 @@ function DayCell({ date }) {
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [draftText, setDraftText] = useState('');
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newEventText, setNewEventText] = useState('');
+  const inputRef = useRef(null);
   const editInputRef = useRef(null);
 
   const dateId = generateDayId(date);
@@ -88,18 +92,60 @@ function DayCell({ date }) {
   }, [events]);
 
   const handleCellClick = (e) => {
-    // Don't toggle selection if clicking on an event or in multi-select mode
-    if (e.target.tagName === 'TEXTAREA' || isMultiSelectMode) {
-      if (isMultiSelectMode) {
-        toggleDaySelection(date);
-      }
+    // Don't start adding if clicking on an event or input
+    if (e.target.classList.contains('day-event') ||
+        e.target.classList.contains('day-event__input') ||
+        e.target.classList.contains('day-event__text') ||
+        e.target.classList.contains('day-event__delete')) {
       return;
+    }
+
+    if (isMultiSelectMode) {
+      toggleDaySelection(date);
+      return;
+    }
+
+    // Start adding a new event when clicking on empty space
+    if (!isAddingNew && !editingIndex) {
+      setIsAddingNew(true);
+      setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
 
 
+  const handleNewEventKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddEvent();
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsAddingNew(false);
+      setNewEventText('');
+    }
+  };
+
+  const handleAddEvent = () => {
+    const trimmed = newEventText.trim();
+    if (trimmed) {
+      addNote(dateId, trimmed);
+    }
+    setNewEventText('');
+    setIsAddingNew(false);
+  };
+
+  const handleNewEventBlur = () => {
+    if (newEventText.trim()) {
+      handleAddEvent();
+    } else {
+      setIsAddingNew(false);
+      setNewEventText('');
+    }
+  };
+
   const startEditing = (idx) => {
     if (isMultiSelectMode) return;
+    setIsAddingNew(false);  // Cancel adding new if we're editing
     setEditingIndex(idx);
     setDraftText(events[idx] ?? '');
     setTimeout(() => editInputRef.current?.focus(), 0);
@@ -175,6 +221,20 @@ function DayCell({ date }) {
         ))}
       </div>
 
+      {isAddingNew && (
+        <div className="day-event__composer">
+          <input
+            ref={inputRef}
+            className="day-event__input"
+            value={newEventText}
+            onChange={(e) => setNewEventText(e.target.value)}
+            onKeyDown={handleNewEventKeyDown}
+            onBlur={handleNewEventBlur}
+            placeholder="Type event and press Enter"
+            autoFocus
+          />
+        </div>
+      )}
     </div>
   );
 }
