@@ -1,6 +1,6 @@
 .variant-switcher {
   position: fixed;
-  top: 82px;
+  top: 100px;
   right: 28px;
   width: min(360px, calc(100vw - 48px));
   z-index: 50;
