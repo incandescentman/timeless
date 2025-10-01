@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@jaydixit/experimental-mode": "^0.3.5",
+    "@jaydixit/experimental-mode": "file:../canonical/packages/experimental-mode",
     "ioredis": "^5.8.0",
     "kbar": "^0.1.0-beta.48",
     "react": "^18.3.1",
