@@ -1,37 +1,58 @@
 .variant-switcher {
-  position: relative;
-  margin: 48px auto 0;
+  position: sticky;
+  top: 72px;
+  z-index: 20;
+  margin: 24px auto 0;
   padding: 0 24px;
-  width: min(720px, 100%);
+  width: min(880px, 100%);
   display: flex;
   justify-content: center;
-  z-index: 10;
+}
+
+.variant-switcher::before {
+  content: '';
+  position: absolute;
+  inset: -24px -24px 12px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.85), rgba(255, 255, 255, 0.6));
+  box-shadow: 0 32px 60px rgba(15, 23, 42, 0.18);
+  filter: blur(18px);
+  z-index: -1;
 }
 
 .variant-switcher .em-toggle {
   width: 100%;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
-  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.20);
+  border-radius: 20px;
+}
+
+.variant-switcher .em-toggle__switcher {
+  justify-content: center;
 }
 
 .variant-switcher .em-toggle__panel {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 @media (max-width: 1024px) {
   .variant-switcher {
-    margin-top: 40px;
+    top: 64px;
     padding: 0 20px;
   }
 }
 
 @media (max-width: 768px) {
   .variant-switcher {
-    margin-top: 28px;
+    top: 56px;
+    margin-top: 16px;
     padding: 0 16px;
   }
 
+  .variant-switcher::before {
+    inset: -16px -16px 8px;
+  }
+
   .variant-switcher .em-toggle {
-    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
   }
 }
