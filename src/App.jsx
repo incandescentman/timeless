@@ -293,13 +293,37 @@ function App() {
       label: 'Nordic Frost',
       description:
         'WHAT: Crystalline ice-blue palette with frosted glass and snowflake micro-animations. | WHY: Offer a clean, cool aesthetic for focused winter planning. | TO TEST: Observe frosted cards, ice-crystal accents, and seasonal aurora effects. | ASK: Does the frost theme feel cohesive and calming?'
+    },
+    {
+      key: 'soft-studio',
+      label: 'Soft Studio',
+      description:
+        'WHAT: Neutral studio gradient with translucent cards and canonical depth shadows. | WHY: Mirror the Soft Modernism baseline from canonical while keeping Timeless airy. | TO TEST: Inspect neutral gradients, pill typography, and gentle hover lifts. | ASK: Does the studio finish feel premium without distraction?'
+    },
+    {
+      key: 'frosted-ledger',
+      label: 'Frosted Ledger',
+      description:
+        'WHAT: Frosted glass shell with hairline separators and teal-tinted “Today” chip. | WHY: Bring the frosted-board vibe of the canonical If-Then layout into the calendar grid. | TO TEST: Evaluate frosted overlays, divider clarity, and today pill glow. | ASK: Does the ledger treatment stay crisp yet calming?'
+    },
+    {
+      key: 'slate-filigree',
+      label: 'Slate Filigree',
+      description:
+        'WHAT: Monochrome slate cards with radial sheens and canonical pill accents. | WHY: Showcase refined depth cues and pill hierarchy lifted from canonical. | TO TEST: Watch radial sheen overlays, uppercase badges, and underline motion. | ASK: Do the filigree details add polish without clutter?'
+    },
+    {
+      key: 'emerald-whisper',
+      label: 'Emerald Whisper',
+      description:
+        'WHAT: Soft zinc canvas with emerald focus whispers and calm interactions. | WHY: Reserve accent color for focus/today states in line with canonical guidance. | TO TEST: Tab through days, hover notes, and gauge emerald glow intensity. | ASK: Does the whisper accentuate focus without feeling loud?'
     }
   ], []);
 
   const experimentalMode = useExperimentalMode({
     variants: experimentalVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'nordic-frost'
+    experimentalDefaultKey: 'soft-studio'
   });
 
   // Option-X / Alt+E handled internally by @jaydixit/experimental-mode

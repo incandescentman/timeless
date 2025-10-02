@@ -152,7 +152,7 @@ These variants violated the "Premium Minimalism" principles and have been remove
 - Layer micro-interactions (hover states, spring animations, focus cues) consistent with each style.
 - Validate responsive layouts alongside keyboard navigation and screen-reader semantics.
 
-* Proposed Variants Aligned With Canonical Preferences
+* Canonical-Aligned Variants (Implemented 2025-10-02)
 ** Soft Studio
 - Palette :: Neutral gradient base (`#f8fafc → #f1f5f9`), slate typography, low-opacity teal accents for “Today” states
 - Treatments ::

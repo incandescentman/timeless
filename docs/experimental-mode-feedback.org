@@ -23,6 +23,10 @@
 ** Will Review Further (Promising)
 - Calm Pastels — mixed; colors feel cloying, revisit later
 - Nordic Frost — pending review
+- Soft Studio — new canonical-aligned variant to evaluate
+- Frosted Ledger — new frosted treatment to assess
+- Slate Filigree — test radial sheen + underline sweep
+- Emerald Whisper — evaluate emerald focus accents
 
 ** Design Principles Extracted
 1. Prefer light themes over dark themes

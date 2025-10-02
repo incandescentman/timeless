@@ -25,14 +25,18 @@ const testVariants = [
   { key: 'default', label: 'Default UI' },
   { key: 'calm-pastels', label: 'Calm Pastels' },
   { key: 'zen-monoline', label: 'Zen Monoline' },
-  { key: 'nordic-frost', label: 'Nordic Frost' }
+  { key: 'nordic-frost', label: 'Nordic Frost' },
+  { key: 'soft-studio', label: 'Soft Studio' },
+  { key: 'frosted-ledger', label: 'Frosted Ledger' },
+  { key: 'slate-filigree', label: 'Slate Filigree' },
+  { key: 'emerald-whisper', label: 'Emerald Whisper' }
 ];
 
 function TestComponent() {
   const experimentalMode = useExperimentalMode({
     variants: testVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'nordic-frost'
+    experimentalDefaultKey: 'soft-studio'
   });
 
   return React.createElement(
@@ -55,7 +59,7 @@ await act(async () => {
 });
 
 const variantOrder = testVariants.map(variant => variant.key);
-const startIndex = variantOrder.indexOf('nordic-frost');
+const startIndex = variantOrder.indexOf('soft-studio');
 const expectedSequence = Array.from({ length: variantOrder.length }, (_, idx) => {
   const offset = (startIndex + idx) % variantOrder.length;
   return variantOrder[offset];
