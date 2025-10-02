@@ -150,6 +150,7 @@ Key changes in the React version:
 - All date operations use the utilities in `src/utils/dateUtils.js`
 - Local storage operations are centralized in `src/utils/storage.js`
 - Keyboard shortcuts are handled in `src/hooks/useKeyboardShortcuts.js`
+- Default UI includes the refreshed weekday header bar and subtle timeline spine for easier scanning
 - Experimental mode (`?experimental=true`) now offers color theme variants: start from the default layout, then compare Calm Pastels, Zen Monoline, Nordic Frost, and Soft Studio. Use Option+X (Alt+E) to cycle them.
 
 ## 🐛 Known Issues
