@@ -29,3 +29,4 @@
 * Next Steps (Optional)
 1. Run ~npm run dev~ and explore the UI/features in the browser.
 2. Review ~README-REACT.md~ alongside ~docs/codebase-wisdom.org~ for historical context and future plans.
+3. Consult ~docs/experimental-mode-plan.org~ for the curated variant roadmap; all future documentation should live in Org-mode files (`.org`).
