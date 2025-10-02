@@ -420,12 +420,12 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.55rem;
+  width: 38px;
+  height: 38px;
   border-radius: 999px;
   border: 1px dashed rgba(148, 163, 184, 0.45);
   background: rgba(248, 250, 252, 0.8);
   color: #334155;
-  font-size: 1rem;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
@@ -438,11 +438,6 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 .day-card__add:disabled {
   opacity: 0.45;
   cursor: not-allowed;
-}
-
-.day-card__add-icon {
-  font-size: 1.2rem;
-  line-height: 1;
 }
 
 .day-cell.today .day-card {

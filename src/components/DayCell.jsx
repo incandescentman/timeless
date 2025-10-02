@@ -354,7 +354,6 @@ function DayCell({ date }) {
               aria-label="Add entry"
               disabled={addButtonDisabled}
             >
-              <span className="day-card__add-icon" aria-hidden="true">＋</span>
             </button>
           </div>
         )}
