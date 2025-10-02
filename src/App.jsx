@@ -274,26 +274,38 @@ function App() {
       key: 'default',
       label: 'Default UI',
       description:
-        'WHAT: Baseline calendar layout with spacious cells and balanced typography. | WHY: Provides the familiar Timeless reading experience for day-by-day planning. | TO TEST: Scroll through months and hover day cells to confirm classic spacing and highlight behavior. | ASK: Does this remain the most readable option for long-form review?'
+        'WHAT: Baseline calendar layout with refreshed weekday headers and timeline spine. | WHY: Provides the familiar Timeless reading experience for day-by-day planning. | TO TEST: Scroll through months and hover day cells to confirm classic spacing and highlight behavior. | ASK: Does this remain the most readable option for long-form review?'
     },
     {
-      key: 'split-ledger',
-      label: 'Split Ledger',
+      key: 'calm-pastels',
+      label: 'Calm Pastels',
       description:
-        'WHAT: Fixed left control rail with ledger-style day cards. | WHY: Prototype a task-planner aesthetic with persistent utilities. | TO TEST: Assess ergonomics of the vertical nav, ledger dividers, and note density. | ASK: Does the split layout improve focus on the agenda?'
+        'WHAT: Mindfulness-focused palette with gentle shadows and meditative motion. | WHY: Reduce visual noise for reflective review and journaling. | TO TEST: Watch the slow pulse around today, hover micro-interactions, and note legibility over long sessions. | ASK: Does the softness support focus without feeling dull?'
     },
     {
-      key: 'timeline-rail',
-      label: 'Timeline Rail',
+      key: 'zen-monoline',
+      label: 'Zen Monoline',
       description:
-        'WHAT: Horizontal timeline weeks with a scrolling spine. | WHY: Explore a project-roadmap feel while keeping day interactions intact. | TO TEST: Evaluate week separators, scannability across the rail, and keyboard traversal. | ASK: Does the timeline framing make progression clearer?'
+        'WHAT: Ultra-minimal line-art interface with precise typographic hierarchy. | WHY: Provide a crisp, information-first layout for analytical planners. | TO TEST: Assess line weight cues, focus indicators, and monochrome contrast during keyboard navigation. | ASK: Does the reduction enhance clarity or feel too austere?'
+    },
+    {
+      key: 'nordic-frost',
+      label: 'Nordic Frost',
+      description:
+        'WHAT: Crystalline ice-blue palette with frosted glass and snowflake micro-animations. | WHY: Offer a clean, cool aesthetic for focused winter planning. | TO TEST: Observe frosted cards, ice-crystal accents, and seasonal aurora effects. | ASK: Does the frost theme feel cohesive and calming?'
+    },
+    {
+      key: 'soft-studio',
+      label: 'Soft Studio',
+      description:
+        'WHAT: Neutral studio gradient with translucent cards and canonical depth shadows. | WHY: Mirror the Soft Modernism baseline from canonical while keeping Timeless airy. | TO TEST: Inspect neutral gradients, pill typography, and gentle hover lifts. | ASK: Does the studio finish feel premium without distraction?'
     }
   ], []);
 
   const experimentalMode = useExperimentalMode({
     variants: experimentalVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'split-ledger'
+    experimentalDefaultKey: 'calm-pastels'
   });
 
   // Option-X / Alt+E handled internally by @jaydixit/experimental-mode

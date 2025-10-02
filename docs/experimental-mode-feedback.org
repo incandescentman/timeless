@@ -21,8 +21,10 @@
 - [Resolved 2025-10-02] Zen Monoline hover no longer shifts, so day cell borders stay aligned
 
 ** Will Review Further (Promising)
-- Split Ledger — evaluate rail ergonomics and ledger clarity
-- Timeline Rail — check readability of horizontal timeline flow
+- Calm Pastels — evaluate the softened palette after adjustments
+- Zen Monoline — confirm minimal grid readability with new timeline spine
+- Nordic Frost — ensure frosted accents still feel premium
+- Soft Studio — revisit gradients and glassmorphism balance
 
 ** Design Principles Extracted
 1. Prefer light themes over dark themes

@@ -152,17 +152,27 @@ These variants violated the "Premium Minimalism" principles and have been remove
 - Layer micro-interactions (hover states, spring animations, focus cues) consistent with each style.
 - Validate responsive layouts alongside keyboard navigation and screen-reader semantics.
 
-* Structural Prototypes (Implemented 2025-10-02)
-** Split Ledger
-- Goal :: Fixed utility rail with ledger-inspired cards
-- Highlights :: Vertical command rail, frosted month panels, accent spine on each day
-- Questions :: Does fixed navigation improve speed? Does ledger styling aid task review?
+* Theme Variants (Implemented 2025-10-02)
+** Calm Pastels
+- Goal :: Mindful palette with gentle motion and softened gradients
+- Highlights :: Pulsing today state, desaturated blues, reduced contrast for longer sessions
+- Questions :: Does the pastel palette maintain legibility over multi-hour reviews?
 
-** Timeline Rail
-- Goal :: Horizontal week timeline with animated spine
-- Highlights :: Continuous vertical rail, flexible week rows, compact cards for rapid scan
-- Questions :: Is horizontal progression clearer? Any accessibility concerns with the spine?
--- **All prototypes keep underlying functionality unchanged—only layout and aesthetic shift.**
+** Zen Monoline
+- Goal :: Monochrome precision with typographic hierarchy
+- Highlights :: Line-art framing, uppercase labels, strict border alignment
+- Questions :: Do the minimal cues work with the new default timeline spine?
+
+** Nordic Frost
+- Goal :: Frosted glass aesthetic with crystalline micro-accents
+- Highlights :: Aurora shimmer in headers, snowflake hover detail, icy blue buttons
+- Questions :: Do the frosted effects remain readable on lower-contrast displays?
+
+** Soft Studio
+- Goal :: Soft modernism gradient inspired by canonical If-Then view
+- Highlights :: Glassmorphism cards, neutral gradients, gentle glow on interactions
+- Questions :: Does the added sheen elevate without distracting from content?
+-- **All variants keep functionality identical—only visual theme changes.**
 -- Use Option+X cycling to compare against baseline before iterating further.
 
 * Next Steps

@@ -211,7 +211,7 @@ function DayCell({ date }) {
   };
 
   const variantKey = typeof document !== 'undefined' ? document.documentElement.dataset.experimentalVariant : undefined;
-  const useCardLayout = variantKey && ['split-ledger', 'timeline-rail'].includes(variantKey);
+  const useCardLayout = variantKey && ['calm-pastels', 'zen-monoline', 'nordic-frost', 'soft-studio'].includes(variantKey);
 
   const className = [
     'day-cell',
