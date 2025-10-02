@@ -63,7 +63,7 @@ await act(async () => {
 
 const variantOrder = testVariants.map(variant => variant.key);
 const startIndex = variantOrder.indexOf('modern');
-const expectedSequence = Array.from({ length: 4 }, (_, idx) => {
+const expectedSequence = Array.from({ length: variantOrder.length }, (_, idx) => {
   const offset = (startIndex + idx) % variantOrder.length;
   return variantOrder[offset];
 });
@@ -102,14 +102,10 @@ const dispatchCycle = async () => {
   });
 };
 
-await dispatchCycle();
-logActive('After 1st cycle');
-
-await dispatchCycle();
-logActive('After 2nd cycle');
-
-await dispatchCycle();
-logActive('After 3rd cycle');
+for (let step = 1; step < variantOrder.length; step += 1) {
+  await dispatchCycle();
+  logActive(`After cycle ${step}`);
+}
 
 await act(async () => {
   root.unmount();

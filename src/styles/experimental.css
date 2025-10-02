@@ -874,3 +874,126 @@ html[data-experimental-variant="botanical-minimal"] body {
   color: #6b8e6f;
   font-weight: 600;
 }
+
+/* ========================= DARK THEME ADJUSTMENTS ========================= */
+html[data-theme="dark"][data-experimental-variant="aurora-glass"] body {
+  background: radial-gradient(circle at 20% 20%, rgba(14, 116, 144, 0.4), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(88, 28, 135, 0.6), transparent 60%),
+    linear-gradient(120deg, #020617 0%, #050b1b 50%, #020617 100%);
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"][data-experimental-variant="aurora-glass"] .day-note {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+html[data-theme="dark"][data-experimental-variant="paper-atlas"] body {
+  background: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), #1c1917;
+  color: #f1ede4;
+}
+
+html[data-theme="dark"][data-experimental-variant="paper-atlas"] .calendar-wrapper {
+  background: rgba(41, 37, 36, 0.88);
+  border-color: rgba(233, 196, 106, 0.25);
+  box-shadow: 0 18px 48px rgba(12, 10, 9, 0.6);
+}
+
+html[data-theme="dark"][data-experimental-variant="paper-atlas"] .day-cell {
+  background: rgba(30, 24, 21, 0.9);
+  border-color: rgba(233, 196, 106, 0.2);
+}
+
+html[data-theme="dark"][data-experimental-variant="solar-dawn"] body {
+  background: linear-gradient(135deg, #111827 0%, #1f2937 45%, #7c2d12 100%);
+  color: #fef3c7;
+}
+
+html[data-theme="dark"][data-experimental-variant="solar-dawn"] .day-cell {
+  background: linear-gradient(160deg, rgba(17, 24, 39, 0.9), rgba(124, 45, 18, 0.35));
+  border-color: rgba(249, 115, 22, 0.55);
+}
+
+html[data-theme="dark"][data-experimental-variant="calm-pastels"] body {
+  background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 45%, #111827 100%);
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"][data-experimental-variant="calm-pastels"] .day-cell {
+  background: rgba(17, 24, 39, 0.85);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] body {
+  background: #0f0f0f;
+  color: #f9fafb;
+}
+
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] .day-cell {
+  border-color: rgba(249, 250, 251, 0.3);
+}
+
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] .day-label,
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] .month-header__month,
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] .header-title {
+  color: #f9fafb;
+}
+
+html[data-theme="dark"][data-experimental-variant="neomorphic-zen"] body {
+  background: linear-gradient(140deg, #0f172a, #111827 60%, #0f172a 100%);
+  color: #0ea5e9;
+}
+
+html[data-theme="dark"][data-experimental-variant="neomorphic-zen"] .calendar-wrapper {
+  background: #111927;
+  box-shadow:
+    20px 20px 45px rgba(2, 6, 23, 0.55),
+    -20px -20px 45px rgba(51, 65, 85, 0.35);
+}
+
+html[data-theme="dark"][data-experimental-variant="neomorphic-zen"] .day-cell {
+  background: #101826;
+  box-shadow:
+    10px 10px 24px rgba(0, 0, 0, 0.6),
+    -10px -10px 24px rgba(51, 65, 85, 0.3);
+}
+
+html[data-theme="dark"][data-experimental-variant="paper-craft"] body {
+  background: #1c1917;
+  color: #f5f0e7;
+}
+
+html[data-theme="dark"][data-experimental-variant="paper-craft"] .calendar-wrapper {
+  background: rgba(38, 32, 28, 0.92);
+  border-color: rgba(214, 182, 146, 0.25);
+}
+
+html[data-theme="dark"][data-experimental-variant="paper-craft"] .day-cell {
+  background: rgba(32, 27, 24, 0.95);
+  box-shadow: 8px 10px 0 rgba(214, 182, 146, 0.2);
+}
+
+html[data-theme="dark"][data-experimental-variant="liquid-motion"] body {
+  background: radial-gradient(circle at 20% 20%, rgba(2, 132, 199, 0.4), transparent 50%),
+    radial-gradient(circle at 80% 0%, rgba(244, 63, 94, 0.35), transparent 55%),
+    linear-gradient(160deg, #020617, #06142f 60%, #020617 100%);
+}
+
+html[data-theme="dark"][data-experimental-variant="liquid-motion"] .day-cell {
+  background: rgba(9, 18, 32, 0.85);
+}
+
+html[data-theme="dark"][data-experimental-variant="botanical-minimal"] body {
+  background: linear-gradient(180deg, #0f172a 0%, #0b2e2b 35%, #112f1f 100%);
+  color: #ecfdf5;
+}
+
+html[data-theme="dark"][data-experimental-variant="botanical-minimal"] .calendar-wrapper {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(56, 189, 148, 0.35);
+}
+
+html[data-theme="dark"][data-experimental-variant="botanical-minimal"] .day-cell {
+  background: rgba(17, 34, 27, 0.85);
+  border-color: rgba(56, 189, 148, 0.35);
+}

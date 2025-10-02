@@ -9,7 +9,7 @@
 4. Run accessibility and usability passes (contrast, focus states, keyboard cues).
 
 * Implement these ones now:
-** Aurora Glass
+** DONE Aurora Glass
 - Palette :: Deep indigo base, aurora gradients (teal, violet, magenta), white accents
 - Typography :: Sans-serif with subtle weight shifts; gradient-filled headers
 - Treatments ::
@@ -19,7 +19,7 @@
   - Floating UI elements with soft shadows; glowing pill buttons
   - Optional parallax particle layer for depth
 
-** Paper Atlas
+** DONE Paper Atlas
 - Palette :: Cream paper background, ink blues, muted accents
 - Typography :: Serif headings paired with clean sans-serif body text
 - Treatments ::
@@ -28,7 +28,7 @@
   - Sticky-note widgets and hand-drawn iconography
   - Slightly offset elements to mimic editorial layouts
 
-** Solar Dawn
+** DONE Solar Dawn
 - Palette :: Sunrise gradients (peach → amber), warm neutrals, bold accent yellow
 - Typography :: Oversized hero headings, rounded sans-serif body
 - Treatments ::
@@ -37,7 +37,7 @@
   - Rounded geometry and generous corner radii
   - Ambient glow around the “today” indicator
 
-** Calm Pastels
+** DONE Calm Pastels
 - Palette :: Muted pastels (lavender, mint, blush) with soft neutrals
 - Typography :: Light-weight sans-serif, ample line spacing
 - Treatments ::
@@ -46,7 +46,7 @@
   - Smooth scale transitions on hover
   - Minimal icon set with softened strokes
 
-** Zen Monoline
+** DONE Zen Monoline
 - Palette :: Monochrome base with tempered accent (charcoal, off-white, muted gold)
 - Typography :: Condensed uppercase labels, classic sans-serif body
 - Treatments ::
@@ -55,7 +55,7 @@
   - Low-saturation icons, minimal color density
   - Focus states expressed via weight and line thickness changes
 
-** Neomorphic Zen
+** DONE Neomorphic Zen
 - Palette :: Neutral grays (~#E5E7EB), soft whites, accent teal (#14B8A6)
 - Typography :: Minimalist sans-serif with variable font weights
 - Treatments ::
@@ -64,7 +64,7 @@
   - Organic rounded corners and ambient light simulation
   - Subtle tactile feedback animations
 
-** Paper Craft
+** DONE Paper Craft
 - Palette :: Warm paper tones, ink blues (#1E40AF), red accents (#DC2626)
 - Typography :: Handwritten-style accents with clean sans-serif body
 - Treatments ::
@@ -73,7 +73,7 @@
   - Torn edge effects and paper grain overlays
   - Ink-style hover/active states
 
-** Liquid Motion
+** DONE Liquid Motion
 - Palette :: Ocean blues (#0891B2), coral (#FB7185), sandy beige (#FEF3C7)
 - Typography :: Rounded sans-serif with playful weight variations
 - Treatments ::
@@ -82,7 +82,7 @@
   - Ripple effects on clicks and flowing gradient transitions
   - Fluid highlight sweep across the active row
 
-** Botanical Minimal
+** DONE Botanical Minimal
 - Palette :: Sage green (#6B8E6F), terracotta (#C2634D), cream (#FAF5F0)
 - Typography :: Serif display headings with clean sans body
 - Treatments ::

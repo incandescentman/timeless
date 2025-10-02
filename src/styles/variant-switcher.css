@@ -11,6 +11,17 @@
   gap: 16px;
 }
 
+.variant-switcher .variant-nav {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.variant-switcher .variant-nav__button {
+  margin: 2px;
+}
+
 @media (max-width: 1024px) {
   .variant-switcher {
     top: 108px;
@@ -23,5 +34,9 @@
     top: 88px;
     margin-top: 16px;
     padding: 0 16px;
+  }
+
+  .variant-switcher .variant-nav {
+    justify-content: flex-start;
   }
 }

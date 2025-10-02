@@ -84,7 +84,7 @@ All original features have been preserved:
 - ✅ JSON import/export
 - ✅ Mini-calendar with 3-month view
 - ✅ Multiple events per day with swipe-to-delete on mobile
-- ✅ Experimental mode toggle (`?experimental=true`) with Option+X cycling between Default and Modern UI
+- ✅ Experimental mode toggle (`?experimental=true`) with Option+X cycling through curated themes (Aurora Glass, Paper Atlas, Solar Dawn, Calm Pastels, Zen Monoline, Neomorphic Zen, Paper Craft, Liquid Motion, Botanical Minimal, and Modern)
 
 ## 🏗️ Architecture Highlights
 
@@ -150,7 +150,7 @@ Key changes in the React version:
 - All date operations use the utilities in `src/utils/dateUtils.js`
 - Local storage operations are centralized in `src/utils/storage.js`
 - Keyboard shortcuts are handled in `src/hooks/useKeyboardShortcuts.js`
-- Experimental mode (`?experimental=true`) now ships with two variants: the classic Default UI and the Modern UI skin. Use Option+X (Alt+E) to flip between them.
+- Experimental mode (`?experimental=true`) now ships with a gallery of themes: start with Modern UI, then explore Aurora Glass, Paper Atlas, Solar Dawn, Calm Pastels, Zen Monoline, Neomorphic Zen, Paper Craft, Liquid Motion, and Botanical Minimal. Use Option+X (Alt+E) to cycle them.
 
 ## 🐛 Known Issues
 
