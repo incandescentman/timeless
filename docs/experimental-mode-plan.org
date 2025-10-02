@@ -162,11 +162,6 @@ These variants violated the "Premium Minimalism" principles and have been remove
 - Goal :: Horizontal week timeline with animated spine
 - Highlights :: Continuous vertical rail, flexible week rows, compact cards for rapid scan
 - Questions :: Is horizontal progression clearer? Any accessibility concerns with the spine?
-
-** Notebook Columns
-- Goal :: Journaling aesthetic with ruled background and two-column layout
-- Highlights :: Break-inside-avoid month sections, relaxed paper palette, subtle drop shadows
-- Questions :: Is readability maintained across long months? Do lined backgrounds distract?
 -- **All prototypes keep underlying functionality unchanged—only layout and aesthetic shift.**
 -- Use Option+X cycling to compare against baseline before iterating further.
 

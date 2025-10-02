@@ -24,8 +24,7 @@ function Logger({ experimentalMode }) {
 const testVariants = [
   { key: 'default', label: 'Default UI' },
   { key: 'split-ledger', label: 'Split Ledger' },
-  { key: 'timeline-rail', label: 'Timeline Rail' },
-  { key: 'notebook-columns', label: 'Notebook Columns' }
+  { key: 'timeline-rail', label: 'Timeline Rail' }
 ];
 
 function TestComponent() {

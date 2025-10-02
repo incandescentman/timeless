@@ -23,7 +23,6 @@
 ** Will Review Further (Promising)
 - Split Ledger — evaluate rail ergonomics and ledger clarity
 - Timeline Rail — check readability of horizontal timeline flow
-- Notebook Columns — assess journal-like notebook presentation
 
 ** Design Principles Extracted
 1. Prefer light themes over dark themes

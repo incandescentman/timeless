@@ -288,11 +288,6 @@ function App() {
       description:
         'WHAT: Horizontal timeline weeks with a scrolling spine. | WHY: Explore a project-roadmap feel while keeping day interactions intact. | TO TEST: Evaluate week separators, scannability across the rail, and keyboard traversal. | ASK: Does the timeline framing make progression clearer?'
     },
-    {
-      key: 'notebook-columns',
-      label: 'Notebook Columns',
-      description:
-        'WHAT: Two-column, lined notebook styling with stitched headers. | WHY: Prototype a softer journal aesthetic with handwritten cues. | TO TEST: Inspect column balance, ruled backgrounds, and note readability. | ASK: Does the notebook treatment feel inviting for daily writing?'
     }
   ], []);
 
