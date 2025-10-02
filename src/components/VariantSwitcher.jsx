@@ -12,6 +12,7 @@ function VariantSwitcher({ experimentalMode }) {
   return (
     <div className="variant-switcher">
       <VariantNavigation
+        key={experimentalMode.activeKey}
         variants={experimentalMode.variants}
         activeKey={experimentalMode.activeKey}
         onSelect={experimentalMode.setActiveKey}

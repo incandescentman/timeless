@@ -13,6 +13,7 @@ html[data-experimental-variant] body {
 [data-experimental-variant] .calendar-wrapper,
 [data-experimental-variant] .header,
 [data-experimental-variant] .day-cell,
+[data-experimental-variant] .day-card,
 [data-experimental-variant] .day-note,
 [data-experimental-variant] button:not(.variant-nav__button) {
   transition: all var(--exp-transition);
@@ -53,19 +54,19 @@ html[data-experimental-variant="calm-pastels"] body {
   box-shadow: 0 16px 38px rgba(148, 163, 184, 0.16);
 }
 
-[data-experimental-variant="calm-pastels"] .day-cell {
+[data-experimental-variant="calm-pastels"] .day-card {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-[data-experimental-variant="calm-pastels"] .day-cell:hover {
+[data-experimental-variant="calm-pastels"] .day-card:hover {
   transform: translateY(-1px);
   background: rgba(237, 242, 247, 0.9);
   border-color: rgba(148, 163, 184, 0.55);
 }
 
-[data-experimental-variant="calm-pastels"] .day-cell.today {
+[data-experimental-variant="calm-pastels"] .day-cell.today .day-card {
   animation: calm-pulse 8s ease-in-out infinite;
   border: 1px solid rgba(148, 163, 184, 0.55);
   background: rgba(226, 232, 240, 0.55);
@@ -111,7 +112,7 @@ html[data-experimental-variant="zen-monoline"] body {
   box-shadow: none;
 }
 
-[data-experimental-variant="zen-monoline"] .day-cell {
+[data-experimental-variant="zen-monoline"] .day-card {
   background: transparent;
   border: 1px solid rgba(31, 41, 51, 0.2);
   border-radius: 4px;
@@ -119,14 +120,14 @@ html[data-experimental-variant="zen-monoline"] body {
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-[data-experimental-variant="zen-monoline"] .day-cell:hover {
+[data-experimental-variant="zen-monoline"] .day-card:hover {
   background: rgba(229, 231, 235, 0.35);
   border-color: rgba(31, 41, 51, 0.35);
   box-shadow: none;
   transform: none;
 }
 
-[data-experimental-variant="zen-monoline"] .day-cell.today {
+[data-experimental-variant="zen-monoline"] .day-cell.today .day-card {
   border: 2px solid #1f2933;
   background: rgba(31, 41, 51, 0.08);
   box-shadow: none;
@@ -205,7 +206,7 @@ html[data-experimental-variant="nordic-frost"] body {
   pointer-events: none;
 }
 
-[data-experimental-variant="nordic-frost"] .day-cell {
+[data-experimental-variant="nordic-frost"] .day-card {
   background: rgba(240, 249, 255, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(186, 230, 253, 0.5);
@@ -216,7 +217,7 @@ html[data-experimental-variant="nordic-frost"] body {
   position: relative;
 }
 
-[data-experimental-variant="nordic-frost"] .day-cell::after {
+[data-experimental-variant="nordic-frost"] .day-card::after {
   content: '❄';
   position: absolute;
   top: 8px;
@@ -227,7 +228,7 @@ html[data-experimental-variant="nordic-frost"] body {
   color: #bae6fd;
 }
 
-[data-experimental-variant="nordic-frost"] .day-cell:hover {
+[data-experimental-variant="nordic-frost"] .day-card:hover {
   border-color: rgba(125, 211, 252, 0.8);
   box-shadow:
     0 12px 30px rgba(100, 116, 139, 0.15),
@@ -235,11 +236,11 @@ html[data-experimental-variant="nordic-frost"] body {
   transform: translateY(-3px);
 }
 
-[data-experimental-variant="nordic-frost"] .day-cell:hover::after {
+[data-experimental-variant="nordic-frost"] .day-card:hover::after {
   opacity: 1;
 }
 
-[data-experimental-variant="nordic-frost"] .day-cell.today {
+[data-experimental-variant="nordic-frost"] .day-cell.today .day-card {
   border: 2px solid rgba(14, 165, 233, 0.7);
   background: linear-gradient(135deg, rgba(224, 242, 254, 0.95), rgba(186, 230, 253, 0.85));
   box-shadow:
@@ -326,7 +327,7 @@ html[data-experimental-variant="soft-studio"] body {
     0 28px 48px rgba(15, 23, 42, 0.1);
 }
 
-[data-experimental-variant="soft-studio"] .day-cell {
+[data-experimental-variant="soft-studio"] .day-card {
   position: relative;
   overflow: hidden;
   border-radius: 26px;
@@ -337,7 +338,7 @@ html[data-experimental-variant="soft-studio"] body {
     0 12px 32px rgba(15, 23, 42, 0.08);
 }
 
-[data-experimental-variant="soft-studio"] .day-cell::before {
+[data-experimental-variant="soft-studio"] .day-card::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -346,7 +347,7 @@ html[data-experimental-variant="soft-studio"] body {
   pointer-events: none;
 }
 
-[data-experimental-variant="soft-studio"] .day-cell:hover {
+[data-experimental-variant="soft-studio"] .day-card:hover {
   transform: translateY(-1px);
   border-color: rgba(148, 163, 184, 0.55);
   box-shadow:
@@ -354,7 +355,7 @@ html[data-experimental-variant="soft-studio"] body {
     0 16px 40px rgba(15, 23, 42, 0.12);
 }
 
-[data-experimental-variant="soft-studio"] .day-cell.today {
+[data-experimental-variant="soft-studio"] .day-cell.today .day-card {
   border-color: rgba(16, 185, 129, 0.4);
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(45, 212, 191, 0.1));
   box-shadow: 0 12px 32px rgba(45, 212, 191, 0.16);
@@ -432,20 +433,20 @@ html[data-experimental-variant="frosted-ledger"] body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-[data-experimental-variant="frosted-ledger"] .day-cell {
+[data-experimental-variant="frosted-ledger"] .day-card {
   border-radius: 22px;
   background: rgba(254, 254, 255, 0.92);
   border: 1px solid rgba(203, 213, 225, 0.35);
   box-shadow: 0 8px 20px rgba(148, 163, 184, 0.12);
 }
 
-[data-experimental-variant="frosted-ledger"] .day-cell:hover {
+[data-experimental-variant="frosted-ledger"] .day-card:hover {
   transform: translateY(-1px);
   border-color: rgba(100, 116, 139, 0.4);
   box-shadow: 0 16px 32px rgba(148, 163, 184, 0.16);
 }
 
-[data-experimental-variant="frosted-ledger"] .day-cell.today {
+[data-experimental-variant="frosted-ledger"] .day-cell.today .day-card {
   border: 1px solid rgba(13, 148, 136, 0.5);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.14), rgba(6, 182, 212, 0.12));
   box-shadow: 0 12px 30px rgba(13, 148, 136, 0.18);
@@ -522,7 +523,7 @@ html[data-experimental-variant="slate-filigree"] body {
   color: #64748b;
 }
 
-[data-experimental-variant="slate-filigree"] .day-cell {
+[data-experimental-variant="slate-filigree"] .day-card {
   position: relative;
   overflow: hidden;
   border-radius: 24px;
@@ -533,7 +534,7 @@ html[data-experimental-variant="slate-filigree"] body {
     inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
-[data-experimental-variant="slate-filigree"] .day-cell::before {
+[data-experimental-variant="slate-filigree"] .day-card::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -542,7 +543,7 @@ html[data-experimental-variant="slate-filigree"] body {
   pointer-events: none;
 }
 
-[data-experimental-variant="slate-filigree"] .day-cell::after {
+[data-experimental-variant="slate-filigree"] .day-card::after {
   content: '';
   position: absolute;
   left: 10%;
@@ -555,17 +556,17 @@ html[data-experimental-variant="slate-filigree"] body {
   transition: transform 0.45s ease;
 }
 
-[data-experimental-variant="slate-filigree"] .day-cell:hover::after {
+[data-experimental-variant="slate-filigree"] .day-card:hover::after {
   transform: scaleX(1);
 }
 
-[data-experimental-variant="slate-filigree"] .day-cell:hover {
+[data-experimental-variant="slate-filigree"] .day-card:hover {
   transform: translateY(-1px);
   border-color: rgba(100, 116, 139, 0.45);
   box-shadow: 0 20px 48px rgba(71, 85, 105, 0.18);
 }
 
-[data-experimental-variant="slate-filigree"] .day-cell.today {
+[data-experimental-variant="slate-filigree"] .day-cell.today .day-card {
   border-color: rgba(45, 212, 191, 0.5);
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(125, 211, 252, 0.12));
   box-shadow: 0 16px 36px rgba(45, 212, 191, 0.2);
@@ -614,7 +615,7 @@ html[data-experimental-variant="emerald-whisper"] body {
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
-[data-experimental-variant="emerald-whisper"] .day-cell {
+[data-experimental-variant="emerald-whisper"] .day-card {
   position: relative;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.95);
@@ -622,19 +623,19 @@ html[data-experimental-variant="emerald-whisper"] body {
   box-shadow: 0 10px 24px rgba(71, 85, 105, 0.12);
 }
 
-[data-experimental-variant="emerald-whisper"] .day-cell:hover {
+[data-experimental-variant="emerald-whisper"] .day-card:hover {
   transform: translateY(-1px);
   border-color: rgba(30, 128, 110, 0.35);
   box-shadow: 0 18px 36px rgba(30, 128, 110, 0.15);
 }
 
-[data-experimental-variant="emerald-whisper"] .day-cell.today {
+[data-experimental-variant="emerald-whisper"] .day-cell.today .day-card {
   border: 1px solid rgba(16, 185, 129, 0.45);
   background: rgba(16, 185, 129, 0.12);
   box-shadow: 0 18px 38px rgba(16, 185, 129, 0.18);
 }
 
-[data-experimental-variant="emerald-whisper"] .day-cell:focus-visible {
+[data-experimental-variant="emerald-whisper"] .day-card:focus-visible {
   outline: none;
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.9),
@@ -683,7 +684,7 @@ html[data-theme="dark"][data-experimental-variant="calm-pastels"] body {
   color: #e2e8f0;
 }
 
-html[data-theme="dark"][data-experimental-variant="calm-pastels"] .day-cell {
+html[data-theme="dark"][data-experimental-variant="calm-pastels"] .day-card {
   background: rgba(15, 23, 42, 0.88);
   border-color: rgba(148, 163, 184, 0.4);
 }
@@ -693,7 +694,7 @@ html[data-theme="dark"][data-experimental-variant="zen-monoline"] body {
   color: #f9fafb;
 }
 
-html[data-theme="dark"][data-experimental-variant="zen-monoline"] .day-cell {
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] .day-card {
   border-color: rgba(249, 250, 251, 0.3);
 }
 

@@ -11,6 +11,8 @@ function Header({ onShowYearView, onShowHelp }) {
   const { undo, canUndo, syncWithServer } = useCalendar();
   const fileInputRef = useRef(null);
   const { query } = useKBar();
+  const variantKey = typeof document !== 'undefined' ? document.documentElement.dataset.experimentalVariant : undefined;
+  const useRedesignedHeader = variantKey && variantKey !== 'default';
 
   const goToToday = () => {
     const todayCell = document.querySelector('.day-cell.today');
@@ -176,16 +178,84 @@ function Header({ onShowYearView, onShowHelp }) {
     }
   ];
 
-  return (
-    <header id="header" className="app-header">
-      <div className="app-header__shell">
-        <div className="app-header__brand" aria-label="Timeless calendar branding">
-          <span className="brand-mark">Timeless</span>
-          <span className="brand-subtitle">The Infinite Calendar</span>
+  if (!useRedesignedHeader) {
+    return (
+      <header id="header" className="app-header app-header--baseline">
+        <div className="app-header__shell">
+          <div className="app-header__brand" aria-label="Timeless calendar branding">
+            <span className="brand-mark">Timeless</span>
+            <span className="brand-subtitle">The Infinite Calendar</span>
+          </div>
+
+          <nav className="app-header__actions" aria-label="Calendar primary actions">
+            <div className="action-group action-group--primary">
+              {primaryActions.map(action => {
+                const { key, ...actionProps } = action;
+                return (
+                  <HeaderAction
+                    key={key}
+                    {...actionProps}
+                    variant="primary"
+                    mode="baseline"
+                  />
+                );
+              })}
+            </div>
+
+            <div className="action-group action-group--secondary">
+              {secondaryActions.map(action => {
+                const { key, ...actionProps } = action;
+                return (
+                  <HeaderAction
+                    key={key}
+                    {...actionProps}
+                    mode="baseline"
+                  />
+                );
+              })}
+            </div>
+
+            <div className="action-group action-group--data">
+              {dataActions.map(action => {
+                const { key, ...actionProps } = action;
+                return (
+                  <HeaderAction
+                    key={key}
+                    {...actionProps}
+                    variant="ghost"
+                    mode="baseline"
+                  />
+                );
+              })}
+            </div>
+          </nav>
         </div>
 
-        <nav className="app-header__actions" aria-label="Calendar primary actions">
-          <div className="action-group action-group--primary">
+        <div className="app-header__calendar" aria-label="Three month mini calendar">
+          <MiniCalendar />
+        </div>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImport}
+          accept=".json"
+          style={{ display: 'none' }}
+        />
+      </header>
+    );
+  }
+
+  return (
+    <header id="header" className="app-header app-header--modern">
+      <div className="app-header__surface">
+        <div className="app-header__topbar">
+          <div className="app-header__brand" aria-label="Timeless calendar branding">
+            <span className="brand-mark">Timeless</span>
+            <span className="brand-subtitle">The Infinite Calendar</span>
+          </div>
+
+          <div className="app-header__quick-actions" aria-label="Calendar quick actions">
             {primaryActions.map(action => {
               const { key, ...actionProps } = action;
               return (
@@ -197,20 +267,23 @@ function Header({ onShowYearView, onShowHelp }) {
               );
             })}
           </div>
+        </div>
 
-          <div className="action-group action-group--secondary">
+        <div className="app-header__toolbar" aria-label="Calendar utilities">
+          <div className="app-header__secondary">
             {secondaryActions.map(action => {
               const { key, ...actionProps } = action;
               return (
                 <HeaderAction
                   key={key}
                   {...actionProps}
+                  variant="secondary"
                 />
               );
             })}
           </div>
 
-          <div className="action-group action-group--data">
+          <div className="app-header__data">
             {dataActions.map(action => {
               const { key, ...actionProps } = action;
               return (
@@ -222,12 +295,12 @@ function Header({ onShowYearView, onShowHelp }) {
               );
             })}
           </div>
-        </nav>
+        </div>
       </div>
 
-      <div className="app-header__calendar" aria-label="Three month mini calendar">
+      <aside className="app-header__aside" aria-label="Upcoming months overview">
         <MiniCalendar />
-      </div>
+      </aside>
 
       <input
         type="file"
@@ -240,17 +313,32 @@ function Header({ onShowYearView, onShowHelp }) {
   );
 }
 
-function HeaderAction({ label, description, icon, onClick, disabled, variant = 'default' }) {
+function HeaderAction({ label, description, icon, onClick, disabled, variant = 'secondary', mode = 'modern' }) {
+  if (mode === 'baseline') {
+    return (
+      <button
+        type="button"
+        className={`header-action header-action--${variant}`}
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={description || label}
+      >
+        <span className="header-action__icon" aria-hidden="true">{icon}</span>
+        <span className="header-action__label">{label}</span>
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
-      className={`header-action header-action--${variant}`}
+      className={`header-chip header-chip--${variant}`}
       onClick={onClick}
       disabled={disabled}
       aria-label={description || label}
     >
-      <span className="header-action__icon" aria-hidden="true">{icon}</span>
-      <span className="header-action__label">{label}</span>
+      <span className="header-chip__icon" aria-hidden="true">{icon}</span>
+      <span className="header-chip__label">{label}</span>
     </button>
   );
 }
