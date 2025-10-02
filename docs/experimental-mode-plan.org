@@ -8,132 +8,43 @@
 3. Polish motion, micro-interactions, and responsive behaviour per theme.
 4. Run accessibility and usability passes (contrast, focus states, keyboard cues).
 
-* Already implemented:
-** DONE Aurora Glass
-- Palette :: Deep indigo base, aurora gradients (teal, violet, magenta), white accents
-- Typography :: Sans-serif with subtle weight shifts; gradient-filled headers
-- Treatments ::
-  - Multi-layered glassmorphic cards with varying blur intensities
-  - Smooth aurora gradient animation in the background
-  - Light refraction hover states and animated focus rings
-  - Floating UI elements with soft shadows; glowing pill buttons
-  - Optional parallax particle layer for depth
+* Design Philosophy (Based on Canonical If-Then Page Analysis)
+All variants should follow "Premium Minimalism" / "Soft Modernism" principles:
+- Multi-layer soft shadows with very low opacity (5-15%)
+- Generous border radius (rounded-2xl to rounded-3xl)
+- Frosted glass aesthetic with backdrop-blur
+- Muted accent colors at 5-15% opacity maximum
+- Zinc/slate/stone grays, never pure grays
+- Generous white space (minimum p-6 padding)
+- Subtle hover states (shadow deepening, no aggressive transforms)
+- Wide letter-spacing on small uppercase labels
+- Clean, non-overlapping borders at 60-70% opacity
+- Light backgrounds only (no dark themes)
 
-** DONE Paper Atlas
-- Palette :: Cream paper background, ink blues, muted accents
-- Typography :: Serif headings paired with clean sans-serif body text
-- Treatments ::
-  - Textured backgrounds and layered “paper” cards
-  - Soft shadows and ink-like hover states
-  - Sticky-note widgets and hand-drawn iconography
-  - Slightly offset elements to mimic editorial layouts
-
-** DONE Solar Dawn
-- Palette :: Sunrise gradients (peach → amber), warm neutrals, bold accent yellow
-- Typography :: Oversized hero headings, rounded sans-serif body
-- Treatments ::
-  - Color-blocked month headers and floating chips
-  - Animated day transitions with dawn-inspired fade/slide
-  - Rounded geometry and generous corner radii
-  - Ambient glow around the “today” indicator
-
-** DONE Calm Pastels
-- Palette :: Muted pastels (lavender, mint, blush) with soft neutrals
+* Currently Active Variants
+** DONE Calm Pastels (Refined 2025-10-02)
+- Palette :: Zinc-50/100/200 base, neutral pastels at very low opacity
 - Typography :: Light-weight sans-serif, ample line spacing
 - Treatments ::
-  - Gentle drop shadows and rounded corners
-  - Meditative animations (e.g., slow pulsing around the current day)
+  - Softened palette to remove cloying colors
+  - Gentle drop shadows and rounded-2xl corners
+  - Subtle animations (slow pulse around current day)
   - Smooth scale transitions on hover
   - Minimal icon set with softened strokes
+- Status :: Under review after palette refinement
 
-** DONE Zen Monoline
+** DONE Zen Monoline (Fixed 2025-10-02)
 - Palette :: Monochrome base with tempered accent (charcoal, off-white, muted gold)
 - Typography :: Condensed uppercase labels, classic sans-serif body
 - Treatments ::
   - Line-art approach with thin strokes and dotted separators
   - Soft shading to highlight the active week
   - Low-saturation icons, minimal color density
-  - Focus states expressed via weight and line thickness changes
+  - Focus states via weight and line thickness changes
+  - Fixed: No transform on hover to prevent border overlap
+- Status :: Technical issue resolved, borders stay crisp
 
-** DONE Neomorphic Zen
-- Palette :: Neutral grays (~#E5E7EB), soft whites, accent teal (#14B8A6)
-- Typography :: Minimalist sans-serif with variable font weights
-- Treatments ::
-  - Neumorphic embossed/debossed calendar cells
-  - Inner/outer shadows for soft depth
-  - Organic rounded corners and ambient light simulation
-  - Subtle tactile feedback animations
-
-** DONE Paper Craft
-- Palette :: Warm paper tones, ink blues (#1E40AF), red accents (#DC2626)
-- Typography :: Handwritten-style accents with clean sans-serif body
-- Treatments ::
-  - Layered paper cards with realistic textures
-  - Page-flip animations between months
-  - Torn edge effects and paper grain overlays
-  - Ink-style hover/active states
-
-** DONE Liquid Motion
-- Palette :: Ocean blues (#0891B2), coral (#FB7185), sandy beige (#FEF3C7)
-- Typography :: Rounded sans-serif with playful weight variations
-- Treatments ::
-  - Morphing liquid blob shapes on interaction
-  - Wave animations and spring physics transitions
-  - Ripple effects on clicks and flowing gradient transitions
-  - Fluid highlight sweep across the active row
-
-** DONE Botanical Minimal
-- Palette :: Sage green (#6B8E6F), terracotta (#C2634D), cream (#FAF5F0)
-- Typography :: Serif display headings with clean sans body
-- Treatments ::
-  - Subtle leaf pattern overlays and natural texture
-  - Organic, asymmetric shapes framing the calendar
-  - Hand-drawn botanical accents per season
-  - Seasonal color transitions for month headers
-
-* Implement these ones now 
-** Brutalist Grid
-- Palette :: High-contrast black/white with single electric accent (#00FF00 or #FF0066)
-- Typography :: Extended mono or grotesque sans; oversized labels with tight tracking
-- Treatments ::
-  - Hard-edged grid lines and boxy calendar cells
-  - Stark borders, zero rounded corners
-  - Aggressive typographic hierarchy (massive day numbers)
-  - Abrupt state changes (no transitions), bold focus rectangles
-  - Optional scanline or CRT distortion overlay
-
-** Holographic Shimmer
-- Palette :: Iridescent gradients (chrome, rainbow shift), dark base (#0A0A0F)
-- Typography :: Futuristic sans with chromatic aberration on headings
-- Treatments ::
-  - Animated holographic foil effect on calendar surface
-  - Color-shifting borders based on viewing angle (simulated via mouse position)
-  - Prism light leak animations
-  - Floating depth layers with parallax
-  - Metallic sheen on interactive elements
-
-** Vaporwave Sunset
-- Palette :: Magenta (#FF0080), cyan (#00FFFF), deep purple (#4A0080), sunset gradient
-- Typography :: Retro-futuristic with Japanese glyphs or Greek statue imagery
-- Treatments ::
-  - Palm tree or geometric wireframe silhouettes in background
-  - VHS tracking distortion and chromatic aberration
-  - Grid floor perspective effect beneath calendar
-  - Neon outline glow on month headers
-  - Synthwave sun gradient animation
-
-** Micro Interactions Lab
-- Palette :: Neutral base with dynamic accent color per interaction type
-- Typography :: Clean system fonts optimized for motion clarity
-- Treatments ::
-  - Spring physics on every hover, click, focus
-  - Magnetic snap-to-grid for selections
-  - Haptic-style vibration animations
-  - Dynamic color sampling from time of day or system wallpaper
-  - Staggered cascade animations for grid population
-  - Gesture-driven swipe transitions with inertia
-
-** Nordic Frost
+** DONE Nordic Frost
 - Palette :: Ice blue (#E0F2FE), slate (#475569), crystalline white, silver accents
 - Typography :: Clean geometric sans with wide letterspacing
 - Treatments ::
@@ -142,19 +53,144 @@
   - Cool blue glow on focus states
   - Smooth glide transitions mimicking ice sliding
   - Seasonal aurora effect in header during winter months
+- Status :: Approved - "very nice"
 
-** Memphis Postmodern
-- Palette :: Primary colors (red, yellow, blue) + black/white, geometric patterns
-- Typography :: Bold sans-serif mixed with quirky display fonts
+* Proposed New Variants (Based on Canonical Preferences)
+** Tier 1: High Confidence
+*** Soft Teal Glass
+- Palette :: Zinc-50/100/200 base, muted teal (#0f766e) at 8-15% opacity
+- Typography :: Wide tracking on labels (0.25em), slate-700 body text (#334155)
 - Treatments ::
-  - Abstract geometric shapes (squiggles, grids, dots) as decorative elements
-  - Asymmetric layouts with playful misalignment
-  - High-contrast color blocking per calendar row
-  - Pop-art style hover states (flat color swaps)
-  - Retro halftone dot patterns as backgrounds
+  - rounded-3xl (24px) for all cards
+  - Multi-layer soft shadows: 0_20px_48px_rgba(15,118,110,0.08)
+  - backdrop-blur with bg-white/95
+  - Borders at border-zinc-200/70
+  - Hover: Shadow deepening only, no transform
+  - Gradient dividers: from-transparent via-teal-500/20 to-transparent
+- Rationale :: Direct translation of canonical if-then aesthetic to calendar
+
+*** Lavender Mist
+- Palette :: Zinc-50/100/200 base, soft lavender (#a78bfa) at 6-10% opacity
+- Typography :: Same as Soft Teal Glass
+- Treatments ::
+  - Same structure as Soft Teal Glass
+  - Replace teal accent with whisper of lavender
+  - Remove all cloying pastels from Calm Pastels
+  - Keep 95% neutral, lavender only in subtle accents
+- Rationale :: Calm Pastels refined to canonical standards
+
+*** Charcoal Soft
+- Palette :: Neutral-50/100/200 base, charcoal (#404040) at 5-8% opacity
+- Typography :: Same as Soft Teal Glass
+- Treatments ::
+  - Monochromatic sophistication
+  - Same canonical structure as Soft Teal Glass
+  - No color accent, just perfect grays and shadows
+  - Ultra-refined, professional, timeless
+- Rationale :: Zen Monoline elevated with canonical refinement
+
+** Tier 2: Exploration
+*** Warm Amber Glow
+- Palette :: Stone-50/100/200 base, warm amber (#d97706) at 8-12% opacity
+- Typography :: Same as canonical baseline
+- Treatments ::
+  - Same generous radius and soft shadows as Soft Teal
+  - Subtle amber tint in gradients (from-stone-50 via-amber-50/20)
+  - Warmer alternative to teal
+- Rationale :: Warm variant while maintaining refined approach
+
+*** Sky Blue Serenity
+- Palette :: Slate-50/100/200 base, soft sky blue (#0ea5e9) at 8-12% opacity
+- Typography :: Same as canonical baseline
+- Treatments ::
+  - Same structure as Soft Teal Glass
+  - Cooler than teal, warmer than Nordic Frost
+  - Gentle sky-blue gradient accents
+- Rationale :: Temperature variation within canonical comfort zone
+
+*** Sage Whisper
+- Palette :: Zinc-50/100/200 base, muted sage (#6b8e6f) at 8-12% opacity
+- Typography :: Same as canonical baseline
+- Treatments ::
+  - Remove grating mint from Botanical Minimal
+  - Use proper sage at low opacity
+  - Same canonical soft shadows and spacing
+  - Natural but not aggressive
+- Rationale :: Botanical Minimal fixed with refinement and subtlety
+
+* Removed Variants (Failed User Testing 2025-10-02)
+These variants violated the "Premium Minimalism" principles and have been removed:
+
+** Dark Theme Variants (Rejected - Dark backgrounds)
+- Modern UI :: Purple/indigo gradients too harsh
+- Aurora Glass :: Dark theme + overlapping borders
+- Liquid Motion :: Dark theme
+- Holographic Shimmer :: Dark theme
+
+** Too Bland (Rejected - Insufficient contrast/interest)
+- Paper Atlas :: Too blah, too bland
+- Paper Craft :: Too blah, too bland
+
+** Too Intense (Rejected - Garish or overwhelming)
+- Solar Dawn :: Too bright and in-your-face
+- Vaporwave Sunset :: Garish aesthetic
+- Memphis Postmodern :: Garish, terrible
+- Brutalist Grid :: Hate this style entirely
+
+** Color Issues (Rejected - Grating or cloying colors)
+- Botanical Minimal :: Mint green color is grating
+
+** Contrast Issues (Rejected - Poor visibility)
+- Neomorphic Zen :: Lacks contrast
+
+** Animation Issues (Rejected - Too aggressive)
+- Micro Interactions Lab :: Too in-your-face, not subtle
 
 * Implementation Notes
 - Build each theme as a variant entry for =useExperimentalMode=, toggled via =data-experimental-variant= attributes.
 - Use CSS custom properties to swap palettes, blur intensity, and corner radii per theme.
 - Layer micro-interactions (hover states, spring animations, focus cues) consistent with each style.
 - Validate responsive layouts alongside keyboard navigation and screen-reader semantics.
+
+* Proposed Variants Aligned With Canonical Preferences
+** Soft Studio
+- Palette :: Neutral gradient base (`#f8fafc → #f1f5f9`), slate typography, low-opacity teal accents for “Today” states
+- Treatments ::
+  - Calendar wrapper with `backdrop-blur-md`, translucent border, and canonical depth shadows
+  - Day cards using `rounded-[1.75rem]`, `shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_28px_rgba(15,23,42,0.08)]`
+  - Metadata pills in uppercase `tracking-[0.24em]` with muted slate text
+  - Hover feedback limited to subtle lifts (`translate-y-[-1px]`) and mild inset glow
+
+** Frosted Ledger
+- Palette :: Frosted glass neutrals (`bg-white/85`, `ring-1 ring-slate-100/80`), emerald accents only on primary interactions
+- Treatments ::
+  - Calendar shell with frosted overlay and inner border; day cells mostly borderless, separated via container hairlines
+  - Labels with gradient dividers (`from-transparent via-[#0f766e33] to-transparent`) and uppercase tracking
+  - “Today” chip as a soft pill with linear gradient teal/cyan background and gentle glow
+
+** Slate Filigree
+- Palette :: Monochrome slate with controlled emerald highlights; retains canonical icon badge styling
+- Treatments ::
+  - Month header badges copied from canonical (`rounded-2xl border border-slate-200/70 bg-white/90`)
+  - Day cards with radial sheen overlays (`before:bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.65),transparent_70%)]`)
+  - Notes leverage canonical pill taxonomy (`codexPillClass('if')`, `'then'`) for consistent colors
+  - Hover underline sweep animation (≥400ms) for subtle motion cues
+
+** Emerald Whisper
+- Palette :: Soft zinc/slate neutrals with emerald reserved for focus rings and CTAs
+- Treatments ::
+  - Focus states using `ring-2 ring-emerald-300/60 ring-offset-2 ring-offset-white` plus faint outer glow
+  - Month metrics badge in uppercase tracking with border-slate-200/60
+  - Day hover/tap states capped at mild scale (`scale-105`) or lift; transitions 200–250ms ease-out
+  - “Today” highlight as low-opacity emerald fill (no intense gradients)
+- **All new variants must follow canonical if-then page design principles** (see Design Philosophy section).
+- Test on both desktop and mobile to ensure consistent "soft modernism" feel.
+- Avoid transforms on hover that cause border misalignment.
+- Keep accent colors at 5-15% opacity maximum.
+- Use multi-layer soft shadows, not single harsh shadows.
+
+* Next Steps
+1. Implement Tier 1 variants (Soft Teal Glass, Lavender Mist, Charcoal Soft)
+2. User testing of Tier 1 variants
+3. If successful, proceed with Tier 2 variants (Warm Amber, Sky Blue, Sage)
+4. Archive or delete removed variant CSS to reduce bundle size
