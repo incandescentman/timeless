@@ -184,7 +184,7 @@
     }
 
     /* Button styling with cubic-bezier transitions */
-    a.button, button {
+    a.button, button:not(.variant-nav__button) {
       font-size: 16px;
       padding: 8px 12px;
       border-radius: 20px;
@@ -199,17 +199,17 @@
       display: inline-block;
       line-height: 15px;
     }
-    a.button:hover, button:hover {
+    a.button:hover, button:not(.variant-nav__button):hover {
       background: #f8f9fa;
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    body.dark-mode a.button, body.dark-mode button {
+    body.dark-mode a.button, body.dark-mode button:not(.variant-nav__button) {
       background: #3a3a3a;
       color: #cbd5e0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
-    body.dark-mode a.button:hover, body.dark-mode button:hover {
+    body.dark-mode a.button:hover, body.dark-mode button:not(.variant-nav__button):hover {
       background: #4a4a4a;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
@@ -640,12 +640,12 @@
     }
 
     /* Focus styles */
-    textarea:focus, button:focus, a:focus, input:focus {
+    textarea:focus, button:not(.variant-nav__button):focus, a:focus, input:focus {
       outline: 2px solid #4299e1;
       outline-offset: 2px;
     }
     body.dark-mode textarea:focus,
-    body.dark-mode button:focus,
+    body.dark-mode button:not(.variant-nav__button):focus,
     body.dark-mode a:focus,
     body.dark-mode input:focus {
       outline-color: #63b3ed;

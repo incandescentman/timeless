@@ -224,7 +224,7 @@
 }
 
 /* Modern buttons */
-[data-experimental-variant="modern"] button {
+[data-experimental-variant="modern"] button:not(.variant-nav__button) {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -235,7 +235,7 @@
   overflow: hidden;
 }
 
-[data-experimental-variant="modern"] button::before {
+[data-experimental-variant="modern"] button:not(.variant-nav__button)::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -244,13 +244,13 @@
   transition: opacity 0.3s ease;
 }
 
-[data-experimental-variant="modern"] button:hover {
+[data-experimental-variant="modern"] button:not(.variant-nav__button):hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
   border-color: rgba(102, 126, 234, 0.5);
 }
 
-[data-experimental-variant="modern"] button:hover::before {
+[data-experimental-variant="modern"] button:not(.variant-nav__button):hover::before {
   opacity: 0.1;
 }
 
@@ -351,14 +351,14 @@
   box-shadow: none;
 }
 
-[data-experimental-variant="minimal"] button {
+[data-experimental-variant="minimal"] button:not(.variant-nav__button) {
   background: transparent;
   border: 1px solid var(--minimal-border);
   color: var(--minimal-text);
   font-weight: 400;
 }
 
-[data-experimental-variant="minimal"] button:hover {
+[data-experimental-variant="minimal"] button:not(.variant-nav__button):hover {
   background: var(--minimal-hover);
 }
 
@@ -397,7 +397,7 @@
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="dark"][data-experimental-variant="modern"] button {
+[data-theme="dark"][data-experimental-variant="modern"] button:not(.variant-nav__button) {
   background: rgba(0, 0, 0, 0.5);
   border-color: rgba(255, 255, 255, 0.2);
   color: #a5b4fc;
