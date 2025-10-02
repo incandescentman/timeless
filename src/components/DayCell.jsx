@@ -340,23 +340,6 @@ function DayCell({ date }) {
           )}
         </div>
 
-        {!isAddingNew && (
-          <div className="day-card__footer">
-            <button
-              type="button"
-              className="day-card__add"
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!addButtonDisabled) {
-                  openComposer();
-                }
-              }}
-              aria-label="Add entry"
-              disabled={addButtonDisabled}
-            >
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

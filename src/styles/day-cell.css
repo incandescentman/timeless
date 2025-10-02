@@ -411,35 +411,6 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-.day-card__footer {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.day-card__add {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  border: 1px dashed rgba(148, 163, 184, 0.45);
-  background: rgba(248, 250, 252, 0.8);
-  color: #334155;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-}
-
-.day-card__add:hover:not(:disabled) {
-  border-color: rgba(37, 99, 235, 0.45);
-  background: rgba(226, 232, 240, 0.85);
-  transform: translateY(-1px);
-}
-
-.day-card__add:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 .day-cell.today .day-card {
   border-color: rgba(37, 99, 235, 0.4);
   background: linear-gradient(135deg, rgba(219, 234, 254, 0.95), rgba(191, 219, 254, 0.9));
@@ -519,28 +490,6 @@ body.dark-mode .day-card__event-input {
   background: rgba(15, 23, 42, 0.92);
   border-color: rgba(96, 165, 250, 0.55);
   color: #f8fafc;
-}
-
-body.dark-mode .day-card__event-delete {
-  background: rgba(51, 65, 85, 0.6);
-  color: rgba(226, 232, 240, 0.7);
-}
-
-body.dark-mode .day-card__event-delete:hover {
-  background: rgba(248, 113, 113, 0.2);
-  border-color: rgba(248, 113, 113, 0.4);
-  color: #fca5a5;
-}
-
-body.dark-mode .day-card__add {
-  border-color: rgba(71, 85, 105, 0.55);
-  background: rgba(30, 41, 59, 0.6);
-  color: rgba(226, 232, 240, 0.85);
-}
-
-body.dark-mode .day-card__add:hover:not(:disabled) {
-  border-color: rgba(96, 165, 250, 0.5);
-  background: rgba(37, 99, 235, 0.28);
 }
 
 body.dark-mode .day-cell.today .day-card {
