@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { KBarProvider, useKBar } from 'kbar';
 import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
@@ -302,8 +302,7 @@ function App() {
     experimentalDefaultKey: 'modern'
   });
 
-  // The experimental mode controller handles Option-X internally
-  // No need for custom keyboard handler
+  // Option-X / Alt+E handled internally by @jaydixit/experimental-mode
 
   return (
     <ThemeProvider>

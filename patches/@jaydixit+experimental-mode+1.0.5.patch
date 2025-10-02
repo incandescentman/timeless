@@ -1,0 +1,269 @@
+diff --git a/node_modules/@jaydixit/experimental-mode/README.md b/node_modules/@jaydixit/experimental-mode/README.md
+index 1a8a74f..37c1d9d 100644
+--- a/node_modules/@jaydixit/experimental-mode/README.md
++++ b/node_modules/@jaydixit/experimental-mode/README.md
+@@ -278,6 +278,12 @@ button:not(.variant-nav__button) {
+ 
+ ✅ **Do** use `data-experimental-variant` for styling variants
+ 
++## React StrictMode
++
++- React 18's StrictMode double-mounts components in development. The controller now re-attaches its keyboard listener after those practice mounts, so Option+X stays in sync with the active variant UI.
++- `useExperimentalMode` calls a new internal `attach()` hook on mount—no more local Option+X shims are required. If you previously set `cycleHotkey: null`, you can remove that workaround.
++- Non-React integrations can still call `createExperimentalModeController` directly. If you tear down the controller manually, call `controller.attach()` when you want to rebind listeners.
++
+ ## How This Compares to Other Tools
+ 
+ Based on a search by Claude Sonnet 4.5, this package fills a unique niche in the ecosystem. However, there may be other tools that weren't discovered in that search:
+diff --git a/node_modules/@jaydixit/experimental-mode/dist/chunk-UPNQYKTI.js b/node_modules/@jaydixit/experimental-mode/dist/chunk-UPNQYKTI.js
+index 8de016a..73fa93f 100644
+--- a/node_modules/@jaydixit/experimental-mode/dist/chunk-UPNQYKTI.js
++++ b/node_modules/@jaydixit/experimental-mode/dist/chunk-UPNQYKTI.js
+@@ -9,6 +9,33 @@ var DEFAULT_CYCLE_HOTKEY = {
+   shiftKey: false,
+   preventDefault: true
+ };
++function registerGlobalHotkeyListener(listener) {
++  if (typeof window === "undefined") {
++    return () => {
++    };
++  }
++  const target = window;
++  if (target.__experimentalModeHotkeyListener) {
++    window.removeEventListener("keydown", target.__experimentalModeHotkeyListener);
++    delete target.__experimentalModeHotkeyListener;
++  }
++  if (!listener) {
++    return () => {
++    };
++  }
++  window.addEventListener("keydown", listener);
++  target.__experimentalModeHotkeyListener = listener;
++  return () => {
++    if (typeof window === "undefined") {
++      return;
++    }
++    const currentTarget = window;
++    window.removeEventListener("keydown", listener);
++    if (currentTarget.__experimentalModeHotkeyListener === listener) {
++      delete currentTarget.__experimentalModeHotkeyListener;
++    }
++  };
++}
+ function matchesHotkey(event, hotkey) {
+   if (hotkey.altKey !== void 0 && event.altKey !== hotkey.altKey) return false;
+   if (hotkey.ctrlKey !== void 0 && event.ctrlKey !== hotkey.ctrlKey) return false;
+@@ -128,11 +155,31 @@ function createExperimentalModeController(options) {
+     }
+     cycleVariant();
+   };
+-  if (typeof window !== "undefined") {
++  let unregisterHotkey;
++  let listenersAttached = false;
++  const attachListeners = () => {
++    if (listenersAttached || typeof window === "undefined") return;
+     window.addEventListener("popstate", handlePopState);
+     if (cycleHotkey) {
+-      window.addEventListener("keydown", handleKeydown);
++      unregisterHotkey = registerGlobalHotkeyListener(handleKeydown);
+     }
++    listenersAttached = true;
++  };
++  const detachListeners = () => {
++    if (!listenersAttached || typeof window === "undefined") return;
++    window.removeEventListener("popstate", handlePopState);
++    if (cycleHotkey) {
++      if (unregisterHotkey) {
++        unregisterHotkey();
++        unregisterHotkey = void 0;
++      } else {
++        registerGlobalHotkeyListener(null);
++      }
++    }
++    listenersAttached = false;
++  };
++  attachListeners();
++  if (typeof window !== "undefined") {
+     ;
+     window.__experimentalMode = {
+       get enabled() {
+@@ -152,7 +199,9 @@ function createExperimentalModeController(options) {
+       getSnapshot,
+       destroy: () => {
+         listeners.clear();
+-      }
++        detachListeners();
++      },
++      attach: attachListeners
+     };
+   }
+   applyDocumentAttributes();
+@@ -176,13 +225,9 @@ function createExperimentalModeController(options) {
+     },
+     destroy() {
+       listeners.clear();
+-      if (typeof window !== "undefined") {
+-        window.removeEventListener("popstate", handlePopState);
+-        if (cycleHotkey) {
+-          window.removeEventListener("keydown", handleKeydown);
+-        }
+-      }
+-    }
++      detachListeners();
++    },
++    attach: attachListeners
+   };
+ }
+ function defineVariants(variants) {
+diff --git a/node_modules/@jaydixit/experimental-mode/dist/chunk-WDUWREI5.js b/node_modules/@jaydixit/experimental-mode/dist/chunk-WDUWREI5.js
+index 0ecf556..7006a0d 100644
+--- a/node_modules/@jaydixit/experimental-mode/dist/chunk-WDUWREI5.js
++++ b/node_modules/@jaydixit/experimental-mode/dist/chunk-WDUWREI5.js
+@@ -37,7 +37,11 @@ function useExperimentalMode(options) {
+     JSON.stringify(options.variants)
+   ]);
+   const controller = useMemo(() => createController(options), [serialized]);
+-  useEffect(() => () => controller.destroy(), [controller]);
++  useEffect(() => {
++    var _a;
++    (_a = controller.attach) == null ? void 0 : _a.call(controller);
++    return () => controller.destroy();
++  }, [controller]);
+   const getSnapshot = useCallback(() => controller.getSnapshot(), [controller]);
+   const subscribe = useCallback(
+     (listener) => controller.subscribe(listener),
+diff --git a/node_modules/@jaydixit/experimental-mode/src/controller.ts b/node_modules/@jaydixit/experimental-mode/src/controller.ts
+index 8e67539..cf90b9c 100644
+--- a/node_modules/@jaydixit/experimental-mode/src/controller.ts
++++ b/node_modules/@jaydixit/experimental-mode/src/controller.ts
+@@ -46,6 +46,7 @@ export type ExperimentalModeController = ExperimentalModeSnapshot & {
+   subscribe: (listener: (snapshot: ExperimentalModeSnapshot) => void) => () => void
+   getSnapshot: () => ExperimentalModeSnapshot
+   destroy: () => void
++  attach?: () => void
+ }
+ 
+ const DEFAULT_PARAM_NAME = 'experimental'
+@@ -60,6 +61,42 @@ const DEFAULT_CYCLE_HOTKEY: ExperimentalHotkey = {
+   preventDefault: true,
+ }
+ 
++type HotkeyRegistryWindow = typeof window & {
++  __experimentalModeHotkeyListener?: (event: KeyboardEvent) => void
++}
++
++function registerGlobalHotkeyListener(listener: ((event: KeyboardEvent) => void) | null): () => void {
++  if (typeof window === 'undefined') {
++    return () => {}
++  }
++
++  const target = window as HotkeyRegistryWindow
++
++  if (target.__experimentalModeHotkeyListener) {
++    window.removeEventListener('keydown', target.__experimentalModeHotkeyListener)
++    delete target.__experimentalModeHotkeyListener
++  }
++
++  if (!listener) {
++    return () => {}
++  }
++
++  window.addEventListener('keydown', listener)
++  target.__experimentalModeHotkeyListener = listener
++
++  return () => {
++    if (typeof window === 'undefined') {
++      return
++    }
++
++    const currentTarget = window as HotkeyRegistryWindow
++    window.removeEventListener('keydown', listener)
++    if (currentTarget.__experimentalModeHotkeyListener === listener) {
++      delete currentTarget.__experimentalModeHotkeyListener
++    }
++  }
++}
++
+ type FlagOptions = {
+   paramName?: string
+   paramValue?: string
+@@ -203,11 +240,35 @@ export function createExperimentalModeController(options: ExperimentalModeOption
+       cycleVariant()
+     }
+ 
+-    if (typeof window !== 'undefined') {
++    let unregisterHotkey: (() => void) | undefined
++    let listenersAttached = false
++
++    const attachListeners = () => {
++      if (listenersAttached || typeof window === 'undefined') return
+       window.addEventListener('popstate', handlePopState)
+       if (cycleHotkey) {
+-        window.addEventListener('keydown', handleKeydown)
++        unregisterHotkey = registerGlobalHotkeyListener(handleKeydown)
++      }
++      listenersAttached = true
++    }
++
++    const detachListeners = () => {
++      if (!listenersAttached || typeof window === 'undefined') return
++      window.removeEventListener('popstate', handlePopState)
++      if (cycleHotkey) {
++        if (unregisterHotkey) {
++          unregisterHotkey()
++          unregisterHotkey = undefined
++        } else {
++          registerGlobalHotkeyListener(null)
++        }
+       }
++      listenersAttached = false
++    }
++
++    attachListeners()
++
++    if (typeof window !== 'undefined') {
+       ;(window as typeof window & {
+         __experimentalMode?: ExperimentalModeController
+       }).__experimentalMode = {
+@@ -228,7 +289,9 @@ export function createExperimentalModeController(options: ExperimentalModeOption
+         getSnapshot,
+         destroy: () => {
+           listeners.clear()
++          detachListeners()
+         },
++        attach: attachListeners,
+       }
+     }
+ 
+@@ -254,13 +317,9 @@ export function createExperimentalModeController(options: ExperimentalModeOption
+       },
+       destroy() {
+         listeners.clear()
+-        if (typeof window !== 'undefined') {
+-          window.removeEventListener('popstate', handlePopState)
+-          if (cycleHotkey) {
+-            window.removeEventListener('keydown', handleKeydown)
+-          }
+-        }
++        detachListeners()
+       },
++      attach: attachListeners,
+     }
+ }
+ 
+diff --git a/node_modules/@jaydixit/experimental-mode/src/react.ts b/node_modules/@jaydixit/experimental-mode/src/react.ts
+index d542a42..0fae511 100644
+--- a/node_modules/@jaydixit/experimental-mode/src/react.ts
++++ b/node_modules/@jaydixit/experimental-mode/src/react.ts
+@@ -57,7 +57,10 @@ export function useExperimentalMode(options: ExperimentalModeOptions): Experimen
+ 
+   const controller = useMemo(() => createController(options), [serialized])
+ 
+-  useEffect(() => () => controller.destroy(), [controller])
++  useEffect(() => {
++    controller.attach?.()
++    return () => controller.destroy()
++  }, [controller])
+ 
+   const getSnapshot = useCallback(() => controller.getSnapshot(), [controller])
+ 
