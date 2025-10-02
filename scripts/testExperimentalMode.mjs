@@ -21,12 +21,23 @@ function Logger({ experimentalMode }) {
   return null;
 }
 
+const testVariants = [
+  { key: 'default', label: 'Default UI' },
+  { key: 'modern', label: 'Modern UI' },
+  { key: 'aurora-glass', label: 'Aurora Glass' },
+  { key: 'paper-atlas', label: 'Paper Atlas' },
+  { key: 'solar-dawn', label: 'Solar Dawn' },
+  { key: 'calm-pastels', label: 'Calm Pastels' },
+  { key: 'zen-monoline', label: 'Zen Monoline' },
+  { key: 'neomorphic-zen', label: 'Neomorphic Zen' },
+  { key: 'paper-craft', label: 'Paper Craft' },
+  { key: 'liquid-motion', label: 'Liquid Motion' },
+  { key: 'botanical-minimal', label: 'Botanical Minimal' }
+];
+
 function TestComponent() {
   const experimentalMode = useExperimentalMode({
-    variants: [
-      { key: 'default', label: 'Default UI' },
-      { key: 'modern', label: 'Modern UI' }
-    ],
+    variants: testVariants,
     defaultKey: 'default',
     experimentalDefaultKey: 'modern'
   });
@@ -50,7 +61,13 @@ await act(async () => {
   root.render(React.createElement(React.StrictMode, null, React.createElement(TestComponent)));
 });
 
-const expectedSequence = ['modern', 'default', 'modern', 'default'];
+const variantOrder = testVariants.map(variant => variant.key);
+const startIndex = variantOrder.indexOf('modern');
+const expectedSequence = Array.from({ length: 4 }, (_, idx) => {
+  const offset = (startIndex + idx) % variantOrder.length;
+  return variantOrder[offset];
+});
+
 const seen = [];
 
 const logActive = (label) => {
@@ -66,7 +83,8 @@ const logActive = (label) => {
   if (!activeNavButton) {
     throw new Error('Active navigation button not found');
   }
-  if (!activeNavButton.toLowerCase().includes(datasetVariant === 'default' ? 'default' : datasetVariant)) {
+  const expectedLabel = testVariants.find(v => v.key === datasetVariant)?.label ?? '';
+  if (!activeNavButton.toLowerCase().includes(expectedLabel.toLowerCase().split(' ')[0])) {
     throw new Error(`Active nav button "${activeNavButton}" does not reflect dataset variant "${datasetVariant}"`);
   }
 };

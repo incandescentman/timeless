@@ -280,7 +280,61 @@ function App() {
       key: 'modern',
       label: 'Modern UI',
       description:
-        'WHAT: Applies glassmorphism layers, glow hover states, and animated focus cues. | WHY: Adds delight for daily journaling sessions and matches Canonical\'s memorialized aesthetic. | TO TEST: Hover active days, open the action bar, and switch themes to observe gradients and motion. | ASK: Do the effects elevate the experience without distracting from writing?'
+        'WHAT: Applies glassmorphism layers, glow hover states, and animated focus cues. | WHY: Adds delight for daily journaling sessions while retaining the canonical Timeless structure. | TO TEST: Hover day cells, open the action bar, and switch themes to observe gradients and motion. | ASK: Do the effects elevate the experience without distracting from writing?'
+    },
+    {
+      key: 'aurora-glass',
+      label: 'Aurora Glass',
+      description:
+        'WHAT: Ethereal glassmorphism with aurora gradients and light refraction accents. | WHY: Showcase a premium, futuristic aesthetic for deep-focus evening sessions. | TO TEST: Observe gradient animations, hover refractions, and chip glows during navigation. | ASK: Does the atmosphere inspire without obscuring content?'
+    },
+    {
+      key: 'paper-atlas',
+      label: 'Paper Atlas',
+      description:
+        'WHAT: Editorial print-inspired layout with textured cards and serif headings. | WHY: Offer a tactile, analog vibe that feels like a premium planner. | TO TEST: Review sticky-note widgets, ink-hover states, and typography pairings across the calendar. | ASK: Does the handmade warmth aid long-form planning?'
+    },
+    {
+      key: 'solar-dawn',
+      label: 'Solar Dawn',
+      description:
+        'WHAT: Sunrise gradients, rounded geometry, and floating chips energise the interface. | WHY: Deliver a bright, optimistic start-of-day experience. | TO TEST: Cycle months to view animated transitions and color-blocked headers; evaluate readability in bright mode. | ASK: Does the upbeat palette motivate morning planning?'
+    },
+    {
+      key: 'calm-pastels',
+      label: 'Calm Pastels',
+      description:
+        'WHAT: Mindfulness-focused palette with gentle shadows and meditative motion. | WHY: Reduce visual noise for reflective review and journaling. | TO TEST: Watch the slow pulse around today, hover micro-interactions, and note legibility over long sessions. | ASK: Does the softness support focus without feeling dull?'
+    },
+    {
+      key: 'zen-monoline',
+      label: 'Zen Monoline',
+      description:
+        'WHAT: Ultra-minimal line-art interface with precise typographic hierarchy. | WHY: Provide a crisp, information-first layout for analytical planners. | TO TEST: Assess line weight cues, focus indicators, and monochrome contrast during keyboard navigation. | ASK: Does the reduction enhance clarity or feel too austere?'
+    },
+    {
+      key: 'neomorphic-zen',
+      label: 'Neomorphic Zen',
+      description:
+        'WHAT: Soft UI surfaces with embossed calendar cells and ambient depth. | WHY: Explore a tactile, calming interface that still reads as modern. | TO TEST: Inspect light direction, pressed states, and accessibility of low-contrast shadows. | ASK: Does the softness translate across monitors without losing clarity?'
+    },
+    {
+      key: 'paper-craft',
+      label: 'Paper Craft',
+      description:
+        'WHAT: Layered paper aesthetic with grain textures, torn edges, and page flips. | WHY: Celebrate analog inspiration while remaining fully digital. | TO TEST: Toggle months to view flip animations and evaluate note readability on textured cards. | ASK: Does the crafted feel delight without hindering usability?'
+    },
+    {
+      key: 'liquid-motion',
+      label: 'Liquid Motion',
+      description:
+        'WHAT: Fluid gradients, wave animations, and ripple feedback convey motion. | WHY: Introduce a dynamic, playful interface for creative planning. | TO TEST: Trigger interactions to watch blob morphs, ripple effects, and transition timing. | ASK: Are the animations smooth and performant across devices?'
+    },
+    {
+      key: 'botanical-minimal',
+      label: 'Botanical Minimal',
+      description:
+        'WHAT: Nature-inspired palette with organic shapes and botanical accents. | WHY: Bring seasonal warmth and calm to daily review. | TO TEST: Note the leaf overlays, seasonal header colors, and hover outlines for clarity. | ASK: Do the organic touches enhance comfort while keeping structure clear?'
     }
   ], []);
 
