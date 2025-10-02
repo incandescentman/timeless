@@ -1,20 +1,86 @@
 #+title: Experimental Mode Feedback Log
 #+options: toc:nil
 
-* Aurora Glass
-* Paper Atlas
-* Solar Dawn
-* Calm Pastels
-* Zen Monoline
-* Neomorphic Zen
-* Paper Craft
-* Liquid Motion
-* Botanical Minimal
-* Modern UI (Baseline)
-* Default UI (Reference)
-* Brutalist Grid
-* Holographic Shimmer
-* Vaporwave Sunset
-* Micro Interactions Lab
-* Nordic Frost
-* Memphis Postmodern
+* 2025-10-02 Timeless Experimental Mode Variants Testing
+** Strong Dislikes (Never Use Again)
+- Dark themes in general — avoid dark backgrounds across all projects
+- Brutalist Grid — hate this style entirely
+- Memphis Postmodern — terrible, garish
+- Vaporwave Sunset — garish aesthetic
+- Solar Dawn — too intense, too bright and in your face
+
+** Moderate Dislikes
+- Paper Atlas — too blah, too bland
+- Paper Craft — too blah, too bland
+- Botanical Minimal — mint green color is grating
+- Aurora Glass — dark theme plus overlapping cell borders look sloppy
+- Liquid Motion — dark theme
+- Holographic Shimmer — dark theme
+
+** Technical Notes
+- [Resolved 2025-10-02] Zen Monoline hover no longer shifts, so day cell borders stay aligned
+
+** Will Review Further (Promising)
+- Calm Pastels — mixed; colors feel cloying, revisit later
+- Nordic Frost — pending review
+
+** Design Principles Extracted
+1. Prefer light themes over dark themes
+2. Avoid garish, high-contrast, or overly intense color palettes
+3. Avoid bland, low-contrast designs
+4. Keep borders clean — no overlapping or sloppy edge treatments
+5. Balance intensity — not too bright, not too dull
+
+** Removed from Variant Rotation
+- Modern UI — purple/indigo gradient feels harsh
+- Aurora Glass — too dark and overlapping borders
+- Paper Atlas — too bland
+- Solar Dawn — too intense
+- Paper Craft — too bland
+- Liquid Motion — dark theme
+- Botanical Minimal — mint green is grating
+- Brutalist Grid — hated aesthetic
+- Holographic Shimmer — dark theme
+- Vaporwave Sunset — garish
+- Memphis Postmodern — terrible
+- Neomorphic Zen — lack of contrast
+- Micro Interactions Lab — too in-your-face
+
+** Detailed Variant Notes
+
+*** Modern UI
+- I hate the purple / indigo color
+- I hate the purple to pink gradient
+- remove
+
+*** Aurora Glass
+- Dislike dark themes
+- Overlapping day cell borders look sloppy
+*** Paper Atlas
+- Too blah, too bland
+*** Solar Dawn
+- Too intense, too bright and in your face
+*** Calm Pastels
+- Colors were a bit cloying; palette softened on 2025-10-02 for reevaluation
+*** Zen Monoline
+- Neat and tidy; borders now stay crisp after hover fix
+*** Neomorphic Zen
+- Lack of contrast. remove
+*** Paper Craft
+- Too blah, too bland
+*** Liquid Motion
+- Dislike dark themes
+*** Botanical Minimal
+- Mint green color is grating
+*** Brutalist Grid
+- Hate this style; never again
+*** Holographic Shimmer
+- Dislike dark themes
+*** Vaporwave Sunset
+- Garish
+*** Micro Interactions Lab
+- Too in your face, not subtle. remove 
+*** Nordic Frost
+- very nice
+*** Memphis Postmodern
+- Terrible

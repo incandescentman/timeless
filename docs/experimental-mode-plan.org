@@ -8,7 +8,7 @@
 3. Polish motion, micro-interactions, and responsive behaviour per theme.
 4. Run accessibility and usability passes (contrast, focus states, keyboard cues).
 
-* Implement these ones now:
+* Already implemented:
 ** DONE Aurora Glass
 - Palette :: Deep indigo base, aurora gradients (teal, violet, magenta), white accents
 - Typography :: Sans-serif with subtle weight shifts; gradient-filled headers
@@ -91,7 +91,7 @@
   - Hand-drawn botanical accents per season
   - Seasonal color transitions for month headers
 
-* Do not implement these yet
+* Implement these ones now 
 ** Brutalist Grid
 - Palette :: High-contrast black/white with single electric accent (#00FF00 or #FF0066)
 - Typography :: Extended mono or grotesque sans; oversized labels with tight tracking

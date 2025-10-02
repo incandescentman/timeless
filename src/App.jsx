@@ -277,30 +277,6 @@ function App() {
         'WHAT: Baseline calendar layout with spacious cells and balanced typography. | WHY: Provides the familiar Timeless reading experience for day-by-day planning. | TO TEST: Scroll through months and hover day cells to confirm classic spacing and highlight behavior. | ASK: Does this remain the most readable option for long-form review?'
     },
     {
-      key: 'modern',
-      label: 'Modern UI',
-      description:
-        'WHAT: Applies glassmorphism layers, glow hover states, and animated focus cues. | WHY: Adds delight for daily journaling sessions while retaining the canonical Timeless structure. | TO TEST: Hover day cells, open the action bar, and switch themes to observe gradients and motion. | ASK: Do the effects elevate the experience without distracting from writing?'
-    },
-    {
-      key: 'aurora-glass',
-      label: 'Aurora Glass',
-      description:
-        'WHAT: Ethereal glassmorphism with aurora gradients and light refraction accents. | WHY: Showcase a premium, futuristic aesthetic for deep-focus evening sessions. | TO TEST: Observe gradient animations, hover refractions, and chip glows during navigation. | ASK: Does the atmosphere inspire without obscuring content?'
-    },
-    {
-      key: 'paper-atlas',
-      label: 'Paper Atlas',
-      description:
-        'WHAT: Editorial print-inspired layout with textured cards and serif headings. | WHY: Offer a tactile, analog vibe that feels like a premium planner. | TO TEST: Review sticky-note widgets, ink-hover states, and typography pairings across the calendar. | ASK: Does the handmade warmth aid long-form planning?'
-    },
-    {
-      key: 'solar-dawn',
-      label: 'Solar Dawn',
-      description:
-        'WHAT: Sunrise gradients, rounded geometry, and floating chips energise the interface. | WHY: Deliver a bright, optimistic start-of-day experience. | TO TEST: Cycle months to view animated transitions and color-blocked headers; evaluate readability in bright mode. | ASK: Does the upbeat palette motivate morning planning?'
-    },
-    {
       key: 'calm-pastels',
       label: 'Calm Pastels',
       description:
@@ -313,71 +289,17 @@ function App() {
         'WHAT: Ultra-minimal line-art interface with precise typographic hierarchy. | WHY: Provide a crisp, information-first layout for analytical planners. | TO TEST: Assess line weight cues, focus indicators, and monochrome contrast during keyboard navigation. | ASK: Does the reduction enhance clarity or feel too austere?'
     },
     {
-      key: 'neomorphic-zen',
-      label: 'Neomorphic Zen',
-      description:
-        'WHAT: Soft UI surfaces with embossed calendar cells and ambient depth. | WHY: Explore a tactile, calming interface that still reads as modern. | TO TEST: Inspect light direction, pressed states, and accessibility of low-contrast shadows. | ASK: Does the softness translate across monitors without losing clarity?'
-    },
-    {
-      key: 'paper-craft',
-      label: 'Paper Craft',
-      description:
-        'WHAT: Layered paper aesthetic with grain textures, torn edges, and page flips. | WHY: Celebrate analog inspiration while remaining fully digital. | TO TEST: Toggle months to view flip animations and evaluate note readability on textured cards. | ASK: Does the crafted feel delight without hindering usability?'
-    },
-    {
-      key: 'liquid-motion',
-      label: 'Liquid Motion',
-      description:
-        'WHAT: Fluid gradients, wave animations, and ripple feedback convey motion. | WHY: Introduce a dynamic, playful interface for creative planning. | TO TEST: Trigger interactions to watch blob morphs, ripple effects, and transition timing. | ASK: Are the animations smooth and performant across devices?'
-    },
-    {
-      key: 'botanical-minimal',
-      label: 'Botanical Minimal',
-      description:
-        'WHAT: Nature-inspired palette with organic shapes and botanical accents. | WHY: Bring seasonal warmth and calm to daily review. | TO TEST: Note the leaf overlays, seasonal header colors, and hover outlines for clarity. | ASK: Do the organic touches enhance comfort while keeping structure clear?'
-    },
-    {
-      key: 'brutalist-grid',
-      label: 'Brutalist Grid',
-      description:
-        'WHAT: Stark high-contrast interface with zero rounded corners and massive typography. | WHY: Deliver raw, uncompromising clarity for focused planning. | TO TEST: Observe hard edges, abrupt hover states, and aggressive typographic scale. | ASK: Does the brutalist aesthetic energize or overwhelm?'
-    },
-    {
-      key: 'holographic-shimmer',
-      label: 'Holographic Shimmer',
-      description:
-        'WHAT: Iridescent chrome gradients with prism light leaks and animated holographic effects. | WHY: Create a futuristic, premium aesthetic for high-impact presentations. | TO TEST: Watch color-shifting borders, hover sweeps, and animated gradient text. | ASK: Does the shimmer inspire or distract from content?'
-    },
-    {
-      key: 'vaporwave-sunset',
-      label: 'Vaporwave Sunset',
-      description:
-        'WHAT: Retro-futuristic synthwave aesthetic with VHS distortion and neon outlines. | WHY: Evoke nostalgic energy for creative evening planning sessions. | TO TEST: Note grid floor perspective, chromatic aberration, and neon glow effects. | ASK: Does the vaporwave vibe energize without overwhelming legibility?'
-    },
-    {
-      key: 'micro-interactions-lab',
-      label: 'Micro Interactions Lab',
-      description:
-        'WHAT: Showcase of spring physics, magnetic snapping, and dynamic motion design. | WHY: Demonstrate delightful micro-interactions for interaction designers. | TO TEST: Trigger every hover, click, and focus state to evaluate motion quality. | ASK: Are the interactions smooth, purposeful, and performant?'
-    },
-    {
       key: 'nordic-frost',
       label: 'Nordic Frost',
       description:
         'WHAT: Crystalline ice-blue palette with frosted glass and snowflake micro-animations. | WHY: Offer a clean, cool aesthetic for focused winter planning. | TO TEST: Observe frosted cards, ice-crystal accents, and seasonal aurora effects. | ASK: Does the frost theme feel cohesive and calming?'
-    },
-    {
-      key: 'memphis-postmodern',
-      label: 'Memphis Postmodern',
-      description:
-        'WHAT: Bold 80s-inspired geometric shapes, primary colors, and playful asymmetry. | WHY: Bring retro energy and visual playfulness to creative planning. | TO TEST: Note squiggles, color blocking, halftone patterns, and pop-art hovers. | ASK: Does the Memphis aesthetic delight without hindering usability?'
     }
   ], []);
 
   const experimentalMode = useExperimentalMode({
     variants: experimentalVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'modern'
+    experimentalDefaultKey: 'nordic-frost'
   });
 
   // Option-X / Alt+E handled internally by @jaydixit/experimental-mode
