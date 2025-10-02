@@ -1,8 +1,6 @@
-/* Experimental Mode Styles */
+/* Experimental Mode Theme Variants */
 
-/* ========================= GENERAL ========================= */
 :root {
-  --exp-base-radius: 14px;
   --exp-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -11,35 +9,10 @@ html[data-experimental-variant] body {
 }
 
 [data-experimental-variant] .calendar-wrapper,
-[data-experimental-variant] .header,
 [data-experimental-variant] .day-cell,
-[data-experimental-variant] .day-card,
 [data-experimental-variant] .day-note,
 [data-experimental-variant] button:not(.variant-nav__button) {
   transition: all var(--exp-transition);
-}
-
-/* shared micro-interaction helpers */
-@keyframes aurora-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes solar-rise {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
-}
-
-@keyframes calm-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(191, 219, 254, 0.35); }
-  50% { box-shadow: 0 0 0 12px rgba(191, 219, 254, 0); }
-}
-
-@keyframes liquid-wave {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
 }
 
 /* ========================= CALM PASTELS ========================= */
@@ -54,19 +27,19 @@ html[data-experimental-variant="calm-pastels"] body {
   box-shadow: 0 16px 38px rgba(148, 163, 184, 0.16);
 }
 
-[data-experimental-variant="calm-pastels"] .day-card {
+[data-experimental-variant="calm-pastels"] .day-cell {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-[data-experimental-variant="calm-pastels"] .day-card:hover {
+[data-experimental-variant="calm-pastels"] .day-cell:hover {
   transform: translateY(-1px);
   background: rgba(237, 242, 247, 0.9);
   border-color: rgba(148, 163, 184, 0.55);
 }
 
-[data-experimental-variant="calm-pastels"] .day-cell.today .day-card {
+[data-experimental-variant="calm-pastels"] .day-cell.today {
   animation: calm-pulse 8s ease-in-out infinite;
   border: 1px solid rgba(148, 163, 184, 0.55);
   background: rgba(226, 232, 240, 0.55);
@@ -75,11 +48,6 @@ html[data-experimental-variant="calm-pastels"] body {
 [data-experimental-variant="calm-pastels"] .day-number {
   font-weight: 600;
   color: #475569;
-}
-
-[data-experimental-variant="calm-pastels"] .month-header {
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.12), rgba(203, 213, 225, 0.08));
-  border-radius: 18px 18px 0 0;
 }
 
 [data-experimental-variant="calm-pastels"] .day-note {
@@ -100,6 +68,16 @@ html[data-experimental-variant="calm-pastels"] body {
   background: rgba(203, 213, 225, 0.8);
 }
 
+html[data-theme="dark"][data-experimental-variant="calm-pastels"] body {
+  background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 45%, #111827 100%);
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"][data-experimental-variant="calm-pastels"] .day-cell {
+  background: rgba(17, 24, 39, 0.85);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
 /* ========================= ZEN MONOLINE ========================= */
 html[data-experimental-variant="zen-monoline"] body {
   background: #fafafa;
@@ -112,43 +90,21 @@ html[data-experimental-variant="zen-monoline"] body {
   box-shadow: none;
 }
 
-[data-experimental-variant="zen-monoline"] .day-card {
+[data-experimental-variant="zen-monoline"] .day-cell {
   background: transparent;
   border: 1px solid rgba(31, 41, 51, 0.2);
   border-radius: 4px;
   box-shadow: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-[data-experimental-variant="zen-monoline"] .day-card:hover {
+[data-experimental-variant="zen-monoline"] .day-cell:hover {
   background: rgba(229, 231, 235, 0.35);
   border-color: rgba(31, 41, 51, 0.35);
-  box-shadow: none;
-  transform: none;
 }
 
-[data-experimental-variant="zen-monoline"] .day-cell.today .day-card {
+[data-experimental-variant="zen-monoline"] .day-cell.today {
   border: 2px solid #1f2933;
   background: rgba(31, 41, 51, 0.08);
-  box-shadow: none;
-}
-
-[data-experimental-variant="zen-monoline"] .day-number {
-  font-weight: 500;
-  letter-spacing: 0.08em;
-}
-
-[data-experimental-variant="zen-monoline"] .day-label,
-[data-experimental-variant="zen-monoline"] .month-header__month,
-[data-experimental-variant="zen-monoline"] .header-title {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-weight: 600;
-}
-
-[data-experimental-variant="zen-monoline"] .month-header__rule {
-  background: rgba(31, 41, 51, 0.2);
-  height: 1px;
 }
 
 [data-experimental-variant="zen-monoline"] .day-note {
@@ -166,6 +122,15 @@ html[data-experimental-variant="zen-monoline"] body {
 
 [data-experimental-variant="zen-monoline"] button:not(.variant-nav__button):hover {
   background: rgba(17, 24, 39, 0.08);
+}
+
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] body {
+  background: #0f0f0f;
+  color: #f9fafb;
+}
+
+html[data-theme="dark"][data-experimental-variant="zen-monoline"] .day-cell {
+  border-color: rgba(249, 250, 251, 0.3);
 }
 
 /* ========================= NORDIC FROST ========================= */
@@ -206,7 +171,7 @@ html[data-experimental-variant="nordic-frost"] body {
   pointer-events: none;
 }
 
-[data-experimental-variant="nordic-frost"] .day-card {
+[data-experimental-variant="nordic-frost"] .day-cell {
   background: rgba(240, 249, 255, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(186, 230, 253, 0.5);
@@ -217,7 +182,7 @@ html[data-experimental-variant="nordic-frost"] body {
   position: relative;
 }
 
-[data-experimental-variant="nordic-frost"] .day-card::after {
+[data-experimental-variant="nordic-frost"] .day-cell::after {
   content: '❄';
   position: absolute;
   top: 8px;
@@ -228,7 +193,7 @@ html[data-experimental-variant="nordic-frost"] body {
   color: #bae6fd;
 }
 
-[data-experimental-variant="nordic-frost"] .day-card:hover {
+[data-experimental-variant="nordic-frost"] .day-cell:hover {
   border-color: rgba(125, 211, 252, 0.8);
   box-shadow:
     0 12px 30px rgba(100, 116, 139, 0.15),
@@ -236,11 +201,11 @@ html[data-experimental-variant="nordic-frost"] body {
   transform: translateY(-3px);
 }
 
-[data-experimental-variant="nordic-frost"] .day-card:hover::after {
+[data-experimental-variant="nordic-frost"] .day-cell:hover::after {
   opacity: 1;
 }
 
-[data-experimental-variant="nordic-frost"] .day-cell.today .day-card {
+[data-experimental-variant="nordic-frost"] .day-cell.today {
   border: 2px solid rgba(14, 165, 233, 0.7);
   background: linear-gradient(135deg, rgba(224, 242, 254, 0.95), rgba(186, 230, 253, 0.85));
   box-shadow:
@@ -253,46 +218,6 @@ html[data-experimental-variant="nordic-frost"] body {
   font-weight: 600;
   color: #0284c7;
   letter-spacing: 0.02em;
-}
-
-[data-experimental-variant="nordic-frost"] .month-header {
-  background: linear-gradient(
-    90deg,
-    rgba(224, 242, 254, 0.6),
-    rgba(240, 249, 255, 0.4)
-  );
-  background-size: 200% 100%;
-  animation: frost-shimmer 12s ease-in-out infinite;
-  border-radius: 20px 20px 0 0;
-}
-
-[data-experimental-variant="nordic-frost"] .month-header__month {
-  font-size: 32px;
-  font-weight: 700;
-  color: #0369a1;
-  letter-spacing: 0.08em;
-}
-
-[data-experimental-variant="nordic-frost"] .month-header__year {
-  color: #475569;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-[data-experimental-variant="nordic-frost"] .day-label {
-  font-weight: 600;
-  font-size: 13px;
-  color: #0ea5e9;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-[data-experimental-variant="nordic-frost"] .day-note {
-  background: rgba(240, 249, 255, 0.95);
-  border: 1px solid rgba(125, 211, 252, 0.4);
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.1);
-  backdrop-filter: blur(8px);
 }
 
 [data-experimental-variant="nordic-frost"] button:not(.variant-nav__button) {
@@ -327,7 +252,7 @@ html[data-experimental-variant="soft-studio"] body {
     0 28px 48px rgba(15, 23, 42, 0.1);
 }
 
-[data-experimental-variant="soft-studio"] .day-card {
+[data-experimental-variant="soft-studio"] .day-cell {
   position: relative;
   overflow: hidden;
   border-radius: 26px;
@@ -338,7 +263,7 @@ html[data-experimental-variant="soft-studio"] body {
     0 12px 32px rgba(15, 23, 42, 0.08);
 }
 
-[data-experimental-variant="soft-studio"] .day-card::before {
+[data-experimental-variant="soft-studio"] .day-cell::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -347,7 +272,7 @@ html[data-experimental-variant="soft-studio"] body {
   pointer-events: none;
 }
 
-[data-experimental-variant="soft-studio"] .day-card:hover {
+[data-experimental-variant="soft-studio"] .day-cell:hover {
   transform: translateY(-1px);
   border-color: rgba(148, 163, 184, 0.55);
   box-shadow:
@@ -355,30 +280,46 @@ html[data-experimental-variant="soft-studio"] body {
     0 16px 40px rgba(15, 23, 42, 0.12);
 }
 
-[data-experimental-variant="soft-studio"] .day-cell.today .day-card {
+[data-experimental-variant="soft-studio"] .day-cell.today {
   border-color: rgba(16, 185, 129, 0.4);
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(45, 212, 191, 0.1));
   box-shadow: 0 12px 32px rgba(45, 212, 191, 0.16);
 }
 
-[data-experimental-variant="soft-studio"] .day-number {
-  font-weight: 600;
-  color: #475569;
-  letter-spacing: 0.04em;
+[data-experimental-variant="soft-studio"] .day-meta {
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  color: rgba(30, 64, 175, 0.7);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  display: inline-flex;
 }
 
-[data-experimental-variant="soft-studio"] .day-label,
-[data-experimental-variant="soft-studio"] .month-header__month,
-[data-experimental-variant="soft-studio"] .header-title {
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: #64748b;
+[data-experimental-variant="soft-studio"] .day-event {
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(248, 250, 252, 0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
-[data-experimental-variant="soft-studio"] .month-header {
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.12), rgba(203, 213, 225, 0.08));
-  border-radius: 24px 24px 0 0;
-  padding-inline: clamp(1rem, 2vw, 2rem);
+[data-experimental-variant="soft-studio"] .day-event:hover {
+  border-color: rgba(148, 163, 184, 0.45);
+  transform: translateY(-1px);
+  background: rgba(241, 245, 249, 0.95);
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.08);
+}
+
+[data-experimental-variant="soft-studio"] .day-event.editing {
+  border-color: rgba(37, 99, 235, 0.45);
+  background: rgba(191, 219, 254, 0.28);
+}
+
+[data-experimental-variant="soft-studio"] .day-event__input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 [data-experimental-variant="soft-studio"] .day-note {
@@ -400,306 +341,12 @@ html[data-experimental-variant="soft-studio"] body {
   background: rgba(203, 213, 225, 0.85);
 }
 
-/* ========================= FROSTED LEDGER ========================= */
-html[data-experimental-variant="frosted-ledger"] body {
-  background: linear-gradient(180deg, #f4f7fb 0%, #f7fafc 55%, #ffffff 100%);
-  color: #405064;
-}
-
-[data-experimental-variant="frosted-ledger"] .calendar-wrapper {
-  position: relative;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 30px;
-  box-shadow:
-    0 18px 48px rgba(148, 163, 184, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-[data-experimental-variant="frosted-ledger"] .calendar-wrapper::after {
-  content: '';
-  position: absolute;
-  inset: 16px;
-  border-radius: 26px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  pointer-events: none;
-}
-
-[data-experimental-variant="frosted-ledger"] .week-row {
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 24px;
-  padding: 8px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-[data-experimental-variant="frosted-ledger"] .day-card {
-  border-radius: 22px;
-  background: rgba(254, 254, 255, 0.92);
-  border: 1px solid rgba(203, 213, 225, 0.35);
-  box-shadow: 0 8px 20px rgba(148, 163, 184, 0.12);
-}
-
-[data-experimental-variant="frosted-ledger"] .day-card:hover {
-  transform: translateY(-1px);
-  border-color: rgba(100, 116, 139, 0.4);
-  box-shadow: 0 16px 32px rgba(148, 163, 184, 0.16);
-}
-
-[data-experimental-variant="frosted-ledger"] .day-cell.today .day-card {
-  border: 1px solid rgba(13, 148, 136, 0.5);
-  background: linear-gradient(135deg, rgba(45, 212, 191, 0.14), rgba(6, 182, 212, 0.12));
-  box-shadow: 0 12px 30px rgba(13, 148, 136, 0.18);
-}
-
-[data-experimental-variant="frosted-ledger"] .day-number {
-  font-weight: 600;
-  color: #465a6f;
-}
-
-[data-experimental-variant="frosted-ledger"] .day-label {
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: #64748b;
-}
-
-[data-experimental-variant="frosted-ledger"] .month-header__month {
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: #334155;
-}
-
-[data-experimental-variant="frosted-ledger"] .month-header__rule {
-  background: linear-gradient(90deg, rgba(15, 118, 110, 0), rgba(15, 118, 110, 0.2), rgba(15, 118, 110, 0));
-}
-
-[data-experimental-variant="frosted-ledger"] .day-note {
-  background: rgba(247, 249, 252, 0.92);
-  border-radius: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
-}
-
-[data-experimental-variant="frosted-ledger"] button:not(.variant-nav__button) {
-  background: rgba(226, 232, 240, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  color: #2f3d4f;
-  border-radius: 26px;
-}
-
-[data-experimental-variant="frosted-ledger"] button:not(.variant-nav__button):hover {
-  background: rgba(203, 213, 225, 0.75);
-}
-
-/* ========================= SLATE FILIGREE ========================= */
-html[data-experimental-variant="slate-filigree"] body {
-  background: linear-gradient(180deg, #f6f7f9 0%, #eef1f5 50%, #ffffff 100%);
-  color: #2f3f52;
-}
-
-[data-experimental-variant="slate-filigree"] .calendar-wrapper {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 30px;
-  box-shadow:
-    0 18px 46px rgba(99, 102, 241, 0.04),
-    0 30px 60px rgba(71, 85, 105, 0.12);
-}
-
-[data-experimental-variant="slate-filigree"] .month-header {
-  background: rgba(255, 255, 255, 0.82);
-  border-radius: 24px;
-}
-
-[data-experimental-variant="slate-filigree"] .month-header__month {
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-weight: 600;
-}
-
-[data-experimental-variant="slate-filigree"] .month-header__year,
-[data-experimental-variant="slate-filigree"] .day-label {
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: #64748b;
-}
-
-[data-experimental-variant="slate-filigree"] .day-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  box-shadow:
-    0 10px 28px rgba(71, 85, 105, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
-}
-
-[data-experimental-variant="slate-filigree"] .day-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.6), transparent 55%);
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-[data-experimental-variant="slate-filigree"] .day-card::after {
-  content: '';
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  bottom: 10px;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0), rgba(56, 189, 248, 0.4), rgba(148, 163, 184, 0));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.45s ease;
-}
-
-[data-experimental-variant="slate-filigree"] .day-card:hover::after {
-  transform: scaleX(1);
-}
-
-[data-experimental-variant="slate-filigree"] .day-card:hover {
-  transform: translateY(-1px);
-  border-color: rgba(100, 116, 139, 0.45);
-  box-shadow: 0 20px 48px rgba(71, 85, 105, 0.18);
-}
-
-[data-experimental-variant="slate-filigree"] .day-cell.today .day-card {
-  border-color: rgba(45, 212, 191, 0.5);
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(125, 211, 252, 0.12));
-  box-shadow: 0 16px 36px rgba(45, 212, 191, 0.2);
-}
-
-[data-experimental-variant="slate-filigree"] .day-number {
-  font-weight: 600;
-  color: #334155;
-}
-
-[data-experimental-variant="slate-filigree"] .day-note {
-  background: rgba(248, 250, 252, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 18px;
-}
-
-[data-experimental-variant="slate-filigree"] .day-note .note-label,
-[data-experimental-variant="slate-filigree"] .day-note .mantra-label {
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-
-[data-experimental-variant="slate-filigree"] button:not(.variant-nav__button) {
-  background: rgba(226, 232, 240, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  color: #334155;
-  border-radius: 28px;
-}
-
-[data-experimental-variant="slate-filigree"] button:not(.variant-nav__button):hover {
-  background: rgba(203, 213, 225, 0.85);
-}
-
-/* ========================= EMERALD WHISPER ========================= */
-html[data-experimental-variant="emerald-whisper"] body {
-  background: linear-gradient(180deg, #f7f8fb 0%, #f1f5f9 45%, #f8fafc 100%);
-  color: #39495c;
-}
-
-[data-experimental-variant="emerald-whisper"] .calendar-wrapper {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 28px;
-  box-shadow:
-    0 16px 42px rgba(148, 163, 184, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
-}
-
-[data-experimental-variant="emerald-whisper"] .day-card {
-  position: relative;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(203, 213, 225, 0.4);
-  box-shadow: 0 10px 24px rgba(71, 85, 105, 0.12);
-}
-
-[data-experimental-variant="emerald-whisper"] .day-card:hover {
-  transform: translateY(-1px);
-  border-color: rgba(30, 128, 110, 0.35);
-  box-shadow: 0 18px 36px rgba(30, 128, 110, 0.15);
-}
-
-[data-experimental-variant="emerald-whisper"] .day-cell.today .day-card {
-  border: 1px solid rgba(16, 185, 129, 0.45);
-  background: rgba(16, 185, 129, 0.12);
-  box-shadow: 0 18px 38px rgba(16, 185, 129, 0.18);
-}
-
-[data-experimental-variant="emerald-whisper"] .day-card:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.9),
-    0 0 0 4px rgba(16, 185, 129, 0.35),
-    0 0 28px rgba(16, 185, 129, 0.25);
-}
-
-[data-experimental-variant="emerald-whisper"] .day-number {
-  font-weight: 600;
-  color: #334155;
-}
-
-[data-experimental-variant="emerald-whisper"] .day-label,
-[data-experimental-variant="emerald-whisper"] .month-header__month {
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-}
-
-[data-experimental-variant="emerald-whisper"] .month-header__year {
-  color: #64748b;
-}
-
-[data-experimental-variant="emerald-whisper"] .day-note {
-  background: rgba(247, 250, 252, 0.95);
-  border-radius: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: #3f4f63;
-}
-
-[data-experimental-variant="emerald-whisper"] button:not(.variant-nav__button) {
-  background: rgba(236, 253, 245, 0.7);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #047857;
-  border-radius: 26px;
-  font-weight: 600;
-}
-
-[data-experimental-variant="emerald-whisper"] button:not(.variant-nav__button):hover {
-  background: rgba(209, 250, 229, 0.8);
-}
-
-/* ========================= DARK THEME ADJUSTMENTS ========================= */
-
-html[data-theme="dark"][data-experimental-variant="calm-pastels"] body {
-  background: linear-gradient(180deg, #111827 0%, #0f172a 55%, #0b1626 100%);
+html[data-theme="dark"][data-experimental-variant="soft-studio"] body {
+  background: linear-gradient(180deg, #0f172a 0%, #0b1524 50%, #0c1220 100%);
   color: #e2e8f0;
 }
 
-html[data-theme="dark"][data-experimental-variant="calm-pastels"] .day-card {
-  background: rgba(15, 23, 42, 0.88);
-  border-color: rgba(148, 163, 184, 0.4);
-}
-
-html[data-theme="dark"][data-experimental-variant="zen-monoline"] body {
-  background: #0f0f0f;
-  color: #f9fafb;
-}
-
-html[data-theme="dark"][data-experimental-variant="zen-monoline"] .day-card {
-  border-color: rgba(249, 250, 251, 0.3);
-}
-
-html[data-theme="dark"][data-experimental-variant="zen-monoline"] .day-label,
-html[data-theme="dark"][data-experimental-variant="zen-monoline"] .month-header__month,
-html[data-theme="dark"][data-experimental-variant="zen-monoline"] .header-title {
-  color: #f9fafb;
+html[data-theme="dark"][data-experimental-variant="soft-studio"] .day-cell {
+  background: rgba(17, 24, 39, 0.88);
+  border-color: rgba(71, 85, 105, 0.45);
 }

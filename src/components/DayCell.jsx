@@ -210,8 +210,7 @@ function DayCell({ date }) {
     removeEvent(dateId, idx);
   };
 
-  const variantKey = typeof document !== 'undefined' ? document.documentElement.dataset.experimentalVariant : undefined;
-  const useCardLayout = variantKey && ['calm-pastels', 'zen-monoline', 'nordic-frost', 'soft-studio'].includes(variantKey);
+  const useCardLayout = false;
 
   const className = [
     'day-cell',
