@@ -304,14 +304,14 @@ function App() {
     if (!experimentalMode?.enabled) return;
 
     const handler = (event) => {
-      const isAltE =
-        event.code === 'KeyE' &&
+      const isAltX =
+        event.code === 'KeyX' &&
         event.altKey &&
         !event.ctrlKey &&
         !event.metaKey &&
         !event.shiftKey;
 
-      if (!isAltE) return;
+      if (!isAltX) return;
 
       event.preventDefault();
       experimentalMode.cycleVariant();
