@@ -1,0 +1,463 @@
+#+TITLE: Work Log Best Practices
+#+DATE: 2025-10-02
+
+* Purpose of WORK-LOG Files
+
+Work logs are internal development narratives that capture the complete story of how features were built, bugs were fixed, and decisions were made. Unlike CHANGELOGs (which are for end users), work logs are for developers who need to understand *why* and *how* things happened.
+
+* What to Track
+
+** ✅ Always Capture
+
+*** Failed Attempts & Dead Ends
+Record what you tried that didn't work and why. These are often the most valuable entries.
+
+Example:
+#+begin_example
+2025-10-02: Tried using global CSS to override experimental-mode buttons
+- Approach: Added `button { background: white }` in index.css
+- Result: FAILED - Broke experimental-mode navigation styling
+- Root Cause: Global selectors override package styles
+- Solution: Added `:not(.variant-nav__button)` exclusion
+- Lesson: Never use global selectors without excluding component library classes
+#+end_example
+
+*** Debugging Sessions
+Document non-obvious issues, their symptoms, root causes, and fixes.
+
+Example:
+#+begin_example
+2025-10-02: Option-X only cycling between 2 of 4 variants
+- Symptom: Keyboard shortcut skipping variants 3 and 4
+- Investigation: Checked event handlers, found duplicate listeners
+- Root Cause: Custom handler in App.jsx + package's internal handler
+- Fix: Removed custom handler (line 156-160 in App.jsx)
+- Prevention: Package handles keyboard shortcuts automatically - don't add custom listeners
+#+end_example
+
+*** Design Decisions
+Explain *why* you chose one approach over another.
+
+Example:
+#+begin_example
+2025-10-02: Chose React wrapper with client:load over Astro-native implementation
+- Options Considered:
+  1. Build Astro-native experimental-mode
+  2. Use React version with client directive
+- Decision: Option 2 (React wrapper)
+- Reasoning:
+  - Experimental mode is temporary (removed after design finalized)
+  - React overhead acceptable for internal testing
+  - Faster implementation (reuse existing package)
+  - Can remove cleanly without affecting production code
+#+end_example
+
+*** Workarounds & Hacks
+Document temporary solutions and why they're needed.
+
+Example:
+#+begin_example
+2025-10-02: Added !important to experimental-mode button styles
+- Issue: Global button styles in consuming apps were overriding package styles
+- Workaround: Hardened package styles with !important
+- Why: Package needs to work in any app without requiring CSS architecture changes
+- Trade-off: Less flexible styling, but guaranteed to work
+- Future: Consider CSS-in-JS or CSS modules for true isolation
+#+end_example
+
+*** Integration Challenges
+Problems that arose when connecting different systems.
+
+Example:
+#+begin_example
+2025-10-02: parseInstructionString import error in Astro/Socratic
+- Error: "does not provide an export named 'parseInstructionString'"
+- Attempted: import from '@jaydixit/experimental-mode/components'
+- Actual Location: Exported from main index, not /components
+- Fix: Changed to import from '@jaydixit/experimental-mode'
+- Documentation: Updated README example to prevent future confusion
+#+end_example
+
+** 🤔 Sometimes Capture
+
+*** Successful Implementations (when non-obvious)
+If the implementation was straightforward, a brief note is enough. If it required clever solutions, document them.
+
+*** Refactoring Sessions
+Major code reorganizations that future developers might wonder about.
+
+*** Performance Issues
+What was slow, why, and how you fixed it.
+
+** ❌ Don't Capture
+
+*** Routine Tasks
+"Added console.log" or "Fixed typo" don't need work log entries.
+
+*** Obvious Bug Fixes
+If the bug and fix are self-explanatory from the code diff, skip the work log.
+
+*** Tool/Library Documentation
+Don't copy-paste library docs. Link to them instead.
+
+* How to Structure Entries
+
+** Date-First Format
+#+begin_example
+## [Date] - Topic
+
+### What Happened
+Brief summary of what you were trying to accomplish
+
+### The Journey
+- What you tried
+- What failed (and why)
+- What worked (and why)
+
+### Resolution
+Final solution with code references
+
+### Lessons Learned
+Non-obvious insights for next time
+#+end_example
+
+** Code References
+Always include file paths and line numbers for future reference:
+
+Example:
+#+begin_example
+Fixed in: src/App.jsx:156-160
+Related: src/styles/index.css:42-45
+#+end_example
+
+** Links Over Duplication
+Link to external resources rather than copying content:
+
+Example:
+#+begin_example
+See experimental-mode package docs: https://www.npmjs.com/package/@jaydixit/experimental-mode
+#+end_example
+
+* Tone and Style
+
+** Be Honest
+Document failures and mistakes. They're often more valuable than successes.
+
+** Be Specific
+"CSS broke" → "Global button selector overrode package navigation styles"
+
+** Be Concise
+Get to the point. Use bullet points over paragraphs.
+
+** Be Future-Focused
+Write for the developer who encounters this problem 6 months from now.
+
+* When to Write
+
+** Immediately After Problem Solving
+Don't wait - capture insights while fresh. Memory fades quickly.
+
+** After Major Features
+Summarize the implementation approach and key decisions.
+
+** When You Learn Something Non-Obvious
+If it surprised you, document it.
+
+** End of Day (Optional)
+Quick summary of progress and blockers.
+
+* Integration with Other Docs
+
+** WORK-LOG vs CHANGELOG
+- WORK-LOG: Internal development narrative (attempts, failures, decisions)
+- CHANGELOG: External release notes (features, fixes, breaking changes)
+
+** WORK-LOG vs CLAUDE.md
+- WORK-LOG: Chronological development story
+- CLAUDE.md: Accumulated wisdom and current best practices
+
+** WORK-LOG vs Code Comments
+- WORK-LOG: Why decisions were made, what was tried
+- Code Comments: What specific code does and why it's structured that way
+
+* Example Entry Template
+
+#+begin_example
+## 2025-10-02 - [Feature/Bug Name]
+
+### Context
+What I was trying to accomplish
+
+### Attempts
+1. Tried X
+   - Why: [reasoning]
+   - Result: [failed/succeeded]
+   - Root cause (if failed): [explanation]
+
+2. Tried Y
+   - Why: [reasoning]
+   - Result: [failed/succeeded]
+
+### Solution
+Final approach that worked
+- Files changed: [paths]
+- Key changes: [summary]
+
+### Lessons
+- Non-obvious insight #1
+- Non-obvious insight #2
+
+### Related
+- Links to issues, docs, Stack Overflow answers, etc.
+#+end_example
+
+* Anti-Patterns to Avoid
+
+** ❌ The Novel
+Don't write essays. Be concise.
+
+** ❌ The Diary
+"Had coffee, then coded for 3 hours" - Not useful.
+
+** ❌ The Code Dump
+Don't paste entire files. Link to commits or include specific snippets.
+
+** ❌ The Assumption
+Don't assume future you will remember context. Spell it out.
+
+** ❌ The Mystery
+Don't write "Fixed the bug" without explaining what bug or how you fixed it.
+
+* Remember
+
+The best work log entry is the one that:
+1. Saves future you (or your team) hours of debugging
+2. Explains *why* not just *what*
+3. Captures the non-obvious
+4. Can be read and understood 6 months later
+
+Think of it as a conversation with future developers who are encountering the same problems you just solved.
+
+* What We're Already Doing Well
+
+Based on analysis of existing WORK-LOG.org files in astro-monorepo:
+
+** ✅ Structured Problem/Changes/Outcome Format
+Your logs follow a clear pattern:
+- Problem: What was broken/needed
+- Root Cause: Why it was happening (when non-obvious)
+- Changes: What you did to fix it
+- Outcome: What works now
+- Files Modified: Explicit list of changed files
+
+This is excellent and should continue.
+
+** ✅ Technical Detail
+You include specific technical context:
+- Example: "Range events (e.g., 'Sept 17 -- 26') were collapsed to their terminal date when parsed"
+- Example: "6 PM arrival cutoff for same-day transits"
+
+This level of detail makes it possible to understand the problem later.
+
+** ✅ Follow-up Guidance
+You include "Follow-up / Guidance" sections with rules for future work:
+- Example: "When adding new event types, ensure rangeStartISO/rangeEndISO are surfaced"
+
+This proactive pattern prevents future bugs.
+
+** ✅ File Lists
+You always list modified files at the end.
+
+This makes it easy to track what changed.
+
+* What We Should Be Doing Better
+
+Based on comparing existing logs to the experimental-mode integration work, here are gaps:
+
+** 🎯 Missing: Decision Trees
+We should capture *why we chose one approach over alternatives* more explicitly.
+
+Example from today's work:
+#+begin_example
+DECISION: Astro integration strategy for experimental-mode
+OPTIONS CONSIDERED:
+1. Build Astro-native version
+   - Pros: No React overhead, native Astro APIs
+   - Cons: Weeks of work, duplicate code, maintenance burden
+
+2. Use React version with client:load
+   - Pros: Reuses published package, fast setup, removable
+   - Cons: React bundle weight during testing
+
+CHOSE: Option 2
+REASONING: Experimental mode is temporary scaffold, removed after design finalized
+#+end_example
+
+** 🎯 Missing: Time Estimates vs Reality
+Track how long you *thought* something would take vs how long it *actually* took.
+
+Example:
+#+begin_example
+ESTIMATED: 30 minutes to integrate experimental-mode in Socratic
+ACTUAL: 2 hours
+TIME SINKS:
+- 45 min: Import path errors (parseInstructionString)
+- 30 min: CSS specificity conflicts
+- 15 min: Z-index layering issues
+LESSON: Always budget 3x time for "simple" integrations
+#+end_example
+
+** 🎯 Missing: Search Keywords
+Add search-friendly terms for future grep/searching.
+
+Example:
+#+begin_example
+KEYWORDS: import-error, module-export, astro-react-integration, parseInstructionString
+#+end_example
+
+** 🎯 Missing: Prevention Checklists
+After solving a problem, create a checklist to prevent it next time.
+
+Example from today:
+#+begin_example
+CHECKLIST: Before integrating experimental-mode in new project
+- [ ] Verify import paths (parseInstructionString from main index, not /components)
+- [ ] Add :not(.variant-nav__button) to global button styles
+- [ ] Set z-index: 9999+ for wrapper container
+- [ ] DON'T add custom Option-X keyboard handler
+- [ ] Test with ?experimental=true URL parameter
+#+end_example
+
+** 🎯 Missing: Tool/Library Gotchas
+Document surprising behavior of tools we use.
+
+Example:
+#+begin_example
+GOTCHA: @jaydixit/experimental-mode package exports
+- parseInstructionString is NOT in /components
+- It's in the main package index
+- WHY: It's a utility function used by components, not a component itself
+- REMEMBER: Import components from /components, utilities from main index
+#+end_example
+
+** 🎯 Missing: Rollback Instructions
+When you make a change, document how to undo it.
+
+Example:
+#+begin_example
+TO REMOVE EXPERIMENTAL-MODE FROM SOCRATIC:
+1. Delete src/components/ExperimentalModeWrapper.tsx
+2. Remove import and component from Layout.astro (lines 16, 49)
+3. Remove data-experimental-variant from body tag (line 47)
+4. pnpm remove @jaydixit/experimental-mode
+5. Delete variant-specific CSS (if keeping one variant, just remove the selector)
+#+end_example
+
+** 🎯 Missing: External Dependencies
+When you publish a package, track which projects use it.
+
+Example:
+#+begin_example
+PACKAGE: @jaydixit/experimental-mode@1.0.0
+CONSUMERS:
+- timeless (local file reference - needs update to npm)
+- astro-monorepo/socratic (npm ^1.0.0)
+- canonical (workspace package - frozen implementation)
+
+MIGRATION PATH: Update timeless to use npm package instead of file reference
+#+end_example
+
+** 🎯 What's Missing vs What You Already Do
+
+Comparing astro-monorepo WORK-LOG.org entries to today's experimental-mode work:
+
+*** Things You're NOT Capturing (but should):
+
+1. **Decision Trees** - WHY you chose one approach vs alternatives
+   - Your logs: ✅ You describe WHAT you did
+   - Missing: ❌ Why you rejected other approaches
+   - Add: "Options Considered" section when making architectural choices
+
+2. **Failed Attempts** - What didn't work before you found the solution
+   - Your logs: ✅ You capture final solution
+   - Missing: ❌ What you tried that failed
+   - Add: "Attempts" section showing dead ends and why they failed
+
+3. **Time Tracking** - Estimated vs actual time
+   - Your logs: ❌ No time estimates
+   - Add: Brief note on surprising time sinks
+
+4. **Integration Gotchas** - Surprising behavior of tools/libraries
+   - Your logs: Sometimes captured (e.g., "6 PM cutoff")
+   - Missing: Not systematic
+   - Add: "Gotchas" section for surprising library behavior
+
+5. **Rollback/Removal Instructions** - How to undo changes
+   - Your logs: ❌ Never included
+   - Add: Especially for temporary features (like experimental-mode)
+
+*** Things You're Already Doing Great:
+
+1. ✅ **Problem/Changes/Outcome structure** - Keep this!
+2. ✅ **Root Cause analysis** - Keep this!
+3. ✅ **Follow-up Guidance** - Keep this!
+4. ✅ **File lists** - Keep this!
+5. ✅ **Technical detail** - Keep this!
+
+* Quick Template: Updated for Your Style
+
+Based on your existing astro-monorepo pattern, here's an enhanced template:
+
+#+begin_example
+* YYYY-MM-DD: [Feature/Bug Name]
+
+** Problem
+What was broken or needed
+
+** Root Cause (if non-obvious)
+Why it was happening
+
+** Attempts (NEW - add this)
+1. Tried X
+   - Why: [reasoning]
+   - Result: Failed because [reason]
+2. Tried Y
+   - Result: Worked
+
+** Options Considered (NEW - add for architectural decisions)
+1. Approach A
+   - Pros: ...
+   - Cons: ...
+2. Approach B (chosen)
+   - Pros: ...
+   - Cons: ...
+   - Why chosen: ...
+
+** Changes
+What you did to fix it
+
+** Gotchas (NEW - add when discovering surprising behavior)
+- Library X does Y (which is surprising because Z)
+
+** Outcome
+What works now
+
+** Follow-up / Guidance (you already do this!)
+Rules for future work
+
+** Rollback Instructions (NEW - add for temporary features)
+How to remove this change if needed
+
+** Time (NEW - optional but helpful)
+Estimated: X hours
+Actual: Y hours
+Main time sink: [what took longest]
+
+** Files Modified (you already do this!)
+- path/to/file1
+- path/to/file2
+#+end_example
+
+* The Rule: 15-Minute Threshold
+
+If you spent more than 15 minutes solving it, or if it surprised you, LOG IT.
