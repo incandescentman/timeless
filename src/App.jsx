@@ -300,26 +300,8 @@ function App() {
     experimentalDefaultKey: 'modern'
   });
 
-  useEffect(() => {
-    if (!experimentalMode?.enabled) return;
-
-    const handler = (event) => {
-      const isAltX =
-        event.code === 'KeyX' &&
-        event.altKey &&
-        !event.ctrlKey &&
-        !event.metaKey &&
-        !event.shiftKey;
-
-      if (!isAltX) return;
-
-      event.preventDefault();
-      experimentalMode.cycleVariant();
-    };
-
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [experimentalMode?.enabled, experimentalMode?.cycleVariant]);
+  // The experimental mode controller handles Option-X internally
+  // No need for custom keyboard handler
 
   return (
     <ThemeProvider>
