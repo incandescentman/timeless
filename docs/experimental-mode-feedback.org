@@ -1,0 +1,68 @@
+#+title: Experimental Mode Feedback Log
+#+options: toc:nil
+
+* Aurora Glass
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Paper Atlas
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Solar Dawn
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Calm Pastels
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Zen Monoline
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Neomorphic Zen
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Paper Craft
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Liquid Motion
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Botanical Minimal
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Modern UI (Baseline)
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
+
+* Default UI (Reference)
+:PROPERTIES:
+:created:  <2025-10-02>
+:END:
+- TODO Capture feedback here
