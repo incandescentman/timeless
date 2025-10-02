@@ -335,6 +335,42 @@ function App() {
       label: 'Botanical Minimal',
       description:
         'WHAT: Nature-inspired palette with organic shapes and botanical accents. | WHY: Bring seasonal warmth and calm to daily review. | TO TEST: Note the leaf overlays, seasonal header colors, and hover outlines for clarity. | ASK: Do the organic touches enhance comfort while keeping structure clear?'
+    },
+    {
+      key: 'brutalist-grid',
+      label: 'Brutalist Grid',
+      description:
+        'WHAT: Stark high-contrast interface with zero rounded corners and massive typography. | WHY: Deliver raw, uncompromising clarity for focused planning. | TO TEST: Observe hard edges, abrupt hover states, and aggressive typographic scale. | ASK: Does the brutalist aesthetic energize or overwhelm?'
+    },
+    {
+      key: 'holographic-shimmer',
+      label: 'Holographic Shimmer',
+      description:
+        'WHAT: Iridescent chrome gradients with prism light leaks and animated holographic effects. | WHY: Create a futuristic, premium aesthetic for high-impact presentations. | TO TEST: Watch color-shifting borders, hover sweeps, and animated gradient text. | ASK: Does the shimmer inspire or distract from content?'
+    },
+    {
+      key: 'vaporwave-sunset',
+      label: 'Vaporwave Sunset',
+      description:
+        'WHAT: Retro-futuristic synthwave aesthetic with VHS distortion and neon outlines. | WHY: Evoke nostalgic energy for creative evening planning sessions. | TO TEST: Note grid floor perspective, chromatic aberration, and neon glow effects. | ASK: Does the vaporwave vibe energize without overwhelming legibility?'
+    },
+    {
+      key: 'micro-interactions-lab',
+      label: 'Micro Interactions Lab',
+      description:
+        'WHAT: Showcase of spring physics, magnetic snapping, and dynamic motion design. | WHY: Demonstrate delightful micro-interactions for interaction designers. | TO TEST: Trigger every hover, click, and focus state to evaluate motion quality. | ASK: Are the interactions smooth, purposeful, and performant?'
+    },
+    {
+      key: 'nordic-frost',
+      label: 'Nordic Frost',
+      description:
+        'WHAT: Crystalline ice-blue palette with frosted glass and snowflake micro-animations. | WHY: Offer a clean, cool aesthetic for focused winter planning. | TO TEST: Observe frosted cards, ice-crystal accents, and seasonal aurora effects. | ASK: Does the frost theme feel cohesive and calming?'
+    },
+    {
+      key: 'memphis-postmodern',
+      label: 'Memphis Postmodern',
+      description:
+        'WHAT: Bold 80s-inspired geometric shapes, primary colors, and playful asymmetry. | WHY: Bring retro energy and visual playfulness to creative planning. | TO TEST: Note squiggles, color blocking, halftone patterns, and pop-art hovers. | ASK: Does the Memphis aesthetic delight without hindering usability?'
     }
   ], []);
 
