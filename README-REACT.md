@@ -150,7 +150,7 @@ Key changes in the React version:
 - All date operations use the utilities in `src/utils/dateUtils.js`
 - Local storage operations are centralized in `src/utils/storage.js`
 - Keyboard shortcuts are handled in `src/hooks/useKeyboardShortcuts.js`
-- Experimental mode (`?experimental=true`) now offers a canonical-aligned gallery: start from the default layout, then compare Calm Pastels, Zen Monoline, Nordic Frost, Soft Studio, Frosted Ledger, Slate Filigree, and Emerald Whisper. Use Option+X (Alt+E) to cycle them.
+- Experimental mode (`?experimental=true`) now offers structural prototypes: start from the default layout, then compare Split Ledger, Timeline Rail, and Notebook Columns. Use Option+X (Alt+E) to cycle them.
 
 ## 🐛 Known Issues
 

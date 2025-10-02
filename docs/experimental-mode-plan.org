@@ -152,42 +152,23 @@ These variants violated the "Premium Minimalism" principles and have been remove
 - Layer micro-interactions (hover states, spring animations, focus cues) consistent with each style.
 - Validate responsive layouts alongside keyboard navigation and screen-reader semantics.
 
-* Canonical-Aligned Variants (Implemented 2025-10-02)
-** Soft Studio
-- Palette :: Neutral gradient base (`#f8fafc → #f1f5f9`), slate typography, low-opacity teal accents for “Today” states
-- Treatments ::
-  - Calendar wrapper with `backdrop-blur-md`, translucent border, and canonical depth shadows
-  - Day cards using `rounded-[1.75rem]`, `shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_28px_rgba(15,23,42,0.08)]`
-  - Metadata pills in uppercase `tracking-[0.24em]` with muted slate text
-  - Hover feedback limited to subtle lifts (`translate-y-[-1px]`) and mild inset glow
+* Structural Prototypes (Implemented 2025-10-02)
+** Split Ledger
+- Goal :: Fixed utility rail with ledger-inspired cards
+- Highlights :: Vertical command rail, frosted month panels, accent spine on each day
+- Questions :: Does fixed navigation improve speed? Does ledger styling aid task review?
 
-** Frosted Ledger
-- Palette :: Frosted glass neutrals (`bg-white/85`, `ring-1 ring-slate-100/80`), emerald accents only on primary interactions
-- Treatments ::
-  - Calendar shell with frosted overlay and inner border; day cells mostly borderless, separated via container hairlines
-  - Labels with gradient dividers (`from-transparent via-[#0f766e33] to-transparent`) and uppercase tracking
-  - “Today” chip as a soft pill with linear gradient teal/cyan background and gentle glow
+** Timeline Rail
+- Goal :: Horizontal week timeline with animated spine
+- Highlights :: Continuous vertical rail, flexible week rows, compact cards for rapid scan
+- Questions :: Is horizontal progression clearer? Any accessibility concerns with the spine?
 
-** Slate Filigree
-- Palette :: Monochrome slate with controlled emerald highlights; retains canonical icon badge styling
-- Treatments ::
-  - Month header badges copied from canonical (`rounded-2xl border border-slate-200/70 bg-white/90`)
-  - Day cards with radial sheen overlays (`before:bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.65),transparent_70%)]`)
-  - Notes leverage canonical pill taxonomy (`codexPillClass('if')`, `'then'`) for consistent colors
-  - Hover underline sweep animation (≥400ms) for subtle motion cues
-
-** Emerald Whisper
-- Palette :: Soft zinc/slate neutrals with emerald reserved for focus rings and CTAs
-- Treatments ::
-  - Focus states using `ring-2 ring-emerald-300/60 ring-offset-2 ring-offset-white` plus faint outer glow
-  - Month metrics badge in uppercase tracking with border-slate-200/60
-  - Day hover/tap states capped at mild scale (`scale-105`) or lift; transitions 200–250ms ease-out
-  - “Today” highlight as low-opacity emerald fill (no intense gradients)
-- **All new variants must follow canonical if-then page design principles** (see Design Philosophy section).
-- Test on both desktop and mobile to ensure consistent "soft modernism" feel.
-- Avoid transforms on hover that cause border misalignment.
-- Keep accent colors at 5-15% opacity maximum.
-- Use multi-layer soft shadows, not single harsh shadows.
+** Notebook Columns
+- Goal :: Journaling aesthetic with ruled background and two-column layout
+- Highlights :: Break-inside-avoid month sections, relaxed paper palette, subtle drop shadows
+- Questions :: Is readability maintained across long months? Do lined backgrounds distract?
+-- **All prototypes keep underlying functionality unchanged—only layout and aesthetic shift.**
+-- Use Option+X cycling to compare against baseline before iterating further.
 
 * Next Steps
 1. Implement Tier 1 variants (Soft Teal Glass, Lavender Mist, Charcoal Soft)

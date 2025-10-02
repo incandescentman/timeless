@@ -23,20 +23,16 @@ function Logger({ experimentalMode }) {
 
 const testVariants = [
   { key: 'default', label: 'Default UI' },
-  { key: 'calm-pastels', label: 'Calm Pastels' },
-  { key: 'zen-monoline', label: 'Zen Monoline' },
-  { key: 'nordic-frost', label: 'Nordic Frost' },
-  { key: 'soft-studio', label: 'Soft Studio' },
-  { key: 'frosted-ledger', label: 'Frosted Ledger' },
-  { key: 'slate-filigree', label: 'Slate Filigree' },
-  { key: 'emerald-whisper', label: 'Emerald Whisper' }
+  { key: 'split-ledger', label: 'Split Ledger' },
+  { key: 'timeline-rail', label: 'Timeline Rail' },
+  { key: 'notebook-columns', label: 'Notebook Columns' }
 ];
 
 function TestComponent() {
   const experimentalMode = useExperimentalMode({
     variants: testVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'soft-studio'
+    experimentalDefaultKey: 'split-ledger'
   });
 
   return React.createElement(
@@ -59,7 +55,7 @@ await act(async () => {
 });
 
 const variantOrder = testVariants.map(variant => variant.key);
-const startIndex = variantOrder.indexOf('soft-studio');
+const startIndex = variantOrder.indexOf('split-ledger');
 const expectedSequence = Array.from({ length: variantOrder.length }, (_, idx) => {
   const offset = (startIndex + idx) % variantOrder.length;
   return variantOrder[offset];

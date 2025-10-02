@@ -277,53 +277,29 @@ function App() {
         'WHAT: Baseline calendar layout with spacious cells and balanced typography. | WHY: Provides the familiar Timeless reading experience for day-by-day planning. | TO TEST: Scroll through months and hover day cells to confirm classic spacing and highlight behavior. | ASK: Does this remain the most readable option for long-form review?'
     },
     {
-      key: 'calm-pastels',
-      label: 'Calm Pastels',
+      key: 'split-ledger',
+      label: 'Split Ledger',
       description:
-        'WHAT: Mindfulness-focused palette with gentle shadows and meditative motion. | WHY: Reduce visual noise for reflective review and journaling. | TO TEST: Watch the slow pulse around today, hover micro-interactions, and note legibility over long sessions. | ASK: Does the softness support focus without feeling dull?'
+        'WHAT: Fixed left control rail with ledger-style day cards. | WHY: Prototype a task-planner aesthetic with persistent utilities. | TO TEST: Assess ergonomics of the vertical nav, ledger dividers, and note density. | ASK: Does the split layout improve focus on the agenda?'
     },
     {
-      key: 'zen-monoline',
-      label: 'Zen Monoline',
+      key: 'timeline-rail',
+      label: 'Timeline Rail',
       description:
-        'WHAT: Ultra-minimal line-art interface with precise typographic hierarchy. | WHY: Provide a crisp, information-first layout for analytical planners. | TO TEST: Assess line weight cues, focus indicators, and monochrome contrast during keyboard navigation. | ASK: Does the reduction enhance clarity or feel too austere?'
+        'WHAT: Horizontal timeline weeks with a scrolling spine. | WHY: Explore a project-roadmap feel while keeping day interactions intact. | TO TEST: Evaluate week separators, scannability across the rail, and keyboard traversal. | ASK: Does the timeline framing make progression clearer?'
     },
     {
-      key: 'nordic-frost',
-      label: 'Nordic Frost',
+      key: 'notebook-columns',
+      label: 'Notebook Columns',
       description:
-        'WHAT: Crystalline ice-blue palette with frosted glass and snowflake micro-animations. | WHY: Offer a clean, cool aesthetic for focused winter planning. | TO TEST: Observe frosted cards, ice-crystal accents, and seasonal aurora effects. | ASK: Does the frost theme feel cohesive and calming?'
-    },
-    {
-      key: 'soft-studio',
-      label: 'Soft Studio',
-      description:
-        'WHAT: Neutral studio gradient with translucent cards and canonical depth shadows. | WHY: Mirror the Soft Modernism baseline from canonical while keeping Timeless airy. | TO TEST: Inspect neutral gradients, pill typography, and gentle hover lifts. | ASK: Does the studio finish feel premium without distraction?'
-    },
-    {
-      key: 'frosted-ledger',
-      label: 'Frosted Ledger',
-      description:
-        'WHAT: Frosted glass shell with hairline separators and teal-tinted “Today” chip. | WHY: Bring the frosted-board vibe of the canonical If-Then layout into the calendar grid. | TO TEST: Evaluate frosted overlays, divider clarity, and today pill glow. | ASK: Does the ledger treatment stay crisp yet calming?'
-    },
-    {
-      key: 'slate-filigree',
-      label: 'Slate Filigree',
-      description:
-        'WHAT: Monochrome slate cards with radial sheens and canonical pill accents. | WHY: Showcase refined depth cues and pill hierarchy lifted from canonical. | TO TEST: Watch radial sheen overlays, uppercase badges, and underline motion. | ASK: Do the filigree details add polish without clutter?'
-    },
-    {
-      key: 'emerald-whisper',
-      label: 'Emerald Whisper',
-      description:
-        'WHAT: Soft zinc canvas with emerald focus whispers and calm interactions. | WHY: Reserve accent color for focus/today states in line with canonical guidance. | TO TEST: Tab through days, hover notes, and gauge emerald glow intensity. | ASK: Does the whisper accentuate focus without feeling loud?'
+        'WHAT: Two-column, lined notebook styling with stitched headers. | WHY: Prototype a softer journal aesthetic with handwritten cues. | TO TEST: Inspect column balance, ruled backgrounds, and note readability. | ASK: Does the notebook treatment feel inviting for daily writing?'
     }
   ], []);
 
   const experimentalMode = useExperimentalMode({
     variants: experimentalVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'soft-studio'
+    experimentalDefaultKey: 'split-ledger'
   });
 
   // Option-X / Alt+E handled internally by @jaydixit/experimental-mode
