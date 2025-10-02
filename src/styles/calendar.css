@@ -21,12 +21,26 @@ body.dark-mode .calendar-wrapper {
   max-width: 1400px;
   margin: 0 auto;
   padding-top: 140px;
+  padding-left: clamp(1.2rem, 3vw, 2.4rem);
 }
 
 .calendar-grid {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 2.4rem;
+}
+
+.calendar-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: clamp(0rem, 1.4vw, 1rem);
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.32), rgba(59, 130, 246, 0));
+  pointer-events: none;
 }
 
 .calendar-day-labels {
@@ -35,15 +49,17 @@ body.dark-mode .calendar-wrapper {
   z-index: 500;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 12px;
-  padding: 18px 16px;
+  gap: 14px;
+  padding: 20px clamp(1.4rem, 3vw, 2.3rem);
   margin: 0;
-  background: rgba(255, 255, 255, 0.82);
-  border-radius: 20px;
-  border: 1px solid rgba(226, 232, 240, 0.6);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  border: 1px solid rgba(226, 232, 240, 0.65);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 16px 36px rgba(15, 23, 42, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .calendar-day-labels .day-label {
@@ -67,10 +83,12 @@ body.dark-mode .calendar-wrapper {
 
 body.dark-mode .calendar-day-labels {
   background: linear-gradient(180deg,
-    rgba(30, 41, 59, 0.88) 0%,
-    rgba(41, 54, 70, 0.88) 100%);
-  border: 1px solid rgba(71, 85, 105, 0.45);
-  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.5);
+    rgba(30, 41, 59, 0.92) 0%,
+    rgba(17, 24, 39, 0.92) 100%);
+  border: 1px solid rgba(71, 85, 105, 0.52);
+  box-shadow:
+    0 18px 32px rgba(2, 6, 23, 0.55),
+    inset 0 1px 0 rgba(148, 163, 184, 0.2);
 }
 
 body.dark-mode .calendar-day-labels .day-label {
@@ -87,7 +105,20 @@ body.dark-mode .calendar-day-labels .day-label:nth-child(7) {
 }
 
 .week-row {
+  position: relative;
   animation: fadeInRow 0.3s ease-out;
+}
+
+.week-row::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * clamp(1.1rem, 2vw, 1.6rem));
+  top: clamp(0.8rem, 1.6vw, 1.2rem);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.85), rgba(37, 99, 235, 0.55));
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.1);
 }
 
 @keyframes fadeInRow {

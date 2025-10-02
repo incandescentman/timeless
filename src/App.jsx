@@ -287,7 +287,6 @@ function App() {
       label: 'Timeline Rail',
       description:
         'WHAT: Horizontal timeline weeks with a scrolling spine. | WHY: Explore a project-roadmap feel while keeping day interactions intact. | TO TEST: Evaluate week separators, scannability across the rail, and keyboard traversal. | ASK: Does the timeline framing make progression clearer?'
-    },
     }
   ], []);
 
