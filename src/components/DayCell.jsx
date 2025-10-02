@@ -351,10 +351,10 @@ function DayCell({ date }) {
                   openComposer();
                 }
               }}
+              aria-label="Add entry"
               disabled={addButtonDisabled}
             >
               <span className="day-card__add-icon" aria-hidden="true">＋</span>
-              <span className="day-card__add-label">New entry</span>
             </button>
           </div>
         )}
