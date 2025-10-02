@@ -8,7 +8,7 @@
 3. Polish motion, micro-interactions, and responsive behaviour per theme.
 4. Run accessibility and usability passes (contrast, focus states, keyboard cues).
 
-* Variant Specs
+* Implement these ones now:
 ** Aurora Glass
 - Palette :: Deep indigo base, aurora gradients (teal, violet, magenta), white accents
 - Typography :: Sans-serif with subtle weight shifts; gradient-filled headers
@@ -90,6 +90,68 @@
   - Organic, asymmetric shapes framing the calendar
   - Hand-drawn botanical accents per season
   - Seasonal color transitions for month headers
+
+* Do not implement these yet
+** Brutalist Grid
+- Palette :: High-contrast black/white with single electric accent (#00FF00 or #FF0066)
+- Typography :: Extended mono or grotesque sans; oversized labels with tight tracking
+- Treatments ::
+  - Hard-edged grid lines and boxy calendar cells
+  - Stark borders, zero rounded corners
+  - Aggressive typographic hierarchy (massive day numbers)
+  - Abrupt state changes (no transitions), bold focus rectangles
+  - Optional scanline or CRT distortion overlay
+
+** Holographic Shimmer
+- Palette :: Iridescent gradients (chrome, rainbow shift), dark base (#0A0A0F)
+- Typography :: Futuristic sans with chromatic aberration on headings
+- Treatments ::
+  - Animated holographic foil effect on calendar surface
+  - Color-shifting borders based on viewing angle (simulated via mouse position)
+  - Prism light leak animations
+  - Floating depth layers with parallax
+  - Metallic sheen on interactive elements
+
+** Vaporwave Sunset
+- Palette :: Magenta (#FF0080), cyan (#00FFFF), deep purple (#4A0080), sunset gradient
+- Typography :: Retro-futuristic with Japanese glyphs or Greek statue imagery
+- Treatments ::
+  - Palm tree or geometric wireframe silhouettes in background
+  - VHS tracking distortion and chromatic aberration
+  - Grid floor perspective effect beneath calendar
+  - Neon outline glow on month headers
+  - Synthwave sun gradient animation
+
+** Micro Interactions Lab
+- Palette :: Neutral base with dynamic accent color per interaction type
+- Typography :: Clean system fonts optimized for motion clarity
+- Treatments ::
+  - Spring physics on every hover, click, focus
+  - Magnetic snap-to-grid for selections
+  - Haptic-style vibration animations
+  - Dynamic color sampling from time of day or system wallpaper
+  - Staggered cascade animations for grid population
+  - Gesture-driven swipe transitions with inertia
+
+** Nordic Frost
+- Palette :: Ice blue (#E0F2FE), slate (#475569), crystalline white, silver accents
+- Typography :: Clean geometric sans with wide letterspacing
+- Treatments ::
+  - Frosted glass cards with crystalline texture
+  - Snowflake or ice crystal micro-animations
+  - Cool blue glow on focus states
+  - Smooth glide transitions mimicking ice sliding
+  - Seasonal aurora effect in header during winter months
+
+** Memphis Postmodern
+- Palette :: Primary colors (red, yellow, blue) + black/white, geometric patterns
+- Typography :: Bold sans-serif mixed with quirky display fonts
+- Treatments ::
+  - Abstract geometric shapes (squiggles, grids, dots) as decorative elements
+  - Asymmetric layouts with playful misalignment
+  - High-contrast color blocking per calendar row
+  - Pop-art style hover states (flat color swaps)
+  - Retro halftone dot patterns as backgrounds
 
 * Implementation Notes
 - Build each theme as a variant entry for =useExperimentalMode=, toggled via =data-experimental-variant= attributes.
