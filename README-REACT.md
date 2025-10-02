@@ -10,6 +10,7 @@ npm install
 
 # Start development server
 npm run dev
+# (launches Vite and opens your browser automatically)
 
 # Build for production
 npm run build
@@ -83,6 +84,7 @@ All original features have been preserved:
 - ✅ JSON import/export
 - ✅ Mini-calendar with 3-month view
 - ✅ Multiple events per day with swipe-to-delete on mobile
+- ✅ Experimental mode toggle (`?experimental=true`) with Option+X cycling between Default and Modern UI
 
 ## 🏗️ Architecture Highlights
 
@@ -148,6 +150,7 @@ Key changes in the React version:
 - All date operations use the utilities in `src/utils/dateUtils.js`
 - Local storage operations are centralized in `src/utils/storage.js`
 - Keyboard shortcuts are handled in `src/hooks/useKeyboardShortcuts.js`
+- Experimental mode (`?experimental=true`) now ships with two variants: the classic Default UI and the Modern UI skin. Use Option+X (Alt+E) to flip between them.
 
 ## 🐛 Known Issues
 

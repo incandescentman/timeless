@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Timeless: The Infinite Calendar - React Edition",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --open",
     "build": "vite build",
     "preview": "vite preview",
     "postinstall": "patch-package"

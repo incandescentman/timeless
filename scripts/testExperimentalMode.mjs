@@ -25,8 +25,7 @@ function TestComponent() {
   const experimentalMode = useExperimentalMode({
     variants: [
       { key: 'default', label: 'Default UI' },
-      { key: 'modern', label: 'Modern UI' },
-      { key: 'minimal', label: 'Minimal UI' }
+      { key: 'modern', label: 'Modern UI' }
     ],
     defaultKey: 'default',
     experimentalDefaultKey: 'modern'
@@ -51,7 +50,7 @@ await act(async () => {
   root.render(React.createElement(React.StrictMode, null, React.createElement(TestComponent)));
 });
 
-const expectedSequence = ['modern', 'minimal', 'default', 'modern'];
+const expectedSequence = ['modern', 'default', 'modern', 'default'];
 const seen = [];
 
 const logActive = (label) => {
