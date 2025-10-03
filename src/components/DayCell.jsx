@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
-import { generateDayId, isToday, isWeekend } from '../utils/dateUtils';
+import { generateDayId, isToday, isWeekend, addDays } from '../utils/dateUtils';
 
 function DayEventRow({
   event,
@@ -132,8 +132,50 @@ function DayCell({ date }) {
   const handleNewEventKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleAddEvent();
+      const trimmed = newEventText.trim();
+
+      if (trimmed) {
+        // Save the event
+        addNote(dateId, trimmed);
+        // Clear the input and spawn a new event on the same day
+        setNewEventText('');
+        // Keep isAddingNew true so the composer stays open
+      } else {
+        // Cancel the composer if there's no text
+        setIsAddingNew(false);
+        setNewEventText('');
+      }
     }
+
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const trimmed = newEventText.trim();
+
+      if (trimmed) {
+        // Save the event on the current day
+        addNote(dateId, trimmed);
+        // Find the next day's cell and open its composer
+        const nextDay = addDays(date, 1);
+        const nextDayId = generateDayId(nextDay);
+
+        // Close current composer
+        setIsAddingNew(false);
+        setNewEventText('');
+
+        // Wait a tick then open the next day's composer
+        setTimeout(() => {
+          const nextDayCell = document.querySelector(`[data-date-id="${nextDayId}"]`);
+          if (nextDayCell) {
+            nextDayCell.click();
+          }
+        }, 0);
+      } else {
+        // Cancel the composer if there's no text
+        setIsAddingNew(false);
+        setNewEventText('');
+      }
+    }
+
     if (e.key === 'Escape') {
       e.preventDefault();
       setIsAddingNew(false);
