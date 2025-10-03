@@ -50,9 +50,18 @@ body {
   .day-cell {
     width: 100% !important;
     max-width: none;
-    padding: 18px;
+    padding: 12px;
     border-radius: 18px;
     box-shadow: 0 12px 28px rgba(15, 23, 42, 0.15);
+    min-height: var(--cell-min-height, 70px);
+  }
+
+  .day-cell .day-events {
+    gap: 0.45rem;
+  }
+
+  .day-cell .day-event {
+    padding: 0.45rem 0.6rem;
   }
 
   body.dark-mode .day-cell {
@@ -81,7 +90,7 @@ body {
 
   /* Root variable adjustments */
   :root {
- --cell-min-height: 90px;
+ --cell-min-height: 70px;
  --header-height: auto;
   }
 
