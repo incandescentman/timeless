@@ -4,7 +4,7 @@
   --event-row-gap: 0.65rem;
   position: relative;
   min-height: var(--cell-min-height);
-  padding: clamp(0.85rem, 2vw, 1.1rem) clamp(0.9rem, 2.3vw, 1.4rem);
+  padding: clamp(1.05rem, 2.4vw, 1.35rem) clamp(1rem, 2.6vw, 1.6rem);
   border: 1px solid rgba(186, 230, 253, 0.45);
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(240, 249, 255, 0.95), rgba(224, 242, 254, 0.92));
@@ -104,6 +104,7 @@ body.dark-mode .day-cell--baseline .day-weekday {
   flex-direction: column;
   gap: var(--event-row-gap);
   align-self: stretch;
+  min-height: calc(var(--event-row-gap) * 2 + 1px);
 }
 
 .day-cell--baseline .day-event {
@@ -111,7 +112,7 @@ body.dark-mode .day-cell--baseline .day-weekday {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.55rem 0.7rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(148, 163, 184, 0.25);
