@@ -104,30 +104,6 @@ function Header({ onShowYearView, onShowHelp }) {
           <circle cx="12" cy="16" r="2" fill="currentColor" />
         </svg>
       )
-    },
-    {
-      key: 'command',
-      label: 'Command',
-      description: 'Open the command palette',
-      onClick: () => query.toggle(),
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="2" fill="none" />
-          <path d="M9 9h6M9 12h6M9 15h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      )
-    },
-    {
-      key: 'year',
-      label: 'Year View',
-      description: 'See the entire year at a glance',
-      onClick: onShowYearView,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="4" y="5" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="2" fill="none" />
-          <path d="M8 9h0M12 9h0M16 9h0M8 13h0M12 13h0M16 13h0M8 17h0M12 17h0M16 17h0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      )
     }
   ];
 
@@ -140,19 +116,6 @@ function Header({ onShowYearView, onShowHelp }) {
       icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" stroke="currentColor" strokeWidth="2" fill="none" />
-        </svg>
-      )
-    },
-    {
-      key: 'undo',
-      label: 'Undo',
-      description: 'Step back to the previous change',
-      onClick: undo,
-      disabled: !canUndo,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 9H4V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M4 9a9 9 0 1 0 3.05-6.745" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
     },
@@ -241,6 +204,10 @@ function Header({ onShowYearView, onShowHelp }) {
               })}
             </div>
           </div>
+        </div>
+
+        <div className="app-header__calendar" aria-label="Three month mini calendar">
+          <MiniCalendar />
 
           <nav className="app-header__toolbar" aria-label="Calendar utilities">
             {panelActions.map(action => {
@@ -255,10 +222,6 @@ function Header({ onShowYearView, onShowHelp }) {
               );
             })}
           </nav>
-        </div>
-
-        <div className="app-header__calendar" aria-label="Three month mini calendar">
-          <MiniCalendar />
         </div>
 
         <input
