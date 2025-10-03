@@ -124,7 +124,7 @@ body.dark-mode .day-cell--baseline .day-weekday {
   display: flex;
   align-items: center;
   gap: 0.38rem;
-  padding: 0.45rem 0.68rem;
+  padding: 0.45rem 0.85rem;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--grid-divider-soft);
@@ -161,7 +161,7 @@ body.dark-mode .day-cell--baseline .day-weekday {
 
 .day-cell--baseline .day-event__input {
   flex: 1;
-  padding: 0.45rem 0.68rem;
+  padding: 0.45rem 0.85rem;
   border-radius: 12px;
   border: 1px solid var(--grid-divider-soft);
   background: rgba(255, 255, 255, 0.98);
