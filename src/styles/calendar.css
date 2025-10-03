@@ -20,8 +20,8 @@ body.dark-mode #calendarContainer {
 
 .calendar-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
-  gap: clamp(3rem, 6vw, 5rem);
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: clamp(3.5rem, 7vw, 6rem);
   align-items: start;
 }
 
@@ -44,7 +44,7 @@ body.dark-mode #calendarContainer {
   display: flex;
   flex-direction: column;
   gap: 2.4rem;
-  --timeline-offset: clamp(-2rem, -6vw, -1rem);
+  --timeline-offset: clamp(-3.5rem, -8vw, -1.8rem);
 }
 
 .calendar-grid::before {
