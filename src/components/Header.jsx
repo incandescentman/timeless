@@ -234,7 +234,7 @@ function Header({ onShowYearView, onShowHelp }) {
                   <HeaderAction
                     key={key}
                     {...actionProps}
-                    variant="primary"
+                    variant="quick"
                     mode="baseline"
                   />
                 );
@@ -242,14 +242,14 @@ function Header({ onShowYearView, onShowHelp }) {
             </div>
           </div>
 
-          <nav className="app-header__action-panel" aria-label="Calendar utilities">
+          <nav className="app-header__toolbar" aria-label="Calendar utilities">
             {panelActions.map(action => {
               const { key, ...actionProps } = action;
               return (
                 <HeaderAction
                   key={key}
                   {...actionProps}
-                  variant="panel"
+                  variant="icon"
                   mode="baseline"
                 />
               );
@@ -345,23 +345,24 @@ function Header({ onShowYearView, onShowHelp }) {
 
 function HeaderAction({ label, description, icon, onClick, disabled, variant = 'secondary', mode = 'modern' }) {
   if (mode === 'baseline') {
-    const isPanel = variant === 'panel';
+    const isIconOnly = variant === 'icon';
+    const buttonClass = ['header-btn', `header-btn--${isIconOnly ? 'icon' : 'quick'}`].join(' ');
 
     return (
       <button
         type="button"
-        className={`header-action header-action--${variant}`}
+        className={buttonClass}
         onClick={onClick}
         disabled={disabled}
         aria-label={description || label}
+        title={description || label}
       >
-        <span className="header-action__icon" aria-hidden="true">{icon}</span>
-        <span className="header-action__body">
-          <span className="header-action__label">{label}</span>
-          {isPanel && description && (
-            <span className="header-action__description">{description}</span>
-          )}
-        </span>
+        <span aria-hidden="true">{icon}</span>
+        {isIconOnly ? (
+          <span className="sr-only">{label}</span>
+        ) : (
+          <span className="header-btn__label">{label}</span>
+        )}
       </button>
     );
   }
