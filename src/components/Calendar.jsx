@@ -10,9 +10,20 @@ const BUFFER_WEEKS = 26; // Load 26 weeks above and below
 function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const { systemToday } = useCalendar();
   const [weeks, setWeeks] = useState([]);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth <= 768);
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Initialize calendar with weeks around today
   useEffect(() => {
@@ -159,11 +170,13 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   return (
     <div id="calendarContainer" ref={calendarRef}>
       <div className="calendar-layout">
-        <Header
-          onShowYearView={onShowYearView}
-          onShowHelp={onShowHelp}
-          forceBaseline
-        />
+        {!isMobile && (
+          <Header
+            onShowYearView={onShowYearView}
+            onShowHelp={onShowHelp}
+            forceBaseline
+          />
+        )}
 
         <div className="calendar-layout__main">
           <div ref={topSentinelRef} id="top-sentinel" style={{ height: '10px' }} />

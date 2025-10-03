@@ -6,6 +6,13 @@ html, body {
  -webkit-overflow-scrolling: touch; /* helps iOS Safari smoothly scroll */
 }
 
+@media (max-width: 768px) {
+  body {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+}
+
 
 
 

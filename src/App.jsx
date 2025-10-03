@@ -5,6 +5,7 @@ import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Calendar from './components/Calendar';
 import MobileActionBar from './components/MobileActionBar';
+import MobileHeader from './components/MobileHeader';
 import MobileFooter from './components/MobileFooter';
 import YearView from './components/YearView';
 import HelpOverlay from './components/HelpOverlay';
@@ -250,6 +251,7 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
         />
       </div>
 
+      <MobileHeader />
       <MobileActionBar />
       <MobileFooter />
 

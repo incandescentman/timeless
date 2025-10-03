@@ -9,6 +9,7 @@ import './styles/mini-calendar.css';
 import './styles/overlays.css';
 import './styles/experimental.css';  // Experimental mode styles
 import './styles/mobile.css';  // Mobile overrides last
+import './styles/mobile-header.css';  // Mobile header styles
 import './styles/mobile-footer.css';  // Mobile footer styles
 
 ReactDOM.createRoot(document.getElementById('root')).render(

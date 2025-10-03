@@ -254,7 +254,11 @@ body.dark-mode .calendar-rail__button--primary {
 
 @media (max-width: 768px) {
   .calendar-rail {
-    display: none;
+    display: none !important;
+  }
+
+  .calendar-rail__brand {
+    display: none !important;
   }
 }
 
