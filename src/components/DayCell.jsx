@@ -102,7 +102,7 @@ function DayCell({ date }) {
   const dateId = generateDayId(date);
   const dayNumber = date.getDate();
   const dayLabel = date.toLocaleDateString(undefined, { weekday: 'short' });
-  const monthLabel = date.toLocaleDateString(undefined, { month: 'long' });
+  const monthLabel = date.toLocaleDateString(undefined, { month: 'short' });
   const isTodayDate = isToday(date, systemToday);
   const isWeekendDate = isWeekend(date);
   const isKeyboardFocused = keyboardFocusDate && generateDayId(keyboardFocusDate) === dateId;

@@ -49,8 +49,9 @@
 
 .day-cell--baseline .day-header {
   display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
 }
 
 .day-cell--baseline .day-header__main {
@@ -79,7 +80,6 @@
 .day-cell--baseline .day-weekday {
   white-space: nowrap;
   color: rgba(15, 23, 42, 0.42);
-  margin-left: auto;
 }
 
 body.dark-mode .day-cell--baseline .day-month {
@@ -215,7 +215,7 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 
 @media (max-width: 768px) {
   .day-cell--baseline .day-header {
-    gap: 0.4rem;
+    gap: 0.35rem;
   }
 
   .day-cell--baseline .day-number {
