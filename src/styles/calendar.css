@@ -55,6 +55,8 @@ body.dark-mode .calendar-wrapper {
   gap: 14px;
   padding: 20px clamp(1.4rem, 3vw, 2.3rem);
   margin: 0;
+  margin-left: calc(-1 * clamp(1.4rem, 3vw, 2.3rem));
+  margin-right: calc(-1 * clamp(1.4rem, 3vw, 2.3rem));
   background: rgba(255, 255, 255, 0.9);
   border-radius: 22px;
   border: 1px solid rgba(226, 232, 240, 0.65);

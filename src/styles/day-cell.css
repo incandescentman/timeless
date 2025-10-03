@@ -80,6 +80,9 @@
 .day-cell--baseline .day-weekday {
   white-space: nowrap;
   color: rgba(15, 23, 42, 0.42);
+  letter-spacing: 0.22em;
+  margin-left: auto;
+  padding-right: 0.4rem;
 }
 
 body.dark-mode .day-cell--baseline .day-month {
@@ -229,7 +232,8 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 
   .day-cell--baseline .day-weekday {
     font-size: 0.7rem;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.28em;
+    padding-right: 0.2rem;
   }
 
   .day-cell--baseline .day-weekday::after {
@@ -248,8 +252,9 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 
   .day-cell--baseline .day-weekday {
     font-size: 0.78rem;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.2em;
     color: rgba(15, 23, 42, 0.55);
+    padding-right: 0.5rem;
   }
 
   body.dark-mode .day-cell--baseline .day-weekday {
