@@ -263,30 +263,59 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 
 @media (max-width: 768px) {
   .day-cell--baseline {
-    padding: 0.9rem 1rem;
-    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    min-height: 80px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
   }
 
   .day-cell--baseline .day-header {
-    gap: 0.25rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.8rem;
+    min-width: 100px;
+  }
+
+  .day-cell--baseline .day-header__weekday {
+    display: none;
+  }
+
+  .day-cell--baseline .day-header__main {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
   }
 
   .day-cell--baseline .day-number {
-    font-size: 1.35rem;
+    font-size: 1.8rem;
+    font-weight: 700;
   }
 
   .day-cell--baseline .day-month {
-    letter-spacing: 0.18em;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
   }
 
   .day-cell--baseline .day-weekday {
-    font-size: 0.68rem;
-    letter-spacing: 0.24em;
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    margin-left: 0.5rem;
   }
 
   .day-cell--baseline .day-events {
-    min-height: calc(var(--event-row-height) * 2 + var(--event-row-gap));
+    flex: 1;
+    min-height: auto;
+    gap: 0.4rem;
+  }
+
+  .day-cell--baseline .day-event {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.9rem;
   }
 }
 

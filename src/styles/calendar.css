@@ -36,6 +36,16 @@ body.dark-mode #calendarContainer {
   }
 }
 
+@media (max-width: 768px) {
+  .calendar-layout {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 .calendar-layout__main {
   min-width: 0;
   max-width: 100%;
@@ -74,6 +84,12 @@ body.dark-mode #calendarContainer {
 
 .calendar-day-labels {
   display: none;
+}
+
+@media (max-width: 768px) {
+  .calendar-day-labels {
+    display: none !important;
+  }
 }
 
 .calendar-day-labels .day-label {
@@ -162,6 +178,15 @@ body.dark-mode .calendar-day-labels .day-label:nth-child(7) {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
+@media (max-width: 768px) {
+  .month-header {
+    padding: 0.8rem 1rem;
+    gap: 0.8rem;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+  }
+}
+
 .month-header::before {
   content: '';
   position: absolute;
@@ -246,6 +271,14 @@ body.dark-mode .month-header__rule {
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0;
   animation: fadeInRow 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+  .week-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 @keyframes fadeInRow {

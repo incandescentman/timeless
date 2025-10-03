@@ -12,6 +12,14 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 768px) {
+  .app-shell {
+    padding: 1rem;
+    gap: 1rem;
+    max-width: 100%;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
