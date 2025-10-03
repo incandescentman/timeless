@@ -133,14 +133,6 @@ body.dark-mode .day-cell--baseline .day-weekday {
   border-color: rgba(96, 165, 250, 0.55);
 }
 
-.day-cell--baseline .day-event__bullet {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.9), rgba(14, 165, 233, 0.9));
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
-}
-
 .day-cell--baseline .day-event__text {
   flex: 1;
   font-size: 0.95rem;

@@ -52,9 +52,6 @@ function DayEventRow({
       {...handlers}
       onClick={() => !isEditing && onStartEdit(index)}
     >
-      {!useCardLayout && (
-        <span className="day-event__bullet" aria-hidden="true"></span>
-      )}
       {isEditing ? (
         <input
           ref={editInputRef}
