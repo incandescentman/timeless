@@ -27,7 +27,7 @@
 .calendar-rail {
   position: fixed !important;
   top: 3rem !important;
-  left: max(2rem, calc((100vw - 1500px) / 2 + 2rem)) !important;
+  left: calc(50% - 750px + 2rem) !important; /* Center with total UI width of 1500px */
   z-index: 9999 !important;
   display: flex !important;
   visibility: visible !important;
@@ -45,6 +45,12 @@
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(10px) saturate(110%);
   -webkit-backdrop-filter: blur(10px) saturate(110%);
+}
+
+@media (max-width: 1600px) {
+  .calendar-rail {
+    left: 2rem !important; /* Fixed to left on smaller screens */
+  }
 }
 
 .calendar-rail__brand {

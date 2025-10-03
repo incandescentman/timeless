@@ -20,10 +20,20 @@ body.dark-mode #calendarContainer {
 
 .calendar-layout {
   display: block;
+  width: 1500px;
+  max-width: calc(100vw - 4rem);
   margin: 0 auto;
-  padding-left: 380px;
-  max-width: 1500px;
+  padding-left: 340px; /* Space for 240px sidebar + 100px gap */
   box-sizing: border-box;
+}
+
+@media (max-width: 1600px) {
+  .calendar-layout {
+    width: auto;
+    margin-left: 320px; /* Sidebar width + 80px gap */
+    margin-right: 2rem;
+    padding-left: 0;
+  }
 }
 
 .calendar-layout__main {
