@@ -9,6 +9,7 @@
   background: transparent;
   border-radius: 12px;
   max-height: max(230px, calc(100vh - var(--calendar-sticky-offset, 200px) - 70px));
+  align-items: stretch;
 }
 
 .mini-calendar-header {
@@ -22,7 +23,7 @@
 .mini-month {
   min-width: 200px;
   max-width: 220px;
-  margin: 0 auto;
+  margin: 0;
   background: rgba(255, 255, 255, 0.76);
   padding: 12px;
   border-radius: 12px;
