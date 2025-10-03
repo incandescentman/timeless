@@ -3,8 +3,8 @@
 .day-cell--baseline {
   --event-row-gap: 0.5rem;
   position: relative;
-  min-height: 110px;
-  padding: 0.75rem 0.9rem;
+  min-height: 100px;
+  padding: 0.65rem 0.8rem;
   border: 1px solid rgba(186, 230, 253, 0.35);
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(240, 249, 255, 0.9), rgba(224, 242, 254, 0.85));
@@ -13,7 +13,7 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.6rem;
   width: 100%;
   box-sizing: border-box;
   align-items: stretch;
@@ -35,7 +35,7 @@
 }
 
 .day-cell--baseline.weekend {
-  background: linear-gradient(135deg, rgba(224, 242, 254, 0.95), rgba(186, 230, 253, 0.9));
+  background: linear-gradient(135deg, rgba(250, 250, 249, 0.95), rgba(245, 245, 244, 0.9));
 }
 
 .day-cell--baseline.keyboard-focused {
@@ -70,25 +70,27 @@
 
 .day-cell--baseline .day-number {
   font-family: var(--font-day-number);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: inherit;
-  opacity: 0.85;
+  opacity: 0.65;
+  line-height: 1.2;
 }
 
 .day-cell--baseline .day-month,
 .day-cell--baseline .day-weekday {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(15, 23, 42, 0.5);
+  line-height: 1.3;
 }
 
 .day-cell--baseline .day-weekday {
   white-space: nowrap;
   color: rgba(15, 23, 42, 0.44);
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
 }
 
 body.dark-mode .day-cell--baseline .day-month {
@@ -116,7 +118,7 @@ body.dark-mode .day-cell--baseline .day-weekday {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(148, 163, 184, 0.25);
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -427,7 +429,7 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   font-weight: 700;
   font-size: clamp(1.8rem, 4vw, 2.4rem);
   line-height: 1;
-  color: #1f2937;
+  color: #6b7280;
 }
 
 .day-number {
@@ -468,7 +470,7 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   border-radius: 18px;
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: rgba(248, 250, 252, 0.75);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
@@ -477,7 +479,7 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   transform: translateY(-1px);
   background: rgba(241, 245, 249, 0.95);
   box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.08);
+    0 10px 22px rgba(15, 23, 42, 0.04);
 }
 
 .day-card__event.editing {
@@ -558,7 +560,7 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 }
 
 .day-cell.weekend .day-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.92));
+  background: linear-gradient(135deg, rgba(250, 250, 249, 0.95), rgba(245, 245, 244, 0.92));
 }
 
 .day-cell.keyboard-focused .day-card {

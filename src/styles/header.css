@@ -34,8 +34,8 @@
 
 .calendar-rail {
   position: fixed !important;
-  top: 3rem !important;
-  left: calc(50% - 750px + 2rem) !important; /* Center with total UI width of 1500px */
+  top: 2.5rem !important;
+  left: calc(50% - 700px + 2rem) !important; /* Center with total UI width of 1400px */
   z-index: 9999 !important;
   display: flex !important;
   visibility: visible !important;
@@ -44,7 +44,7 @@
   gap: 0.6rem;
   padding: 0.75rem;
   width: 220px;
-  max-height: calc(100vh - 6rem);
+  max-height: calc(100vh - 5rem);
   overflow-y: auto;
   overflow-x: hidden;
   border-radius: 12px;
