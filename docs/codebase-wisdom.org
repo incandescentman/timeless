@@ -105,3 +105,81 @@
    - [ ] **Clear Vite cache after CSS changes** - `rm -rf node_modules/.vite`
    - [ ] **Order matters** - Import dependencies before files that use them
    - [ ] **Check bundler docs first** - Vite/webpack handle CSS differently than vanilla HTML
+
+* Experimental Mode Variants: Two-File System
+  Date: 2025-10-03
+
+** How It Works
+   Experimental mode variants require changes in TWO places:
+   1. **JavaScript config** (src/App.jsx) - Defines available variants
+   2. **CSS styles** (src/styles/experimental.css) - Implements variant styling
+
+** File 1: src/App.jsx (Lines 272-310)
+   #+begin_src javascript
+   const experimentalVariants = useMemo(() => [
+     {
+       key: 'default',              // Must match CSS selector
+       label: 'Default UI',         // Shows in variant switcher
+       description: 'WHAT:... | WHY:... | TO TEST:... | ASK:...'
+     },
+     {
+       key: 'timeline-rail',        // Must match CSS selector
+       label: 'Timeline Rail',
+       description: 'WHAT:... | WHY:... | TO TEST:... | ASK:...'
+     }
+   ], []);
+
+   const experimentalMode = useExperimentalMode({
+     variants: experimentalVariants,
+     defaultKey: 'default',
+     experimentalDefaultKey: 'timeline-rail'  // First variant shown in experimental mode
+   });
+   #+end_src
+
+** File 2: src/styles/experimental.css
+   #+begin_src css
+   /* key from App.jsx becomes CSS selector */
+   [data-experimental-variant="timeline-rail"] .calendar-grid {
+     /* variant-specific styles */
+   }
+   #+end_src
+
+** Step-by-Step: Adding a New Variant
+   1. **Add variant config to src/App.jsx** (inside experimentalVariants array)
+      - Set unique `key` (becomes CSS selector)
+      - Set display `label` (shown in UI)
+      - Write `description` using WHAT/WHY/TO TEST/ASK format
+
+   2. **Add variant styles to src/styles/experimental.css**
+      - Use `[data-experimental-variant="your-key"]` as selector prefix
+      - Target specific elements: `.calendar-grid`, `.day-cell`, `.week-row`, etc.
+
+   3. **Test without cache**
+      - Kill dev server
+      - Run: `rm -rf node_modules/.vite`
+      - Restart: `npm run dev`
+      - Hard refresh browser (Cmd+Shift+R)
+
+** Step-by-Step: Removing Variants
+   1. **Remove from src/App.jsx** - Delete variant object from experimentalVariants array
+   2. **Remove from src/styles/experimental.css** - Delete all CSS rules for that variant
+   3. **Clear cache and restart** (same as adding)
+
+** Finding Old Variants in Git
+   #+begin_src bash
+   # Find commits with variant changes
+   git log --all --oneline | grep -i "variant\|rail\|ledger"
+
+   # View variant config from specific commit
+   git show COMMIT_HASH:src/styles/experimental.css
+
+   # Extract specific variant section
+   git show COMMIT_HASH:src/styles/experimental.css | sed -n '/VARIANT NAME/,/^\/\* ====.*===== \*\//p'
+   #+end_src
+
+** Common Mistakes
+   - [ ] **Only updating CSS** - Variant won't appear in switcher without App.jsx entry
+   - [ ] **Only updating App.jsx** - Variant will appear but have no styling
+   - [ ] **Key mismatch** - CSS selector must exactly match the `key` in App.jsx
+   - [ ] **Browser cache** - Always hard refresh after variant changes
+   - [ ] **Dev server cache** - Clear node_modules/.vite if changes don't appear

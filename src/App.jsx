@@ -274,38 +274,20 @@ function App() {
       key: 'default',
       label: 'Default UI',
       description:
-        'WHAT: Baseline calendar layout with refreshed weekday headers and timeline spine. | WHY: Provides the familiar Timeless reading experience for day-by-day planning. | TO TEST: Scroll through months and hover day cells to confirm classic spacing and highlight behavior. | ASK: Does this remain the most readable option for long-form review?'
+        'WHAT: Nordic Frost palette with pale blue day cells and sky blue timeline. | WHY: Provides a clean, cool aesthetic for focused planning. | TO TEST: Scroll through months and observe the pale frost blue backgrounds and timeline glow. | ASK: Does the frost theme feel cohesive and calming?'
     },
     {
-      key: 'calm-pastels',
-      label: 'Calm Pastels',
+      key: 'timeline-rail',
+      label: 'Timeline Rail',
       description:
-        'WHAT: Mindfulness-focused palette with gentle shadows and meditative motion. | WHY: Reduce visual noise for reflective review and journaling. | TO TEST: Watch the slow pulse around today, hover micro-interactions, and note legibility over long sessions. | ASK: Does the softness support focus without feeling dull?'
-    },
-    {
-      key: 'zen-monoline',
-      label: 'Zen Monoline',
-      description:
-        'WHAT: Ultra-minimal line-art interface with precise typographic hierarchy. | WHY: Provide a crisp, information-first layout for analytical planners. | TO TEST: Assess line weight cues, focus indicators, and monochrome contrast during keyboard navigation. | ASK: Does the reduction enhance clarity or feel too austere?'
-    },
-    {
-      key: 'nordic-frost',
-      label: 'Nordic Frost',
-      description:
-        'WHAT: Crystalline ice-blue palette with frosted glass and snowflake micro-animations. | WHY: Offer a clean, cool aesthetic for focused winter planning. | TO TEST: Observe frosted cards, ice-crystal accents, and seasonal aurora effects. | ASK: Does the frost theme feel cohesive and calming?'
-    },
-    {
-      key: 'soft-studio',
-      label: 'Soft Studio',
-      description:
-        'WHAT: Neutral studio gradient with translucent cards and canonical depth shadows. | WHY: Mirror the Soft Modernism baseline from canonical while keeping Timeless airy. | TO TEST: Inspect neutral gradients, pill typography, and gentle hover lifts. | ASK: Does the studio finish feel premium without distraction?'
+        'WHAT: Horizontal scrolling timeline with vertical rail and month markers. | WHY: Alternative layout pattern showing weeks as horizontal cards along a timeline spine. | TO TEST: Observe the glowing timeline rail, month labels on the left, and horizontal week layout. | ASK: Does the timeline rail provide better context for temporal navigation?'
     }
   ], []);
 
   const experimentalMode = useExperimentalMode({
     variants: experimentalVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'calm-pastels'
+    experimentalDefaultKey: 'timeline-rail'
   });
 
   // Option-X / Alt+E handled internally by @jaydixit/experimental-mode
