@@ -200,7 +200,7 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
 
         <div className="calendar-rail__mini" aria-label="Three month mini calendar">
           <MiniCalendar
-            headerContent={(
+            footerContent={(
               <div className="calendar-rail__actions" aria-label="Calendar utilities">
                 {railButtons.map(action => {
                   const variant = action.key === 'today'
