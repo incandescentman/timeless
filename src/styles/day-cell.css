@@ -102,6 +102,7 @@ body.dark-mode .day-cell--baseline .day-weekday {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  max-width: 75%;
 }
 
 .day-cell--baseline .day-event {
@@ -138,14 +139,7 @@ body.dark-mode .day-cell--baseline .day-event:hover {
 }
 
 .day-cell--baseline .day-event__delete {
-  background: none;
-  border: none;
-  color: rgba(15, 23, 42, 0.4);
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.1rem 0.35rem;
-  border-radius: 6px;
-  transition: background 0.2s ease, color 0.2s ease;
+  display: none;
 }
 
 .day-cell--baseline .day-event__delete:hover {
