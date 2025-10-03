@@ -20,8 +20,8 @@ body.dark-mode #calendarContainer {
 
 .calendar-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
-  gap: clamp(2rem, 4vw, 3.5rem);
+  grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+  gap: clamp(2.5rem, 5vw, 4.5rem);
   align-items: start;
 }
 

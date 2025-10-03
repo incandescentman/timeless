@@ -3,7 +3,7 @@ import { useCalendar } from '../contexts/CalendarContext';
 import { getMonthWeeks, months, generateDayId, isToday, addMonths } from '../utils/dateUtils';
 import '../styles/mini-calendar.css';
 
-function MiniCalendar({ footerContent = null }) {
+function MiniCalendar({ headerContent = null, footerContent = null }) {
   const { systemToday, hasNotes } = useCalendar();
   const [displayMonth, setDisplayMonth] = useState(new Date(systemToday));
 
@@ -79,6 +79,11 @@ function MiniCalendar({ footerContent = null }) {
 
   return (
     <div id="miniCalendar" className="mini-calendar-container" onWheel={handleWheel}>
+      {headerContent && (
+        <div className="mini-calendar-header">
+          {headerContent}
+        </div>
+      )}
       {renderMonth(addMonths(displayMonth, -1))}
       {renderMonth(displayMonth)}
       {renderMonth(addMonths(displayMonth, 1))}

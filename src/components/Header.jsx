@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
 import { useCalendar } from '../contexts/CalendarContext';
 import MiniCalendar from './MiniCalendar';
 import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from '../utils/storage';
@@ -7,7 +6,6 @@ import { useKBar } from 'kbar';
 import '../styles/header.css';
 
 function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
-  const { toggleDarkMode } = useTheme();
   const { undo, canUndo, syncWithServer } = useCalendar();
   const fileInputRef = useRef(null);
   const headerRef = useRef(null);
@@ -108,17 +106,6 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
   ];
 
   const secondaryActions = [
-    {
-      key: 'dark-mode',
-      label: 'Dark Mode',
-      description: 'Toggle theme',
-      onClick: toggleDarkMode,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" stroke="currentColor" strokeWidth="2" fill="none" />
-        </svg>
-      )
-    },
     {
       key: 'help',
       label: 'Help',
