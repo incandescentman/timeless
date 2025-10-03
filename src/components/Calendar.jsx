@@ -14,6 +14,8 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
+  const touchStartY = useRef(0);
+  const touchStartX = useRef(0);
 
   // Handle window resize for mobile detection
   useEffect(() => {
@@ -24,6 +26,41 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Handle swipe gestures for mobile navigation
+  const handleTouchStart = useCallback((e) => {
+    if (!isMobile) return;
+    touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
+  }, [isMobile]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!isMobile) return;
+    const touchEndY = e.changedTouches[0].clientY;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaY = touchEndY - touchStartY.current;
+    const deltaX = touchEndX - touchStartX.current;
+
+    // Check if it's a horizontal swipe (not vertical scroll)
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      const container = calendarRef.current;
+      if (!container) return;
+
+      if (deltaX > 0) {
+        // Swipe right - scroll up (go to previous days)
+        container.scrollBy({
+          top: -window.innerHeight * 0.7,
+          behavior: 'smooth'
+        });
+      } else {
+        // Swipe left - scroll down (go to next days)
+        container.scrollBy({
+          top: window.innerHeight * 0.7,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [isMobile]);
 
   // Initialize calendar with weeks around today
   useEffect(() => {
@@ -168,7 +205,12 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   };
 
   return (
-    <div id="calendarContainer" ref={calendarRef}>
+    <div
+      id="calendarContainer"
+      ref={calendarRef}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="calendar-layout">
         {!isMobile && (
           <Header

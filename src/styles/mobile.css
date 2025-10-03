@@ -41,7 +41,7 @@ body {
 
   .calendar-grid {
     gap: 32px;
-    padding: 0 14px;
+    padding: 0 8px;
   }
 
   .month-section {
@@ -51,7 +51,7 @@ body {
   .week-row {
     display: flex !important;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
   }
 
   .day-cell {

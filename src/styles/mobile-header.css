@@ -39,19 +39,16 @@
 }
 
 .mobile-header__title {
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  color: #1a1a1a;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: #000000;
   margin: 0;
-  padding: 0 1rem;
+  padding: 0 1.25rem;
   position: relative;
   z-index: 1;
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  line-height: 1.2;
 }
 
 /* Dark mode styles */
@@ -63,4 +60,5 @@ body.dark-mode .mobile-header {
 
 body.dark-mode .mobile-header__title {
   color: #ffffff;
+  font-weight: 600;
 }
