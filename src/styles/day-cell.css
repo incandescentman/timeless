@@ -1,11 +1,10 @@
 /* Baseline Day Cell Styles */
 
 .day-cell--baseline {
-  --event-row-height: 54px;
   --event-row-gap: 0.65rem;
   position: relative;
   min-height: var(--cell-min-height);
-  padding: clamp(1rem, 2.2vw, 1.45rem) clamp(1rem, 2.5vw, 1.7rem);
+  padding: clamp(0.85rem, 2vw, 1.1rem) clamp(0.9rem, 2.3vw, 1.4rem);
   border: 1px solid rgba(186, 230, 253, 0.45);
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(240, 249, 255, 0.95), rgba(224, 242, 254, 0.92));
@@ -104,7 +103,6 @@ body.dark-mode .day-cell--baseline .day-weekday {
   display: flex;
   flex-direction: column;
   gap: var(--event-row-gap);
-  min-height: calc(var(--event-row-height) * 3 + var(--event-row-gap) * 2);
   align-self: stretch;
 }
 
@@ -113,8 +111,7 @@ body.dark-mode .day-cell--baseline .day-weekday {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.6rem 0.75rem;
-  min-height: var(--event-row-height);
+  padding: 0.55rem 0.7rem;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(148, 163, 184, 0.25);

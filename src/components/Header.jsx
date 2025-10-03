@@ -182,6 +182,11 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
     ...dataActions
   ];
 
+  const railButtons = [
+    ...(todayAction ? [todayAction] : []),
+    ...railActions
+  ];
+
   const renderBaselineAction = (action, extraClassName = '') => {
     const { key, ...actionProps } = action;
     return (
@@ -207,13 +212,19 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
         </div>
 
         <div className="calendar-rail__mini" aria-label="Three month mini calendar">
-          {todayAction && renderBaselineAction(todayAction, 'calendar-rail__button--primary calendar-rail__button--today')}
-          <MiniCalendar />
+          <MiniCalendar
+            footerContent={(
+              <div className="calendar-rail__actions" aria-label="Calendar utilities">
+                {railButtons.map(action => {
+                  const variant = action.key === 'today'
+                    ? 'calendar-rail__button--primary'
+                    : 'calendar-rail__button--secondary';
+                  return renderBaselineAction(action, variant);
+                })}
+              </div>
+            )}
+          />
         </div>
-
-        <nav className="calendar-rail__actions" aria-label="Calendar utilities">
-          {railActions.map(action => renderBaselineAction(action, 'calendar-rail__button--secondary'))}
-        </nav>
 
         <input
           type="file"
