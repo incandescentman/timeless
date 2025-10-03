@@ -4,7 +4,7 @@
   position: relative;
   padding: clamp(1.4rem, 3vw, 2.4rem) clamp(1.2rem, 3vw, 2.2rem);
   border-radius: 28px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
   backdrop-filter: blur(18px);
@@ -13,7 +13,7 @@
 }
 
 body.dark-mode #calendarContainer {
-  background: #111827;
+  background: rgba(17, 24, 39, 0.88);
   border-color: rgba(71, 85, 105, 0.42);
   box-shadow: 0 28px 60px rgba(2, 6, 23, 0.65);
 }
