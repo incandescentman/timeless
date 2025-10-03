@@ -154,26 +154,23 @@ function DayCell({ date }) {
       if (trimmed) {
         // Save the event on the current day
         addNote(dateId, trimmed);
-        // Find the next day's cell and open its composer
-        const nextDay = addDays(date, 1);
-        const nextDayId = generateDayId(nextDay);
-
-        // Close current composer
-        setIsAddingNew(false);
-        setNewEventText('');
-
-        // Wait a tick then open the next day's composer
-        setTimeout(() => {
-          const nextDayCell = document.querySelector(`[data-date-id="${nextDayId}"]`);
-          if (nextDayCell) {
-            nextDayCell.click();
-          }
-        }, 0);
-      } else {
-        // Cancel the composer if there's no text
-        setIsAddingNew(false);
-        setNewEventText('');
       }
+
+      // Find the next day's cell and open its composer (regardless of whether there's text)
+      const nextDay = addDays(date, 1);
+      const nextDayId = generateDayId(nextDay);
+
+      // Close current composer
+      setIsAddingNew(false);
+      setNewEventText('');
+
+      // Wait a tick then open the next day's composer
+      setTimeout(() => {
+        const nextDayCell = document.querySelector(`[data-date-id="${nextDayId}"]`);
+        if (nextDayCell) {
+          nextDayCell.click();
+        }
+      }, 0);
     }
 
     if (e.key === 'Escape') {
