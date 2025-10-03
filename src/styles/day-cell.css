@@ -204,17 +204,39 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 }
 
 @media (max-width: 768px) {
-  .day-cell--baseline .day-meta {
-    display: inline-flex;
+  .day-cell--baseline .day-header {
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem;
   }
 
   .day-cell--baseline .day-number {
     font-size: 1.2rem;
   }
 
-  .day-cell--baseline .day-meta__weekday,
+  .day-cell--baseline .day-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-left: 0.1rem;
+  }
+
   .day-cell--baseline .day-meta__month {
+    order: 1;
+    font-size: 0.75rem;
+  }
+
+  .day-cell--baseline .day-meta__separator {
+    display: none;
+  }
+
+  .day-cell--baseline .day-meta__weekday {
+    order: 2;
+    flex-basis: 100%;
     font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    opacity: 0.6;
+    margin-top: 0.05rem;
   }
 }
 

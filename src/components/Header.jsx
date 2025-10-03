@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCalendar } from '../contexts/CalendarContext';
 import MiniCalendar from './MiniCalendar';
@@ -10,9 +10,42 @@ function Header({ onShowYearView, onShowHelp }) {
   const { toggleDarkMode } = useTheme();
   const { undo, canUndo, syncWithServer } = useCalendar();
   const fileInputRef = useRef(null);
+  const headerRef = useRef(null);
   const { query } = useKBar();
   const variantKey = typeof document !== 'undefined' ? document.documentElement.dataset.experimentalVariant : undefined;
   const useRedesignedHeader = variantKey && variantKey !== 'default';
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const headerElement = headerRef.current;
+    if (!headerElement) return;
+
+    const EXTRA_STICKY_SPACE = -1;
+
+    const updateStickyOffsets = () => {
+      const headerHeight = headerElement.getBoundingClientRect().height || 0;
+      const stickyOffset = Math.max(0, headerHeight + EXTRA_STICKY_SPACE);
+
+      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+      document.documentElement.style.setProperty('--calendar-sticky-offset', `${stickyOffset}px`);
+    };
+
+    updateStickyOffsets();
+
+    let resizeObserver;
+    if ('ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver(() => updateStickyOffsets());
+      resizeObserver.observe(headerElement);
+    }
+
+    window.addEventListener('resize', updateStickyOffsets);
+
+    return () => {
+      window.removeEventListener('resize', updateStickyOffsets);
+      resizeObserver?.disconnect();
+    };
+  }, [useRedesignedHeader]);
 
   const goToToday = () => {
     const todayCell = document.querySelector('.day-cell.today');
@@ -180,7 +213,11 @@ function Header({ onShowYearView, onShowHelp }) {
 
   if (!useRedesignedHeader) {
     return (
-      <header id="header" className="app-header app-header--baseline">
+      <header
+        ref={headerRef}
+        id="header"
+        className="app-header app-header--baseline"
+      >
         <div className="app-header__shell">
           <div className="app-header__brand" aria-label="Timeless calendar branding">
             <span className="brand-mark">Timeless</span>
@@ -247,7 +284,11 @@ function Header({ onShowYearView, onShowHelp }) {
   }
 
   return (
-    <header id="header" className="app-header app-header--modern">
+      <header
+        ref={headerRef}
+        id="header"
+        className="app-header app-header--modern"
+      >
       <div className="app-header__surface">
         <div className="app-header__topbar">
           <div className="app-header__brand" aria-label="Timeless calendar branding">

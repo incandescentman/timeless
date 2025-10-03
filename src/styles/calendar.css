@@ -6,7 +6,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 140px;
+  height: var(--calendar-sticky-offset, 200px);
   background: white;
   z-index: 90;
 }
@@ -20,7 +20,7 @@ body.dark-mode .calendar-wrapper {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
-  padding-top: 140px;
+  padding-top: var(--calendar-sticky-offset, 200px);
   padding-left: clamp(1.2rem, 3vw, 2.4rem);
 }
 
@@ -45,8 +45,11 @@ body.dark-mode .calendar-wrapper {
 
 .calendar-day-labels {
   position: sticky;
-  top: 80px;
+  top: var(--calendar-sticky-offset, 200px);
   z-index: 500;
+  width: 100%;
+  box-sizing: border-box;
+  align-self: stretch;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 14px;

@@ -5,7 +5,8 @@
    --today-gradient-from-rgb: 201, 34, 40;
    --border-width: 1px;
    --border-color: black;
-   --header-height: 27px;
+   --header-height: 200px;
+   --calendar-sticky-offset: calc(var(--header-height, 200px) - 1px);
    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
    --cell-min-height: 120px;
       /* Color Palette for Light Mode */
@@ -159,7 +160,7 @@
     #miniCalendar {
       position: fixed;
       left: 10px;
-      top: 120px;
+      top: calc(var(--calendar-sticky-offset, 200px) + 40px);
       padding: 10px;
       border-radius: 5px;
       background: transparent;
