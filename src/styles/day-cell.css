@@ -47,6 +47,18 @@
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
 }
 
+.day-cell--baseline .day-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.day-cell--baseline .day-header__main {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
 .day-cell--baseline .day-number {
   font-family: var(--font-day-number);
   font-size: 1rem;
@@ -67,6 +79,7 @@
 .day-cell--baseline .day-weekday {
   white-space: nowrap;
   color: rgba(15, 23, 42, 0.42);
+  margin-left: auto;
 }
 
 body.dark-mode .day-cell--baseline .day-month {
@@ -200,51 +213,8 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   background: rgba(96, 165, 250, 0.28);
 }
 
-@media (min-width: 769px) {
-  .day-cell--baseline .day-header {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-  }
-
-  .day-cell--baseline .day-number {
-    font-size: 1rem;
-  }
-
-  .day-cell--baseline .day-month {
-    order: 2;
-    letter-spacing: 0.16em;
-  }
-
-  .day-cell--baseline .day-weekday {
-    order: 1;
-    position: relative;
-    letter-spacing: 0.18em;
-    color: rgba(15, 23, 42, 0.55);
-  }
-
-  .day-cell--baseline .day-weekday::after {
-    content: '•';
-    display: inline-block;
-    margin: 0 0.45rem;
-    opacity: 0.45;
-    font-size: 0.65rem;
-    vertical-align: middle;
-  }
-
-  body.dark-mode .day-cell--baseline .day-weekday {
-    color: rgba(226, 232, 240, 0.65);
-  }
-
-  body.dark-mode .day-cell--baseline .day-weekday::after {
-    opacity: 0.55;
-  }
-}
-
 @media (max-width: 768px) {
   .day-cell--baseline .day-header {
-    display: flex;
-    align-items: center;
     gap: 0.4rem;
   }
 
@@ -258,13 +228,32 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   }
 
   .day-cell--baseline .day-weekday {
-    margin-left: auto;
     font-size: 0.7rem;
     letter-spacing: 0.3em;
   }
 
   .day-cell--baseline .day-weekday::after {
     display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .day-cell--baseline .day-number {
+    font-size: 1.05rem;
+  }
+
+  .day-cell--baseline .day-month {
+    letter-spacing: 0.16em;
+  }
+
+  .day-cell--baseline .day-weekday {
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    color: rgba(15, 23, 42, 0.55);
+  }
+
+  body.dark-mode .day-cell--baseline .day-weekday {
+    color: rgba(226, 232, 240, 0.65);
   }
 }
 
