@@ -40,11 +40,6 @@ function DayEventRow({
     useCardLayout && 'day-card__event-text'
   ].filter(Boolean).join(' ');
 
-  const deleteClassName = [
-    'day-event__delete',
-    useCardLayout && 'day-card__event-delete'
-  ].filter(Boolean).join(' ');
-
   return (
     <div
       className={eventClassName}
@@ -64,18 +59,6 @@ function DayEventRow({
       ) : (
         <span className={textClassName}>{event}</span>
       )}
-      <button
-        type="button"
-        className={deleteClassName}
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(index);
-        }}
-        aria-label="Delete event"
-        title="Delete"
-      >
-        ×
-      </button>
     </div>
   );
 }
