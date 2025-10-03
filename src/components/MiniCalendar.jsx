@@ -84,9 +84,13 @@ function MiniCalendar({ headerContent = null, footerContent = null }) {
           {headerContent}
         </div>
       )}
-      {renderMonth(addMonths(displayMonth, -1))}
-      {renderMonth(displayMonth)}
-      {renderMonth(addMonths(displayMonth, 1))}
+
+      <div className="mini-calendar-scroller">
+        {renderMonth(addMonths(displayMonth, -1))}
+        {renderMonth(displayMonth)}
+        {renderMonth(addMonths(displayMonth, 1))}
+      </div>
+
       {footerContent && (
         <div className="mini-calendar-footer">
           {footerContent}
