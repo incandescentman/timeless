@@ -268,54 +268,82 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
     min-height: 80px;
     width: 100%;
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
   }
 
   .day-cell--baseline .day-header {
+    display: flex;
     flex-direction: row;
-    align-items: center;
-    gap: 0.8rem;
-    min-width: 100px;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+    min-height: auto;
   }
 
   .day-cell--baseline .day-header__weekday {
-    display: none;
+    display: block;
+    order: 1;
   }
 
   .day-cell--baseline .day-header__main {
+    display: flex;
     flex-direction: row;
     align-items: baseline;
     gap: 0.5rem;
-  }
-
-  .day-cell--baseline .day-number {
-    font-size: 1.8rem;
-    font-weight: 700;
-  }
-
-  .day-cell--baseline .day-month {
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
+    order: 2;
   }
 
   .day-cell--baseline .day-weekday {
     display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #1e293b;
+  }
+
+  .day-cell--baseline .day-number {
+    font-size: 1rem;
+    font-weight: 500;
+    order: 2;
+    color: #475569;
+  }
+
+  .day-cell--baseline .day-month {
     font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    margin-left: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    order: 1;
+    color: #475569;
   }
 
   .day-cell--baseline .day-events {
     flex: 1;
     min-height: auto;
     gap: 0.4rem;
+    width: 100%;
   }
 
   .day-cell--baseline .day-event {
     padding: 0.5rem 0.65rem;
     font-size: 0.9rem;
+  }
+
+  /* Dark mode styles for mobile */
+  body.dark-mode .day-cell--baseline .day-weekday {
+    color: #e2e8f0;
+    font-weight: 700;
+  }
+
+  body.dark-mode .day-cell--baseline .day-month {
+    color: rgba(191, 219, 254, 0.7);
+  }
+
+  body.dark-mode .day-cell--baseline .day-number {
+    color: #f8fafc;
   }
 }
 

@@ -14,11 +14,20 @@ A React-based infinite scroll calendar application with persistent note-taking c
 
 ## Layout
 
+### Desktop (>768px)
 - **Fixed Sidebar**: 240px mini calendar with navigation controls (fixed position)
 - **Main Calendar**: Centered content area with max-width constraints
-  - Max width: 1200px for optimal readability
-  - 380px left padding for sidebar spacing
-- **Auto-centering**: UI centers on large displays (>1500px width)
+  - Total UI width: 1500px (sidebar + calendar)
+  - Calendar content: ~1160px
+  - Gap between sidebar and calendar: 100px
+- **Auto-centering**: Entire UI block centers on large displays (>1600px width)
+
+### Mobile (≤768px)
+- **No Sidebar**: Mini calendar hidden for maximum content space
+- **Full Width**: Calendar uses entire viewport width
+- **One Day Per Row**: Vertical stacking for easy reading
+- **Horizontal Layout**: Date on left, notes on right within each day
+- **Touch Optimized**: Larger tap targets (80px minimum height)
 
 ## Recent Updates (October 2025)
 

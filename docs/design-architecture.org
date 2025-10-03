@@ -1,0 +1,194 @@
+* Timeless Calendar - Design Architecture
+
+** Overview
+Timeless is an infinite scroll calendar application built with React, featuring persistent note-taking and responsive design. The architecture prioritizes performance, user experience, and maintainability.
+
+** Core Design Principles
+
+*** 1. Infinite Scroll Architecture
+- Virtual scrolling implemented via React hooks
+- Lazy loading of calendar weeks for performance
+- Smooth scrolling with auto-scroll to today functionality
+- Memory-efficient rendering of only visible weeks
+
+*** 2. Fixed vs Sticky Positioning
+- *Critical Learning*: Use =position: fixed= for sidebars in infinite scroll contexts
+- Sticky positioning fails when parent containers scroll
+- Fixed positioning requires calculated offsets for centering
+
+*** 3. Responsive Layout Strategy
+
+**** Desktop Layout (>768px)
+#+begin_src css
+Total UI Width: 1500px
+├── Sidebar (fixed): 240px
+├── Gap: 100px
+└── Main Calendar: ~1160px
+#+end_src
+
+- Entire UI block centers on displays >1600px
+- Centering formula: =calc(50% - 750px + 2rem)=
+- Max-width constraints prevent sprawling on ultra-wide monitors
+
+**** Mobile Layout (≤768px)
+- Single column layout
+- No sidebar (mini calendar hidden)
+- One day per row with horizontal internal layout
+- Full viewport width utilization
+- Touch-optimized with 80px minimum height
+
+** Component Architecture
+
+*** Layout Components
+1. *AppShell* - Root container with max-width constraints
+2. *Header* - Fixed top navigation bar
+3. *CalendarRail* - Fixed sidebar containing mini calendar
+4. *CalendarLayout* - Main content area with padding for sidebar
+5. *Calendar* - Infinite scroll calendar grid
+
+*** CSS Architecture
+#+begin_src
+src/styles/
+├── index.css         # Global styles, CSS variables
+├── header.css        # Header and sidebar positioning
+├── calendar.css      # Main calendar layout
+├── day-cell.css      # Individual day cell styles
+├── mini-calendar.css # Mini calendar component
+└── [other components]
+#+end_src
+
+** Key Technical Decisions
+
+*** 1. CSS-First Approach
+- Heavy reliance on CSS for layout and responsive behavior
+- Minimal JavaScript for layout calculations
+- CSS variables for theming (dark/light mode)
+
+*** 2. Fixed Positioning Mathematics
+#+begin_src css
+/* Center 1500px UI on large displays */
+.calendar-rail {
+  position: fixed;
+  left: calc(50% - 750px + 2rem);
+}
+
+.calendar-layout {
+  width: 1500px;
+  margin: 0 auto;
+  padding-left: 340px; /* 240px sidebar + 100px gap */
+}
+#+end_src
+
+*** 3. Mobile-First Responsive Design
+- Base styles optimized for mobile
+- Progressive enhancement for larger screens
+- Breakpoints: 768px (tablet), 1200px (desktop), 1600px (large)
+
+** Performance Optimizations
+
+*** 1. Rendering Strategy
+- Only render visible weeks (viewport + buffer)
+- Lazy load calendar data as user scrolls
+- Use React.memo for expensive components
+
+*** 2. CSS Performance
+- Minimize reflows with fixed positioning
+- Use transform/opacity for animations
+- Leverage CSS containment where possible
+
+*** 3. Data Management
+- LocalStorage for persistence
+- Debounced saves to prevent thrashing
+- Efficient diff algorithms for undo/redo
+
+** Dark Mode Implementation
+- CSS variables for color theming
+- Single class toggle on body element
+- Careful contrast ratios for accessibility
+- Consistent color transformations
+
+** Known Limitations & Trade-offs
+
+*** 1. Fixed Sidebar Trade-off
+- Pro: Stable positioning in infinite scroll
+- Con: More complex centering calculations
+- Con: Requires JavaScript for some responsive behaviors
+
+*** 2. CSS-Heavy Approach
+- Pro: Better performance than JS layouts
+- Pro: Easier to maintain and debug
+- Con: Some browsers may have CSS calc() limitations
+- Con: Complex responsive formulas
+
+*** 3. Mobile Simplification
+- Removed mini calendar entirely on mobile
+- Simplified to single-column layout
+- Trade-off between features and usability
+
+** Future Considerations
+
+*** Potential Improvements
+1. Virtual scrolling library for better performance
+2. Web Workers for data processing
+3. Service Worker for offline functionality
+4. Touch gestures for mobile navigation
+5. Keyboard navigation enhancements
+
+*** Scaling Considerations
+1. Consider pagination for very large date ranges
+2. Implement data virtualization for notes
+3. Add request animation frame for smooth scrolling
+4. Consider IndexedDB for larger data sets
+
+** Debugging Guide
+
+*** Common Issues
+1. *Mini calendar disappearing*: Check position sticky vs fixed
+2. *Layout overflow*: Temporarily set overflow: visible
+3. *Centering problems*: Verify viewport width calculations
+4. *Mobile layout breaks*: Check media query specificity
+
+*** CSS Debugging Tips
+#+begin_src css
+/* Debugging borders */
+* { border: 1px solid red !important; }
+
+/* Check true element bounds */
+.problem-element { overflow: visible !important; }
+
+/* Force reflow for layout debugging */
+.container { transform: translateZ(0); }
+#+end_src
+
+** Architecture Decisions Log
+
+*** October 2025: Major Layout Refactor
+- Switched from grid to flexbox for main layout
+- Changed sidebar from sticky to fixed positioning
+- Implemented single-block centering approach
+- Added comprehensive mobile layout
+
+*** Key Learnings
+1. Position sticky fails in scrolling containers
+2. Compound padding creates hidden overflow issues
+3. Media queries can mask visibility problems
+4. Fixed positioning requires viewport math for centering
+5. Mobile layouts benefit from complete restructuring
+
+** Testing Strategy
+
+*** Visual Regression Testing
+- Screenshot comparisons at key breakpoints
+- Test infinite scroll performance
+- Verify dark mode contrast ratios
+
+*** Performance Testing
+- Measure scroll FPS
+- Monitor memory usage during infinite scroll
+- Test with large datasets (1000+ days)
+
+*** Cross-browser Testing
+- Chrome/Edge (Blink)
+- Firefox (Gecko)
+- Safari (WebKit)
+- Mobile browsers (iOS Safari, Chrome Mobile)

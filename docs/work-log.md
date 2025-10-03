@@ -60,10 +60,22 @@
 - Layout fixes: ~30 minutes
 - Documentation: ~15 minutes
 
+#### Mobile Layout Implementation
+- Created responsive mobile layout (≤768px)
+- One day per row display with horizontal layout
+- Hidden mini calendar for maximum content space
+- Touch-optimized with larger tap targets
+- Full width calendar utilization
+
+#### UI Centering Fix
+- Treated sidebar + calendar as single 1500px block
+- Entire UI centers on displays >1600px
+- Proper alignment formula: `calc(50% - 750px + 2rem)`
+
 #### Next Steps
-- Consider making sidebar width responsive
 - Add animation transitions for smoother interactions
-- Implement proper mobile layout (currently hidden at <768px)
+- Consider swipe gestures for mobile navigation
+- Add mobile-specific navigation controls
 
 ---
 
