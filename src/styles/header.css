@@ -35,7 +35,7 @@
 .calendar-rail {
   position: fixed !important;
   top: 2.5rem !important;
-  left: calc(50% - 700px + 2rem) !important; /* Center with total UI width of 1400px */
+  left: calc(50% - 840px + 2.4rem) !important; /* Align with expanded 1680px calendar width */
   z-index: 9999 !important;
   display: flex !important;
   visibility: visible !important;
@@ -61,7 +61,7 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
-@media (max-width: 1600px) {
+@media (max-width: 1760px) {
   .calendar-rail {
     left: 2rem !important; /* Fixed to left on smaller screens */
   }

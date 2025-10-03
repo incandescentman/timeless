@@ -1,11 +1,11 @@
 /* Baseline Day Cell Styles */
 
 .day-cell--baseline {
-  --event-row-gap: 0.5rem;
+  --event-row-gap: 0.6rem;
   position: relative;
-  min-height: 100px;
-  padding: 0.65rem 0.8rem;
-  border: 1px solid rgba(186, 230, 253, 0.35);
+  min-height: 185px;
+  padding: 0.95rem 1.1rem;
+  border: 1px solid var(--grid-divider-soft);
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(240, 249, 255, 0.9), rgba(224, 242, 254, 0.85));
   backdrop-filter: blur(6px);
@@ -17,11 +17,22 @@
   width: 100%;
   box-sizing: border-box;
   align-items: stretch;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1px 0 var(--grid-divider-soft),
+    inset 1px 0 rgba(255, 255, 255, 0.35),
+    inset -1px 0 var(--grid-divider-soft),
+    0 12px 28px rgba(100, 116, 139, 0.12);
 }
 
 .day-cell--baseline:hover {
-  border-color: rgba(125, 211, 252, 0.75);
-  box-shadow: 0 12px 28px rgba(100, 116, 139, 0.15);
+  border-color: rgba(125, 211, 252, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2),
+    inset 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px 0 rgba(148, 163, 184, 0.18),
+    0 16px 34px rgba(100, 116, 139, 0.18);
   transform: translateY(-1px) scale(1.01);
 }
 
@@ -31,7 +42,13 @@
     var(--today-gradient-to) 100%);
   color: white;
   font-weight: bold;
-  box-shadow: 0 18px 40px rgba(220, 38, 38, 0.42);
+  border-color: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.32),
+    inset 1px 0 rgba(255, 255, 255, 0.32),
+    inset -1px 0 rgba(255, 255, 255, 0.32),
+    0 18px 40px rgba(220, 38, 38, 0.42);
 }
 
 .day-cell--baseline.weekend {
@@ -41,13 +58,24 @@
 .day-cell--baseline.keyboard-focused {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
-  box-shadow: 0 0 12px rgba(37, 99, 235, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(191, 219, 254, 0.55),
+    inset 0 -1px 0 rgba(37, 99, 235, 0.3),
+    inset 1px 0 rgba(191, 219, 254, 0.28),
+    inset -1px 0 rgba(37, 99, 235, 0.28),
+    0 0 0 3px rgba(147, 197, 253, 0.35),
+    0 12px 28px rgba(37, 99, 235, 0.22);
 }
 
 .day-cell--baseline.selected {
   background: rgba(37, 99, 235, 0.16);
   border-color: rgba(37, 99, 235, 0.52);
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(191, 219, 254, 0.4),
+    inset 0 -1px 0 rgba(37, 99, 235, 0.35),
+    inset 1px 0 rgba(191, 219, 254, 0.25),
+    inset -1px 0 rgba(37, 99, 235, 0.28),
+    0 12px 28px rgba(37, 99, 235, 0.25);
 }
 
 .day-cell--baseline .day-header {
@@ -55,6 +83,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.25rem;
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.5rem;
 }
 
 .day-cell--baseline .day-header__weekday {
@@ -79,7 +109,7 @@
 
 .day-cell--baseline .day-month,
 .day-cell--baseline .day-weekday {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -107,18 +137,19 @@ body.dark-mode .day-cell--baseline .day-weekday {
   gap: var(--event-row-gap);
   align-self: stretch;
   min-height: calc(var(--event-row-gap) * 2 + 1px);
+  padding-top: 0.25rem;
 }
 
 .day-cell--baseline .day-event {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+  gap: 0.4rem;
+  padding: 0.48rem 0.7rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--grid-divider-soft);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -135,7 +166,9 @@ body.dark-mode .day-cell--baseline .day-weekday {
 
 .day-cell--baseline .day-event__text {
   flex: 1;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  font-weight: 500;
   color: rgba(15, 23, 42, 0.88);
 }
 
@@ -180,11 +213,12 @@ body.dark-mode .day-cell--baseline .day-weekday {
 
 .day-cell--baseline .day-event__input {
   flex: 1;
-  padding: 0.6rem 0.75rem;
+  padding: 0.48rem 0.7rem;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.38);
-  background: rgba(255, 255, 255, 0.96);
-  font-size: 0.95rem;
+  border: 1px solid var(--grid-divider-soft);
+  background: rgba(255, 255, 255, 0.98);
+  font-size: 0.8rem;
+  line-height: 1.35;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -195,12 +229,23 @@ body.dark-mode .day-cell--baseline .day-weekday {
 }
 
 body.dark-mode .day-cell--baseline {
-  background: linear-gradient(135deg, rgba(37, 48, 64, 0.9), rgba(17, 24, 39, 0.92));
-  border-color: rgba(71, 85, 105, 0.5);
+  background: linear-gradient(135deg, rgba(37, 48, 64, 0.92), rgba(17, 24, 39, 0.95));
+  border-color: var(--grid-divider);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(71, 85, 105, 0.35),
+    inset 1px 0 rgba(255, 255, 255, 0.05),
+    inset -1px 0 rgba(71, 85, 105, 0.28),
+    0 18px 42px rgba(2, 6, 23, 0.45);
 }
 
 body.dark-mode .day-cell--baseline:hover {
-  box-shadow: 0 16px 36px rgba(2, 6, 23, 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(71, 85, 105, 0.4),
+    inset 1px 0 rgba(255, 255, 255, 0.06),
+    inset -1px 0 rgba(71, 85, 105, 0.32),
+    0 20px 44px rgba(2, 6, 23, 0.68);
 }
 
 body.dark-mode .day-cell--baseline .day-event {
