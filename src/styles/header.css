@@ -103,8 +103,8 @@
 
 .calendar-rail__actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap: 0.5rem;
   width: 100%;
   justify-items: center;
 }
@@ -114,20 +114,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: 1px solid rgba(148, 163, 184, 0.25);
-  background: rgba(241, 245, 249, 0.7);
+  background: transparent;
   color: #0f172a;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .calendar-rail__button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
-  border-color: rgba(59, 130, 246, 0.35);
+  border-color: rgba(59, 130, 246, 0.45);
   color: #1d4ed8;
 }
 
@@ -186,7 +185,7 @@ body.dark-mode .brand-subtitle {
 }
 
 body.dark-mode .calendar-rail__button {
-  background: rgba(30, 41, 59, 0.72);
+  background: transparent;
   border-color: rgba(71, 85, 105, 0.42);
   color: #e2e8f0;
 }
