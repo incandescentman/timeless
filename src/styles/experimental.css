@@ -8,7 +8,6 @@ html[data-experimental-variant] body {
   transition: background 0.6s ease, color 0.6s ease;
 }
 
-[data-experimental-variant] .calendar-wrapper,
 [data-experimental-variant] .day-cell,
 [data-experimental-variant] .day-note,
 [data-experimental-variant] button:not(.variant-nav__button) {
@@ -43,6 +42,7 @@ html[data-experimental-variant="timeline-rail"] body {
   display: flex;
   flex-direction: column;
   gap: clamp(1.6rem, 2.6vw, 2.6rem);
+  --timeline-offset: clamp(2.1rem, 3.4vw, 3rem);
 }
 
 [data-experimental-variant="timeline-rail"] .calendar-grid::before {
@@ -50,7 +50,7 @@ html[data-experimental-variant="timeline-rail"] body {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: clamp(2.1rem, 3.4vw, 3rem);
+  left: var(--timeline-offset);
   width: 3px;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(59, 130, 246, 0));

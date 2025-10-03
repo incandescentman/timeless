@@ -6,14 +6,14 @@ import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from 
 import { useKBar } from 'kbar';
 import '../styles/header.css';
 
-function Header({ onShowYearView, onShowHelp }) {
+function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
   const { toggleDarkMode } = useTheme();
   const { undo, canUndo, syncWithServer } = useCalendar();
   const fileInputRef = useRef(null);
   const headerRef = useRef(null);
   const { query } = useKBar();
   const variantKey = typeof document !== 'undefined' ? document.documentElement.dataset.experimentalVariant : undefined;
-  const useRedesignedHeader = variantKey && variantKey !== 'default';
+  const useRedesignedHeader = !forceBaseline && variantKey && variantKey !== 'default';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -174,55 +174,46 @@ function Header({ onShowYearView, onShowHelp }) {
     }
   ];
 
-  if (!useRedesignedHeader) {
-    const panelActions = [...secondaryActions, ...dataActions];
+  const todayAction = primaryActions.find(action => action.key === 'today');
+  const remainingPrimaryActions = primaryActions.filter(action => action.key !== 'today');
+  const railActions = [
+    ...remainingPrimaryActions,
+    ...secondaryActions,
+    ...dataActions
+  ];
 
+  const renderBaselineAction = (action, extraClassName = '') => {
+    const { key, ...actionProps } = action;
     return (
-      <header
+      <HeaderAction
+        key={key}
+        {...actionProps}
+        variant={extraClassName}
+        mode="rail"
+      />
+    );
+  };
+
+  if (!useRedesignedHeader) {
+    return (
+      <aside
         ref={headerRef}
-        id="header"
-        className="app-header app-header--baseline"
+        className="calendar-rail"
+        aria-label="Calendar tools"
       >
-        <div className="app-header__shell">
-          <div className="app-header__top">
-            <div className="app-header__brand" aria-label="Timeless calendar branding">
-              <span className="brand-mark">Timeless</span>
-              <span className="brand-subtitle">The Infinite Calendar</span>
-            </div>
-
-            <div className="app-header__quick-actions" aria-label="Calendar quick actions">
-              {primaryActions.map(action => {
-                const { key, ...actionProps } = action;
-                return (
-                  <HeaderAction
-                    key={key}
-                    {...actionProps}
-                    variant="quick"
-                    mode="baseline"
-                  />
-                );
-              })}
-            </div>
-          </div>
+        <div className="calendar-rail__brand" aria-label="Timeless calendar branding">
+          <span className="brand-mark">Timeless</span>
+          <span className="brand-subtitle">The Infinite Calendar</span>
         </div>
 
-        <div className="app-header__calendar" aria-label="Three month mini calendar">
+        <div className="calendar-rail__mini" aria-label="Three month mini calendar">
+          {todayAction && renderBaselineAction(todayAction, 'calendar-rail__button--primary calendar-rail__button--today')}
           <MiniCalendar />
-
-          <nav className="app-header__toolbar" aria-label="Calendar utilities">
-            {panelActions.map(action => {
-              const { key, ...actionProps } = action;
-              return (
-                <HeaderAction
-                  key={key}
-                  {...actionProps}
-                  variant="icon"
-                  mode="baseline"
-                />
-              );
-            })}
-          </nav>
         </div>
+
+        <nav className="calendar-rail__actions" aria-label="Calendar utilities">
+          {railActions.map(action => renderBaselineAction(action, 'calendar-rail__button--secondary'))}
+        </nav>
 
         <input
           type="file"
@@ -231,7 +222,7 @@ function Header({ onShowYearView, onShowHelp }) {
           accept=".json"
           style={{ display: 'none' }}
         />
-      </header>
+      </aside>
     );
   }
 
@@ -306,26 +297,22 @@ function Header({ onShowYearView, onShowHelp }) {
   );
 }
 
-function HeaderAction({ label, description, icon, onClick, disabled, variant = 'secondary', mode = 'modern' }) {
-  if (mode === 'baseline') {
-    const isIconOnly = variant === 'icon';
-    const buttonClass = ['header-btn', `header-btn--${isIconOnly ? 'icon' : 'quick'}`].join(' ');
+function HeaderAction({ label, description, icon, onClick, disabled, variant = '', mode = 'modern' }) {
+  if (mode === 'rail') {
+    const tooltip = description || label;
+    const classes = ['calendar-rail__button', variant].filter(Boolean).join(' ');
 
     return (
       <button
         type="button"
-        className={buttonClass}
+        className={classes}
         onClick={onClick}
         disabled={disabled}
-        aria-label={description || label}
-        title={description || label}
+        aria-label={tooltip}
+        title={tooltip}
       >
-        <span aria-hidden="true">{icon}</span>
-        {isIconOnly ? (
-          <span className="sr-only">{label}</span>
-        ) : (
-          <span className="header-btn__label">{label}</span>
-        )}
+        <span className="sr-only">{label}</span>
+        <span className="calendar-rail__icon" aria-hidden="true">{icon}</span>
       </button>
     );
   }

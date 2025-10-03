@@ -2,11 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 import { getWeekStart, getWeekDays, addDays, months } from '../utils/dateUtils';
 import DayCell from './DayCell';
+import Header from './Header';
 import '../styles/calendar.css';
 
 const BUFFER_WEEKS = 26; // Load 26 weeks above and below
 
-function Calendar() {
+function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const { systemToday } = useCalendar();
   const [weeks, setWeeks] = useState([]);
   const calendarRef = useRef(null);
@@ -156,27 +157,35 @@ function Calendar() {
   };
 
   return (
-    <>
-      <div className="calendar-wrapper" />
-      <div id="calendarContainer" ref={calendarRef}>
-        <div ref={topSentinelRef} id="top-sentinel" style={{ height: '10px' }} />
-        <div className="calendar-grid" role="grid" aria-label="Infinite calendar grid">
-          <div className="calendar-day-labels" role="row">
-            <div className="day-label" title="Monday - Start of the week">Monday</div>
-            <div className="day-label" title="Tuesday">Tuesday</div>
-            <div className="day-label" title="Wednesday">Wednesday</div>
-            <div className="day-label" title="Thursday">Thursday</div>
-            <div className="day-label" title="Friday">Friday</div>
-            <div className="day-label" title="Saturday - Weekend">Saturday</div>
-            <div className="day-label" title="Sunday - Weekend">Sunday</div>
+    <div id="calendarContainer" ref={calendarRef}>
+      <div className="calendar-layout">
+        <Header
+          onShowYearView={onShowYearView}
+          onShowHelp={onShowHelp}
+          forceBaseline
+        />
+
+        <div className="calendar-layout__main">
+          <div ref={topSentinelRef} id="top-sentinel" style={{ height: '10px' }} />
+
+          <div className="calendar-grid" role="grid" aria-label="Infinite calendar grid">
+            <div className="calendar-day-labels" role="row">
+              <div className="day-label" title="Monday - Start of the week">Monday</div>
+              <div className="day-label" title="Tuesday">Tuesday</div>
+              <div className="day-label" title="Wednesday">Wednesday</div>
+              <div className="day-label" title="Thursday">Thursday</div>
+              <div className="day-label" title="Friday">Friday</div>
+              <div className="day-label" title="Saturday - Weekend">Saturday</div>
+              <div className="day-label" title="Sunday - Weekend">Sunday</div>
+            </div>
+
+            {renderMonthSections()}
           </div>
 
-          {renderMonthSections()}
+          <div ref={bottomSentinelRef} id="bottom-sentinel" style={{ height: '10px' }} />
         </div>
-
-        <div ref={bottomSentinelRef} id="bottom-sentinel" style={{ height: '10px' }} />
       </div>
-    </>
+    </div>
   );
 }
 export default Calendar;

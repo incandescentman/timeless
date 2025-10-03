@@ -3,7 +3,6 @@ import { KBarProvider, useKBar } from 'kbar';
 import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import Header from './components/Header';
 import Calendar from './components/Calendar';
 import MobileActionBar from './components/MobileActionBar';
 import YearView from './components/YearView';
@@ -242,14 +241,13 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
     <>
       <div className="parallax-bg"></div>
 
-      <Header
-        onShowYearView={() => setShowYearView(true)}
-        onShowHelp={() => setShowHelp(true)}
-      />
-
-      <VariantSwitcher experimentalMode={experimentalMode} />
-
-      <Calendar />
+      <div className="app-shell">
+        <VariantSwitcher experimentalMode={experimentalMode} />
+        <Calendar
+          onShowYearView={() => setShowYearView(true)}
+          onShowHelp={() => setShowHelp(true)}
+        />
+      </div>
 
       <MobileActionBar />
 
