@@ -9,6 +9,7 @@
    --calendar-sticky-offset: calc(var(--header-height, 200px) - 1px);
    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
    --cell-min-height: 150px;
+   --calendar-scale: 0.9;
       /* Color Palette for Light Mode */
    --color-primary: #4361ee;
    --color-secondary: #C92228;
