@@ -4,9 +4,10 @@
   position: relative;
   min-height: var(--cell-min-height);
   padding: 14px 16px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid rgba(186, 230, 253, 0.5);
   border-radius: 18px;
-  background: var(--bg-primary);
+  background: #f0f9ff;
+  backdrop-filter: blur(10px);
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   display: flex;
@@ -16,8 +17,8 @@
 }
 
 .day-cell--baseline:hover {
-  border-color: rgba(37, 99, 235, 0.3);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  border-color: rgba(125, 211, 252, 0.8);
+  box-shadow: 0 12px 30px rgba(100, 116, 139, 0.15), 0 0 20px rgba(125, 211, 252, 0.2);
   transform: translateY(-2px);
 }
 
@@ -31,9 +32,7 @@
 }
 
 .day-cell--baseline.weekend {
-  background: linear-gradient(135deg,
-    var(--weekend-gradient-from) 0%,
-    var(--weekend-gradient-to) 100%);
+  background: linear-gradient(135deg, rgba(224, 242, 254, 0.95), rgba(186, 230, 253, 0.9));
 }
 
 .day-cell--baseline.keyboard-focused {

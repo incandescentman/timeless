@@ -36,10 +36,10 @@ body.dark-mode .calendar-wrapper {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: clamp(0rem, 1.4vw, 1rem);
+  left: clamp(-1.5rem, -2vw, -0.8rem);
   width: 3px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.32), rgba(59, 130, 246, 0));
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.35), rgba(186, 230, 253, 0.1));
   pointer-events: none;
 }
 
@@ -112,13 +112,13 @@ body.dark-mode .calendar-day-labels .day-label:nth-child(7) {
 .week-row::before {
   content: '';
   position: absolute;
-  left: calc(-1 * clamp(1.1rem, 2vw, 1.6rem));
+  left: calc(clamp(-1.5rem, -2vw, -0.8rem) - 3.5px);
   top: clamp(0.8rem, 1.6vw, 1.2rem);
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.85), rgba(37, 99, 235, 0.55));
-  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.1);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(125, 211, 252, 0.65));
+  box-shadow: 0 0 0 6px rgba(186, 230, 253, 0.15);
 }
 
 @keyframes fadeInRow {
