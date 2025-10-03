@@ -8,14 +8,6 @@
   display: flex;
   flex-direction: column;
   gap: clamp(1.8rem, 3.2vw, 2.6rem);
-  background: #ffffff;
-  border-radius: 32px;
-  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08);
-}
-
-body.dark-mode .app-shell {
-  background: #0f172a;
-  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.65);
 }
 
 .sr-only {
