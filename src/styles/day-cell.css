@@ -50,26 +50,14 @@
 .day-cell--baseline .day-header {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.day-cell--baseline .day-meta {
-  display: none;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: rgba(15, 23, 42, 0.5);
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.day-cell--baseline .day-meta__separator {
-  font-size: 0.65rem;
-  opacity: 0.6;
-}
-
-body.dark-mode .day-cell--baseline .day-meta {
-  color: rgba(226, 232, 240, 0.55);
+.day-cell--baseline .day-header__date {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .day-cell--baseline .day-number {
@@ -78,6 +66,31 @@ body.dark-mode .day-cell--baseline .day-meta {
   font-weight: 600;
   color: inherit;
   opacity: 0.75;
+}
+
+.day-cell--baseline .day-month {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.day-cell--baseline .day-weekday {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.45);
+  white-space: nowrap;
+}
+
+body.dark-mode .day-cell--baseline .day-month {
+  color: rgba(226, 232, 240, 0.68);
+}
+
+body.dark-mode .day-cell--baseline .day-weekday {
+  color: rgba(226, 232, 240, 0.55);
 }
 
 .day-cell--baseline .day-events {
@@ -204,39 +217,21 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 }
 
 @media (max-width: 768px) {
-  .day-cell--baseline .day-header {
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.35rem;
-  }
-
   .day-cell--baseline .day-number {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
 
-  .day-cell--baseline .day-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    margin-left: 0.1rem;
+  .day-cell--baseline .day-header__date {
+    gap: 0.4rem;
   }
 
-  .day-cell--baseline .day-meta__month {
-    order: 1;
-    font-size: 0.75rem;
+  .day-cell--baseline .day-month {
+    font-size: 0.8rem;
   }
 
-  .day-cell--baseline .day-meta__separator {
-    display: none;
-  }
-
-  .day-cell--baseline .day-meta__weekday {
-    order: 2;
-    flex-basis: 100%;
-    font-size: 0.7rem;
-    letter-spacing: 0.22em;
-    opacity: 0.6;
-    margin-top: 0.05rem;
+  .day-cell--baseline .day-weekday {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
   }
 }
 

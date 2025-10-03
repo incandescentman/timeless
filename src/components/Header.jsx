@@ -212,6 +212,8 @@ function Header({ onShowYearView, onShowHelp }) {
   ];
 
   if (!useRedesignedHeader) {
+    const panelActions = [...secondaryActions, ...dataActions];
+
     return (
       <header
         ref={headerRef}
@@ -219,13 +221,13 @@ function Header({ onShowYearView, onShowHelp }) {
         className="app-header app-header--baseline"
       >
         <div className="app-header__shell">
-          <div className="app-header__brand" aria-label="Timeless calendar branding">
-            <span className="brand-mark">Timeless</span>
-            <span className="brand-subtitle">The Infinite Calendar</span>
-          </div>
+          <div className="app-header__top">
+            <div className="app-header__brand" aria-label="Timeless calendar branding">
+              <span className="brand-mark">Timeless</span>
+              <span className="brand-subtitle">The Infinite Calendar</span>
+            </div>
 
-          <nav className="app-header__actions" aria-label="Calendar primary actions">
-            <div className="action-group action-group--primary">
+            <div className="app-header__quick-actions" aria-label="Calendar quick actions">
               {primaryActions.map(action => {
                 const { key, ...actionProps } = action;
                 return (
@@ -238,33 +240,20 @@ function Header({ onShowYearView, onShowHelp }) {
                 );
               })}
             </div>
+          </div>
 
-            <div className="action-group action-group--secondary">
-              {secondaryActions.map(action => {
-                const { key, ...actionProps } = action;
-                return (
-                  <HeaderAction
-                    key={key}
-                    {...actionProps}
-                    mode="baseline"
-                  />
-                );
-              })}
-            </div>
-
-            <div className="action-group action-group--data">
-              {dataActions.map(action => {
-                const { key, ...actionProps } = action;
-                return (
-                  <HeaderAction
-                    key={key}
-                    {...actionProps}
-                    variant="ghost"
-                    mode="baseline"
-                  />
-                );
-              })}
-            </div>
+          <nav className="app-header__action-panel" aria-label="Calendar utilities">
+            {panelActions.map(action => {
+              const { key, ...actionProps } = action;
+              return (
+                <HeaderAction
+                  key={key}
+                  {...actionProps}
+                  variant="panel"
+                  mode="baseline"
+                />
+              );
+            })}
           </nav>
         </div>
 
@@ -356,6 +345,8 @@ function Header({ onShowYearView, onShowHelp }) {
 
 function HeaderAction({ label, description, icon, onClick, disabled, variant = 'secondary', mode = 'modern' }) {
   if (mode === 'baseline') {
+    const isPanel = variant === 'panel';
+
     return (
       <button
         type="button"
@@ -365,7 +356,12 @@ function HeaderAction({ label, description, icon, onClick, disabled, variant = '
         aria-label={description || label}
       >
         <span className="header-action__icon" aria-hidden="true">{icon}</span>
-        <span className="header-action__label">{label}</span>
+        <span className="header-action__body">
+          <span className="header-action__label">{label}</span>
+          {isPanel && description && (
+            <span className="header-action__description">{description}</span>
+          )}
+        </span>
       </button>
     );
   }
