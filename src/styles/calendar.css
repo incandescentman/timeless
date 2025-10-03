@@ -44,36 +44,17 @@ body.dark-mode .calendar-wrapper {
 }
 
 .calendar-day-labels {
-  position: sticky;
-  top: var(--calendar-sticky-offset, 200px);
-  z-index: 500;
-  width: calc(100% + clamp(1.4rem, 3vw, 2.3rem));
-  box-sizing: border-box;
-  align-self: stretch;
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 12px;
-  padding: 20px clamp(1.4rem, 3vw, 2.3rem) 20px 0;
-  margin: 0;
-  margin-right: calc(clamp(1.4rem, 3vw, 2.3rem) * -1);
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 0;
-  border: 1px solid rgba(226, 232, 240, 0.65);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow:
-    0 16px 36px rgba(15, 23, 42, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  display: none;
 }
 
 .calendar-day-labels .day-label {
-  font-weight: 500;
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   text-align: center;
-  color: #94a3b8;
-  padding-bottom: 2px;
+  color: rgba(71, 85, 105, 0.75);
+  position: relative;
 }
 
 .calendar-day-labels .day-label:first-child {
@@ -86,17 +67,18 @@ body.dark-mode .calendar-wrapper {
 }
 
 body.dark-mode .calendar-day-labels {
-  background: linear-gradient(180deg,
-    rgba(30, 41, 59, 0.92) 0%,
-    rgba(17, 24, 39, 0.92) 100%);
-  border: 1px solid rgba(71, 85, 105, 0.52);
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(17, 24, 39, 0.92));
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-left: none;
+  border-right: none;
   box-shadow:
-    0 18px 32px rgba(2, 6, 23, 0.55),
-    inset 0 1px 0 rgba(148, 163, 184, 0.2);
+    0 2px 8px rgba(2, 6, 23, 0.4),
+    0 12px 24px rgba(2, 6, 23, 0.3),
+    inset 0 1px 0 rgba(148, 163, 184, 0.15);
 }
 
 body.dark-mode .calendar-day-labels .day-label {
-  color: #94a3b8;
+  color: rgba(148, 163, 184, 0.8);
 }
 
 body.dark-mode .calendar-day-labels .day-label:first-child {
@@ -217,7 +199,7 @@ body.dark-mode .calendar-day-labels .day-label:nth-child(7) {
 .week-row {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 12px;
+  gap: 0;
   animation: fadeInRow 0.3s ease-out;
 }
 

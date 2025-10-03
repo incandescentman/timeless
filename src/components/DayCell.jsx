@@ -236,11 +236,13 @@ function DayCell({ date }) {
         aria-label={`Notes for ${date.toDateString()}`}
       >
         <div className="day-header">
-          <div className="day-header__main">
-            <span className="day-number">{dayNumber}</span>
-            <span className="day-month" aria-label={monthLabel}>{monthLabel}</span>
+          <div className="day-header__weekday">
+            <span className="day-weekday" aria-label={dayLabel}>{dayLabel}</span>
           </div>
-          <span className="day-weekday" aria-label={dayLabel}>{dayLabel}</span>
+          <div className="day-header__main">
+            <span className="day-month" aria-label={monthLabel}>{monthLabel}</span>
+            <span className="day-number">{dayNumber}</span>
+          </div>
         </div>
         <div className="day-events">
           {events.map((event, idx) => (
