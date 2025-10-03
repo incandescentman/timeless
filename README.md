@@ -16,33 +16,35 @@ A React-based infinite scroll calendar application with persistent note-taking c
 
 ### Desktop (>768px)
 - **Fixed Sidebar**: 240px mini calendar with navigation controls (fixed position)
-- **Main Calendar**: Centered content area with max-width constraints
-  - Total UI width: 1500px (sidebar + calendar)
-  - Calendar content: ~1160px
-  - Gap between sidebar and calendar: 100px
-- **Auto-centering**: Entire UI block centers on large displays (>1600px width)
+- **Main Calendar**: Seamless seven-column grid with shared borders
+  - Total UI width: 1680px (sidebar + calendar)
+  - Calendar content: ~1240px, centered within the viewport
+  - Shared borders create a flush layout—no gutters between days
+- **Auto-centering**: Entire UI block centers on large displays (>1760px width)
 
 ### Mobile (≤768px)
 - **No Sidebar**: Mini calendar hidden for maximum content space
-- **Full Width**: Calendar uses entire viewport width
-- **One Day Per Row**: Vertical stacking for easy reading
-- **Horizontal Layout**: Date on left, notes on right within each day
-- **Touch Optimized**: Larger tap targets (80px minimum height)
+- **Full Width**: Calendar uses entire viewport width with card-style days
+- **One Day Per Row**: Vertical stacking for easy reading with soft dividers
+- **Balanced Header**: Month name/year stack with accent stripe aligned to the left
+- **Action Bar**: Bottom controls order `Prev • Today • Next • Menu`, with Today anchored center
+- **Tap Targets**: Larger controls (≥80px height) and swipe gestures for note management
 
 ## Recent Updates (October 2025)
 
 ### Layout Improvements
-- Fixed calendar rail positioning with `position: fixed`
-- Added proper spacing between mini calendar and main content (380px)
-- Implemented max-width constraints to prevent sprawling on ultra-wide monitors
-- Centered UI on large displays with responsive positioning
-- Reduced component sizes for cleaner, more compact design
+- Expanded desktop canvas to 1680px and re-centered the main grid
+- Converted the weekly grid to a seamless, gutter-free layout with shared borders
+- Softened note styling with lighter typography and more generous padding
+- Updated mobile action bar to center the Today button between month controls
+- Refined mobile month headers so the accent bar no longer overlaps the label
 
 ### Bug Fixes
 - Resolved mini calendar disappearing when scrolling to today
 - Fixed calendar cutoff issues on right edge
 - Corrected dark mode contrast problems
 - Removed conflicting overflow settings
+- Eliminated the inline delete icon—clearing a note now removes it automatically
 
 ## Technical Stack
 
