@@ -19,13 +19,10 @@ body.dark-mode #calendarContainer {
 }
 
 .calendar-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  margin-left: 280px;
-  align-items: start;
-  width: calc(100% - 280px);
-  max-width: calc(100% - 280px);
+  display: block;
+  margin: 0 auto;
+  padding-left: 380px;
+  max-width: 1500px;
   box-sizing: border-box;
 }
 

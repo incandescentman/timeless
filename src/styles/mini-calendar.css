@@ -24,13 +24,13 @@
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-  min-width: 200px;
-  max-width: 220px;
+  min-width: 180px;
+  max-width: 200px;
   margin: 0;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.6);
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
 }
 
 body.dark-mode .mini-month {
@@ -40,8 +40,8 @@ body.dark-mode .mini-month {
 .mini-month-header {
   font-weight: bold;
   text-align: center;
-  margin-bottom: 10px;
-  font-size: 0.9em;
+  margin-bottom: 8px;
+  font-size: 0.8em;
   color: var(--text-primary);
 }
 
@@ -65,9 +65,9 @@ body.dark-mode .mini-month {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82em;
+  font-size: 0.75em;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: all 0.2s;
   color: var(--text-primary);
 }

@@ -183,3 +183,89 @@
    - [ ] **Key mismatch** - CSS selector must exactly match the `key` in App.jsx
    - [ ] **Browser cache** - Always hard refresh after variant changes
    - [ ] **Dev server cache** - Clear node_modules/.vite if changes don't appear
+
+* Mini Calendar Disappearing: Position Sticky vs Fixed in Infinite Scroll
+  Date: 2025-10-03
+
+** The Bug
+   Mini calendar kept disappearing after 20+ CSS fixes. It would:
+   - Show briefly on page load
+   - Disappear when calendar auto-scrolled to today
+   - Sometimes reappear when scrolling up
+   - Different behavior at different viewport widths
+
+** The Truth (Why It Took So Many Attempts)
+   Multiple compounding issues masked the real problem:
+
+   1. **Structural Issue**: Calendar rail (containing mini calendar) was rendered INSIDE the scrolling grid as the first column, not as a separate fixed element
+
+   2. **Position Sticky Trap**: `position: sticky` stays with its container. When the infinite scroll calendar scrolled to today, the sticky rail scrolled with it off-screen
+
+   3. **Hidden Overflow Masked Problem**: `overflow-x: hidden` on html/body prevented horizontal scroll but also hid that the calendar was actually overflowing
+
+   4. **Media Query Hidden**: At viewport ≤900px, a media query set `display: none` on the entire rail
+
+   5. **Compound Padding**: Multiple containers (.app-shell + #calendarContainer + .calendar-layout) each added padding, pushing content off-screen
+
+** Why Each Fix Failed
+   - **Attempt 1-5**: Adjusted padding/margins - didn't address structural issue
+   - **Attempt 6-8**: Changed sticky positioning - still inside scrolling container
+   - **Attempt 9-11**: Modified z-index - positioning was the issue, not stacking
+   - **Attempt 12**: Set calc() height - resulted in negative values on small screens
+   - **Attempt 13-15**: Changed grid columns - rail still scrolled with content
+
+** The Fix That Worked
+   #+begin_src css
+   /* 1. Make rail position fixed, outside document flow */
+   .calendar-rail {
+     position: fixed !important;
+     top: 1.5rem;
+     left: 1.5rem;
+     z-index: 9999;
+   }
+
+   /* 2. Adjust calendar layout to account for fixed rail */
+   .calendar-layout {
+     display: grid;
+     grid-template-columns: 1fr;  /* Single column since rail is fixed */
+     margin-left: 280px;  /* Make room for fixed rail */
+     width: calc(100% - 280px);
+   }
+   #+end_src
+
+** Diagnostic Process That Would Have Saved Time
+   1. **Check if element exists in DOM**: DevTools → Elements → Search "calendar-rail"
+   2. **Check computed position**: DevTools → Computed → position property
+   3. **Temporarily remove ALL overflow hidden**: Set overflow:visible on all parents
+   4. **Add bright background colors**: `background: red !important` to see where element actually is
+   5. **Check ALL media queries**: Search for `display: none` in all CSS files
+   6. **Log component rendering**: Add console.log to verify component mounts
+
+** Lessons Learned / Prevention Checklist
+   - [ ] **Fixed sidebars need fixed positioning** - Not sticky when content scrolls infinitely
+   - [ ] **Check component hierarchy first** - CSS can't fix structural React issues
+   - [ ] **Remove overflow:hidden when debugging** - It masks the real problem
+   - [ ] **Search for display:none in media queries** - Common cause of disappearing elements
+   - [ ] **Use DevTools computed styles** - Shows cumulative effect of all CSS
+   - [ ] **Position fixed elements at root level** - Don't nest inside scrolling containers
+   - [ ] **Test at multiple viewport widths** - Media queries can hide elements
+   - [ ] **Hard refresh after CSS changes** - Browser cache can show old styles
+
+** Quick Fix Pattern for Fixed Sidebars
+   #+begin_src css
+   /* Sidebar */
+   .sidebar {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 280px;
+     height: 100vh;
+     z-index: 1000;
+   }
+
+   /* Main content */
+   .main-content {
+     margin-left: 280px;  /* Same as sidebar width */
+     width: calc(100% - 280px);
+   }
+   #+end_src
