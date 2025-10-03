@@ -77,7 +77,8 @@ body {
 
   .day-number {
     font-size: 0.85rem;
-    opacity: 0.65;
+    font-weight: 600;
+    color: rgba(30, 41, 59, 0.85);
   }
 
   .day-cell textarea {
@@ -86,7 +87,19 @@ body {
   }
 
   .month-header {
-    padding-left: 4px;
+    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
+    gap: 0.65rem;
+  }
+
+  .month-header__month {
+    color: rgba(71, 85, 105, 0.65);
+    font-weight: 500;
+  }
+
+  .month-header::before {
+    left: 0;
+    border-radius: 12px 0 0 12px;
   }
 }
 
