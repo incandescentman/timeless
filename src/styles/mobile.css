@@ -90,11 +90,18 @@ body {
     padding: 0.85rem 1.1rem;
     border-radius: 12px;
     gap: 0.65rem;
+    align-items: flex-start;
   }
 
   .month-header__month {
     color: rgba(71, 85, 105, 0.65);
     font-weight: 500;
+  }
+
+  .month-header__label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .month-header::before {
