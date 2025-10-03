@@ -80,8 +80,8 @@
   white-space: nowrap;
   color: rgba(15, 23, 42, 0.42);
   letter-spacing: 0.2em;
-  margin-left: clamp(0.45rem, 1vw, 0.9rem);
-  padding-right: 0.2rem;
+  margin-left: clamp(0.7rem, 1.4vw, 1.4rem);
+  padding-right: 0.3rem;
 }
 
 body.dark-mode .day-cell--baseline .day-month {
@@ -232,8 +232,8 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   .day-cell--baseline .day-weekday {
     margin-left: auto;
     font-size: 0.7rem;
-    letter-spacing: 0.26em;
-    padding-right: 0.1rem;
+    letter-spacing: 0.24em;
+    padding-right: 0.2rem;
   }
 
   .day-cell--baseline .day-weekday::after {
@@ -254,8 +254,8 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
     font-size: 0.78rem;
     letter-spacing: 0.18em;
     color: rgba(15, 23, 42, 0.55);
-    margin-left: clamp(0.6rem, 1.2vw, 1rem);
-    padding-right: 0.3rem;
+    margin-left: clamp(0.9rem, 1.4vw, 1.6rem);
+    padding-right: 0.4rem;
   }
 
   body.dark-mode .day-cell--baseline .day-weekday {
