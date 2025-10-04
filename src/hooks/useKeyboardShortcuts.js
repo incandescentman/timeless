@@ -18,6 +18,100 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
 
   const { toggleDarkMode } = useTheme();
 
+  const jumpMonths = (direction) => {
+    // Find all month headers
+    const monthHeaders = Array.from(document.querySelectorAll('.month-header'));
+
+    if (monthHeaders.length === 0) {
+      console.log('No month headers found, using fallback scroll');
+      // Fallback: use approximate scroll based on average month height
+      const avgMonthHeight = 600; // Roughly 4 weeks * 150px per week
+      window.scrollBy({
+        top: direction * avgMonthHeight,
+        behavior: 'smooth'
+      });
+      return;
+    }
+
+    // Get viewport bounds
+    const viewportTop = 0;
+    const viewportBottom = window.innerHeight;
+
+    // Find the currently visible month by checking which header is in viewport
+    let currentMonthIndex = -1;
+    let closestDistance = Infinity;
+
+    // Debug: log all month positions
+    const monthData = monthHeaders.map((header, i) => {
+      const rect = header.getBoundingClientRect();
+      const monthText = header.querySelector('.month-header__month')?.textContent || 'Unknown';
+      const yearText = header.querySelector('.month-header__year')?.textContent || '';
+
+      // Check if this header is visible in viewport
+      const isVisible = rect.top < viewportBottom && rect.bottom > viewportTop;
+
+      // Find the header closest to the top of the viewport
+      const distanceFromTop = Math.abs(rect.top - 100); // 100px offset for better targeting
+
+      if (isVisible && distanceFromTop < closestDistance) {
+        closestDistance = distanceFromTop;
+        currentMonthIndex = i;
+      }
+
+      return {
+        index: i,
+        month: `${monthText} ${yearText}`,
+        top: rect.top,
+        bottom: rect.bottom,
+        isVisible
+      };
+    });
+
+    console.log('Month positions:', monthData);
+    console.log('Current visible month index:', currentMonthIndex);
+
+    // If no month is visible, find the closest one
+    if (currentMonthIndex === -1) {
+      for (let i = 0; i < monthHeaders.length; i++) {
+        const rect = monthHeaders[i].getBoundingClientRect();
+        if (rect.top > 0) {
+          currentMonthIndex = i > 0 ? i - 1 : 0;
+          break;
+        }
+      }
+      // If still not found, we're at the end
+      if (currentMonthIndex === -1) {
+        currentMonthIndex = monthHeaders.length - 1;
+      }
+    }
+
+    // Calculate target month index
+    const targetMonthIndex = currentMonthIndex + direction;
+
+    console.log('Navigation:', {
+      from: monthData[currentMonthIndex]?.month || 'Unknown',
+      to: monthData[targetMonthIndex]?.month || 'Out of range',
+      currentIndex: currentMonthIndex,
+      targetIndex: targetMonthIndex,
+      direction
+    });
+
+    // Navigate to target month if it exists
+    if (targetMonthIndex >= 0 && targetMonthIndex < monthHeaders.length) {
+      const targetHeader = monthHeaders[targetMonthIndex];
+
+      // Simply use scrollIntoView with the right options
+      targetHeader.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+
+      console.log('Scrolling to:', monthData[targetMonthIndex].month);
+    } else {
+      console.log('Target month out of range');
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       const target = e.target;
@@ -68,8 +162,8 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         return;
       }
 
-      // Jump to today: t key
-      if (e.key === 't' || e.key === 'T') {
+      // Jump to today: t key (lowercase only)
+      if (e.key === 't') {
         e.preventDefault();
         const todayCell = document.querySelector('.day-cell.today');
         if (todayCell) {
@@ -188,12 +282,14 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
 
       // Month navigation: Alt+Up/Down or [/] or p/n
       if (e.key === '[' || e.key === 'p') {
+        console.log('Previous month triggered, key:', e.key);
         e.preventDefault();
         jumpMonths(-1);
         return;
       }
 
       if (e.key === ']' || e.key === 'n') {
+        console.log('Next month triggered, key:', e.key);
         e.preventDefault();
         jumpMonths(1);
         return;
@@ -240,18 +336,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
     isMultiSelectMode,
     toggleMultiSelectMode,
     addNote,
-    removeNote
+    removeNote,
+    jumpMonths
   ]);
-}
-
-function jumpMonths(direction) {
-  const currentScroll = window.scrollY;
-  const avgWeekHeight = 150; // Approximate
-  const weeksPerMonth = 4;
-  const scrollAmount = direction * weeksPerMonth * avgWeekHeight;
-
-  window.scrollBy({
-    top: scrollAmount,
-    behavior: 'smooth'
-  });
 }

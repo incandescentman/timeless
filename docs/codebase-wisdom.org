@@ -372,3 +372,113 @@
      document.body
    );
    #+end_src
+
+* Viewport Navigation: getBoundingClientRect vs offsetTop for Scrolling
+  Date: 2025-10-04
+
+** The Bug
+   Implementing keyboard shortcuts (n/p) to navigate between months. The navigation would:
+   - Always jump to January 2025 when pressing 'n' (instead of next month)
+   - Jump to November 2024 when pressing 'p' (instead of previous month)
+   - Console showed it always detected currentMonthIndex as 0 regardless of scroll position
+
+** The Truth
+   **offsetTop vs getBoundingClientRect - They measure different things!**
+   - `offsetTop`: Distance from top of DOCUMENT (never changes as you scroll)
+   - `getBoundingClientRect().top`: Distance from top of VIEWPORT (changes as you scroll)
+   - `window.scrollY`: Current scroll position from top of document
+
+   The original code was comparing `offsetTop` (document-relative) with `scrollY + offset` (also document-relative), but the math was wrong. It would always find index 0 because the first month header always had the smallest offsetTop.
+
+** Why This Took 4+ Attempts
+   1. **Attempt 1**: Moved jumpMonths function inside component (fixed scope issue, but not the bug)
+   2. **Attempt 2**: Tried fixing with offsetTop math - wrong approach entirely
+   3. **Attempt 3**: Overcomplicated with manual scroll calculations instead of scrollIntoView
+   4. **Attempt 4**: Finally used getBoundingClientRect() for viewport-relative positions
+
+   **Time wasted**: Added extensive console.log debugging for keyboard triggers when the real issue was position calculation
+
+** The Fix That Actually Works
+   #+begin_src javascript
+   const jumpMonths = (direction) => {
+     const monthHeaders = Array.from(document.querySelectorAll('.month-header'));
+
+     // Get viewport-relative positions
+     let currentMonthIndex = -1;
+     monthHeaders.forEach((header, i) => {
+       const rect = header.getBoundingClientRect();
+       // Is this header visible in viewport?
+       if (rect.top < window.innerHeight && rect.bottom > 0) {
+         // Find the one closest to top of viewport
+         if (rect.top >= 0 && currentMonthIndex === -1) {
+           currentMonthIndex = i;
+         }
+       }
+     });
+
+     // Navigate to target month
+     const targetIndex = currentMonthIndex + direction;
+     if (targetIndex >= 0 && targetIndex < monthHeaders.length) {
+       monthHeaders[targetIndex].scrollIntoView({
+         behavior: 'smooth',
+         block: 'start'
+       });
+     }
+   };
+   #+end_src
+
+** Diagnostic Pattern for Viewport Navigation
+   #+begin_src javascript
+   // Quick debug to see what's visible
+   document.querySelectorAll('.month-header').forEach(h => {
+     const rect = h.getBoundingClientRect();
+     console.log({
+       month: h.textContent,
+       viewportTop: rect.top,        // Negative = above viewport
+       viewportBottom: rect.bottom,  // > window.innerHeight = below viewport
+       visible: rect.top < window.innerHeight && rect.bottom > 0
+     });
+   });
+   #+end_src
+
+** Lessons Learned / Prevention Checklist
+   - [ ] **For viewport visibility: ALWAYS use getBoundingClientRect()**
+   - [ ] **For document position: Use offsetTop**
+   - [ ] **Don't mix the two** - They measure from different origins
+   - [ ] **scrollIntoView() is usually better** than calculating scroll positions manually
+   - [ ] **Test the detection first** - Log what element is detected before trying to navigate
+   - [ ] **Viewport-relative checks**:
+     - Visible: `rect.top < window.innerHeight && rect.bottom > 0`
+     - Above viewport: `rect.bottom < 0`
+     - Below viewport: `rect.top > window.innerHeight`
+     - At top: `rect.top >= 0 && rect.top < 100`
+
+** Quick Reference: Position Properties
+   | Property | Measures From | Changes on Scroll | Use Case |
+   |----------|--------------|--------------------|----------|
+   | offsetTop | Document top | No | Total distance from page top |
+   | getBoundingClientRect().top | Viewport top | Yes | Is element visible? |
+   | scrollY | Document top | Yes | Current scroll position |
+   | clientY (events) | Viewport top | No | Mouse/touch position |
+   | pageY (events) | Document top | No | Mouse/touch absolute position |
+
+** The Pattern: Finding Currently Visible Element
+   #+begin_src javascript
+   function getCurrentVisibleElement(selector) {
+     const elements = Array.from(document.querySelectorAll(selector));
+
+     for (const el of elements) {
+       const rect = el.getBoundingClientRect();
+       // Element is at top of viewport (adjust threshold as needed)
+       if (rect.top >= 0 && rect.top < 150) {
+         return el;
+       }
+     }
+
+     // Fallback: find first visible element
+     return elements.find(el => {
+       const rect = el.getBoundingClientRect();
+       return rect.top < window.innerHeight && rect.bottom > 0;
+     });
+   }
+   #+end_src

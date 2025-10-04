@@ -36,6 +36,13 @@
     inset 0 0 0 2px rgba(255, 255, 255, 0.28);
 }
 
+.day-cell--baseline.today .day-number,
+.day-cell--baseline.today .day-month,
+.day-cell--baseline.today .day-weekday {
+  color: white !important;
+  opacity: 1 !important;
+}
+
 .day-cell--baseline.weekend {
   background: linear-gradient(135deg, rgba(250, 250, 249, 0.95), rgba(245, 245, 244, 0.9));
 }
@@ -507,11 +514,20 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
 }
 
 .day-cell.today .day-card {
-  border-color: rgba(37, 99, 235, 0.4);
-  background: linear-gradient(135deg, rgba(219, 234, 254, 0.95), rgba(191, 219, 254, 0.9));
+  border-color: rgba(239, 68, 68, 0.5);
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.95), rgba(254, 202, 202, 0.9));
   box-shadow:
-    0 16px 38px rgba(59, 130, 246, 0.2),
+    0 16px 38px rgba(239, 68, 68, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.day-cell.today .day-number {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.day-cell.today .day-card__number {
+  color: #dc2626;
 }
 
 .day-cell.weekend .day-card {
@@ -588,8 +604,17 @@ body.dark-mode .day-card__event-input {
 }
 
 body.dark-mode .day-cell.today .day-card {
-  background: linear-gradient(135deg, rgba(37, 78, 112, 0.9), rgba(15, 23, 42, 0.92));
-  border-color: rgba(96, 165, 250, 0.55);
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.9), rgba(69, 10, 10, 0.92));
+  border-color: rgba(239, 68, 68, 0.55);
+}
+
+body.dark-mode .day-cell.today .day-number {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+body.dark-mode .day-cell.today .day-card__number {
+  color: #ef4444;
 }
 
 @media (max-width: 768px) {
