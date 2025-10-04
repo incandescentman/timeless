@@ -11,6 +11,7 @@ import './styles/experimental.css';  // Experimental mode styles
 import './styles/mobile.css';  // Mobile overrides last
 import './styles/mobile-header.css';  // Mobile header styles
 import './styles/mobile-footer.css';  // Mobile footer styles
+import './styles/command-feedback.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

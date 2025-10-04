@@ -3,6 +3,7 @@ import { KBarProvider, useKBar } from 'kbar';
 import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { CommandFeedbackProvider } from './contexts/CommandFeedbackContext';
 import Calendar from './components/Calendar';
 import MobileActionBar from './components/MobileActionBar';
 import MobileHeader from './components/MobileHeader';
@@ -301,7 +302,9 @@ function App() {
   return (
     <ThemeProvider>
       <CalendarProvider>
-        <AppContent experimentalMode={experimentalMode} />
+        <CommandFeedbackProvider>
+          <AppContent experimentalMode={experimentalMode} />
+        </CommandFeedbackProvider>
       </CalendarProvider>
     </ThemeProvider>
   );

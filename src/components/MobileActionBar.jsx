@@ -1,12 +1,15 @@
 import { addMonths, generateDayId } from '../utils/dateUtils';
 import { useCalendar } from '../contexts/CalendarContext';
+import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
 import { useKBar } from 'kbar';
 
 function MobileActionBar() {
   const { systemToday } = useCalendar();
   const { query } = useKBar();
+  const { announceCommand } = useCommandFeedback();
 
   const goToToday = () => {
+    announceCommand({ label: 'Centering on today' });
     const todayCell = document.querySelector('.day-cell.today');
     if (todayCell) {
       todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -14,6 +17,19 @@ function MobileActionBar() {
   };
 
   const jumpMonths = (direction) => {
+    const magnitude = Math.abs(direction);
+    let label;
+
+    if (direction > 0) {
+      label = magnitude === 1 ? 'Scrolling to next month' : `Scrolling forward ${magnitude} months`;
+    } else if (direction < 0) {
+      label = magnitude === 1 ? 'Scrolling to previous month' : `Scrolling back ${magnitude} months`;
+    }
+
+    if (label) {
+      announceCommand({ label });
+    }
+
     const currentDate = new Date(systemToday);
     const targetDate = addMonths(currentDate, direction);
     const dateId = generateDayId(targetDate);
@@ -61,7 +77,12 @@ function MobileActionBar() {
         <span>Next</span>
       </button>
 
-      <button onClick={() => query.toggle()}>
+      <button
+        onClick={() => {
+          announceCommand({ label: 'Opening command palette' });
+          query.toggle();
+        }}
+      >
         <svg className="icon" viewBox="0 0 24 24">
           <path d="M4 6h16" stroke="currentColor" strokeWidth="2" fill="none"/>
           <path d="M4 12h16" stroke="currentColor" strokeWidth="2" fill="none"/>

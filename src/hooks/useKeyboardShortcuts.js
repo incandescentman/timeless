@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
 import { addDays, generateDayId } from '../utils/dateUtils';
 
 export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommandPalette }) {
@@ -12,11 +13,11 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
     redo,
     isMultiSelectMode,
     toggleMultiSelectMode,
-    addNote,
     removeNote
   } = useCalendar();
 
   const { toggleDarkMode } = useTheme();
+  const { announceCommand } = useCommandFeedback();
 
   const jumpMonths = useCallback((direction, attempt = 0, state) => {
     const monthSections = Array.from(document.querySelectorAll('.month-section'));
@@ -131,6 +132,33 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
     }, RETRY_DELAY + attempt * 120);
   }, []);
 
+  const triggerMonthJump = useCallback((direction) => {
+    if (!direction) return;
+
+    const magnitude = Math.abs(direction);
+    let label;
+
+    if (direction === 12) {
+      label = 'Jumping to next year';
+    } else if (direction === -12) {
+      label = 'Jumping to previous year';
+    } else if (direction > 0) {
+      label = magnitude === 1
+        ? 'Scrolling to next month'
+        : `Scrolling forward ${magnitude} months`;
+    } else {
+      label = magnitude === 1
+        ? 'Scrolling to previous month'
+        : `Scrolling back ${magnitude} months`;
+    }
+
+    if (label) {
+      announceCommand({ label });
+    }
+
+    jumpMonths(direction);
+  }, [announceCommand, jumpMonths]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       const target = e.target;
@@ -149,20 +177,22 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Command palette: Cmd/Ctrl+K or /
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
+        announceCommand({ label: 'Opening command palette' });
         onShowCommandPalette();
         return;
       }
 
       // Help: ? key (Shift+/ varies by keyboard layout)
       if (e.key === '?' || (e.shiftKey && e.key === '/')) {
-        console.log('Help shortcut triggered');
         e.preventDefault();
+        announceCommand({ label: 'Showing keyboard shortcuts' });
         onShowHelp();
         return;
       }
 
       if (e.key === '/' && !e.shiftKey) {
         e.preventDefault();
+        announceCommand({ label: 'Opening command palette' });
         onShowCommandPalette();
         return;
       }
@@ -170,6 +200,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Year view: y key
       if (e.key === 'y') {
         e.preventDefault();
+        announceCommand({ label: 'Opening year view' });
         onShowYearView();
         return;
       }
@@ -177,6 +208,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Dark mode: Ctrl+D
       if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
         e.preventDefault();
+        announceCommand({ label: 'Toggling dark mode' });
         toggleDarkMode();
         return;
       }
@@ -184,6 +216,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Jump to today: t key (lowercase only)
       if (e.key === 't') {
         e.preventDefault();
+        announceCommand({ label: 'Centering on today' });
         const todayCell = document.querySelector('.day-cell.today');
         if (todayCell) {
           todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -194,6 +227,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Quick add note to today: c or T key
       if (e.key === 'c' || e.key === 'T') {
         e.preventDefault();
+        announceCommand({ label: 'Opening today composer' });
         const todayCell = document.querySelector('.day-cell.today');
         if (todayCell) {
           todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -207,6 +241,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Multi-select mode: m key
       if (e.key === 'm') {
         e.preventDefault();
+        announceCommand({ label: isMultiSelectMode ? 'Exiting multi-select' : 'Entering multi-select' });
         toggleMultiSelectMode();
         return;
       }
@@ -214,6 +249,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Undo: Ctrl+Z or z
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
+        announceCommand({ label: 'Undoing last action' });
         undo();
         return;
       }
@@ -222,6 +258,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       if (((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) ||
           ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
         e.preventDefault();
+        announceCommand({ label: 'Redoing action' });
         redo();
         return;
       }
@@ -301,40 +338,38 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
 
       // Month navigation: Alt+Up/Down or [/] or p/n
       if (e.key === '[' || e.key === 'p') {
-        console.log('Previous month triggered, key:', e.key);
         e.preventDefault();
-        jumpMonths(-1);
+        triggerMonthJump(-1);
         return;
       }
 
       if (e.key === ']' || e.key === 'n') {
-        console.log('Next month triggered, key:', e.key);
         e.preventDefault();
-        jumpMonths(1);
+        triggerMonthJump(1);
         return;
       }
 
       // Year navigation: P/N
       if (e.key === 'P') {
         e.preventDefault();
-        jumpMonths(-12);
+        triggerMonthJump(-12);
         return;
       }
 
       if (e.key === 'N') {
         e.preventDefault();
-        jumpMonths(12);
+        triggerMonthJump(12);
         return;
       }
 
       if (e.altKey) {
         if (e.key === 'ArrowUp') {
           e.preventDefault();
-          jumpMonths(-1);
+          triggerMonthJump(-1);
           return;
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
-          jumpMonths(1);
+          triggerMonthJump(1);
           return;
         }
       }
@@ -354,8 +389,8 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
     onShowCommandPalette,
     isMultiSelectMode,
     toggleMultiSelectMode,
-    addNote,
     removeNote,
-    jumpMonths
+    triggerMonthJump,
+    announceCommand
   ]);
 }
