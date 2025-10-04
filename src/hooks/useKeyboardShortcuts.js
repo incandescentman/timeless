@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { addDays, generateDayId } from '../utils/dateUtils';
@@ -18,14 +18,11 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
 
   const { toggleDarkMode } = useTheme();
 
-  const jumpMonths = (direction) => {
-    // Find all month headers
-    const monthHeaders = Array.from(document.querySelectorAll('.month-header'));
+  const jumpMonths = useCallback((direction, attempt = 0, state) => {
+    const monthSections = Array.from(document.querySelectorAll('.month-section'));
 
-    if (monthHeaders.length === 0) {
-      console.log('No month headers found, using fallback scroll');
-      // Fallback: use approximate scroll based on average month height
-      const avgMonthHeight = 600; // Roughly 4 weeks * 150px per week
+    if (monthSections.length === 0) {
+      const avgMonthHeight = 600; // Rough fallback if headers are missing
       window.scrollBy({
         top: direction * avgMonthHeight,
         behavior: 'smooth'
@@ -33,84 +30,106 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       return;
     }
 
-    // Get viewport bounds
-    const viewportTop = 0;
     const viewportBottom = window.innerHeight;
+    const VIEWPORT_TARGET_OFFSET = 100;
+    const SCROLL_RATIO = 0.9;
+    const MAX_ATTEMPTS = 8;
+    const RETRY_DELAY = 400;
+    const scrollDirection = Math.sign(direction || 1) || 1;
 
-    // Find the currently visible month by checking which header is in viewport
-    let currentMonthIndex = -1;
+    let activeEntry = null;
     let closestDistance = Infinity;
 
-    // Debug: log all month positions
-    const monthData = monthHeaders.map((header, i) => {
-      const rect = header.getBoundingClientRect();
-      const monthText = header.querySelector('.month-header__month')?.textContent || 'Unknown';
-      const yearText = header.querySelector('.month-header__year')?.textContent || '';
-
-      // Check if this header is visible in viewport
-      const isVisible = rect.top < viewportBottom && rect.bottom > viewportTop;
-
-      // Find the header closest to the top of the viewport
-      const distanceFromTop = Math.abs(rect.top - 100); // 100px offset for better targeting
+    const entries = monthSections.map((section) => {
+      const header = section.querySelector('.month-header');
+      const rect = header
+        ? header.getBoundingClientRect()
+        : section.getBoundingClientRect();
+      const key = section.dataset.monthKey || '';
+      const isVisible = rect.top < viewportBottom && rect.bottom > 0;
+      const distanceFromTop = Math.abs(rect.top - VIEWPORT_TARGET_OFFSET);
 
       if (isVisible && distanceFromTop < closestDistance) {
         closestDistance = distanceFromTop;
-        currentMonthIndex = i;
+        activeEntry = { section, header, rect, key };
       }
 
-      return {
-        index: i,
-        month: `${monthText} ${yearText}`,
-        top: rect.top,
-        bottom: rect.bottom,
-        isVisible
-      };
+      return { section, header, rect, key };
     });
 
-    console.log('Month positions:', monthData);
-    console.log('Current visible month index:', currentMonthIndex);
-
-    // If no month is visible, find the closest one
-    if (currentMonthIndex === -1) {
-      for (let i = 0; i < monthHeaders.length; i++) {
-        const rect = monthHeaders[i].getBoundingClientRect();
-        if (rect.top > 0) {
-          currentMonthIndex = i > 0 ? i - 1 : 0;
-          break;
-        }
-      }
-      // If still not found, we're at the end
-      if (currentMonthIndex === -1) {
-        currentMonthIndex = monthHeaders.length - 1;
-      }
+    if (!activeEntry && entries.length > 0) {
+      // Fallback to the first section below the viewport, or last if none
+      activeEntry = entries.find(entry => entry.rect.top > 0) || entries[entries.length - 1];
     }
 
-    // Calculate target month index
-    const targetMonthIndex = currentMonthIndex + direction;
-
-    console.log('Navigation:', {
-      from: monthData[currentMonthIndex]?.month || 'Unknown',
-      to: monthData[targetMonthIndex]?.month || 'Out of range',
-      currentIndex: currentMonthIndex,
-      targetIndex: targetMonthIndex,
-      direction
-    });
-
-    // Navigate to target month if it exists
-    if (targetMonthIndex >= 0 && targetMonthIndex < monthHeaders.length) {
-      const targetHeader = monthHeaders[targetMonthIndex];
-
-      // Simply use scrollIntoView with the right options
-      targetHeader.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+    if (!activeEntry) {
+      window.scrollBy({
+        top: scrollDirection * window.innerHeight * SCROLL_RATIO,
+        behavior: 'smooth'
       });
-
-      console.log('Scrolling to:', monthData[targetMonthIndex].month);
-    } else {
-      console.log('Target month out of range');
+      return;
     }
-  };
+
+    const parseMonthKey = (key) => {
+      const match = key.match(/^(-?\d{1,4})-(\d{1,2})$/);
+      if (!match) return null;
+      const year = parseInt(match[1], 10);
+      const monthIndex = parseInt(match[2], 10);
+      if (Number.isNaN(year) || Number.isNaN(monthIndex)) return null;
+      return { year, monthIndex };
+    };
+
+    let workingState = state;
+    if (!workingState) {
+      const parsed = parseMonthKey(activeEntry.key);
+      if (!parsed) {
+        window.scrollBy({
+          top: scrollDirection * window.innerHeight * SCROLL_RATIO,
+          behavior: 'smooth'
+        });
+        return;
+      }
+      const baseAbsolute = parsed.year * 12 + parsed.monthIndex;
+      workingState = {
+        baseAbsolute,
+        targetAbsolute: baseAbsolute + direction
+      };
+    }
+
+    const { targetAbsolute } = workingState;
+    if (!Number.isFinite(targetAbsolute)) {
+      return;
+    }
+
+    const targetAbsoluteInt = Math.trunc(targetAbsolute);
+    const targetMonthIndex = ((targetAbsoluteInt % 12) + 12) % 12;
+    const targetYear = (targetAbsoluteInt - targetMonthIndex) / 12;
+    const targetKey = `${targetYear}-${targetMonthIndex}`;
+
+    const targetSection = document.querySelector(`.month-section[data-month-key="${targetKey}"]`);
+    if (targetSection) {
+      const targetHeader = targetSection.querySelector('.month-header') || targetSection;
+      targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    if (attempt >= MAX_ATTEMPTS) {
+      window.scrollBy({
+        top: scrollDirection * window.innerHeight * SCROLL_RATIO,
+        behavior: 'smooth'
+      });
+      return;
+    }
+
+    window.scrollBy({
+      top: scrollDirection * window.innerHeight * SCROLL_RATIO,
+      behavior: 'smooth'
+    });
+
+    setTimeout(() => {
+      jumpMonths(direction, attempt + 1, workingState);
+    }, RETRY_DELAY + attempt * 120);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
