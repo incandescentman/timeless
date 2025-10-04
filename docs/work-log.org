@@ -1,0 +1,234 @@
+#+TITLE: Work Log - Timeless Calendar
+#+DATE: 2025-10-04
+#+TAGS: sessions, changelog
+#+KEYWORDS: work-log, progress, commits
+
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: Track sessions, changes, and handoffs
+- Key Docs: Session summaries, file changes, next steps
+- Always read before: Starting new session or resuming work
+#+END_COMMENT
+
+* 2025-10-04 Friday
+
+** Session: Documentation System Implementation
+Time: Afternoon
+Task: Implement comprehensive documentation system following how-to-document.org guidelines
+
+Accomplished:
+- Created CLAUDE.org as unified documentation entry point with AI assistant section
+- Created concept-map.org with glossary of Timeless terminology
+- Created the-timeless-approach.org philosophy document
+- Created visual-design-philosophy.org with design system and color rules
+- Updated design-architecture.org with TL;DR and LLM Context sections
+- Updated codebase-wisdom.org with LLM anti-patterns section
+- Created critical-next-steps.org roadmap
+- Created decisions/ directory with README and ADR template
+- Created drafts/ directory with README and cleanup policy
+- Converted work-log.md to work-log.org format
+
+Files Created:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/CLAUDE.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/concept-map.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/the-timeless-approach.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/visual-design-philosophy.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/critical-next-steps.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/decisions/README.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/drafts/README.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/work-log.org
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/design-architecture.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/codebase-wisdom.org
+
+Files Deleted:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/_index_for_llms.org (merged into CLAUDE.org)
+
+** LLM Session Summary
+- Implemented complete documentation structure per how-to-document.org
+- Merged AI assistant navigation into CLAUDE.org (removed separate _index_for_llms.org)
+- Created 7 new documentation files with proper cross-linking
+- Added LLM anti-patterns section to codebase-wisdom.org
+- Established docs/decisions/ and docs/drafts/ directories
+- All docs follow org-mode format with LLM_CONTEXT blocks
+- Next: Begin using documentation system for future development
+
+Energy Level: Highly productive, comprehensive system established
+Next Step: Update README to point to docs/CLAUDE.org; use pre-session ritual going forward
+
+---
+
+** Session: UI Polish & Today Cell Highlighting Fix
+Time: Evening
+Task: Fix today cell red highlighting, restore rounded card design, enhance event styling
+
+Accomplished:
+- Fixed today cell not showing red by using more specific CSS selectors with !important
+- Restored rounded card design from commit 7645242 with 14px border radius
+- Changed today cell color to custom red #D43E44 (softer than original)
+- Enhanced event/note cards with gradient backgrounds and layered shadows
+- Improved text contrast for event text (darker at 88% opacity)
+- Lightened event card backgrounds for better contrast
+- Added letter-spacing to month/weekday labels (0.18em/0.24em)
+- Made today's event text bold for emphasis
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/styles/day-cell.css
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/README.md
+
+Git Commits:
+- "Fine-tune today cell styling with softer red color"
+- "Refine today cell text styling for better balance"
+- "Enhance event card styling and improve documentation"
+
+Notes:
+- CSS specificity was the main issue with today highlighting - needed `.day-cell.today.day-cell--baseline`
+- User preferred softer red (#D43E44) over harsh red (#C92228)
+
+Energy Level: Productive, iterative refinement
+Next Step: Continue polishing UI details based on user feedback
+
+---
+
+** Session: Keyboard Shortcuts Refinement
+Time: Afternoon
+Task: Improve keyboard navigation and help overlay
+
+Changes Made:
+1. Help Overlay Improvements
+   - Fixed wiggling/reordering animation issues
+   - Removed individual item animations to prevent layout shifts
+   - Added smooth section-level animations with staggered delays
+   - Removed "Move (nav)" entry (redundant with nav mode arrows)
+   - Added "Save & Exit" with Return key
+
+2. Keyboard Shortcut Updates
+   - Changed "Add Note to Today" from `n` to `c`
+   - Added `T` (capital) as alternate for "Add Note to Today"
+   - Added `n`/`p` for next/previous month navigation
+   - Added `N`/`P` for next/previous year navigation (12-month jumps)
+   - Updated help overlay to reflect all new shortcuts
+
+3. Documentation Updates
+   - Reorganized README keyboard shortcuts into Navigation/Editing/System sections
+   - Added all new shortcuts with proper formatting
+   - Updated work log with session details
+
+Technical Details:
+- Modified /src/hooks/useKeyboardShortcuts.js for new key bindings
+- Updated /src/components/HelpOverlay.jsx with animation fixes
+- Branch `shadcn-help` merged into `main`
+
+Energy Level: Productive
+Next Step: Consider adding visual feedback for keyboard commands
+
+* 2025-10-03 Thursday
+
+** Session: Layout Overhaul & Spacing Improvements
+Time: Full day
+Task: Fix mini calendar disappearing, improve spacing, implement responsive design
+
+Problems Addressed:
+1. Mini calendar disappearing issue (Critical)
+   - Root cause: Position sticky inside scrolling container
+   - Calendar auto-scroll to today moved the sticky rail off-screen
+   - Multiple cascading issues masked the real problem
+
+2. Calendar cutoff on right edge
+   - Compound padding from nested containers
+   - Hidden overflow masked the actual overflow issue
+
+3. Poor spacing and sizing
+   - Components too large and cramped
+   - No max-width constraints for ultra-wide monitors
+   - UI stuck to left side on large displays
+
+Solutions Implemented:
+
+Fixed Positioning System:
+#+begin_src css
+.calendar-rail {
+  position: fixed;
+  top: 3rem;
+  left: max(2rem, calc((100vw - 1500px) / 2 + 2rem));
+  width: 240px;
+}
+
+.calendar-layout {
+  padding-left: 380px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+#+end_src
+
+Component Size Reductions:
+- Calendar rail: 260px → 240px width
+- Brand title: 1.1rem → 1rem
+- Mini calendar months: 200px → 180px
+- Mini calendar fonts: 0.82em → 0.75em
+- Overall padding: Reduced by ~25%
+
+Layout Constraints:
+- App shell max-width: 1800px
+- Calendar max-width: 1500px (1200px content area)
+- Spacing between sidebar and content: 380px
+
+Lessons Learned:
+1. Position fixed vs sticky: Fixed positioning required for sidebars with infinite scroll
+2. Debug overflow issues: Temporarily set `overflow: visible` to see true bounds
+3. Check media queries: Hidden `display: none` can cause mysterious disappearances
+4. Component hierarchy matters: CSS can't fix structural React issues
+
+Time Spent:
+- Debugging mini calendar: ~45 minutes
+- Layout fixes: ~30 minutes
+- Documentation: ~15 minutes
+
+Mobile Layout Implementation:
+- Created responsive mobile layout (≤768px)
+- One day per row display with horizontal layout
+- Hidden mini calendar for maximum content space
+- Touch-optimized with larger tap targets
+- Full width calendar utilization
+
+UI Centering Fix:
+- Treated sidebar + calendar as single 1500px block
+- Entire UI centers on displays >1600px
+- Proper alignment formula: `calc(50% - 750px + 2rem)`
+
+Energy Level: Challenging but successful
+Next Step: Add animation transitions for smoother interactions
+
+* 2025-10-02 Wednesday
+
+** Session: React Migration
+Time: Full day
+Task: Migrate from vanilla HTML/CSS/JS to React
+
+Accomplished:
+- Initial React migration from vanilla HTML/CSS/JS
+- Implemented infinite scroll with React hooks
+- Set up Vite build system
+
+Energy Level: Productive
+Next Step: Fix layout issues from migration
+
+* 2025-10-01 Tuesday
+
+** Session: CSS Architecture Fixes
+Time: Evening
+Task: Fix sticky header and CSS import errors
+
+Accomplished:
+- Fixed sticky header issues with three-layer z-index architecture
+- Resolved Vite CSS @import errors by using JS imports
+- Implemented experimental mode system
+
+Energy Level: Problem-solving
+Next Step: Continue migration to React
+
+---
+[[file:CLAUDE.org][← Docs Map]] | [[file:design-architecture.org][← Architecture]] | [[file:critical-next-steps.org][→ Next Steps]]
+
+Last Updated: 2025-10-04

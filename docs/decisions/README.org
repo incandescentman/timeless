@@ -1,0 +1,83 @@
+#+TITLE: Architecture Decision Records (ADRs)
+#+DATE: 2025-10-04
+#+DESCRIPTION: Index of all architecture decisions for the Timeless calendar
+
+* What Are ADRs?
+
+Architecture Decision Records (ADRs) document significant technical and design decisions made during development. Each ADR captures:
+- The context and problem
+- The decision made
+- Alternatives considered
+- Consequences (positive and negative)
+
+* Why Use ADRs?
+
+Decision rationale gets lost over time. ADRs preserve the "why" behind architectural choices, helping future developers (including AI assistants) understand trade-offs without re-litigating settled decisions.
+
+* ADR Index
+
+** Active ADRs
+
+Currently, no formal ADRs have been created. As significant decisions are made, they will be documented here.
+
+** Template
+
+Use this template for new ADRs:
+
+#+begin_src org
+#+TITLE: ADR-NNNN: [Short Title]
+#+DATE: YYYY-MM-DD
+#+STATUS: [Proposed | Accepted | Deprecated | Superseded]
+
+* Context
+What is the issue we're facing? What forces are at play?
+
+* Decision
+What decision did we make?
+
+* Alternatives Considered
+1. Option A - why rejected
+2. Option B - why rejected
+
+* Consequences
+** Positive
+- Benefit 1
+- Benefit 2
+
+** Negative
+- Trade-off 1
+- Trade-off 2
+
+* References
+- [[file:../design-architecture.org::*Related Section][Related architecture]]
+- [[file:../codebase-wisdom.org::*Related Bug][Related debugging insight]]
+#+end_src
+
+* Naming Convention
+
+ADRs should be named: `adr-NNNN-short-descriptive-title.org`
+
+Examples:
+- adr-0001-no-animations-principle.org
+- adr-0002-local-storage-only.org
+- adr-0003-react-without-state-library.org
+
+* When to Create an ADR
+
+Create an ADR when:
+- Making architectural decisions that affect multiple components
+- Choosing between competing design approaches
+- Establishing constraints or principles (like "no animations")
+- Making trade-offs that future developers should understand
+
+* Cross-Referencing
+
+ADRs should be referenced from:
+- [[file:../design-architecture.org][design-architecture.org]] - Link to relevant ADRs in technical sections
+- [[file:../critical-next-steps.org][critical-next-steps.org]] - When decisions affect roadmap
+- [[file:../codebase-wisdom.org][codebase-wisdom.org]] - When bugs reveal decision trade-offs
+
+---
+[[file:../CLAUDE.org][← Docs Map]] | [[file:../design-architecture.org][→ Architecture]]
+
+Last Updated: 2025-10-04

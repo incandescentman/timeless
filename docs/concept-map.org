@@ -1,0 +1,117 @@
+#+TITLE: Concept Map - Timeless Calendar Terminology
+#+DATE: 2025-10-04
+#+TAGS: glossary, terminology
+#+KEYWORDS: timeless, calendar, concepts
+
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: Glossary of internal terms and language
+- Key Docs: Links to terms, code locations, ADRs
+- Always read before: Using or introducing new terminology
+#+END_COMMENT
+
+* Timeless
+
+The core philosophy and name of the application. Refers to both the minimalist design aesthetic (no animations, clean typography, neutral colors) and the temporal perspective (thinking in years rather than days or weeks).
+
+Related: [[*Year View]], [[*Minimal Design]]
+Implementation: See design principles throughout codebase
+Philosophy: [[file:the-timeless-approach.org][the-timeless-approach.org]]
+
+* Year View
+
+The primary calendar display showing all 12 months of a single year in a grid layout. Unlike traditional month-by-month calendars, users see the entire year at once, encouraging long-term thinking.
+
+Related: [[*Month Grid]], [[*Timeless]]
+Implementation: See [[file:../src/components/Calendar.tsx][Calendar.tsx]]
+Design Rationale: [[file:design-architecture.org::*Year View Layout][design-architecture.org::*Year View Layout]]
+
+* Month Grid
+
+Individual month display within the year view. Each month shows a traditional calendar grid with days organized by week. The current implementation uses a 7-column (weekday) grid.
+
+Related: [[*Year View]], [[*Cell]]
+Implementation: See [[file:../src/components/Calendar.tsx][Calendar.tsx]] month rendering logic
+
+* Cell
+
+A single day within the month grid. Cells can contain events and have special styling for today's date.
+
+Related: [[*Today Cell]], [[*Event]]
+Implementation: See [[file:../src/components/Calendar.tsx][Calendar.tsx]] cell rendering
+
+* Today Cell
+
+The calendar cell representing the current date. Always visually emphasized with red text (#ef4444) to provide temporal orientation.
+
+Related: [[*Cell]], [[*Invariants]]
+Implementation: See [[file:../src/components/Calendar.tsx][Calendar.tsx]] isToday logic
+Design Rule: [[file:visual-design-philosophy.org::*Today Highlighting][visual-design-philosophy.org::*Today Highlighting]]
+
+* Event
+
+A user-created calendar entry associated with a specific date. Events have a title, optional description, and date. The data structure must remain backward-compatible.
+
+Related: [[*Event Card]], [[*Event Form]]
+Implementation: See [[file:../src/types/index.ts][types/index.ts]] Event interface
+Data Flow: [[file:design-architecture.org::*Event Management][design-architecture.org::*Event Management]]
+
+* Event Card
+
+The visual representation of an event within a calendar cell. Displays event title and provides interaction for editing/deleting.
+
+Related: [[*Event]], [[*Cell]]
+Implementation: See [[file:../src/components/EventCard.tsx][EventCard.tsx]]
+
+* Event Form
+
+The modal interface for creating and editing events. Handles input validation and date assignment.
+
+Related: [[*Event]], [[*Event Card]]
+Implementation: See [[file:../src/components/EventForm.tsx][EventForm.tsx]]
+
+* Minimal Design
+
+A core design principle emphasizing simplicity, clarity, and restraint. Specifically: no animations or transitions, limited color palette (grays + red accent), clean typography, and generous whitespace.
+
+Related: [[*Timeless]], [[*No Animations]]
+Philosophy: [[file:the-timeless-approach.org][the-timeless-approach.org]]
+Guidelines: [[file:visual-design-philosophy.org][visual-design-philosophy.org]]
+
+* No Animations
+
+A strict design constraint: the application contains zero CSS transitions or animations. This enforces the "timeless" aesthetic and improves performance.
+
+Related: [[*Minimal Design]], [[*Invariants]]
+Rationale: [[file:the-timeless-approach.org::*Design Principles][the-timeless-approach.org::*Design Principles]]
+Anti-Pattern: [[file:CLAUDE.org::*Pattern: Adding Animations][CLAUDE.org::*Pattern: Adding Animations]]
+
+* Invariants
+
+Architectural and design constraints that must be preserved across all changes:
+- Event data structure backward-compatibility
+- Today cell red highlighting
+- No animations or transitions
+- Immutable state changes
+- ISO date format (YYYY-MM-DD)
+
+Related: [[*Today Cell]], [[*No Animations]], [[*Event]]
+Documentation: [[file:CLAUDE.org::*Key Invariants][CLAUDE.org::*Key Invariants]]
+
+* Backward Compatibility
+
+The requirement that all changes to the Event data structure must not break existing stored events. New fields must be optional.
+
+Related: [[*Event]], [[*Invariants]]
+Implementation: [[file:../src/types/index.ts][types/index.ts]]
+Anti-Pattern: [[file:CLAUDE.org::*Pattern: Changing Event Data Structure][CLAUDE.org::*Pattern: Changing Event Data Structure]]
+
+* ISO Date Format
+
+All dates in the application use the ISO 8601 format: YYYY-MM-DD. This ensures consistent parsing and storage.
+
+Related: [[*Event]], [[*Invariants]]
+Implementation: See [[file:../src/utils/dateUtils.ts][dateUtils.ts]]
+
+---
+[[file:CLAUDE.org][← Docs Map]] | [[file:the-timeless-approach.org][→ Philosophy]] | [[file:design-architecture.org][→ Architecture]]

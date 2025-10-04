@@ -1,0 +1,290 @@
+#+TITLE: Visual Design Philosophy - Timeless Calendar
+#+DATE: 2025-10-04
+#+TAGS: design, ui, visual, tailwind
+#+KEYWORDS: design-system, colors, typography, components
+
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: Visual principles, component patterns, design tokens
+- Key Docs: Color, typography, UI rules
+- Always read before: Making UI changes or design decisions
+#+END_COMMENT
+
+* Core Principles
+
+** Timeless Over Trendy
+
+Design decisions should look as relevant in 10 years as they do today. Avoid:
+- Animated micro-interactions
+- Gradient backgrounds
+- Glassmorphism or neumorphism effects
+- Trendy color schemes
+- Decorative flourishes
+
+** Restraint Over Richness
+
+Less is more. Every visual element must justify its existence. When in doubt, remove it.
+
+** Clarity Over Cleverness
+
+Users should never wonder what something does or where to click. Obvious beats elegant.
+
+* Color System
+
+** Primary Palette
+
+*** Neutrals (Gray Scale)
+- Background: `bg-white` (#ffffff)
+- Light gray: `bg-gray-50` (#f9fafb)
+- Medium gray: `bg-gray-100` (#f3f4f6)
+- Text gray: `text-gray-600` (#4b5563)
+- Dark text: `text-gray-900` (#111827)
+
+*** Accent Color
+- **Red (Today only)**: `text-red-600` (#dc2626) or `#ef4444`
+  - Usage: ONLY for highlighting today's cell
+  - Never use red for anything else
+  - This is a strict invariant
+
+** Color Usage Rules
+
+1. **Backgrounds**: White or very light gray only
+2. **Text**: Gray scale only, except today's date
+3. **Borders**: Light gray (`border-gray-200`)
+4. **Hover states**: Slightly darker gray (`bg-gray-100`)
+5. **No custom colors**: Use Tailwind's default palette
+
+** Bad Examples
+
+✗ Using arbitrary colors: `text-[#FF5733]`
+✗ Multiple accent colors for different UI elements
+✗ Rainbow colors for event categories
+✗ Colored backgrounds for emphasis
+
+** Good Examples
+
+✓ `text-gray-900` for primary text
+✓ `text-gray-600` for secondary text
+✓ `text-red-600` for today's date ONLY
+✓ `bg-gray-50` for subtle container backgrounds
+
+* Typography
+
+** Font Family
+- Sans-serif system font stack (default Tailwind)
+- Clean, readable, no display fonts
+
+** Hierarchy
+- **Headings**: `text-2xl font-semibold` or `text-xl font-semibold`
+- **Body text**: `text-base` (16px)
+- **Small text**: `text-sm` (14px)
+- **Tiny text**: `text-xs` (12px) - use sparingly
+
+** Line Height
+- Use Tailwind defaults (`leading-normal`, `leading-tight`)
+- Generous line height for readability
+
+** Weight
+- Regular (400) for body text
+- Semibold (600) for headings
+- Never use bold (700) or lighter weights
+
+* Spacing & Layout
+
+** Whitespace Philosophy
+Generous padding and margins. Give elements room to breathe.
+
+** Grid & Alignment
+- Use Tailwind's spacing scale (`p-4`, `m-8`, etc.)
+- Prefer consistent spacing (multiples of 4px)
+- Align elements to a grid when possible
+
+** Component Spacing
+- Padding inside components: `p-4` or `p-6`
+- Margins between components: `mb-4` or `mb-6`
+- Gap in flex/grid: `gap-4` or `gap-6`
+
+* Component Patterns
+
+** Today Cell Highlighting
+
+The most critical visual element in the entire application.
+
+*** Implementation
+```tsx
+className={isToday
+  ? "text-red-600 font-semibold"
+  : "text-gray-900"
+}
+```
+
+*** Rules
+- Must use `text-red-600` or `#ef4444`
+- Must be visually obvious
+- Cannot be subtle or easily missed
+- No other cells should use red
+
+*** Common Mistakes
+- Breaking today highlighting when adding new styles
+- Using red for other UI elements
+- Making today cell too subtle
+
+** Event Cards
+
+*** Design
+- Clean white background
+- Subtle border (`border border-gray-200`)
+- Minimal padding (`p-2` or `p-3`)
+- Hover state: slightly darker background (`hover:bg-gray-50`)
+
+*** Typography
+- Event title: `text-sm text-gray-900`
+- Event description: `text-xs text-gray-600` (if shown)
+
+** Buttons
+
+*** Primary Actions
+```tsx
+className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
+```
+
+*** Secondary Actions
+```tsx
+className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+```
+
+*** Danger Actions
+```tsx
+className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+```
+
+** Forms
+
+*** Input Fields
+```tsx
+className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+```
+
+*** Labels
+```tsx
+className="block text-sm font-medium text-gray-700 mb-1"
+```
+
+* Interaction Design
+
+** No Animations Rule
+
+**STRICT CONSTRAINT**: Zero CSS transitions or animations anywhere in the application.
+
+*** Forbidden
+```css
+/* ❌ NEVER DO THIS */
+transition: all 0.3s ease;
+transform: scale(1.05);
+animation: fadeIn 0.5s;
+```
+
+*** Why
+1. Maintains timeless aesthetic
+2. Improves performance
+3. Reduces cognitive load
+4. Makes UI feel instant
+
+*** Exceptions
+**NONE**. This rule has no exceptions.
+
+** Hover States
+
+Use background color changes only:
+```tsx
+hover:bg-gray-100
+hover:bg-gray-50
+```
+
+** Focus States
+
+Tailwind's default focus rings are acceptable:
+```tsx
+focus:outline-none focus:ring-2 focus:ring-gray-400
+```
+
+* View-Specific Designs
+
+** Year View (Calendar Grid)
+
+*** Layout
+- 12-month grid (4 columns × 3 rows on desktop)
+- Each month: 7-column day grid
+- Consistent spacing between months
+
+*** Month Headers
+- Month name: `text-lg font-semibold text-gray-900`
+- Centered above month grid
+
+*** Day Cells
+- Minimal padding
+- Clear separation between days
+- Today cell stands out in red
+
+** Event Form (Modal)
+
+*** Container
+- White background
+- Drop shadow for depth
+- Centered on screen
+- Max width constraint
+
+*** Fields
+- Stacked vertically
+- Clear labels
+- Standard input styling
+
+* Technical Implementation (Tailwind Conventions)
+
+** Prefer Utility Classes
+Use Tailwind utilities directly in JSX, avoid custom CSS when possible.
+
+** Component Composition
+Build reusable components with consistent styling patterns.
+
+** Responsive Design
+- Mobile-first approach (though desktop is primary)
+- Use responsive prefixes: `md:`, `lg:`
+
+** Dark Mode
+Not currently supported. Stick to light mode design.
+
+* Evolution Principles
+
+** How to Experiment Responsibly
+
+1. **Prototype in isolation**: Test new designs in a separate branch
+2. **Check invariants**: Ensure today cell highlighting remains intact
+3. **Validate against principles**: Does it maintain timeless aesthetic?
+4. **Get feedback**: Document experiment in experimental-mode-feedback.org
+
+** When to Update This Doc
+
+- Adding new component patterns
+- Establishing new color usage rules
+- Defining new spacing conventions
+- After resolving design inconsistencies
+
+* Quick Reference
+
+** Color Decision Tree
+1. Is it today's cell? → `text-red-600`
+2. Is it primary text? → `text-gray-900`
+3. Is it secondary text? → `text-gray-600`
+4. Is it a background? → `bg-white` or `bg-gray-50`
+5. Is it a border? → `border-gray-200`
+
+** Spacing Decision Tree
+1. Inside a component? → `p-4` or `p-6`
+2. Between components? → `mb-4` or `mb-6`
+3. Grid/flex gap? → `gap-4` or `gap-6`
+
+---
+[[file:CLAUDE.org][← Docs Map]] | [[file:the-timeless-approach.org][← Philosophy]] | [[file:design-architecture.org][→ Architecture]]
+
+Last Updated: 2025-10-04

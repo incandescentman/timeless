@@ -2,6 +2,40 @@
 
 ## October 4, 2025
 
+### Session: UI Polish & Today Cell Highlighting Fix
+Time: Evening
+Task: Fix today cell red highlighting, restore rounded card design, enhance event styling
+
+Accomplished:
+- Fixed today cell not showing red by using more specific CSS selectors with !important
+- Restored rounded card design from commit 7645242 with 14px border radius
+- Changed today cell color to custom red #D43E44 (softer than original)
+- Enhanced event/note cards with gradient backgrounds and layered shadows
+- Improved text contrast for event text (darker at 88% opacity)
+- Lightened event card backgrounds for better contrast
+- Added letter-spacing to month/weekday labels (0.18em/0.24em)
+- Made today's event text bold for emphasis
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/styles/day-cell.css
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/README.md
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/work-log.md
+
+Git Commits:
+- "Fine-tune today cell styling with softer red color"
+- "Refine today cell text styling for better balance"
+- (Pending) "Enhance event card styling and improve documentation"
+
+Notes:
+- CSS specificity was the main issue with today highlighting - needed `.day-cell.today.day-cell--baseline`
+- Edit tool has strict matching requirements causing multiple attempts
+- User preferred softer red (#D43E44) over harsh red (#C92228)
+
+Energy Level: Productive, iterative refinement
+Next Step: Continue polishing UI details based on user feedback
+
+---
+
 ### Session: Keyboard Shortcuts Refinement
 
 #### Changes Made

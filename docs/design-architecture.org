@@ -1,194 +1,323 @@
-* Timeless Calendar - Design Architecture
+#+TITLE: Design Architecture - Timeless Calendar
+#+DATE: 2025-10-04
+#+TAGS: architecture, technical, design
+#+KEYWORDS: react, typescript, tailwind, state-management
 
-** Overview
-Timeless is an infinite scroll calendar application built with React, featuring persistent note-taking and responsive design. The architecture prioritizes performance, user experience, and maintainability.
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: System architecture, mental models, and design decisions
+- Key Docs: TL;DR, integration points, ADR links
+- Always read before: Designing or refactoring architecture
+#+END_COMMENT
 
-** Core Design Principles
+* TL;DR
+- This system handles: Year-view calendar with local event storage and minimal UI
+- Core components: App.tsx (state), Calendar.tsx (year grid), EventCard.tsx, EventForm.tsx
+- Mental model: Think of it as a single-page app with immutable state transformations - no external state library, just React useState
+- Key gotchas: Event data must stay backward-compatible; today cell highlighting is sacred; no animations allowed
+- Last major update: 2025-10-04
 
-*** 1. Infinite Scroll Architecture
-- Virtual scrolling implemented via React hooks
-- Lazy loading of calendar weeks for performance
-- Smooth scrolling with auto-scroll to today functionality
-- Memory-efficient rendering of only visible weeks
+* For LLM Context
+Summarize this file if loaded into a coding model:
+- This document defines the technical architecture of the Timeless calendar application
+- Key invariants: Backward-compatible event structure, ISO dates (YYYY-MM-DD), immutable state, no animations
+- When to update: When adding major features, changing architecture patterns, or integrating new systems
+- Where this connects to code:
+  - Event state management: [[file:../src/App.tsx][App.tsx]]
+  - Year grid rendering: [[file:../src/components/Calendar.tsx][Calendar.tsx]]
+  - Event data types: [[file:../src/types/index.ts][types/index.ts]]
+  - Date utilities: [[file:../src/utils/dateUtils.ts][dateUtils.ts]]
 
-*** 2. Fixed vs Sticky Positioning
-- *Critical Learning*: Use =position: fixed= for sidebars in infinite scroll contexts
-- Sticky positioning fails when parent containers scroll
-- Fixed positioning requires calculated offsets for centering
+* Overview
 
-*** 3. Responsive Layout Strategy
+Timeless is a year-view calendar application built with React and TypeScript. The architecture prioritizes simplicity, local-first data storage, and a timeless design aesthetic (no animations, minimal UI).
 
-**** Desktop Layout (>768px)
-#+begin_src css
-Total UI Width: 1500px
-├── Sidebar (fixed): 240px
-├── Gap: 100px
-└── Main Calendar: ~1160px
+** Mental Model
+
+Think of the application as:
+- A **pure function** from (events array + selected month) → rendered year view
+- State transformations are **immutable** - we never mutate the events array directly
+- The **year grid** is the primary interface - all 12 months visible simultaneously
+- **Today's cell** is always highlighted in red - this is non-negotiable
+
+* Core Design Principles
+
+** 1. Single Source of Truth (Local State)
+
+All event data lives in React state (useState in App.tsx). No external state management library (Redux, Zustand, etc.).
+
+State shape:
+#+begin_src typescript
+const [events, setEvents] = useState<Event[]>([]);
+const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
 #+end_src
 
-- Entire UI block centers on displays >1600px
-- Centering formula: =calc(50% - 750px + 2rem)=
-- Max-width constraints prevent sprawling on ultra-wide monitors
+Dependencies: events array → EventCard components → Calendar grid
 
-**** Mobile Layout (≤768px)
-- Single column layout
-- No sidebar (mini calendar hidden)
-- One day per row with horizontal internal layout
-- Full viewport width utilization
-- Touch-optimized with 80px minimum height
+** 2. Year View as Primary Interface
 
-** Component Architecture
+Unlike traditional calendars that show one month, Timeless displays all 12 months in a grid layout. This forces year-scale thinking.
 
-*** Layout Components
-1. *AppShell* - Root container with max-width constraints
-2. *Header* - Fixed top navigation bar
-3. *CalendarRail* - Fixed sidebar containing mini calendar
-4. *CalendarLayout* - Main content area with padding for sidebar
-5. *Calendar* - Infinite scroll calendar grid
+Layout: 4 columns × 3 rows (on desktop)
 
-*** CSS Architecture
-#+begin_src
-src/styles/
-├── index.css         # Global styles, CSS variables
-├── header.css        # Header and sidebar positioning
-├── calendar.css      # Main calendar layout
-├── day-cell.css      # Individual day cell styles
-├── mini-calendar.css # Mini calendar component
-└── [other components]
-#+end_src
+Each month contains a traditional 7-column day grid.
 
-** Key Technical Decisions
+** 3. Backward-Compatible Data Structure
 
-*** 1. CSS-First Approach
-- Heavy reliance on CSS for layout and responsive behavior
-- Minimal JavaScript for layout calculations
-- CSS variables for theming (dark/light mode)
+Event interface must never break existing stored events. New fields must be optional.
 
-*** 2. Fixed Positioning Mathematics
-#+begin_src css
-/* Center 1500px UI on large displays */
-.calendar-rail {
-  position: fixed;
-  left: calc(50% - 750px + 2rem);
-}
-
-.calendar-layout {
-  width: 1500px;
-  margin: 0 auto;
-  padding-left: 340px; /* 240px sidebar + 100px gap */
+#+begin_src typescript
+interface Event {
+  id: string;           // Required - unique identifier
+  title: string;        // Required - event name
+  date: string;         // Required - ISO format YYYY-MM-DD
+  description?: string; // Optional - event details
+  // Future fields must be optional!
 }
 #+end_src
 
-*** 3. Mobile-First Responsive Design
-- Base styles optimized for mobile
-- Progressive enhancement for larger screens
-- Breakpoints: 768px (tablet), 1200px (desktop), 1600px (large)
+** 4. ISO Date Format (YYYY-MM-DD)
 
-** Performance Optimizations
+All dates use ISO 8601 format for consistency and parseability.
 
-*** 1. Rendering Strategy
-- Only render visible weeks (viewport + buffer)
-- Lazy load calendar data as user scrolls
-- Use React.memo for expensive components
+Example: "2025-10-04"
 
-*** 2. CSS Performance
-- Minimize reflows with fixed positioning
-- Use transform/opacity for animations
-- Leverage CSS containment where possible
+Utilities: See [[file:../src/utils/dateUtils.ts][dateUtils.ts]] for date manipulation helpers
 
-*** 3. Data Management
-- LocalStorage for persistence
-- Debounced saves to prevent thrashing
-- Efficient diff algorithms for undo/redo
+** 5. No Animations Constraint
 
-** Dark Mode Implementation
-- CSS variables for color theming
-- Single class toggle on body element
-- Careful contrast ratios for accessibility
-- Consistent color transformations
+Zero CSS transitions or animations. This is a strict design invariant enforced by the timeless aesthetic.
 
-** Known Limitations & Trade-offs
+Violations must be rejected in code review.
 
-*** 1. Fixed Sidebar Trade-off
-- Pro: Stable positioning in infinite scroll
-- Con: More complex centering calculations
-- Con: Requires JavaScript for some responsive behaviors
+See: [[file:visual-design-philosophy.org::*No Animations Rule][visual-design-philosophy.org::*No Animations Rule]]
 
-*** 2. CSS-Heavy Approach
-- Pro: Better performance than JS layouts
-- Pro: Easier to maintain and debug
-- Con: Some browsers may have CSS calc() limitations
-- Con: Complex responsive formulas
+* Component Architecture
 
-*** 3. Mobile Simplification
-- Removed mini calendar entirely on mobile
-- Simplified to single-column layout
-- Trade-off between features and usability
+** State Management (App.tsx)
 
-** Future Considerations
+App.tsx owns all state and passes props down to children.
 
-*** Potential Improvements
-1. Virtual scrolling library for better performance
-2. Web Workers for data processing
-3. Service Worker for offline functionality
-4. Touch gestures for mobile navigation
-5. Keyboard navigation enhancements
+State:
+- events: Event[]
+- selectedMonth: number
+- (future: selectedYear, filters, etc.)
 
-*** Scaling Considerations
-1. Consider pagination for very large date ranges
-2. Implement data virtualization for notes
-3. Add request animation frame for smooth scrolling
-4. Consider IndexedDB for larger data sets
+Key functions:
+- addEvent(event: Event)
+- updateEvent(id: string, updates: Partial<Event>)
+- deleteEvent(id: string)
 
-** Debugging Guide
+All mutations return new arrays (immutable updates).
 
-*** Common Issues
-1. *Mini calendar disappearing*: Check position sticky vs fixed
-2. *Layout overflow*: Temporarily set overflow: visible
-3. *Centering problems*: Verify viewport width calculations
-4. *Mobile layout breaks*: Check media query specificity
+** Year Grid Rendering (Calendar.tsx)
 
-*** CSS Debugging Tips
-#+begin_src css
-/* Debugging borders */
-* { border: 1px solid red !important; }
+Renders all 12 months in a responsive grid.
 
-/* Check true element bounds */
-.problem-element { overflow: visible !important; }
+For each month:
+1. Calculate first day of month
+2. Generate day cells (including empty cells for alignment)
+3. Check if each day isToday
+4. Render events for each day
 
-/* Force reflow for layout debugging */
-.container { transform: translateZ(0); }
+Critical logic: isToday highlighting
+#+begin_src typescript
+const isToday = (date: Date) => {
+  const today = new Date();
+  return date.getDate() === today.getDate() &&
+         date.getMonth() === today.getMonth() &&
+         date.getFullYear() === today.getFullYear();
+};
 #+end_src
 
-** Architecture Decisions Log
+** Event Display (EventCard.tsx)
 
-*** October 2025: Major Layout Refactor
-- Switched from grid to flexbox for main layout
-- Changed sidebar from sticky to fixed positioning
-- Implemented single-block centering approach
-- Added comprehensive mobile layout
+Displays individual event within a calendar cell.
 
-*** Key Learnings
-1. Position sticky fails in scrolling containers
-2. Compound padding creates hidden overflow issues
-3. Media queries can mask visibility problems
-4. Fixed positioning requires viewport math for centering
-5. Mobile layouts benefit from complete restructuring
+Props:
+- event: Event
+- onEdit: () => void
+- onDelete: () => void
 
-** Testing Strategy
+Styling: Minimal card with hover state, no animations
 
-*** Visual Regression Testing
-- Screenshot comparisons at key breakpoints
-- Test infinite scroll performance
-- Verify dark mode contrast ratios
+** Event Creation/Editing (EventForm.tsx)
 
-*** Performance Testing
-- Measure scroll FPS
-- Monitor memory usage during infinite scroll
-- Test with large datasets (1000+ days)
+Modal form for adding/editing events.
 
-*** Cross-browser Testing
-- Chrome/Edge (Blink)
-- Firefox (Gecko)
-- Safari (WebKit)
-- Mobile browsers (iOS Safari, Chrome Mobile)
+Fields:
+- Title (required)
+- Date (pre-filled from clicked cell)
+- Description (optional)
+
+Validation:
+- Title must not be empty
+- Date must be valid ISO format
+
+* Data Flow and Storage
+
+** Event Lifecycle
+
+1. User clicks "Add Event" → EventForm opens
+2. User fills form → Form validates input
+3. User submits → App.tsx.addEvent() called
+4. New event added to events array (immutably)
+5. State update triggers re-render
+6. Calendar.tsx re-renders → EventCard displays new event
+
+** Local Storage (Future)
+
+Events will be persisted to localStorage for durability.
+
+Key: "timeless-events"
+Format: JSON.stringify(events)
+
+Load on mount, save on every mutation.
+
+* State Management Approach
+
+** Why No External Library?
+
+- App is simple enough for useState
+- Reduces bundle size
+- No learning curve for contributors
+- Direct, predictable state flow
+
+** When to Consider External State Management
+
+If we add:
+- Complex filtering/search
+- Undo/redo functionality
+- Multi-user sync
+- Complex derived state
+
+Then consider Zustand or Context + useReducer.
+
+* Integration Points
+
+** Date Utilities (utils/dateUtils.ts)
+
+Helper functions for date manipulation:
+- formatDate(date: Date): string
+- parseDate(dateStr: string): Date
+- isToday(date: Date): boolean
+- getMonthDays(year: number, month: number): Date[]
+
+All use ISO format internally.
+
+** Type Definitions (types/index.ts)
+
+Central type definitions:
+- Event interface
+- (Future: Filter, ViewMode, etc.)
+
+Exported for use across components.
+
+* Recent Updates
+
+- 2025-10-04: Initial architecture documentation created
+- 2025-10-04: Established TL;DR and LLM Context sections
+- 2025-10-04: Documented year view layout and state management approach
+
+* Key Gotchas
+
+** 1. Today Cell Highlighting Must Persist
+
+When adding new styles or refactoring Calendar.tsx, ensure isToday logic remains intact.
+
+Anti-pattern: [[file:CLAUDE.org::*Pattern: Breaking Today Cell Highlighting][CLAUDE.org::*Pattern: Breaking Today Cell Highlighting]]
+
+** 2. Event Data Backward Compatibility
+
+Never change required fields or remove existing fields from Event interface.
+
+Anti-pattern: [[file:CLAUDE.org::*Pattern: Changing Event Data Structure][CLAUDE.org::*Pattern: Changing Event Data Structure]]
+
+** 3. No Animations Enforcement
+
+LLMs often add CSS transitions. These must be removed immediately.
+
+Anti-pattern: [[file:CLAUDE.org::*Pattern: Adding Animations][CLAUDE.org::*Pattern: Adding Animations]]
+
+** 4. State Must Be Immutable
+
+Never mutate events array directly:
+
+Bad:
+#+begin_src typescript
+events.push(newEvent); // ❌ Mutation!
+setEvents(events);
+#+end_src
+
+Good:
+#+begin_src typescript
+setEvents([...events, newEvent]); // ✓ Immutable
+#+end_src
+
+* Future Considerations
+
+** Potential Improvements
+
+1. **Event Search/Filter**: Add search bar and category filters
+2. **Recurring Events**: Support simple recurrence patterns
+3. **Data Export**: CSV or iCal export
+4. **Keyboard Navigation**: Arrow keys, shortcuts
+5. **Local Storage Persistence**: Save events to localStorage
+
+** Scaling Considerations
+
+1. If events array grows large (1000+ events), consider:
+   - Indexing by date for faster lookups
+   - Virtual scrolling for event lists
+   - Lazy loading events by month
+
+2. If adding multi-user features:
+   - Switch to external state management
+   - Add conflict resolution
+   - Implement sync protocol
+
+* How to Change Safely
+
+** When Modifying Calendar Layout
+
+1. Read [[file:visual-design-philosophy.org][visual-design-philosophy.org]] first
+2. Preserve today cell highlighting
+3. Test across different months (some have 28 days, some 31)
+4. Verify responsive design on mobile
+
+** When Adding Event Fields
+
+1. Make new fields optional
+2. Update Event interface in types/index.ts
+3. Update EventForm to handle new field
+4. Update EventCard to display new field (if needed)
+5. Test with existing events (backward compatibility)
+
+** When Refactoring State
+
+1. Ensure all mutations remain immutable
+2. Update prop types throughout component tree
+3. Test event creation, editing, deletion flows
+4. Verify no performance regressions
+
+* Testing Strategy
+
+** Key Test Cases
+
+1. **Event CRUD**: Create, read, update, delete events
+2. **Today Highlighting**: Verify today's cell is red
+3. **Date Handling**: Test edge cases (leap years, month boundaries)
+4. **Backward Compatibility**: Load old event data, verify it still works
+5. **Responsive Layout**: Test on mobile and desktop viewports
+
+** Visual Regression
+
+- Screenshot calendar on 1st of month
+- Screenshot calendar on 31st of month
+- Screenshot today's cell highlighting
+- Screenshot event cards
+
+---
+[[file:CLAUDE.org][← Docs Map]] | [[file:the-timeless-approach.org][← Philosophy]] | [[file:visual-design-philosophy.org][← Design]] | [[file:codebase-wisdom.org][→ Wisdom]]
+
+Last Updated: 2025-10-04

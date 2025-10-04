@@ -373,6 +373,52 @@
    );
    #+end_src
 
+* LLM Anti-Patterns in This Codebase
+
+This section documents mistakes AI assistants commonly make when working on this specific codebase.
+
+** Pattern: Breaking Today Cell Highlighting                      :ui:HIGH_SEVERITY:2025-10:
+Problem: LLM modifies Calendar.tsx styling or refactors cell rendering without preserving isToday logic
+Fix: Always check Calendar.tsx for existing today highlighting (text-red-600 or #ef4444) before changing cell styles
+Prevention: Load visual-design-philosophy.org before any UI changes; search for "isToday" before modifying Calendar.tsx
+Frequency: High - LLMs often "clean up" or "improve" styling without realizing today highlighting is sacred
+
+** Pattern: Adding CSS Transitions/Animations                     :ui:HIGH_SEVERITY:2025-10:
+Problem: LLM adds `transition:`, `animation:`, or transform effects despite "no animations" being a core principle
+Fix: Remove all transitions, animations, and transform effects immediately
+Prevention: Check the-timeless-approach.org and visual-design-philosophy.org before adding any interactive effects
+Frequency: Very High - LLMs default to adding smooth transitions for "better UX"
+
+** Pattern: Changing Event Data Structure Without Backward Compatibility :data:HIGH_SEVERITY:2025-10:
+Problem: LLM modifies Event interface in types/index.ts, making existing fields optional or changing required fields
+Fix: Always maintain existing required fields; new fields must be optional
+Prevention: Check design-architecture.org::*Backward-Compatible Data Structure before modifying Event interface
+Frequency: Medium - Usually happens when adding features like categories or tags
+
+** Pattern: Using Arbitrary Color Values                          :ui:MEDIUM_SEVERITY:2025-10:
+Problem: LLM uses custom colors like `text-[#FF5733]` or `bg-blue-500` instead of approved gray scale
+Fix: Use only Tailwind's gray scale (gray-50 through gray-900) and text-red-600 for today only
+Prevention: Load visual-design-philosophy.org before any styling work; check color decision tree
+Frequency: Medium - LLMs like to add "helpful" color coding
+
+** Pattern: Mutating State Directly                               :react:MEDIUM_SEVERITY:2025-10:
+Problem: LLM uses `events.push()` or `events[i] = ...` instead of immutable updates
+Fix: Always use spread operators or array methods that return new arrays
+Prevention: Review design-architecture.org::*State Must Be Immutable; look for `setEvents([...events, newEvent])` pattern
+Frequency: Low - Modern LLMs usually get this right, but still happens
+
+** Pattern: Partial Context Submissions                           :process:HIGH_SEVERITY:2025-10:
+Problem: LLM submits code changes without loading full file context or related documentation
+Fix: Always load the *entire* file and related sections (design-architecture.org, codebase-wisdom.org, visual-design-philosophy.org) before submitting
+Prevention: Follow pre-session ritual in CLAUDE.org; enforce context-loading checklist
+Frequency: Very High - Common in multi-file or cross-cutting changes
+
+** Pattern: Inventing New Utility Functions                       :code-org:LOW_SEVERITY:2025-10:
+Problem: LLM creates new date formatting or utility functions without checking if they already exist
+Fix: Search existing codebase (especially utils/dateUtils.ts) before creating new utilities
+Prevention: Load utils/dateUtils.ts before implementing date-related features
+Frequency: Low - Usually only happens with date manipulation
+
 * Viewport Navigation: getBoundingClientRect vs offsetTop for Scrolling
   Date: 2025-10-04
 

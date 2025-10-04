@@ -1,0 +1,116 @@
+#+TITLE: The Timeless Approach - Philosophy and Purpose
+#+DATE: 2025-10-04
+#+TAGS: philosophy, design-principles
+#+KEYWORDS: timeless, minimalism, calendar, year-view
+
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: State philosophy, motivation, and core concepts
+- Key Docs: Philosophy, terminology, project rationale
+- Always read before: Architectural or foundational changes
+#+END_COMMENT
+
+* Background Story and Motivation
+
+Most digital calendars mimic their paper ancestors: a single month at a time, day planners, week views. They trap us in short-term thinking, optimizing for the urgent rather than the important.
+
+Timeless was created for people who think in years, not days. It's a calendar for those who want to see the shape of their year at a glance, to plan with perspective, and to escape the tyranny of the immediate.
+
+The name "Timeless" reflects two core beliefs:
+1. **Design that endures**: No trendy animations, no flashy transitions, just clean typography and intentional whitespace
+2. **Temporal perspective**: Viewing time at the scale of years creates clarity and reduces noise
+
+* Core Principles
+
+** Think in Years, Not Days
+
+The fundamental interface is a full year view showing all 12 months simultaneously. This forces a shift in perspective from "what's happening this week?" to "what matters this year?"
+
+When you can see January through December at once, patterns emerge. Clusters of activity, gaps for rest, the rhythm of seasons become visible.
+
+** Minimal by Design
+
+Every element serves a purpose. Every color choice is intentional. Nothing moves unless the user moves it.
+
+Specific constraints:
+- Zero animations or CSS transitions
+- Limited color palette: neutral grays + red accent (today only)
+- Clean sans-serif typography
+- Generous whitespace
+- No decorative elements
+
+This isn't minimalism for aesthetics—it's minimalism for focus.
+
+** Timeless Aesthetic
+
+The application should look as relevant in 2035 as it does today. No design trends, no fashionable gradients, no micro-interactions.
+
+Like a well-designed book or a classic watch, the interface fades into the background, letting content take center stage.
+
+** Data Ownership
+
+Events are stored locally. No cloud sync (yet), no accounts, no vendor lock-in. Your calendar data belongs to you.
+
+The Event data structure is designed for backward compatibility—new features can be added without breaking existing events.
+
+* Purpose Statement
+
+**Timeless exists to help people think and plan at the scale of years.**
+
+It's not for micromanaging your Tuesday. It's for seeing the arc of your projects, the rhythm of your seasons, and the shape of your ambitions.
+
+* Key Terminology
+
+See [[file:concept-map.org][concept-map.org]] for detailed definitions.
+
+Core concepts:
+- **Year View**: The primary interface showing all 12 months
+- **Today Cell**: Current date highlighted in red
+- **Event**: User-created calendar entry
+- **Minimal Design**: Our aesthetic and technical constraint
+- **No Animations**: A strict design rule
+- **Invariants**: Non-negotiable constraints (backward compatibility, today highlighting, etc.)
+
+* Design Philosophy in Practice
+
+** What We Include
+- Full year visibility
+- Simple event creation
+- Clear visual hierarchy
+- Instant responsiveness (no loading states for local operations)
+- Keyboard shortcuts for power users
+
+** What We Exclude
+- Weekly or daily views (use your phone's calendar for that)
+- Complex recurring events (keep it simple)
+- Integrations with other calendars (not yet)
+- Notifications and reminders (too urgent)
+- Collaborative features (solo tool)
+- Themes and customization (one design, done well)
+
+** Why These Exclusions Matter
+
+Every feature request should be filtered through the question: "Does this support year-scale thinking?"
+
+If the answer is no—if it's about optimizing the next hour or the next day—it doesn't belong in Timeless.
+
+* Evolution Principles
+
+Timeless will evolve, but slowly and deliberately. Changes should:
+
+1. **Preserve the core**: Year view, minimal design, no animations
+2. **Maintain backward compatibility**: Never break existing events
+3. **Add capability, not complexity**: New features should feel inevitable, not bolted-on
+4. **Respect the aesthetic**: New UI elements must match the timeless design language
+
+* Related Documentation
+
+- [[file:concept-map.org][concept-map.org]] - Detailed terminology
+- [[file:visual-design-philosophy.org][visual-design-philosophy.org]] - Design system and guidelines
+- [[file:design-architecture.org][design-architecture.org]] - Technical implementation
+- [[file:CLAUDE.org][CLAUDE.org]] - Documentation map
+
+---
+[[file:CLAUDE.org][← Docs Map]] | [[file:concept-map.org][→ Terminology]] | [[file:visual-design-philosophy.org][→ Design]]
+
+Last Updated: 2025-10-04

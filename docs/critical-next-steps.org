@@ -1,0 +1,194 @@
+#+TITLE: Critical Next Steps - Timeless Calendar Roadmap
+#+DATE: 2025-10-04
+#+TAGS: roadmap, technical-debt, priorities
+#+KEYWORDS: features, improvements, backlog
+
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: Technical roadmap, debt, and improvement priorities
+- Key Docs: Steps, status, stretch goals
+- Always read before: Planning or prioritizing work
+#+END_COMMENT
+
+* Active Priorities
+
+** 1. Local Storage Persistence
+*** Why This Matters
+Currently, events are lost on page refresh. This breaks the fundamental promise of a calendar application.
+
+*** Scope Remaining
+- Implement localStorage save on every event mutation
+- Implement localStorage load on app mount
+- Add migration logic for future schema changes
+- Handle localStorage quota exceeded errors
+
+*** Recommended Plan
+1. Create storage utility in utils/localStorage.ts
+2. Add save hook in App.tsx after every setEvents call
+3. Load events in useEffect on mount
+4. Test with large datasets (100+ events)
+5. Add error handling for quota exceeded
+
+*** Current Status
+Not started
+Priority: CRITICAL
+Estimated: 2-4 hours
+
+*** Stretch Goals
+- Export to JSON file
+- Import from JSON file
+- Clear all data with confirmation
+
+** 2. Today Cell Highlight Verification
+*** Why This Matters
+Today highlighting is a core invariant that frequently breaks during refactoring. Need automated check.
+
+*** Scope Remaining
+- Add visual regression test for today cell
+- Create screenshot comparison at different dates
+- Add to pre-commit hook or CI
+
+*** Recommended Plan
+1. Set up Playwright or similar for visual testing
+2. Create test that mocks current date
+3. Take screenshot of today cell
+4. Compare against baseline
+5. Fail PR if red highlighting missing
+
+*** Current Status
+Not started
+Priority: HIGH
+Estimated: 3-4 hours
+
+** 3. Keyboard Navigation Enhancement
+*** Why This Matters
+Current keyboard shortcuts (n/p for months, ? for help) work but could be more robust.
+
+*** Scope Remaining
+- Add year jump shortcuts (Shift+n/p or y/Y)
+- Add "go to today" shortcut (t)
+- Add event creation shortcut (c)
+- Document all shortcuts in help overlay
+
+*** Recommended Plan
+1. Extend KeyboardShortcuts.tsx with new shortcuts
+2. Add year navigation logic (similar to month jump)
+3. Add "scroll to today" using existing isToday logic
+4. Update help overlay with new shortcuts
+5. Test conflicts with KBar command palette
+
+*** Current Status
+Partially complete (month navigation works)
+Priority: MEDIUM
+Estimated: 2-3 hours
+
+* Technical Debt
+
+** 1. Remove Experimental Mode Scaffolding (If Not Used)
+*** Why It Matters
+If experimental mode isn't actively being used, the code adds complexity without value.
+
+*** Recommended Action
+- Audit usage of experimental mode
+- If unused: remove experimental.css, variant switching UI, related state
+- If used: document which variants are active and why
+
+*** Status
+Needs decision
+Priority: LOW
+Estimated: 1 hour to remove, or 2 hours to document properly
+
+** 2. Consolidate CSS Files
+*** Why It Matters
+Multiple CSS files (calendar.css, day-cell.css, header.css, etc.) create import order dependencies.
+
+*** Recommended Plan
+1. Audit which styles are actually used
+2. Consolidate related styles into fewer files
+3. Use CSS layers or scoped naming to prevent conflicts
+4. Document import order in main.tsx
+
+*** Status
+Not started
+Priority: LOW
+Estimated: 2-3 hours
+
+** 3. Add TypeScript Strict Mode
+*** Why It Matters
+Currently running with relaxed TypeScript settings. Strict mode catches more bugs.
+
+*** Recommended Plan
+1. Enable strict mode in tsconfig.json
+2. Fix type errors incrementally
+3. Add explicit return types to functions
+4. Remove any types
+
+*** Status
+Not started
+Priority: MEDIUM
+Estimated: 4-6 hours
+
+* Feature Wishlist
+
+** Event Categories/Tags
+Add optional category field to events for filtering and color coding.
+
+Considerations:
+- Must remain backward compatible
+- Don't violate "minimal design" with rainbow colors
+- Use subtle visual distinction (border, icon)
+
+Priority: LOW
+
+** Recurring Events
+Support simple recurrence patterns (daily, weekly, monthly, yearly).
+
+Considerations:
+- Complex feature - could violate simplicity principle
+- Consider if this belongs in Timeless or a different tool
+- If implemented: keep UI minimal
+
+Priority: VERY LOW
+
+** Data Export/Import
+CSV or iCal export for backup and migration.
+
+Priority: MEDIUM (after localStorage persistence)
+
+** Mobile App (PWA)
+Make Timeless installable as Progressive Web App.
+
+Considerations:
+- Requires service worker
+- Offline support
+- App manifest
+
+Priority: LOW
+
+* Recent Updates
+- 2025-10-04: Initial roadmap created
+- 2025-10-04: Identified localStorage persistence as critical priority
+
+* Notes
+
+** Decision Criteria for New Features
+
+Before adding any feature, ask:
+1. Does this support year-scale thinking?
+2. Does it maintain the minimal aesthetic?
+3. Can it be implemented without animations?
+4. Is it backward compatible with existing events?
+
+If any answer is "no", reconsider or redesign.
+
+** When to Revisit This Doc
+
+- After completing a priority item (mark as done, move next item up)
+- When discovering new technical debt
+- After user feedback reveals pain points
+- Monthly review to reassess priorities
+
+---
+[[file:CLAUDE.org][← Docs Map]] | [[file:design-architecture.org][← Architecture]] | [[file:work-log.org][→ Work Log]]
+
+Last Updated: 2025-10-04
