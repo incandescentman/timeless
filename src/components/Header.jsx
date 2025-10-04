@@ -3,6 +3,13 @@ import { useCalendar } from '../contexts/CalendarContext';
 import MiniCalendar from './MiniCalendar';
 import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from '../utils/storage';
 import { useKBar } from 'kbar';
+import {
+  IconCalendarCheck,
+  IconHelpCircle,
+  IconDownload,
+  IconFileText,
+  IconUpload
+} from '@tabler/icons-react';
 import '../styles/header.css';
 
 function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
@@ -87,21 +94,15 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
     reader.readAsText(file);
   };
 
+  const iconProps = { size: 24, strokeWidth: 1.8, 'aria-hidden': true };
+
   const primaryActions = [
     {
       key: 'today',
       label: 'Today',
       description: 'Jump to the current day',
       onClick: goToToday,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
-          <path d="M16 3v4" stroke="currentColor" strokeWidth="2" />
-          <path d="M8 3v4" stroke="currentColor" strokeWidth="2" />
-          <path d="M4 11h16" stroke="currentColor" strokeWidth="2" />
-          <circle cx="12" cy="16" r="2" fill="currentColor" />
-        </svg>
-      )
+      icon: <IconCalendarCheck {...iconProps} />
     }
   ];
 
@@ -111,12 +112,7 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
       label: 'Help',
       description: 'View keyboard shortcuts',
       onClick: onShowHelp,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-          <path d="M12 17h0M12 13.5V12a2 2 0 1 1 2-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
+      icon: <IconHelpCircle {...iconProps} />
     }
   ];
 
@@ -126,38 +122,21 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
       label: 'Export JSON',
       description: 'Download your calendar backup',
       onClick: downloadCalendarData,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M8 11l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <rect x="4" y="17" width="16" height="4" rx="1" fill="currentColor" />
-        </svg>
-      )
+      icon: <IconDownload {...iconProps} />
     },
     {
       key: 'export-md',
       label: 'Export Diary',
       description: 'Save as Markdown diary',
       onClick: downloadMarkdownDiary,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="2" fill="none" />
-          <path d="M9 9v6M9 9l2 3l2-3v6M15 15v-2a2 2 0 1 1 4 0v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
+      icon: <IconFileText {...iconProps} />
     },
     {
       key: 'import',
       label: 'Import',
       description: 'Restore from a JSON backup',
       onClick: triggerImport,
-      icon: (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 21V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M16 13l-4-4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <rect x="4" y="3" width="16" height="4" rx="1" fill="currentColor" />
-        </svg>
-      )
+      icon: <IconUpload {...iconProps} />
     }
   ];
 

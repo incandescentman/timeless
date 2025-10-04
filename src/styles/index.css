@@ -266,51 +266,6 @@
       color: #cbd5e0;
     }
 
-    /* Help overlay styling */
-    #help {
-      display: none;
-      position: fixed;
-      left: 0; right: 0;
-      bottom: 0; top: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 2000;
-      backdrop-filter: blur(5px);
-    }
-    #help div {
-      text-align: right;
-      margin: 50px auto;
-      width: 500px;
-      padding: 30px;
-      color: black;
-      border-radius: 15px;
-      box-shadow: var(--shadow);
-      background: white;
-    }
-    #help ul {
-      margin: 0;
-      padding: 0 0 20px 20px;
-      text-align: left;
-      line-height: 1.6;
-    }
-    #help a {
-      display: inline-block;
-      padding: 8px 16px;
-      background: var(--accent);
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      transition: all 0.2s ease-in-out;
-    }
-    #help a:hover {
-      background: #3250d4;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    body.dark-mode #help div {
-      background: #333;
-      color: #eee;
-    }
-
     /* Main calendar table styling (transparent card-like cells) */
     #calendar {
       width: 90%;
