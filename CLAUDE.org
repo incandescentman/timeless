@@ -1,5 +1,10 @@
 #+title: Timeless React Overview
 
+* CRITICAL: Debugging Protocol
+- If debugging takes more than 2 turns, STOP and re-read ~docs/codebase-wisdom.org~ to avoid running in circles
+- Common patterns and fixes are documented there from past debugging sessions
+- Check symptoms against documented issues BEFORE attempting multiple fixes
+
 * Project Overview
 - React/Vite single-page app: ~src/main.jsx:1~ boots ~App~ into ~#root~ and layers shared styles for layout, calendar grid, overlays, and mobile tweaks.
 - Root composition in ~src/App.jsx:1~ wraps everything in ~ThemeProvider~ and ~CalendarProvider~, renders the infinite calendar, header, mobile action bar, and toggled overlays (year view, help, command palette, spinner).

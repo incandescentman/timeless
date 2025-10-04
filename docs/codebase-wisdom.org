@@ -269,3 +269,108 @@
      width: calc(100% - 280px);
    }
    #+end_src
+
+* React Overlay Not Visible: Always Use Portal for Fixed Overlays
+  Date: 2025-10-04
+
+** The Bug
+   Help overlay (?key shortcut) was triggering (state changed, component rendered) but nothing was visible on screen. Spent 10+ attempts debugging event handlers when the real issue was CSS rendering context.
+
+** The Truth
+   When an overlay with `position: fixed` doesn't appear but the component is rendering:
+   - Parent containers with `transform`, `perspective`, `filter`, or `will-change` create new stacking contexts
+   - These break `position: fixed` - the overlay renders relative to the transformed parent, not the viewport
+   - The overlay might be rendering at scroll position 0 in an infinite scroll container (off-screen)
+
+** Why This Took 10+ Attempts (Wrong debugging path)
+   1. **Attempt 1-3**: Assumed keyboard shortcut conflict with KBar command palette
+   2. **Attempt 4-5**: Reordered event handlers, added capture phase listeners
+   3. **Attempt 6-8**: Added excessive console.log debugging to trace event flow
+   4. **Attempt 9**: Modified z-index thinking it was a stacking issue
+   5. **Attempt 10**: Finally used React Portal - the obvious solution
+
+   **The symptoms told the whole story**: State toggling ✓, Component rendering ✓, Nothing visible ✗ = CSS stacking context issue
+
+** The Fix
+   #+begin_src jsx
+   import { createPortal } from 'react-dom';
+
+   function HelpOverlay({ onClose }) {
+     return createPortal(
+       <div id="help" className="overlay" onClick={onClose}>
+         {/* overlay content */}
+       </div>,
+       document.body  // Render directly to body, bypass all parent CSS
+     );
+   }
+   #+end_src
+
+** Diagnostic Steps (Should have done first)
+   1. Check if component renders: Add console.log in component
+   2. Check if state changes: Log state in parent
+   3. If both yes but not visible → **IMMEDIATELY use Portal**
+   4. Don't waste time on event handlers if state is working
+
+** Lessons Learned / Prevention Checklist
+   - [ ] **Overlay not visible but state working = Use Portal immediately**
+   - [ ] **Don't debug event handlers when state changes correctly**
+   - [ ] **Portal is the standard solution for overlays/modals/tooltips**
+   - [ ] **CSS stacking contexts break position:fixed - Portal bypasses them all**
+   - [ ] **Symptoms matter**: State ✓ + Rendering ✓ + Not visible ✗ = CSS issue, not JS
+
+** Quick Pattern for Any Overlay/Modal
+   #+begin_src jsx
+   // Always use this pattern for overlays
+   import { createPortal } from 'react-dom';
+
+   function AnyOverlay({ show, onClose, children }) {
+     if (!show) return null;
+
+     return createPortal(
+       <div className="overlay" onClick={onClose}>
+         <div onClick={e => e.stopPropagation()}>
+           {children}
+         </div>
+       </div>,
+       document.body
+     );
+   }
+   #+end_src
+
+** CRITICAL UPDATE: Portal + Inline Styles Required
+   Date: 2025-10-04 (Updated after breaking it again)
+
+   **The Double Fix**: After fixing the overlay with Portal + inline styles, I broke it again by removing the inline styles thinking they were just for debugging. WRONG!
+
+   **Why Both Are Needed**:
+   - Portal renders to `document.body`, outside the React component tree
+   - CSS classes may not be available in that context or have specificity issues
+   - Inline styles guarantee the styles are applied regardless of DOM location
+   - **Inline styles are PART OF THE FIX, not debugging code**
+
+   **The Pattern That Actually Works**:
+   #+begin_src jsx
+   return createPortal(
+     <div
+       id="help"
+       className="overlay"  // Keep for semantic purposes
+       onClick={onClose}
+       style={{
+         position: 'fixed',
+         top: 0,
+         left: 0,
+         right: 0,
+         bottom: 0,
+         backgroundColor: 'rgba(0, 0, 0, 0.7)',
+         display: 'flex',
+         alignItems: 'center',
+         justifyContent: 'center',
+         zIndex: 99999
+       }}>
+       {/* content */}
+     </div>,
+     document.body
+   );
+   #+end_src
+
+   **Lesson**: When something is fixed, LEAVE IT ALONE. Don't "clean up" working code without understanding why each part is necessary.

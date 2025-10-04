@@ -1,6 +1,23 @@
+import { createPortal } from 'react-dom';
+
 function HelpOverlay({ onClose }) {
-  return (
-    <div id="help" className="overlay" onClick={onClose}>
+  return createPortal(
+    <div
+      id="help"
+      className="overlay"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999
+      }}>
       <div className="overlay-content" onClick={(e) => e.stopPropagation()}>
         <h2>Keyboard Shortcuts & Help</h2>
         <ul>
@@ -34,7 +51,8 @@ function HelpOverlay({ onClose }) {
         </ul>
         <button onClick={onClose}>Close</button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

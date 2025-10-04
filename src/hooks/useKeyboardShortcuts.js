@@ -40,16 +40,17 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         return;
       }
 
-      if (e.key === '/') {
+      // Help: ? key (Shift+/ varies by keyboard layout)
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        console.log('Help shortcut triggered');
         e.preventDefault();
-        onShowCommandPalette();
+        onShowHelp();
         return;
       }
 
-      // Help: ? key
-      if (e.key === '?') {
+      if (e.key === '/' && !e.shiftKey) {
         e.preventDefault();
-        onShowHelp();
+        onShowCommandPalette();
         return;
       }
 
@@ -211,8 +212,8 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true); // Use capture phase
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [
     keyboardFocusDate,
     setKeyboardFocusDate,

@@ -114,7 +114,7 @@ function AppContent({ experimentalMode }) {
     {
       id: 'toggle-help',
       name: 'Toggle Help Overlay',
-      shortcut: ['?'],
+      shortcut: [],
       section: 'Navigation',
       perform: () => setShowHelp(prev => !prev)
     },
@@ -214,6 +214,10 @@ function AppContent({ experimentalMode }) {
         animations: {
           enterMs: 0,
           exitMs: 0
+        },
+        callbacks: {
+          onOpen: () => {},
+          onClose: () => {}
         }
       }}
     >
