@@ -372,5 +372,3 @@
      document.body
    );
    #+end_src
-
-   **Lesson**: When something is fixed, LEAVE IT ALONE. Don't "clean up" working code without understanding why each part is necessary.
