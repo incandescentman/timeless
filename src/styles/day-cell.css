@@ -28,21 +28,30 @@
 
 .day-cell.today.day-cell--baseline {
   background: linear-gradient(135deg,
-    rgba(239, 68, 68, 0.95) 0%,
-    rgba(220, 38, 38, 0.9) 100%) !important;
-  border-color: rgba(239, 68, 68, 0.5) !important;
+    #D43E44 0%,
+    #C43136 100%) !important;
+  border-color: rgba(212, 62, 68, 0.5) !important;
   color: white;
   font-weight: bold;
   box-shadow:
-    0 0 20px rgba(239, 68, 68, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    0 0 18px rgba(212, 62, 68, 0.25),
+    0 4px 8px rgba(212, 62, 68, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
 
-.day-cell.today .day-number,
-.day-cell.today .day-month,
-.day-cell.today .day-weekday {
+.day-cell.today .day-number {
   color: white !important;
   opacity: 1 !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.day-cell.today .day-month,
+.day-cell.today .day-weekday {
+  color: rgba(255, 255, 255, 0.95) !important;
+  opacity: 1 !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .day-cell--baseline.weekend {
