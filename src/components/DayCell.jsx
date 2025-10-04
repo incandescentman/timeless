@@ -156,19 +156,20 @@ function DayCell({ date }) {
         addNote(dateId, trimmed);
       }
 
-      // Find the next day's cell and open its composer (regardless of whether there's text)
-      const nextDay = addDays(date, 1);
-      const nextDayId = generateDayId(nextDay);
+      // Determine direction based on shift key
+      const direction = e.shiftKey ? -1 : 1;
+      const targetDay = addDays(date, direction);
+      const targetDayId = generateDayId(targetDay);
 
       // Close current composer
       setIsAddingNew(false);
       setNewEventText('');
 
-      // Wait a tick then open the next day's composer
+      // Wait a tick then open the target day's composer
       setTimeout(() => {
-        const nextDayCell = document.querySelector(`[data-date-id="${nextDayId}"]`);
-        if (nextDayCell) {
-          nextDayCell.click();
+        const targetDayCell = document.querySelector(`[data-date-id="${targetDayId}"]`);
+        if (targetDayCell) {
+          targetDayCell.click();
         }
       }, 0);
     }

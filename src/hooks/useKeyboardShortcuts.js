@@ -77,6 +77,19 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         return;
       }
 
+      // Quick add note to today: n key
+      if (e.key === 'n') {
+        e.preventDefault();
+        const todayCell = document.querySelector('.day-cell.today');
+        if (todayCell) {
+          todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            todayCell.click();
+          }, 100);
+        }
+        return;
+      }
+
       // Multi-select mode: m key
       if (e.key === 'm') {
         e.preventDefault();
@@ -117,16 +130,16 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       if (keyboardFocusDate) {
         let newDate = null;
 
-        if (e.key === 'ArrowLeft') {
+        if (e.key === 'ArrowLeft' || e.key === 'h') {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, -1);
-        } else if (e.key === 'ArrowRight') {
+        } else if (e.key === 'ArrowRight' || e.key === 'l') {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, 1);
-        } else if (e.key === 'ArrowUp') {
+        } else if (e.key === 'ArrowUp' || e.key === 'k') {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, -7);
-        } else if (e.key === 'ArrowDown') {
+        } else if (e.key === 'ArrowDown' || e.key === 'j') {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, 7);
         }
@@ -161,8 +174,8 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
           return;
         }
 
-        // Delete key: remove notes from focused day
-        if (e.key === 'Delete') {
+        // Backspace key: remove notes from focused day
+        if (e.key === 'Backspace') {
           e.preventDefault();
           if (confirm('Delete all notes for this day?')) {
             const dateId = generateDayId(keyboardFocusDate);
@@ -172,7 +185,19 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         }
       }
 
-      // Month navigation: Alt+Up/Down
+      // Month navigation: Alt+Up/Down or [/]
+      if (e.key === '[') {
+        e.preventDefault();
+        jumpMonths(-1);
+        return;
+      }
+
+      if (e.key === ']') {
+        e.preventDefault();
+        jumpMonths(1);
+        return;
+      }
+
       if (e.altKey) {
         if (e.key === 'ArrowUp') {
           e.preventDefault();
