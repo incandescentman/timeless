@@ -78,8 +78,8 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         return;
       }
 
-      // Quick add note to today: n key
-      if (e.key === 'n') {
+      // Quick add note to today: c or T key
+      if (e.key === 'c' || e.key === 'T') {
         e.preventDefault();
         const todayCell = document.querySelector('.day-cell.today');
         if (todayCell) {
@@ -186,16 +186,29 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         }
       }
 
-      // Month navigation: Alt+Up/Down or [/]
-      if (e.key === '[') {
+      // Month navigation: Alt+Up/Down or [/] or p/n
+      if (e.key === '[' || e.key === 'p') {
         e.preventDefault();
         jumpMonths(-1);
         return;
       }
 
-      if (e.key === ']') {
+      if (e.key === ']' || e.key === 'n') {
         e.preventDefault();
         jumpMonths(1);
+        return;
+      }
+
+      // Year navigation: P/N
+      if (e.key === 'P') {
+        e.preventDefault();
+        jumpMonths(-12);
+        return;
+      }
+
+      if (e.key === 'N') {
+        e.preventDefault();
+        jumpMonths(12);
         return;
       }
 

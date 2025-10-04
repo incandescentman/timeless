@@ -69,14 +69,27 @@ npm run preview
 
 ## Keyboard Shortcuts
 
+### Navigation
+- `⌘K` or `/` - Command palette
 - `t` - Jump to today
-- `g` - Go to specific date
 - `y` - Year view
+- `p` / `n` - Previous/next month
+- `P` / `N` - Previous/next year
+- `i` - Enter navigation mode
 - `?` - Help overlay
-- `Ctrl+D` - Toggle dark mode
-- `Ctrl+Z` - Undo
-- `Ctrl+Shift+Z` - Redo
-- `Cmd+K` - Command palette
+
+### Editing
+- `c` or `T` - Add note to today
+- `m` - Multi-select mode
+- `Tab` / `⇧Tab` - Save & move between notes
+- `Return` - Save & exit
+- `⌘Z` / `⌘Y` - Undo/redo
+- `Backspace` - Delete day's notes
+
+### System
+- `⌘D` - Toggle dark mode
+- `⇧D` - Export markdown
+- `Esc` - Close overlays
 
 ## Data Storage
 

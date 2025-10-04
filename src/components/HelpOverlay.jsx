@@ -17,18 +17,19 @@ const shortcutSections = [
       { label: 'Command Palette', keys: ['⌘K', '/'] },
       { label: 'Jump to Today', keys: ['t'] },
       { label: 'Year View', keys: ['y'] },
-      { label: 'Prev/Next Month', keys: ['[', ']'] },
-      { label: 'Nav Mode', keys: ['i'] },
-      { label: 'Move (nav)', keys: ['←', '↑', '↓', '→'] }
+      { label: 'Prev/Next Month', keys: ['p', 'n'] },
+      { label: 'Prev/Next Year', keys: ['P', 'N'] },
+      { label: 'Nav Mode', keys: ['i'] }
     ]
   },
   {
     title: 'Editing',
     icon: IconEdit,
     items: [
-      { label: 'Add Note to Today', keys: ['n'] },
+      { label: 'Add Note to Today', keys: ['c', 'T'] },
       { label: 'Multi-Select Mode', keys: ['m'] },
       { label: 'Save & Move', keys: ['Tab', '⇧Tab'] },
+      { label: 'Save & Exit', keys: ['Return'] },
       { label: 'Undo / Redo', keys: ['⌘Z', '⌘Y'] },
       { label: "Delete Day's Notes", keys: ['Backspace'] }
     ]
@@ -128,11 +129,12 @@ function HelpOverlay({ onClose }) {
                 <motion.section
                   key={section.title}
                   className="help-overlay__section"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    delay: 0.15 + sectionIndex * 0.1,
-                    duration: 0.4
+                    delay: 0.15 + sectionIndex * 0.08,
+                    duration: 0.4,
+                    ease: "easeOut"
                   }}
                 >
                   <div className="help-overlay__section-header">
@@ -140,30 +142,20 @@ function HelpOverlay({ onClose }) {
                     <h3>{section.title}</h3>
                   </div>
                   <ul className="help-overlay__list">
-                    {section.items.map(({ label, keys }, itemIndex) => (
-                      <motion.li
+                    {section.items.map(({ label, keys }) => (
+                      <li
                         key={label}
                         className="help-overlay__row"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                          delay: 0.2 + sectionIndex * 0.1 + itemIndex * 0.03,
-                          duration: 0.3
-                        }}
-                        whileHover={{
-                          x: 4,
-                          transition: { duration: 0.15 }
-                        }}
                       >
                         <span className="help-overlay__label">{label}</span>
                         <span className="help-overlay__keys">
-                          {keys.map((key, keyIndex) => (
+                          {keys.map((key) => (
                             <kbd key={key} className="help-overlay__kbd">
                               {key}
                             </kbd>
                           ))}
                         </span>
-                      </motion.li>
+                      </li>
                     ))}
                   </ul>
                 </motion.section>

@@ -1,5 +1,36 @@
 # Timeless Calendar - Work Log
 
+## October 4, 2025
+
+### Session: Keyboard Shortcuts Refinement
+
+#### Changes Made
+1. **Help Overlay Improvements**
+   - Fixed wiggling/reordering animation issues
+   - Removed individual item animations to prevent layout shifts
+   - Added smooth section-level animations with staggered delays
+   - Removed "Move (nav)" entry (redundant with nav mode arrows)
+   - Added "Save & Exit" with Return key
+
+2. **Keyboard Shortcut Updates**
+   - Changed "Add Note to Today" from `n` to `c`
+   - Added `T` (capital) as alternate for "Add Note to Today"
+   - Added `n`/`p` for next/previous month navigation
+   - Added `N`/`P` for next/previous year navigation (12-month jumps)
+   - Updated help overlay to reflect all new shortcuts
+
+3. **Documentation Updates**
+   - Reorganized README keyboard shortcuts into Navigation/Editing/System sections
+   - Added all new shortcuts with proper formatting
+   - Updated work log with session details
+
+#### Technical Details
+- Modified `/src/hooks/useKeyboardShortcuts.js` for new key bindings
+- Updated `/src/components/HelpOverlay.jsx` with animation fixes
+- Branch `shadcn-help` merged into `main`
+
+---
+
 ## October 3, 2025
 
 ### Session: Layout Overhaul & Spacing Improvements
