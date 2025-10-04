@@ -5,40 +5,42 @@
   position: relative;
   min-height: 185px;
   padding: 0.95rem 1.05rem;
-  border: none;
-  border-radius: 0;
-  background: linear-gradient(135deg, rgba(244, 249, 255, 0.9), rgba(226, 241, 252, 0.85));
+  border: 1px solid rgba(186, 230, 253, 0.35);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(240, 249, 255, 0.9), rgba(224, 242, 254, 0.85));
+  backdrop-filter: blur(6px);
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
   width: 100%;
   box-sizing: border-box;
   align-items: stretch;
-  border-right: 1px solid var(--grid-divider-soft);
-  border-bottom: 1px solid var(--grid-divider-soft);
+  margin: 2px;
 }
 
 .day-cell--baseline:hover {
-  background: linear-gradient(135deg, rgba(236, 244, 255, 0.95), rgba(214, 234, 252, 0.92));
+  border-color: rgba(125, 211, 252, 0.75);
+  box-shadow: 0 12px 28px rgba(100, 116, 139, 0.15);
+  transform: translateY(-1px) scale(1.01);
 }
 
-.day-cell--baseline.today {
+.day-cell.today.day-cell--baseline {
   background: linear-gradient(135deg,
-    var(--today-gradient-from) 0%,
-    var(--today-gradient-to) 100%);
+    rgba(239, 68, 68, 0.95) 0%,
+    rgba(220, 38, 38, 0.9) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
   color: white;
   font-weight: bold;
   box-shadow:
-    inset -1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+    0 0 20px rgba(239, 68, 68, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
-.day-cell--baseline.today .day-number,
-.day-cell--baseline.today .day-month,
-.day-cell--baseline.today .day-weekday {
+.day-cell.today .day-number,
+.day-cell.today .day-month,
+.day-cell.today .day-weekday {
   color: white !important;
   opacity: 1 !important;
 }
