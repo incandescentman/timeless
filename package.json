@@ -10,8 +10,9 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@tabler/icons-react": "^3.35.0",
     "@jaydixit/experimental-mode": "^1.0.5",
+    "@tabler/icons-react": "^3.35.0",
+    "framer-motion": "^12.23.22",
     "ioredis": "^5.8.0",
     "kbar": "^0.1.0-beta.48",
     "react": "^18.3.1",
