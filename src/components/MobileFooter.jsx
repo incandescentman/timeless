@@ -1,46 +1,34 @@
 import { useCallback } from 'react';
-import { generateDayId } from '../utils/dateUtils';
+import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
+import { useMonthNavigation } from '../hooks/useMonthNavigation';
+import { useKBar } from 'kbar';
 
 function MobileFooter() {
-  const handlePrevious = useCallback(() => {
-    // Scroll up one week
-    const container = document.getElementById('calendarContainer');
-    if (container) {
-      container.scrollBy({
-        top: -window.innerHeight * 0.8,
-        behavior: 'smooth'
-      });
-    }
-  }, []);
-
-  const handleNext = useCallback(() => {
-    // Scroll down one week
-    const container = document.getElementById('calendarContainer');
-    if (container) {
-      container.scrollBy({
-        top: window.innerHeight * 0.8,
-        behavior: 'smooth'
-      });
-    }
-  }, []);
+  const { announceCommand } = useCommandFeedback();
+  const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
+  const { query } = useKBar();
 
   const handleToday = useCallback(() => {
     // Scroll to today
+    announceCommand({ label: 'Centering on today' });
     const todayCell = document.querySelector('.day-cell.today');
     if (todayCell) {
       todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, []);
+  }, [announceCommand]);
+
+  const handlePreviousMonth = useCallback(() => {
+    announceAndJump(-1, describeDirection(-1));
+  }, [announceAndJump, describeDirection]);
+
+  const handleNextMonth = useCallback(() => {
+    announceAndJump(1, describeDirection(1));
+  }, [announceAndJump, describeDirection]);
 
   const handleMenu = useCallback(() => {
-    // Trigger command palette using keyboard shortcut
-    const event = new KeyboardEvent('keydown', {
-      key: 'k',
-      metaKey: true,
-      bubbles: true
-    });
-    document.dispatchEvent(event);
-  }, []);
+    announceCommand({ label: 'Opening command palette' });
+    query.toggle();
+  }, [announceCommand, query]);
 
   return (
     <div className="mobile-footer">
@@ -61,8 +49,8 @@ function MobileFooter() {
 
       <button
         className="mobile-footer__button"
-        onClick={handlePrevious}
-        aria-label="Previous week"
+        onClick={handlePreviousMonth}
+        aria-label="Previous month"
       >
         <div className="mobile-footer__icon-container">
           <svg className="mobile-footer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
@@ -73,8 +61,8 @@ function MobileFooter() {
 
       <button
         className="mobile-footer__button"
-        onClick={handleNext}
-        aria-label="Next week"
+        onClick={handleNextMonth}
+        aria-label="Next month"
       >
         <div className="mobile-footer__icon-container">
           <svg className="mobile-footer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">

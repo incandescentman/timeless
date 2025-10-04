@@ -312,48 +312,6 @@ text-transform:uppercase !important;
   }
 
   /* Mobile bottom action bar */
-  .mobile-action-bar {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--header-solid-bg);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    padding: 10px 14px;
-    z-index: 990;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 12px;
-  }
-  .mobile-action-bar button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: transparent;
-    box-shadow: none;
-    font-size: 12px;
-    margin: 0;
-    padding: 5px;
-    flex: 0 0 auto;
-  }
-  .mobile-action-bar button:nth-child(2) {
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .mobile-action-bar button:nth-child(3) {
-    margin-right: auto;
-  }
-  .mobile-action-bar .icon {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 2px;
-  }
-  .mobile-action-bar button:active {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-
   .week-row-animate.append-animate,
   .week-row-animate.prepend-animate {
     animation-duration: 0.1s !important;

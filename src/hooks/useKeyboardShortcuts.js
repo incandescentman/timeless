@@ -1,8 +1,9 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
 import { addDays, generateDayId } from '../utils/dateUtils';
+import { useMonthNavigation } from './useMonthNavigation';
 
 export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommandPalette }) {
   const {
@@ -18,146 +19,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
 
   const { toggleDarkMode } = useTheme();
   const { announceCommand } = useCommandFeedback();
-
-  const jumpMonths = useCallback((direction, attempt = 0, state) => {
-    const monthSections = Array.from(document.querySelectorAll('.month-section'));
-
-    if (monthSections.length === 0) {
-      const avgMonthHeight = 600; // Rough fallback if headers are missing
-      window.scrollBy({
-        top: direction * avgMonthHeight,
-        behavior: 'smooth'
-      });
-      return;
-    }
-
-    const viewportBottom = window.innerHeight;
-    const VIEWPORT_TARGET_OFFSET = 100;
-    const SCROLL_RATIO = 0.9;
-    const MAX_ATTEMPTS = 8;
-    const RETRY_DELAY = 400;
-    const scrollDirection = Math.sign(direction || 1) || 1;
-
-    let activeEntry = null;
-    let closestDistance = Infinity;
-
-    const entries = monthSections.map((section) => {
-      const header = section.querySelector('.month-header');
-      const rect = header
-        ? header.getBoundingClientRect()
-        : section.getBoundingClientRect();
-      const key = section.dataset.monthKey || '';
-      const isVisible = rect.top < viewportBottom && rect.bottom > 0;
-      const distanceFromTop = Math.abs(rect.top - VIEWPORT_TARGET_OFFSET);
-
-      if (isVisible && distanceFromTop < closestDistance) {
-        closestDistance = distanceFromTop;
-        activeEntry = { section, header, rect, key };
-      }
-
-      return { section, header, rect, key };
-    });
-
-    if (!activeEntry && entries.length > 0) {
-      // Fallback to the first section below the viewport, or last if none
-      activeEntry = entries.find(entry => entry.rect.top > 0) || entries[entries.length - 1];
-    }
-
-    if (!activeEntry) {
-      window.scrollBy({
-        top: scrollDirection * window.innerHeight * SCROLL_RATIO,
-        behavior: 'smooth'
-      });
-      return;
-    }
-
-    const parseMonthKey = (key) => {
-      const match = key.match(/^(-?\d{1,4})-(\d{1,2})$/);
-      if (!match) return null;
-      const year = parseInt(match[1], 10);
-      const monthIndex = parseInt(match[2], 10);
-      if (Number.isNaN(year) || Number.isNaN(monthIndex)) return null;
-      return { year, monthIndex };
-    };
-
-    let workingState = state;
-    if (!workingState) {
-      const parsed = parseMonthKey(activeEntry.key);
-      if (!parsed) {
-        window.scrollBy({
-          top: scrollDirection * window.innerHeight * SCROLL_RATIO,
-          behavior: 'smooth'
-        });
-        return;
-      }
-      const baseAbsolute = parsed.year * 12 + parsed.monthIndex;
-      workingState = {
-        baseAbsolute,
-        targetAbsolute: baseAbsolute + direction
-      };
-    }
-
-    const { targetAbsolute } = workingState;
-    if (!Number.isFinite(targetAbsolute)) {
-      return;
-    }
-
-    const targetAbsoluteInt = Math.trunc(targetAbsolute);
-    const targetMonthIndex = ((targetAbsoluteInt % 12) + 12) % 12;
-    const targetYear = (targetAbsoluteInt - targetMonthIndex) / 12;
-    const targetKey = `${targetYear}-${targetMonthIndex}`;
-
-    const targetSection = document.querySelector(`.month-section[data-month-key="${targetKey}"]`);
-    if (targetSection) {
-      const targetHeader = targetSection.querySelector('.month-header') || targetSection;
-      targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-
-    if (attempt >= MAX_ATTEMPTS) {
-      window.scrollBy({
-        top: scrollDirection * window.innerHeight * SCROLL_RATIO,
-        behavior: 'smooth'
-      });
-      return;
-    }
-
-    window.scrollBy({
-      top: scrollDirection * window.innerHeight * SCROLL_RATIO,
-      behavior: 'smooth'
-    });
-
-    setTimeout(() => {
-      jumpMonths(direction, attempt + 1, workingState);
-    }, RETRY_DELAY + attempt * 120);
-  }, []);
-
-  const triggerMonthJump = useCallback((direction) => {
-    if (!direction) return;
-
-    const magnitude = Math.abs(direction);
-    let label;
-
-    if (direction === 12) {
-      label = 'Jumping to next year';
-    } else if (direction === -12) {
-      label = 'Jumping to previous year';
-    } else if (direction > 0) {
-      label = magnitude === 1
-        ? 'Scrolling to next month'
-        : `Scrolling forward ${magnitude} months`;
-    } else {
-      label = magnitude === 1
-        ? 'Scrolling to previous month'
-        : `Scrolling back ${magnitude} months`;
-    }
-
-    if (label) {
-      announceCommand({ label });
-    }
-
-    jumpMonths(direction);
-  }, [announceCommand, jumpMonths]);
+  const { announceAndJump: triggerMonthJump, describeDirection } = useMonthNavigation({ announceCommand });
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -339,37 +201,37 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       // Month navigation: Alt+Up/Down or [/] or p/n
       if (e.key === '[' || e.key === 'p') {
         e.preventDefault();
-        triggerMonthJump(-1);
+        triggerMonthJump(-1, describeDirection(-1));
         return;
       }
 
       if (e.key === ']' || e.key === 'n') {
         e.preventDefault();
-        triggerMonthJump(1);
+        triggerMonthJump(1, describeDirection(1));
         return;
       }
 
       // Year navigation: P/N
       if (e.key === 'P') {
         e.preventDefault();
-        triggerMonthJump(-12);
+        triggerMonthJump(-12, describeDirection(-12));
         return;
       }
 
       if (e.key === 'N') {
         e.preventDefault();
-        triggerMonthJump(12);
+        triggerMonthJump(12, describeDirection(12));
         return;
       }
 
       if (e.altKey) {
         if (e.key === 'ArrowUp') {
           e.preventDefault();
-          triggerMonthJump(-1);
+          triggerMonthJump(-1, describeDirection(-1));
           return;
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
-          triggerMonthJump(1);
+          triggerMonthJump(1, describeDirection(1));
           return;
         }
       }
@@ -391,6 +253,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
     toggleMultiSelectMode,
     removeNote,
     triggerMonthJump,
+    describeDirection,
     announceCommand
   ]);
 }
