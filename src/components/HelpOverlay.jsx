@@ -47,10 +47,10 @@ function HelpOverlay({ onClose }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           background: 'linear-gradient(135deg, #f5f7fa 0%, #fff 100%)',
-          padding: '2rem',
-          borderRadius: '16px',
-          maxWidth: '900px',
-          maxHeight: '85vh',
+          padding: '1.25rem',
+          borderRadius: '12px',
+          width: 'min(90vw, 700px)',
+          maxHeight: '80vh',
           overflowY: 'auto',
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
           position: 'relative'
@@ -78,61 +78,55 @@ function HelpOverlay({ onClose }) {
         </button>
 
         <h2 style={{
-          marginBottom: '1.5rem',
-          fontSize: '1.8rem',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
+          marginBottom: '0.75rem',
+          fontSize: '1.3rem',
+          color: '#4a5568'
         }}>
           ⌨️ Keyboard Shortcuts
         </h2>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: '2rem'
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1rem',
+          fontSize: '0.85rem'
         }}>
 
           {/* Navigation Section */}
           <div>
             <h3 style={{
               color: '#4a5568',
-              fontSize: '1.1rem',
-              marginBottom: '0.75rem',
+              fontSize: '1rem',
+              marginBottom: '0.5rem',
               borderBottom: '2px solid #e2e8f0',
-              paddingBottom: '0.5rem'
+              paddingBottom: '0.35rem'
             }}>
               Navigation
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Command Palette</span>
-                <span><kbd style={kbdStyle}>⌘K</kbd> or <kbd style={kbdStyle}>/</kbd></span>
+                <span style={{ whiteSpace: 'nowrap' }}><kbd style={kbdStyle}>⌘K</kbd> <kbd style={kbdStyle}>/</kbd></span>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Jump to Today</span>
                 <kbd style={kbdStyle}>t</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Jump to Date</span>
-                <kbd style={kbdStyle}>g</kbd>
-              </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Year View</span>
                 <kbd style={kbdStyle}>y</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Previous/Next Month</span>
-                <span><kbd style={kbdStyle}>[</kbd> <kbd style={kbdStyle}>]</kbd></span>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                <span>Prev/Next Month</span>
+                <span style={{ whiteSpace: 'nowrap' }}><kbd style={kbdStyle}>[</kbd> <kbd style={kbdStyle}>]</kbd></span>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Keyboard Navigation Mode</span>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                <span>Nav Mode</span>
                 <kbd style={kbdStyle}>i</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Move (in nav mode)</span>
-                <span><kbd style={kbdStyle}>←↑↓→</kbd> or <kbd style={kbdStyle}>hjkl</kbd></span>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                <span>Move (nav)</span>
+                <kbd style={kbdStyle}>←↑↓→</kbd>
               </li>
             </ul>
           </div>
@@ -141,35 +135,31 @@ function HelpOverlay({ onClose }) {
           <div>
             <h3 style={{
               color: '#4a5568',
-              fontSize: '1.1rem',
-              marginBottom: '0.75rem',
+              fontSize: '1rem',
+              marginBottom: '0.5rem',
               borderBottom: '2px solid #e2e8f0',
-              paddingBottom: '0.5rem'
+              paddingBottom: '0.35rem'
             }}>
               Editing
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Add Note to Today</span>
                 <kbd style={kbdStyle}>n</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Multi-Select Mode</span>
                 <kbd style={kbdStyle}>m</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Save & Next Day</span>
-                <kbd style={kbdStyle}>Tab</kbd>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                <span>Save & Move</span>
+                <span style={{ whiteSpace: 'nowrap' }}><kbd style={kbdStyle}>Tab</kbd> <kbd style={kbdStyle}>⇧Tab</kbd></span>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Save & Previous Day</span>
-                <span><kbd style={kbdStyle}>Shift</kbd> <kbd style={kbdStyle}>Tab</kbd></span>
-              </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Undo/Redo</span>
                 <span><kbd style={kbdStyle}>⌘Z</kbd> <kbd style={kbdStyle}>⌘Y</kbd></span>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Delete Day's Notes</span>
                 <kbd style={kbdStyle}>Backspace</kbd>
               </li>
@@ -180,27 +170,27 @@ function HelpOverlay({ onClose }) {
           <div>
             <h3 style={{
               color: '#4a5568',
-              fontSize: '1.1rem',
-              marginBottom: '0.75rem',
+              fontSize: '1rem',
+              marginBottom: '0.5rem',
               borderBottom: '2px solid #e2e8f0',
-              paddingBottom: '0.5rem'
+              paddingBottom: '0.35rem'
             }}>
               System
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Toggle Dark Mode</span>
                 <kbd style={kbdStyle}>⌘D</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Download Markdown</span>
-                <span><kbd style={kbdStyle}>Shift</kbd> <kbd style={kbdStyle}>D</kbd></span>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                <span>Export MD</span>
+                <kbd style={kbdStyle}>⇧D</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Show This Help</span>
                 <kbd style={kbdStyle}>?</kbd>
               </li>
-              <li style={{ padding: '0.4rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <li style={{ padding: '0.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <span>Close Overlays</span>
                 <kbd style={kbdStyle}>Esc</kbd>
               </li>
@@ -209,10 +199,10 @@ function HelpOverlay({ onClose }) {
         </div>
 
         <div style={{
-          marginTop: '2rem',
-          paddingTop: '1rem',
+          marginTop: '1rem',
+          paddingTop: '0.75rem',
           borderTop: '1px solid #e2e8f0',
-          fontSize: '0.9rem',
+          fontSize: '0.85rem',
           color: '#718096',
           textAlign: 'center'
         }}>
