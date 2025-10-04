@@ -32,6 +32,19 @@ A React-based infinite scroll calendar application with persistent note-taking c
 
 ## Recent Updates (October 2025)
 
+### UI/UX Enhancements
+- Restored rounded card design for day cells with 14px border radius
+- Implemented refined event/note cards with gradient backgrounds and layered shadows
+- Enhanced today cell highlighting with customizable red gradient (#D43E44)
+- Added letter-spacing to month/weekday labels for more polished typography
+- Improved text contrast for better readability
+
+### Keyboard Navigation
+- Fixed month navigation with n/p keys using proper viewport detection
+- Added N/P shortcuts for year navigation (12-month jumps)
+- Changed "Add Note to Today" shortcut from n to c/T
+- Improved navigation detection using getBoundingClientRect()
+
 ### Layout Improvements
 - Expanded desktop canvas to 1680px and re-centered the main grid
 - Converted the weekly grid to a seamless, gutter-free layout with shared borders
@@ -40,6 +53,9 @@ A React-based infinite scroll calendar application with persistent note-taking c
 - Refined mobile month headers so the accent bar no longer overlaps the label
 
 ### Bug Fixes
+- Fixed today cell not showing red highlighting (CSS specificity issue)
+- Resolved help overlay animation wiggling/reordering
+- Fixed keyboard navigation always jumping to wrong months
 - Resolved mini calendar disappearing when scrolling to today
 - Fixed calendar cutoff issues on right edge
 - Corrected dark mode contrast problems
