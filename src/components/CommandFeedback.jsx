@@ -37,10 +37,6 @@ function CommandFeedbackOverlay({ command }) {
     return () => clearTimeout(timeout);
   }, [command, visibleCommand]);
 
-  if (!isMounted || !visibleCommand) {
-    return null;
-  }
-
   const hostDisplay = useMemo(() => {
     if (typeof window === 'undefined') return 'LOCALHOST:31337';
     return window.location.host || 'LOCALHOST:31337';
@@ -69,6 +65,10 @@ function CommandFeedbackOverlay({ command }) {
   ].filter(Boolean).join(' ');
 
   const portalTarget = document.body;
+
+  if (!isMounted || !visibleCommand) {
+    return null;
+  }
 
   return createPortal(
     <div className={classNames} role="status" aria-live="polite">
