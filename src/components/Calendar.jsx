@@ -8,7 +8,8 @@ import DayCell from './DayCell';
 import Header from './Header';
 import '../styles/calendar.css';
 
-const BUFFER_WEEKS = 26; // Load 26 weeks above and below
+// Reduce buffer on mobile to prevent crashes - mobile gets 4 weeks (56 cells), desktop gets 26 weeks (364 cells)
+const BUFFER_WEEKS = typeof window !== 'undefined' && window.innerWidth <= 768 ? 4 : 26;
 const LOAD_WEEKS = 10;   // Weeks added per sentinel trigger
 const MAX_RENDER_WEEKS = 120; // Cap rendered weeks to protect mobile memory
 

@@ -106,7 +106,7 @@ function DayCell({ date }) {
     if (!isAddingNew) {
       setIsAddingNew(true);
       // On mobile, don't auto-focus (bottom sheet will handle it)
-      if (window.innerWidth > 768) {
+      if (typeof window !== 'undefined' && window.innerWidth > 768) {
         setTimeout(() => inputRef.current?.focus(), 0);
       }
     }
@@ -114,7 +114,7 @@ function DayCell({ date }) {
 
   const handleCellClick = (e) => {
     // Add ripple effect on mobile
-    if (window.innerWidth <= 768) {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
       createRipple(e);
     }
 
