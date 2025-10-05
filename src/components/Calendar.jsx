@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
@@ -9,17 +9,39 @@ import Header from './Header';
 import '../styles/calendar.css';
 
 const BUFFER_WEEKS = 26; // Load 26 weeks above and below
+const LOAD_WEEKS = 10;   // Weeks added per sentinel trigger
+const MAX_RENDER_WEEKS = 120; // Cap rendered weeks to protect mobile memory
 
 function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const { systemToday } = useCalendar();
   const { announceCommand } = useCommandFeedback();
-  const [weeks, setWeeks] = useState([]);
+  const [weekRange, setWeekRange] = useState(() => ({
+    start: -BUFFER_WEEKS,
+    end: BUFFER_WEEKS
+  }));
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth <= 768);
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
   const sentinelLoadRef = useRef({ top: false, bottom: false });
+  const hasInitialScrollRef = useRef(false);
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
+
+  const todayWeekStart = useMemo(() => getWeekStart(systemToday), [systemToday]);
+
+  const weeks = useMemo(() => {
+    const generatedWeeks = [];
+
+    for (let offset = weekRange.start; offset <= weekRange.end; offset++) {
+      const weekStart = addDays(todayWeekStart, offset * 7);
+      generatedWeeks.push({
+        weekStart: weekStart.toISOString(),
+        days: getWeekDays(weekStart)
+      });
+    }
+
+    return generatedWeeks;
+  }, [weekRange, todayWeekStart]);
 
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
@@ -46,73 +68,42 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Initialize calendar with weeks around today
-  useEffect(() => {
-    const todayWeekStart = getWeekStart(systemToday);
-    const initialWeeks = [];
-
-    for (let i = -BUFFER_WEEKS; i <= BUFFER_WEEKS; i++) {
-      const weekStart = addDays(todayWeekStart, i * 7);
-      initialWeeks.push({
-        weekStart: weekStart.toISOString(),
-        days: getWeekDays(weekStart)
-      });
-    }
-
-    setWeeks(initialWeeks);
-  }, [systemToday]);
-
   // Scroll to today on mount
   useEffect(() => {
-    if (weeks.length === 0) return;
+    if (weeks.length === 0 || hasInitialScrollRef.current) return;
 
     setTimeout(() => {
       const todayCell = document.querySelector('.day-cell.today');
       if (todayCell) {
         todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+      hasInitialScrollRef.current = true;
     }, 100);
   }, [weeks]);
 
   const loadPreviousWeeks = useCallback(() => {
-    setWeeks(prevWeeks => {
-      if (prevWeeks.length === 0) {
-        return prevWeeks;
+    setWeekRange(prev => {
+      const nextStart = prev.start - LOAD_WEEKS;
+      let nextEnd = prev.end;
+
+      if (nextEnd - nextStart + 1 > MAX_RENDER_WEEKS) {
+        nextEnd = nextStart + MAX_RENDER_WEEKS - 1;
       }
 
-      const firstWeekStart = new Date(prevWeeks[0].weekStart);
-      const newWeeks = [];
-
-      for (let i = 1; i <= 10; i++) {
-        const weekStart = addDays(firstWeekStart, -i * 7);
-        newWeeks.unshift({
-          weekStart: weekStart.toISOString(),
-          days: getWeekDays(weekStart)
-        });
-      }
-
-      return [...newWeeks, ...prevWeeks];
+      return { start: nextStart, end: nextEnd };
     });
   }, []);
 
   const loadNextWeeks = useCallback(() => {
-    setWeeks(prevWeeks => {
-      if (prevWeeks.length === 0) {
-        return prevWeeks;
+    setWeekRange(prev => {
+      const nextEnd = prev.end + LOAD_WEEKS;
+      let nextStart = prev.start;
+
+      if (nextEnd - nextStart + 1 > MAX_RENDER_WEEKS) {
+        nextStart = nextEnd - (MAX_RENDER_WEEKS - 1);
       }
 
-      const lastWeekStart = new Date(prevWeeks[prevWeeks.length - 1].weekStart);
-      const newWeeks = [];
-
-      for (let i = 1; i <= 10; i++) {
-        const weekStart = addDays(lastWeekStart, i * 7);
-        newWeeks.push({
-          weekStart: weekStart.toISOString(),
-          days: getWeekDays(weekStart)
-        });
-      }
-
-      return [...prevWeeks, ...newWeeks];
+      return { start: nextStart, end: nextEnd };
     });
   }, []);
 
