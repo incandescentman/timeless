@@ -18,6 +18,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
+  const sentinelLoadRef = useRef({ top: false, bottom: false });
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
 
   const swipeHandlers = useSwipeable({
@@ -73,12 +74,64 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
     }, 100);
   }, [weeks]);
 
+  const loadPreviousWeeks = useCallback(() => {
+    setWeeks(prevWeeks => {
+      if (prevWeeks.length === 0) {
+        return prevWeeks;
+      }
+
+      const firstWeekStart = new Date(prevWeeks[0].weekStart);
+      const newWeeks = [];
+
+      for (let i = 1; i <= 10; i++) {
+        const weekStart = addDays(firstWeekStart, -i * 7);
+        newWeeks.unshift({
+          weekStart: weekStart.toISOString(),
+          days: getWeekDays(weekStart)
+        });
+      }
+
+      return [...newWeeks, ...prevWeeks];
+    });
+  }, []);
+
+  const loadNextWeeks = useCallback(() => {
+    setWeeks(prevWeeks => {
+      if (prevWeeks.length === 0) {
+        return prevWeeks;
+      }
+
+      const lastWeekStart = new Date(prevWeeks[prevWeeks.length - 1].weekStart);
+      const newWeeks = [];
+
+      for (let i = 1; i <= 10; i++) {
+        const weekStart = addDays(lastWeekStart, i * 7);
+        newWeeks.push({
+          weekStart: weekStart.toISOString(),
+          days: getWeekDays(weekStart)
+        });
+      }
+
+      return [...prevWeeks, ...newWeeks];
+    });
+  }, []);
+
   // Infinite scroll: load more weeks when sentinels are visible
   useEffect(() => {
     const topObserver = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && weeks.length > 0) {
-          loadPreviousWeeks();
+        const entry = entries[0];
+        if (!entry) {
+          return;
+        }
+
+        if (entry.isIntersecting) {
+          if (!sentinelLoadRef.current.top) {
+            sentinelLoadRef.current.top = true;
+            loadPreviousWeeks();
+          }
+        } else {
+          sentinelLoadRef.current.top = false;
         }
       },
       { threshold: 0.1 }
@@ -86,8 +139,18 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
 
     const bottomObserver = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && weeks.length > 0) {
-          loadNextWeeks();
+        const entry = entries[0];
+        if (!entry) {
+          return;
+        }
+
+        if (entry.isIntersecting) {
+          if (!sentinelLoadRef.current.bottom) {
+            sentinelLoadRef.current.bottom = true;
+            loadNextWeeks();
+          }
+        } else {
+          sentinelLoadRef.current.bottom = false;
         }
       },
       { threshold: 0.1 }
@@ -99,42 +162,10 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
     return () => {
       topObserver.disconnect();
       bottomObserver.disconnect();
+      sentinelLoadRef.current.top = false;
+      sentinelLoadRef.current.bottom = false;
     };
-  }, [weeks]);
-
-  const loadPreviousWeeks = useCallback(() => {
-    if (weeks.length === 0) return;
-
-    const firstWeekStart = new Date(weeks[0].weekStart);
-    const newWeeks = [];
-
-    for (let i = 1; i <= 10; i++) {
-      const weekStart = addDays(firstWeekStart, -i * 7);
-      newWeeks.unshift({
-        weekStart: weekStart.toISOString(),
-        days: getWeekDays(weekStart)
-      });
-    }
-
-    setWeeks(prev => [...newWeeks, ...prev]);
-  }, [weeks]);
-
-  const loadNextWeeks = useCallback(() => {
-    if (weeks.length === 0) return;
-
-    const lastWeekStart = new Date(weeks[weeks.length - 1].weekStart);
-    const newWeeks = [];
-
-    for (let i = 1; i <= 10; i++) {
-      const weekStart = addDays(lastWeekStart, i * 7);
-      newWeeks.push({
-        weekStart: weekStart.toISOString(),
-        days: getWeekDays(weekStart)
-      });
-    }
-
-    setWeeks(prev => [...prev, ...newWeeks]);
-  }, [weeks]);
+  }, [loadPreviousWeeks, loadNextWeeks]);
 
   // Group weeks by month for rendering month sections
   const renderMonthSections = () => {
