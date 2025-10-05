@@ -42,6 +42,7 @@
 
 ** What Changed
    Replaced sentinel-based month loading with `VirtualizedMonthList`. Months are now rendered via translateY offsets, backed by `ResizeObserver` measurements. Scroll helpers (`scrollToDate`, `scrollToToday`) live in `CalendarContext` and drive the virtual list.
+   Initial launch now passes `initialDate` (today) so the viewport starts at the correct month.
 
 ** Architectural Notes
    - Total scroll height is simulated via cumulative month heights; virtualization controls the DOM count.

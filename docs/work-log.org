@@ -234,6 +234,25 @@ Tests:
 Energy Level: Deep focus—architecture now matches the legacy behavior without hacks
 Next Step: Monitor measured heights & sticky header behavior; consider memoizing per-month offsets if needed
 
+** Session: Virtualization Launch Fixes
+Time: Morning
+Task: Ensure initial load and "today" actions land on the current month after virtualization refactor
+
+Accomplished:
+- Passed `initialDate` (today) to `VirtualizedMonthList` and moved the first scroll inside the list so it retries after measurements
+- Removed obsolete `setVirtualizationReady` usage that caused launch-time errors
+- Verified `scrollToDate` retries via requestAnimationFrame until the day cell exists, ensuring the viewport centers on today
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/VirtualizedMonthList.jsx
+
+Tests:
+- npm run build
+
+Energy Level: Wrap-up—virtualization is now stable enough for daily use
+Next Step: Future session can polish sticky headers and explore UI cues for far-from-today scroll positions
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix
