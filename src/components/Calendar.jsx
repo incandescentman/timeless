@@ -2,25 +2,25 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
-import { getWeekStart, getWeekDays, addDays, months } from '../utils/dateUtils';
+import { getWeekStart, addMonths, getMonthWeeks, months } from '../utils/dateUtils';
 import { useMonthNavigation } from '../hooks/useMonthNavigation';
 import DayCell from './DayCell';
 import Header from './Header';
 import '../styles/calendar.css';
 
 const MOBILE_CONFIG = {
-  initialRange: { before: 3, after: 4 }, // 8 total weeks (56 day cells)
-  maxWeeks: 16, // allow up to 112 day cells while scrolling
-  loadWeeks: 4
+  initialRange: { before: 1, after: 2 }, // 3 months (≈12 weeks)
+  maxMonths: 4, // keep ≈16 weeks in DOM
+  loadMonths: 1
 };
 
 const DESKTOP_CONFIG = {
-  initialRange: { before: 26, after: 26 },
-  maxWeeks: 120,
-  loadWeeks: 10
+  initialRange: { before: 6, after: 6 },
+  maxMonths: 18,
+  loadMonths: 3
 };
 
-function getInitialWeekRange(isMobile) {
+function getInitialMonthRange(isMobile) {
   const config = isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG;
   return {
     start: -config.initialRange.before,
@@ -28,7 +28,7 @@ function getInitialWeekRange(isMobile) {
   };
 }
 
-function extendWeekRange(range, direction, load, max) {
+function extendMonthRange(range, direction, load, max) {
   let { start, end } = range;
 
   if (direction === 'prev') {
@@ -54,7 +54,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const { announceCommand } = useCommandFeedback();
   const initialIsMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
   const [isMobile, setIsMobile] = useState(initialIsMobile);
-  const [weekRange, setWeekRange] = useState(() => getInitialWeekRange(initialIsMobile));
+  const [monthRange, setMonthRange] = useState(() => getInitialMonthRange(initialIsMobile));
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
@@ -62,27 +62,40 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const hasInitialScrollRef = useRef(false);
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
 
-  const { maxWeeks, loadWeeks } = useMemo(
+  const { maxMonths, loadMonths } = useMemo(
     () => (isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG),
     [isMobile]
   );
 
-  const todayWeekStart = useMemo(() => getWeekStart(systemToday), [systemToday]);
+  const monthAnchor = useMemo(() => {
+    const anchor = new Date(systemToday);
+    anchor.setDate(1);
+    return anchor;
+  }, [systemToday]);
 
   // Build a sliding window of weeks so the DOM stays within mobile memory limits.
-  const weeks = useMemo(() => {
-    const generatedWeeks = [];
+  const monthsToRender = useMemo(() => {
+    const generatedMonths = [];
 
-    for (let offset = weekRange.start; offset <= weekRange.end; offset++) {
-      const weekStart = addDays(todayWeekStart, offset * 7);
-      generatedWeeks.push({
-        weekStart: weekStart.toISOString(),
-        days: getWeekDays(weekStart)
+    for (let offset = monthRange.start; offset <= monthRange.end; offset++) {
+      const monthDate = addMonths(monthAnchor, offset);
+      const year = monthDate.getFullYear();
+      const monthIndex = monthDate.getMonth();
+      const monthWeeks = getMonthWeeks(year, monthIndex).map((weekDays) => ({
+        weekStart: getWeekStart(weekDays[0]).toISOString(),
+        days: weekDays
+      }));
+
+      generatedMonths.push({
+        key: `${year}-${monthIndex}`,
+        month: monthIndex,
+        year,
+        weeks: monthWeeks
       });
     }
 
-    return generatedWeeks;
-  }, [weekRange, todayWeekStart]);
+    return generatedMonths;
+  }, [monthRange, monthAnchor]);
 
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
@@ -110,13 +123,13 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   }, []);
 
   useEffect(() => {
-    setWeekRange(getInitialWeekRange(isMobile));
+    setMonthRange(getInitialMonthRange(isMobile));
     hasInitialScrollRef.current = false;
   }, [isMobile]);
 
   // Scroll to today on mount
   useEffect(() => {
-    if (weeks.length === 0 || hasInitialScrollRef.current) return;
+    if (monthsToRender.length === 0 || hasInitialScrollRef.current) return;
 
     setTimeout(() => {
       const todayCell = document.querySelector('.day-cell.today');
@@ -125,15 +138,15 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
       }
       hasInitialScrollRef.current = true;
     }, 100);
-  }, [weeks]);
+  }, [monthsToRender]);
 
-  const loadPreviousWeeks = useCallback(() => {
-    setWeekRange(prev => extendWeekRange(prev, 'prev', loadWeeks, maxWeeks));
-  }, [loadWeeks, maxWeeks]);
+  const loadPreviousMonths = useCallback(() => {
+    setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths));
+  }, [loadMonths, maxMonths]);
 
-  const loadNextWeeks = useCallback(() => {
-    setWeekRange(prev => extendWeekRange(prev, 'next', loadWeeks, maxWeeks));
-  }, [loadWeeks, maxWeeks]);
+  const loadNextMonths = useCallback(() => {
+    setMonthRange(prev => extendMonthRange(prev, 'next', loadMonths, maxMonths));
+  }, [loadMonths, maxMonths]);
 
   // Infinite scroll: load more weeks when sentinels are visible
   useEffect(() => {
@@ -147,7 +160,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
         if (entry.isIntersecting) {
           if (!sentinelLoadRef.current.top) {
             sentinelLoadRef.current.top = true;
-            loadPreviousWeeks();
+            loadPreviousMonths();
           }
         } else {
           sentinelLoadRef.current.top = false;
@@ -166,7 +179,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
         if (entry.isIntersecting) {
           if (!sentinelLoadRef.current.bottom) {
             sentinelLoadRef.current.bottom = true;
-            loadNextWeeks();
+            loadNextMonths();
           }
         } else {
           sentinelLoadRef.current.bottom = false;
@@ -184,33 +197,11 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
       sentinelLoadRef.current.top = false;
       sentinelLoadRef.current.bottom = false;
     };
-  }, [loadPreviousWeeks, loadNextWeeks]);
+  }, [loadPreviousMonths, loadNextMonths]);
 
   // Group weeks by month for rendering month sections
   const renderMonthSections = () => {
-    const monthGroups = [];
-    let currentGroup = null;
-
-    weeks.forEach((week) => {
-      const middleDay = week.days[3]; // Wednesday
-      const month = middleDay.getMonth();
-      const year = middleDay.getFullYear();
-      const monthKey = `${year}-${month}`;
-
-      if (!currentGroup || currentGroup.key !== monthKey) {
-        currentGroup = {
-          key: monthKey,
-          month,
-          year,
-          weeks: []
-        };
-        monthGroups.push(currentGroup);
-      }
-
-      currentGroup.weeks.push(week);
-    });
-
-    return monthGroups.map(group => (
+    return monthsToRender.map(group => (
       <section
         key={group.key}
         className="month-section"
