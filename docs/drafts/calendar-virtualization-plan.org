@@ -87,8 +87,109 @@
 - **Sticky header jitter**: ensure virtualization state updates are debounced so header doesn’t flicker.
 - **Jump-to-date accuracy**: if day cells vary in height, consider measuring day offsets once month renders (store day refs within month component).
 
+* Comparison: Stage 1 (Simple) vs Stage 2 (Virtualization)
+
+** Stage 1: Remove minRange Constraints (Simple Approach)
+*** What It Does
+- Removes ~minRange~ from MOBILE_CONFIG and DESKTOP_CONFIG
+- Simplifies ~extendMonthRange~ function (removes clamping logic)
+- Lets existing sliding window handle infinite scroll
+- ~40 lines of code removals/simplifications
+
+*** Pros
+- *Quick win*: 30 minutes implementation
+- *Low risk*: Mostly code removals, not additions
+- *Battle-tested*: Sliding window already survived Mobile Safari crash fixes
+- *Simple*: Fewer moving parts = easier to debug
+- *Performance*: DOM size unchanged (still bounded by maxMonths)
+
+*** Cons
+- Still uses height-delta scroll compensation "hack"
+- Not pixel-perfect scroll positioning
+- Estimated heights may drift from actual
+
+*** When to Use
+- You need infinite scroll working *today*
+- Current sliding window feels stable enough
+- You want to validate the need for virtualization with real usage data
+
+** Stage 2: Full Virtualization (Advanced Approach)
+*** What It Does
+- Pre-computes month metadata (2020-2035+)
+- Implements viewport-based rendering with translateY
+- Uses ResizeObserver for measured heights
+- Pure scroll math (no compensation hacks)
+- Days/weeks of development work
+
+*** Pros
+- *Pixel-perfect scroll*: No compensation hacks needed
+- *Predictable performance*: Known bounds, measured heights
+- *Production-grade*: Handles all edge cases systematically
+- *Optimal smoothness*: Pure viewport calculations
+- *Extensible*: Foundation for timeline/minimap features
+
+*** Cons
+- *High complexity*: New architecture with many moving parts
+- *Time investment*: Significant development + testing
+- *Risk*: More code = more potential bugs
+- *Overkill?*: May be solving problems that don't exist yet
+
+*** When to Use
+- Stage 1 scroll feels janky or unstable
+- You need pixel-perfect scroll positioning
+- Planning features that benefit from virtualization (timeline, mini-map)
+- Have time for proper development/testing cycle
+
+** Recommendation: Phased Approach
+
+*** Phase A: Stage 1 First (30 minutes)
+1. Remove ~minRange~ constraints
+2. Test on mobile and desktop
+3. Gather real usage data on scroll smoothness
+
+*** Phase B: Evaluate Need (1-2 weeks of real usage)
+Ask:
+- Is scroll smooth enough?
+- Do height-delta compensations cause visible jumps?
+- Are there edge cases the sliding window doesn't handle?
+
+*** Phase C: Stage 2 If Needed (only if Stage 1 insufficient)
+Implement full virtualization based on concrete pain points discovered in Phase B
+
+** Hybrid Option: Incremental Improvements
+
+Instead of full virtualization, consider middle-ground improvements:
+
+*** Option 1: Add ResizeObserver to Current System
+- Keep sentinel-based loading (proven stable)
+- Add ResizeObserver to measure actual month heights
+- Improve scroll compensation accuracy
+- ~2-3 hours work
+
+*** Option 2: Improve Height Estimates
+- Measure actual rendered month heights once
+- Use real measurements instead of estimates
+- Update ~getMonthWeeks~ to cache measurements
+- ~1-2 hours work
+
+** Decision Matrix
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Need infinite scroll NOW | Stage 1 (remove minRange) |
+| Current scroll feels janky | Stage 1 first, then evaluate |
+| Building timeline/minimap soon | Stage 2 (full virtualization) |
+| Limited development time | Stage 1 + hybrid improvements |
+| Production quality scroll needed | Stage 2 after Stage 1 validation |
+
+** Key Insight
+
+The current sliding window architecture *already prevents DOM bloat*. The ~minRange~ constraints were artificial limitations solving a problem that doesn't exist. Stage 1 removes those constraints with minimal risk.
+
+Stage 2 (virtualization) solves a *different problem*: scroll smoothness and pixel-perfect positioning. Only pursue Stage 2 if Stage 1 reveals concrete scroll quality issues.
+
 * Next Steps
-1. Implement Phase 1 (metadata refactor) alongside existing calendar to keep functionality.
-2. Build `VirtualizedMonthList` in isolation (Storybook or temporary view) for easier debugging.
-3. Swap Calendar component to use virtualization once feature parity is confirmed.
-4. Document final architecture in `design-architecture.org` and add regression tests for jump-to-today/date.
+1. *Immediate*: Implement Stage 1 (remove minRange constraints) - see [[file:claude-calendar-virtualization-plan.org][claude-calendar-virtualization-plan.org]] for detailed code changes
+2. *Short term (1-2 weeks)*: Test Stage 1 in real usage, gather scroll quality feedback
+3. *Medium term (if needed)*: Implement Stage 2 (full virtualization) if Stage 1 scroll quality is insufficient
+4. *Always*: Document final architecture in ~design-architecture.org~ and add regression tests for jump-to-today/date
