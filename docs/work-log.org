@@ -133,6 +133,25 @@ Tests:
 Energy Level: Relieved—issue reproduced, diagnosed, and closed out
 Next Step: When ready to touch code again, codify the 56-cell mobile window in Calendar.jsx and add regression testing
 
+** Session: Mobile Window Virtualisation
+Time: Midday
+Task: Increase mobile scroll depth without regressing Safari stability
+
+Accomplished:
+- Refactored `Calendar.jsx` to derive week window settings from mobile/desktop configs
+- Implemented sliding window logic (`extendWeekRange`) that keeps mobile DOM ≤16 weeks (~112 cells) while preserving infinite scroll feel
+- Added responsive reset on breakpoint changes so orientation switches recompute the window
+- Rebuilt production bundle (`npm run build`) to verify output
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+
+Tests:
+- npm run build
+
+Energy Level: Focused iteration
+Next Step: Profile iOS memory with the new 16-week cap; adjust if devices handle more
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix

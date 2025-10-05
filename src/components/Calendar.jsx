@@ -8,25 +8,64 @@ import DayCell from './DayCell';
 import Header from './Header';
 import '../styles/calendar.css';
 
-// Reduce buffer on mobile to prevent crashes - mobile gets 4 weeks (56 cells), desktop gets 26 weeks (364 cells)
-const BUFFER_WEEKS = typeof window !== 'undefined' && window.innerWidth <= 768 ? 4 : 26;
-const LOAD_WEEKS = 10;   // Weeks added per sentinel trigger
-const MAX_RENDER_WEEKS = 120; // Cap rendered weeks to protect mobile memory
+const MOBILE_CONFIG = {
+  initialRange: { before: 3, after: 4 }, // 8 total weeks (56 day cells)
+  maxWeeks: 16, // allow up to 112 day cells while scrolling
+  loadWeeks: 4
+};
+
+const DESKTOP_CONFIG = {
+  initialRange: { before: 26, after: 26 },
+  maxWeeks: 120,
+  loadWeeks: 10
+};
+
+function getInitialWeekRange(isMobile) {
+  const config = isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG;
+  return {
+    start: -config.initialRange.before,
+    end: config.initialRange.after
+  };
+}
+
+function extendWeekRange(range, direction, load, max) {
+  let { start, end } = range;
+
+  if (direction === 'prev') {
+    start -= load;
+  } else {
+    end += load;
+  }
+
+  const total = end - start + 1;
+  if (total > max) {
+    if (direction === 'prev') {
+      end = start + max - 1;
+    } else {
+      start = end - (max - 1);
+    }
+  }
+
+  return { start, end };
+}
 
 function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const { systemToday } = useCalendar();
   const { announceCommand } = useCommandFeedback();
-  const [weekRange, setWeekRange] = useState(() => ({
-    start: -BUFFER_WEEKS,
-    end: BUFFER_WEEKS
-  }));
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth <= 768);
+  const initialIsMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const [isMobile, setIsMobile] = useState(initialIsMobile);
+  const [weekRange, setWeekRange] = useState(() => getInitialWeekRange(initialIsMobile));
   const calendarRef = useRef(null);
   const topSentinelRef = useRef(null);
   const bottomSentinelRef = useRef(null);
   const sentinelLoadRef = useRef({ top: false, bottom: false });
   const hasInitialScrollRef = useRef(false);
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
+
+  const { maxWeeks, loadWeeks } = useMemo(
+    () => (isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG),
+    [isMobile]
+  );
 
   const todayWeekStart = useMemo(() => getWeekStart(systemToday), [systemToday]);
 
@@ -70,6 +109,11 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    setWeekRange(getInitialWeekRange(isMobile));
+    hasInitialScrollRef.current = false;
+  }, [isMobile]);
+
   // Scroll to today on mount
   useEffect(() => {
     if (weeks.length === 0 || hasInitialScrollRef.current) return;
@@ -84,30 +128,12 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   }, [weeks]);
 
   const loadPreviousWeeks = useCallback(() => {
-    setWeekRange(prev => {
-      const nextStart = prev.start - LOAD_WEEKS;
-      let nextEnd = prev.end;
-
-      if (nextEnd - nextStart + 1 > MAX_RENDER_WEEKS) {
-        nextEnd = nextStart + MAX_RENDER_WEEKS - 1;
-      }
-
-      return { start: nextStart, end: nextEnd };
-    });
-  }, []);
+    setWeekRange(prev => extendWeekRange(prev, 'prev', loadWeeks, maxWeeks));
+  }, [loadWeeks, maxWeeks]);
 
   const loadNextWeeks = useCallback(() => {
-    setWeekRange(prev => {
-      const nextEnd = prev.end + LOAD_WEEKS;
-      let nextStart = prev.start;
-
-      if (nextEnd - nextStart + 1 > MAX_RENDER_WEEKS) {
-        nextStart = nextEnd - (MAX_RENDER_WEEKS - 1);
-      }
-
-      return { start: nextStart, end: nextEnd };
-    });
-  }, []);
+    setWeekRange(prev => extendWeekRange(prev, 'next', loadWeeks, maxWeeks));
+  }, [loadWeeks, maxWeeks]);
 
   // Infinite scroll: load more weeks when sentinels are visible
   useEffect(() => {
