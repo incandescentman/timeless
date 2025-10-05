@@ -21,6 +21,7 @@
    - Added a one-time scroll-to-today guard (line 53) to avoid re-centering after every range shift.
    - Removed the Eruda debugger from `index.html`—the CDN source-map 404s cluttered the console and loaded unnecessary JS on mobile.
    - Flattened mobile styles in `src/styles/mobile.css` (lines 17-130) to remove gradients and deep drop shadows that exhausted mobile GPU memory.
+   - **Critical:** Clamp mobile initial render to ~56 `DayCell` components; loading the full 364-day grid on iOS Safari still exhausts memory even with guard rails.
 
 ** Prevention Checklist
    - [ ] Always debounce or guard `IntersectionObserver` handlers; expect multiple firings.
@@ -29,6 +30,7 @@
    - [ ] Avoid stacking box-shadows/gradients on hundreds of mobile elements—prefer flat colours.
    - [ ] Test infinite-scroll flows on mobile Safari—its scheduling differs from Chromium.
    - [ ] Watch DOM node counts (`document.getElementsByClassName('week-row').length`) during scroll; sudden spikes signal runaway loads.
+   - [ ] When adjusting mobile layouts, revalidate the 56 `DayCell` budget—any increase must be justified with device profiling.
 
 ** Diagnostic Tip
    Log `weeks.length` whenever the sentinel fires. If it jumps by 10 repeatedly while you stand still, the guard is broken.

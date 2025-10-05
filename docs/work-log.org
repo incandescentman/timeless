@@ -114,6 +114,25 @@ Tests:
 Energy Level: Steady polish
 Next Step: Re-test on device; if crashes persist, profile DOM node count live via Safari dev tools
 
+** Session: Mobile Safari Resolution
+Time: Morning
+Task: Confirm crash root cause and document mobile rendering ceiling
+
+Accomplished:
+- Verified iOS Safari crash stemmed from rendering the full 364 `DayCell` components on first load
+- Confirmed mobile build now limits the initial render to 56 `DayCell`s, keeping memory usage within Safari’s cap
+- Logged root cause and limit in docs for future contributors
+
+Files Updated:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/work-log.org
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/docs/codebase-wisdom.org
+
+Tests:
+- Manual: Mobile Safari device smoke-test (long scroll & refresh) – no crash
+
+Energy Level: Relieved—issue reproduced, diagnosed, and closed out
+Next Step: When ready to touch code again, codify the 56-cell mobile window in Calendar.jsx and add regression testing
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix

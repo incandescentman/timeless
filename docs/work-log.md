@@ -1,5 +1,67 @@
 # Timeless Calendar - Work Log
 
+## October 5, 2025
+
+### Session: Mobile Safari Crash Fix
+Time: Evening
+Task: Debug and fix "A problem repeatedly occurred" crash on iOS Safari
+
+#### Problem
+- Deployed site crashed on mobile Safari with "A problem repeatedly occurred" error
+- Site worked perfectly on desktop browsers
+- Safari Web Inspector showed no JavaScript errors (crash happened before errors could be logged)
+- Network tab showed spinning pinwheel when clicking JS files
+
+#### Root Cause
+**Excessive DOM size on mobile**: Calendar was rendering 364 DayCell components initially (26 weeks × 2 × 7 days), which exceeded iOS Safari's memory limits.
+
+#### Solution
+Reduced BUFFER_WEEKS from 26 to 4 on mobile devices (≤768px width), reducing initial render from 364 to 56 DayCell components (85% reduction).
+
+```javascript
+// Before: Same buffer for all devices
+const BUFFER_WEEKS = 26;
+
+// After: Mobile-optimized buffer
+const BUFFER_WEEKS = typeof window !== 'undefined' && window.innerWidth <= 768 ? 4 : 26;
+```
+
+#### Debugging Process
+1. Initially suspected third-party libraries:
+   - Temporarily removed date-fns → No effect
+   - Disabled kbar (command palette) → No effect
+   - Disabled framer-motion → No effect
+   - Added Eruda mobile debugging console → Confirmed no JS errors
+
+2. Identified DOM size as likely culprit after library elimination
+3. Reduced mobile buffer weeks → **Fixed immediately**
+
+#### Files Modified
+- `/src/components/Calendar.jsx` - Reduced mobile buffer weeks
+- `/src/components/DayCell.jsx` - Added window guards to `window.innerWidth` checks
+- `/src/App.jsx` - Re-enabled all features after fix
+
+#### Key Learnings
+1. **Mobile memory limits are real**: 364 DOM elements crashed iOS Safari but worked fine on desktop
+2. **Library elimination debugging**: Systematic disabling of features helps isolate root cause
+3. **Window guards**: Always check `typeof window !== 'undefined'` before accessing window properties in SSR-compatible code
+4. **Infinite scroll strategy**: Initial buffer should be minimal on mobile, rely on IntersectionObserver to load more
+
+#### Git Commits
+- "Add window guards to DayCell window.innerWidth checks"
+- "Reduce mobile buffer weeks to fix Safari crash"
+- "Re-enable all features after fixing mobile crash"
+
+#### Performance Impact
+- Mobile: 56 initial DayCell components (was 364)
+- Desktop: 364 initial DayCell components (unchanged)
+- Mobile scrolling: IntersectionObserver loads 10 additional weeks when needed
+
+Energy Level: Methodical debugging, successful resolution
+Next Step: Monitor mobile performance and adjust LOAD_WEEKS if needed
+
+---
+
 ## October 4, 2025
 
 ### Session: UI Polish & Today Cell Highlighting Fix
