@@ -1,3 +1,34 @@
+* Mobile Safari Crash: Runaway Infinite Scroll Loads
+  Date: 2025-10-04
+
+** The Bug
+   On iOS Safari, Timeless would flash "A problem repeatedly occurred" and reload after a couple of swipes through the calendar.
+
+** The Truth
+   Mobile WebKit keeps firing `IntersectionObserver` callbacks every frame while an element stays intersecting. Our top/bottom sentinels appended ten weeks on each callback. Because the handlers captured a stale `weeks` array from their closure, every observer tick duplicated chunks, ballooning DOM nodes until Safari killed the tab for memory pressure.
+
+** Why This Happened
+   1. **No guard** – We assumed the observer would fire once per intersection; in reality it fires continuously while visible.
+   2. **Stale state** – `loadPreviousWeeks`/`loadNextWeeks` read `weeks` from the render that created them, so fast callbacks re-used outdated data.
+   3. **Mobile-only** – Desktop browsers throttle repeated callbacks; iOS Safari does not, so the runaway growth only happened on phones.
+
+** The Fix
+   - Added `sentinelLoadRef` flags in `src/components/Calendar.jsx:21` to ensure each sentinel triggers only once until it leaves the viewport.
+   - Rewrote the loaders to use functional `setWeeks` updates (lines 77-117), guaranteeing access to the latest state even under rapid callbacks.
+   - Updated the observer effect to depend on the memoised loaders so the guard stays in sync.
+
+** Prevention Checklist
+   - [ ] Always debounce or guard `IntersectionObserver` handlers; expect multiple firings.
+   - [ ] Prefer functional state updates inside observer callbacks to avoid stale closures.
+   - [ ] Test infinite-scroll flows on mobile Safari—its scheduling differs from Chromium.
+   - [ ] Watch DOM node counts (`document.getElementsByClassName('week-row').length`) during scroll; sudden spikes signal runaway loads.
+
+** Diagnostic Tip
+   Log `weeks.length` whenever the sentinel fires. If it jumps by 10 repeatedly while you stand still, the guard is broken.
+
+** Follow-up
+   Validate on real devices and consider virtualising distant weeks if memory usage is still high after long sessions.
+
 * The 30-Minute Header Gap: When CSS Sticky Meets Fixed Positioning
   Date: 2025-10-01
 

@@ -57,6 +57,25 @@ Files Deleted:
 Energy Level: Highly productive, comprehensive system established
 Next Step: Update README to point to docs/CLAUDE.org; use pre-session ritual going forward
 
+** Session: Mobile Safari Crash Mitigation
+Time: Evening
+Task: Stop runaway infinite scroll loads that crashed mobile Safari with "A problem repeatedly occurred"
+
+Accomplished:
+- Added sentinel load guards in `src/components/Calendar.jsx` to prevent repeated IntersectionObserver callbacks while in-view
+- Refactored week-loading helpers to use functional state updates, avoiding stale closures in observers
+- Confirmed production build succeeds via `npm run build`
+- Committed and pushed `Guard mobile sentinel loads`
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+
+Tests:
+- npm run build
+
+Energy Level: Focused, tactical fix
+Next Step: Validate on physical iOS Safari device and monitor memory during extended scroll sessions
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix
