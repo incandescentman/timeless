@@ -24,12 +24,16 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const virtualizationRef = useRef(null);
   const hasInitialScrollRef = useRef(false);
   const todayIndexRef = useRef(-1);
+  const [virtualizationReady, setVirtualizationReady] = useState(false);
 
   const monthsMeta = useMemo(() => generateMonthsMeta({ startYear: MONTHS_START_YEAR, endYear: MONTHS_END_YEAR }), []);
 
   const todayMonthIndex = useMemo(() => findMonthIndex(monthsMeta, systemToday.getFullYear(), systemToday.getMonth()), [monthsMeta, systemToday]);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('[Calendar] today', systemToday, 'month index', todayMonthIndex);
+    }
     todayIndexRef.current = todayMonthIndex;
   }, [todayMonthIndex]);
 
@@ -95,13 +99,13 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
 
     registerScrollApi(api);
 
-    if (!hasInitialScrollRef.current && virtualizationRef.current && todayMonthIndex >= 0) {
+    if (!hasInitialScrollRef.current && virtualizationReady && virtualizationRef.current && todayMonthIndex >= 0) {
       virtualizationRef.current.scrollToDate(systemToday, { behavior: 'auto', align: 'center', maxAttempts: 6 });
       hasInitialScrollRef.current = true;
     }
 
     return () => registerScrollApi(null);
-  }, [registerScrollApi, systemToday, todayMonthIndex]);
+  }, [registerScrollApi, virtualizationReady, systemToday, todayMonthIndex]);
 
   return (
     <div
@@ -123,6 +127,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
           months={monthsMeta}
           renderMonth={renderMonth}
           initialMonthIndex={todayMonthIndex >= 0 ? todayMonthIndex : 0}
+          onReady={() => setVirtualizationReady(true)}
         />
       </div>
     </div>

@@ -9,7 +9,8 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     renderMonth,
     initialMonthIndex = 0,
     overscan = 2,
-    onMonthInView
+    onMonthInView,
+    onReady
   },
   ref
 ) {
@@ -107,6 +108,12 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
       onMonthInView(months[effectiveStartIndex], effectiveStartIndex);
     }
   }, [effectiveStartIndex, months, onMonthInView]);
+
+  useEffect(() => {
+    if (onReady) {
+      onReady();
+    }
+  }, [onReady]);
 
   const handleHeightChange = useCallback((key, height) => {
     if (!Number.isFinite(height)) return;
