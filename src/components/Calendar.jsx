@@ -12,14 +12,14 @@ const MOBILE_CONFIG = {
   initialRange: { before: 1, after: 2 }, // 3 months (≈12 weeks)
   maxMonths: 4, // keep ≈16 weeks in DOM
   loadMonths: 1,
-  minRange: { before: -12, after: 3 } // clamp months to current year window
+  minRange: { before: -60, after: 24 } // allow ~5 years back, 2 years forward
 };
 
 const DESKTOP_CONFIG = {
   initialRange: { before: 6, after: 6 },
   maxMonths: 18,
   loadMonths: 3,
-  minRange: { before: -36, after: 36 }
+  minRange: { before: -360, after: 360 }
 };
 
 function getInitialMonthRange(isMobile) {
