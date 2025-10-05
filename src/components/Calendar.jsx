@@ -11,15 +11,13 @@ import '../styles/calendar.css';
 const MOBILE_CONFIG = {
   initialRange: { before: 1, after: 2 }, // 3 months (≈12 weeks)
   maxMonths: 4, // keep ≈16 weeks in DOM
-  loadMonths: 1,
-  minRange: { before: -60, after: 24 } // allow ~5 years back, 2 years forward
+  loadMonths: 1
 };
 
 const DESKTOP_CONFIG = {
   initialRange: { before: 6, after: 6 },
   maxMonths: 18,
-  loadMonths: 3,
-  minRange: { before: -360, after: 360 }
+  loadMonths: 3
 };
 
 function getInitialMonthRange(isMobile) {
@@ -30,7 +28,7 @@ function getInitialMonthRange(isMobile) {
   };
 }
 
-function extendMonthRange(range, direction, load, max, minRange) {
+function extendMonthRange(range, direction, load, max) {
   let { start, end } = range;
 
   if (direction === 'prev') {
@@ -45,21 +43,6 @@ function extendMonthRange(range, direction, load, max, minRange) {
       end = start + max - 1;
     } else {
       start = end - (max - 1);
-    }
-  }
-
-  if (minRange) {
-    const minStart = minRange.before ?? Number.NEGATIVE_INFINITY;
-    const maxEnd = minRange.after ?? Number.POSITIVE_INFINITY;
-
-    if (start < minStart) {
-      start = minStart;
-      end = Math.max(start, start + max - 1);
-    }
-
-    if (end > maxEnd) {
-      end = maxEnd;
-      start = Math.min(end, end - (max - 1));
     }
   }
 
@@ -79,7 +62,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const hasInitialScrollRef = useRef(false);
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
 
-  const { maxMonths, loadMonths, minRange } = useMemo(
+  const { maxMonths, loadMonths } = useMemo(
     () => (isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG),
     [isMobile]
   );
@@ -167,7 +150,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
       document.documentElement.scrollHeight
     );
 
-    setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths, minRange));
+    setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths));
 
     window.requestAnimationFrame(() => {
       const newHeight = Math.max(
@@ -179,11 +162,11 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
         window.scrollBy(0, diff);
       }
     });
-  }, [monthsToRender, loadMonths, maxMonths, minRange]);
+  }, [monthsToRender, loadMonths, maxMonths]);
 
   const loadNextMonths = useCallback(() => {
-    setMonthRange(prev => extendMonthRange(prev, 'next', loadMonths, maxMonths, minRange));
-  }, [loadMonths, maxMonths, minRange]);
+    setMonthRange(prev => extendMonthRange(prev, 'next', loadMonths, maxMonths));
+  }, [loadMonths, maxMonths]);
 
   // Infinite scroll: load more weeks when sentinels are visible
   useEffect(() => {
