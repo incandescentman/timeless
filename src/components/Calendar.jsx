@@ -141,7 +141,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   }, [monthsToRender]);
 
   const loadPreviousMonths = useCallback(() => {
-    if (!monthsToRender.length) {
+    if (!monthsToRender.length || typeof window === 'undefined') {
       return;
     }
 
@@ -149,19 +149,24 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
     const firstElement = firstMonthKey
       ? document.querySelector(`[data-month-key="${firstMonthKey}"]`)
       : null;
-    const prevTop = firstElement?.getBoundingClientRect().top ?? null;
+
+    const prevAbsoluteTop = firstElement
+      ? firstElement.getBoundingClientRect().top + window.scrollY
+      : null;
 
     setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths));
 
-    if (prevTop !== null && typeof window !== 'undefined') {
+    if (prevAbsoluteTop !== null) {
       window.requestAnimationFrame(() => {
         const currentElement = firstMonthKey
           ? document.querySelector(`[data-month-key="${firstMonthKey}"]`)
           : null;
+
         if (currentElement) {
-          const newTop = currentElement.getBoundingClientRect().top;
-          const diff = newTop - prevTop;
-          if (diff !== 0) {
+          const newAbsoluteTop = currentElement.getBoundingClientRect().top + window.scrollY;
+          const diff = newAbsoluteTop - prevAbsoluteTop;
+
+          if (Math.abs(diff) > 1) {
             window.scrollBy(0, -diff);
           }
         }
