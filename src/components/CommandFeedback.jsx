@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useCalendar } from '../contexts/CalendarContext';
-import { format } from 'date-fns';
 
 const EXIT_ANIMATION_MS = 280;
 
@@ -56,15 +55,26 @@ function CommandFeedbackOverlay({ command }) {
   }, [visibleCommand]);
 
   const dateDisplay = useMemo(() => {
-    return format(new Date(), 'EEE, MMM d');
+    const now = new Date();
+    const weekday = now.toLocaleDateString('en-US', { weekday: 'short' });
+    const month = now.toLocaleDateString('en-US', { month: 'short' });
+    const day = now.getDate();
+    return `${weekday}, ${month} ${day}`;
   }, [visibleCommand?.id]);
 
   const timestampDisplay = useMemo(() => {
-    return format(new Date(), 'h:mm:ss a');
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
   }, [visibleCommand?.id]);
 
   const todayEventCount = useMemo(() => {
-    const todayKey = format(new Date(), 'yyyy-MM-dd');
+    const now = new Date();
+    const todayKey = `${now.getMonth()}_${now.getDate()}_${now.getFullYear()}`;
     const todayEvents = calendarData[todayKey] || [];
     return todayEvents.length;
   }, [calendarData, visibleCommand?.id]);
