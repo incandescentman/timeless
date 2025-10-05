@@ -76,6 +76,26 @@ Tests:
 Energy Level: Focused, tactical fix
 Next Step: Validate on physical iOS Safari device and monitor memory during extended scroll sessions
 
+** Session: Mobile Hardening Round 2
+Time: Late night
+Task: Stabilize mobile Safari after continued crashes and remove debug artefacts
+
+Accomplished:
+- Rebuilt `Calendar.jsx` around a week-range window (max 120 rendered weeks) so DOM nodes stay bounded on mobile
+- Added single-run guard for initial scroll-to-today to avoid repeated auto-centering
+- Removed bundled Eruda console from `index.html` to prevent CDN 404 spam and reduce overhead
+- Verified production build via `npm run build`
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/index.html
+
+Tests:
+- npm run build
+
+Energy Level: Determined, cleanup focused
+Next Step: Smoke-test on physical iOS Safari (long scroll + rapid swipes) and confirm console silent
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix

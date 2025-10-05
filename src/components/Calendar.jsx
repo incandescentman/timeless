@@ -29,6 +29,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
 
   const todayWeekStart = useMemo(() => getWeekStart(systemToday), [systemToday]);
 
+  // Build a sliding window of weeks so the DOM stays within mobile memory limits.
   const weeks = useMemo(() => {
     const generatedWeeks = [];
 
