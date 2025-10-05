@@ -14,6 +14,17 @@
 - Support jump-to-today / jump-to-date without visual jumps.
 - Maintain sticky month header and existing command palette integrations.
 
+* Roadmap
+** Stage 1 (Now): Remove Date Clamps
+- Drop ~minRange~ from calendar config so sliding window can cover any year (quick win).
+- Apply existing height-delta scroll compensation.
+- Verify mobile stability.
+
+** Stage 2 (Next): Implement Virtualization (this plan)
+- Replace manual month insertion with virtualized month list.
+- Anchor scroll via virtualization; deprecate height-delta hack.
+- Integrate sticky header & jump-to-date commands with virtualization.
+
 * Architecture Overview
 - Precompute month metadata (start date, week structure, estimated height) for 2020–2035.
 - Implement a `VirtualizedMonthList`:
