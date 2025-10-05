@@ -29,6 +29,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 6px;
   background: none;
   border: none;
   padding: 0;
@@ -61,9 +63,9 @@
 }
 
 .mobile-footer__icon {
-  width: 26px;
-  height: 26px;
-  stroke-width: 1.5;
+  width: 28px;
+  height: 28px;
+  stroke-width: 2;
   display: block;
   flex-shrink: 0;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
