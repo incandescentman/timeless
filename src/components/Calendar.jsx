@@ -112,7 +112,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
           months={monthsMeta}
           renderMonth={renderMonth}
           initialMonthIndex={todayMonthIndex >= 0 ? todayMonthIndex : 0}
-          onReady={() => setVirtualizationReady(true)}
+          initialDate={systemToday}
         />
       </div>
     </div>
