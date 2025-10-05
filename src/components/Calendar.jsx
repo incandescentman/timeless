@@ -4,7 +4,7 @@ import { useCalendar } from '../contexts/CalendarContext';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
 import { useMonthNavigation } from '../hooks/useMonthNavigation';
 import { months as monthNames } from '../utils/dateUtils';
-import { generateMonthsMeta, findMonthIndex, getMonthKey } from '../utils/months';
+import { generateMonthsMeta, findMonthIndex } from '../utils/months';
 import VirtualizedMonthList from './VirtualizedMonthList';
 import DayCell from './DayCell';
 import Header from './Header';
@@ -22,20 +22,10 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const initialIsMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
   const [isMobile, setIsMobile] = useState(initialIsMobile);
   const virtualizationRef = useRef(null);
-  const hasInitialScrollRef = useRef(false);
-  const todayIndexRef = useRef(-1);
-  const [virtualizationReady, setVirtualizationReady] = useState(false);
 
   const monthsMeta = useMemo(() => generateMonthsMeta({ startYear: MONTHS_START_YEAR, endYear: MONTHS_END_YEAR }), []);
 
   const todayMonthIndex = useMemo(() => findMonthIndex(monthsMeta, systemToday.getFullYear(), systemToday.getMonth()), [monthsMeta, systemToday]);
-
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.debug('[Calendar] today', systemToday, 'month index', todayMonthIndex);
-    }
-    todayIndexRef.current = todayMonthIndex;
-  }, [todayMonthIndex]);
 
   const renderMonth = useCallback((month) => (
     <section
@@ -99,13 +89,8 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
 
     registerScrollApi(api);
 
-    if (!hasInitialScrollRef.current && virtualizationReady && virtualizationRef.current && todayMonthIndex >= 0) {
-      virtualizationRef.current.scrollToDate(systemToday, { behavior: 'auto', align: 'center', maxAttempts: 6 });
-      hasInitialScrollRef.current = true;
-    }
-
     return () => registerScrollApi(null);
-  }, [registerScrollApi, virtualizationReady, systemToday, todayMonthIndex]);
+  }, [registerScrollApi]);
 
   return (
     <div

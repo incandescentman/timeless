@@ -8,6 +8,7 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     months,
     renderMonth,
     initialMonthIndex = 0,
+    initialDate = null,
     overscan = 2,
     onMonthInView,
     onReady
@@ -190,13 +191,16 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
 
   useEffect(() => {
     if (hasInitialScrollRef.current) return;
-    if (initialMonthIndex == null || months.length === 0) return;
+    if (!initialDate) return;
+    if (months.length === 0) return;
+
     window.requestAnimationFrame(() => {
-      if (scrollToMonthIndex(initialMonthIndex, { behavior: 'auto', align: 'center' })) {
+      const succeeded = scrollToDate(initialDate, { behavior: 'auto', align: 'center', maxAttempts: 8 });
+      if (succeeded) {
         hasInitialScrollRef.current = true;
       }
     });
-  }, [initialMonthIndex, months.length, scrollToMonthIndex, measurementVersion, viewportHeight]);
+  }, [initialDate, months.length, scrollToDate, measurementVersion, viewportHeight]);
 
   return (
     <div ref={containerRef} style={{ position: 'relative', height: totalHeight }}>
