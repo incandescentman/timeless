@@ -137,7 +137,7 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     return true;
   }, [months.length, cumulativeHeights, heights, viewportHeight]);
 
-  const scrollToDate = useCallback((date, { behavior = 'smooth', align = 'start' } = {}) => {
+  const scrollToDate = useCallback((date, { behavior = 'smooth', align = 'start', maxAttempts = 4 } = {}) => {
     if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
       return false;
     }
@@ -150,16 +150,28 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
       return false;
     }
 
-    scrollToMonthIndex(targetIndex, { behavior: 'auto', align });
+    const success = scrollToMonthIndex(targetIndex, { behavior: 'auto', align });
+    if (!success) {
+      return false;
+    }
 
-    window.requestAnimationFrame(() => {
+    let attempts = 0;
+    const tryFocus = () => {
       const dateId = generateDayId(date);
       const cell = document.querySelector(`[data-date-id="${dateId}"]`);
       if (cell) {
         cell.scrollIntoView({ behavior, block: 'center' });
+        return true;
       }
-    });
+      attempts += 1;
+      if (attempts >= maxAttempts) {
+        return false;
+      }
+      window.requestAnimationFrame(tryFocus);
+      return null;
+    };
 
+    window.requestAnimationFrame(tryFocus);
     return true;
   }, [months, scrollToMonthIndex]);
 
@@ -172,10 +184,12 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
   useEffect(() => {
     if (hasInitialScrollRef.current) return;
     if (initialMonthIndex == null || months.length === 0) return;
-    if (scrollToMonthIndex(initialMonthIndex, { behavior: 'auto', align: 'center' })) {
-      hasInitialScrollRef.current = true;
-    }
-  }, [initialMonthIndex, months.length, scrollToMonthIndex]);
+    window.requestAnimationFrame(() => {
+      if (scrollToMonthIndex(initialMonthIndex, { behavior: 'auto', align: 'center' })) {
+        hasInitialScrollRef.current = true;
+      }
+    });
+  }, [initialMonthIndex, months.length, scrollToMonthIndex, measurementVersion, viewportHeight]);
 
   return (
     <div ref={containerRef} style={{ position: 'relative', height: totalHeight }}>
