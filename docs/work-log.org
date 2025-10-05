@@ -162,6 +162,7 @@ Accomplished:
 - Reworked `Calendar.jsx` to drive rendering off month ranges instead of week buffers
 - Added viewport-specific configs: mobile (±1/2 months) vs desktop (±6) with sliding max window (4 vs 18 months)
 - Updated sentinel loaders to request more months as user hits top/bottom, trimming the opposite edge to keep DOM bounded
+- Added scroll compensation when prepending months so users remain anchored after new months load
 - Verified build succeeds and desktop/mobile still scroll smoothly across year boundaries
 
 Files Modified:
