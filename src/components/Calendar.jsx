@@ -162,7 +162,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
           const newTop = currentElement.getBoundingClientRect().top;
           const diff = newTop - prevTop;
           if (diff !== 0) {
-            window.scrollBy(0, diff);
+            window.scrollBy(0, -diff);
           }
         }
       });
