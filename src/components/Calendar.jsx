@@ -87,22 +87,21 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
 
   useEffect(() => {
     if (!registerScrollApi) return;
-    registerScrollApi({
+
+    const api = {
       scrollToDate: (date, options) => virtualizationRef.current?.scrollToDate(date, options),
       scrollToMonthIndex: (index, options) => virtualizationRef.current?.scrollToMonthIndex(index, options)
-    });
+    };
+
+    registerScrollApi(api);
+
+    if (!hasInitialScrollRef.current && virtualizationRef.current && todayMonthIndex >= 0) {
+      virtualizationRef.current.scrollToDate(systemToday, { behavior: 'auto', align: 'center', maxAttempts: 6 });
+      hasInitialScrollRef.current = true;
+    }
+
     return () => registerScrollApi(null);
-  }, [registerScrollApi]);
-
-  useEffect(() => {
-    if (hasInitialScrollRef.current) return;
-    if (!virtualizationRef.current) return;
-    if (todayMonthIndex < 0) return;
-
-    virtualizationRef.current.scrollToMonthIndex(todayMonthIndex, { behavior: 'auto', align: 'center' });
-    virtualizationRef.current.scrollToDate(systemToday, { behavior: 'auto', align: 'center' });
-    hasInitialScrollRef.current = true;
-  }, [systemToday, todayMonthIndex]);
+  }, [registerScrollApi, systemToday, todayMonthIndex]);
 
   return (
     <div
