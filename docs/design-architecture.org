@@ -12,10 +12,10 @@ LLM_CONTEXT:
 
 * TL;DR
 - This system handles: Year-view calendar with local event storage and minimal UI
-- Core components: App.tsx (state), Calendar.tsx (year grid), EventCard.tsx, EventForm.tsx
+- Core components: App.tsx (state), Calendar.jsx + VirtualizedMonthList.jsx (virtualized month grid), EventCard.tsx, EventForm.tsx
 - Mental model: Think of it as a single-page app with immutable state transformations - no external state library, just React useState
 - Key gotchas: Event data must stay backward-compatible; today cell highlighting is sacred; no animations allowed
-- Last major update: 2025-10-04
+- Last major update: 2025-10-05
 
 * For LLM Context
 Summarize this file if loaded into a coding model:
@@ -39,6 +39,7 @@ Think of the application as:
 - State transformations are **immutable** - we never mutate the events array directly
 - The **year grid** is the primary interface - all 12 months visible simultaneously
 - **Today's cell** is always highlighted in red - this is non-negotiable
+- Rendering uses a **virtualized month list** so scroll stays smooth regardless of how far back/forward the user travels
 
 * Core Design Principles
 
@@ -110,15 +111,9 @@ Key functions:
 
 All mutations return new arrays (immutable updates).
 
-** Year Grid Rendering (Calendar.tsx)
+** Year Grid Rendering (Calendar.jsx)
 
-Renders all 12 months in a responsive grid.
-
-For each month:
-1. Calculate first day of month
-2. Generate day cells (including empty cells for alignment)
-3. Check if each day isToday
-4. Render events for each day
+Calendar.jsx orchestrates the UI shell (header, swipe handlers, keyboard shortcuts) and delegates month rendering to a virtualized list.
 
 Critical logic: isToday highlighting
 #+begin_src typescript
@@ -129,6 +124,14 @@ const isToday = (date: Date) => {
          date.getFullYear() === today.getFullYear();
 };
 #+end_src
+
+** Virtualized Month Rendering (VirtualizedMonthList.jsx)
+
+- Precomputes month metadata (2020–2035 by default) with estimated heights.
+- Uses translateY + absolute positioning to simulate full scroll height while only mounting visible months.
+- `ResizeObserver` refines measured heights so scroll offsets stay accurate as content grows.
+- Exposes `scrollToMonthIndex` / `scrollToDate` for commands (`t`, `g`, mobile today button, etc.).
+- Keeps DOM bounded (mobile ≈4 months, desktop ≈18 months) regardless of date range; the user can scroll years in either direction without height-delta hacks.
 
 ** Event Display (EventCard.tsx)
 
