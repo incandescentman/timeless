@@ -1,6 +1,25 @@
 * Mobile Safari Crash: Runaway Infinite Scroll Loads
   Date: 2025-10-04
 
+* KBar Provider Regression: TypeError `c is not a function`
+  Date: 2025-10-05
+
+** The Bug
+   After refactoring `Calendar.jsx` to add the mobile windowing logic, the command palette instantly threw `TypeError: c is not a function` in production bundles. React bubbled the exception from `CommandPalette2`.
+
+** The Truth
+   KBar’s hooks (`useKBar`) must be wrapped in `KBarProvider`. The refactor replaced the `AppContent` wrapper and accidentally dropped the provider, so KBar attempted to call an undefined hook factory (`c()` in the minified bundle).
+
+** The Fix
+   Wrap `CommandPalette`/`AppShell` in `<KBarProvider actions={kbarActions}>` inside `AppContent` (`src/App.jsx:205`). Keep `disableScrollbarManagement` to avoid conflicts with the custom layout.
+
+** Prevention Checklist
+   - [ ] Any file importing `useKBar` must live under `KBarProvider`—add a quick assertion when editing `AppContent`.
+   - [ ] When refactoring layout wrappers, rerun the command palette and check bundle console for KBar errors.
+
+** Diagnostic Tip
+   If you see `TypeError: c is not a function` originating from `CommandPalette`, the provider is missing. Reintroduce it before debugging other parts of the stack.
+
 ** The Bug
    On iOS Safari, Timeless would flash "A problem repeatedly occurred" and reload after a couple of swipes through the calendar.
 
