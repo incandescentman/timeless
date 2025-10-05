@@ -141,10 +141,12 @@ Accomplished:
 - Refactored `Calendar.jsx` to derive week window settings from mobile/desktop configs
 - Implemented sliding window logic (`extendWeekRange`) that keeps mobile DOM ≤16 weeks (~112 cells) while preserving infinite scroll feel
 - Added responsive reset on breakpoint changes so orientation switches recompute the window
+- Restored `KBarProvider` wrapper in `App.jsx` so the command palette works after the refactor
 - Rebuilt production bundle (`npm run build`) to verify output
 
 Files Modified:
 - /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/App.jsx
 
 Tests:
 - npm run build

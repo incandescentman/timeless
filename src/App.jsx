@@ -208,7 +208,7 @@ function AppContent({ experimentalMode }) {
   ]);
 
   return (
-    <>
+    <KBarProvider actions={kbarActions} options={{ disableScrollbarManagement: true }}>
       <CommandPalette />
       <AppShell
         showYearView={showYearView}
@@ -218,7 +218,7 @@ function AppContent({ experimentalMode }) {
         isLoading={isLoading}
         experimentalMode={experimentalMode}
       />
-    </>
+    </KBarProvider>
   );
 }
 
