@@ -1,0 +1,77 @@
+.calendar-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem 1rem;
+}
+
+.skeleton-month {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeleton-month-header {
+  width: 200px;
+  height: 36px;
+  background: linear-gradient(
+    90deg,
+    rgba(200, 200, 200, 0.2) 0%,
+    rgba(200, 200, 200, 0.3) 50%,
+    rgba(200, 200, 200, 0.2) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.skeleton-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.skeleton-day {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(
+    90deg,
+    rgba(200, 200, 200, 0.2) 0%,
+    rgba(200, 200, 200, 0.3) 50%,
+    rgba(200, 200, 200, 0.2) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .skeleton-days {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .skeleton-day {
+    aspect-ratio: auto;
+    min-height: 120px;
+  }
+}
+
+body.dark-mode .skeleton-month-header,
+body.dark-mode .skeleton-day {
+  background: linear-gradient(
+    90deg,
+    rgba(60, 60, 60, 0.2) 0%,
+    rgba(80, 80, 80, 0.3) 50%,
+    rgba(60, 60, 60, 0.2) 100%
+  );
+  background-size: 200% 100%;
+}

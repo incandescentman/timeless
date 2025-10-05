@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend, addDays } from '../utils/dateUtils';
+import { useRipple } from '../hooks/useRipple';
 
 function DayEventRow({
   event,
@@ -82,6 +83,7 @@ function DayCell({ date }) {
   const [newEventText, setNewEventText] = useState('');
   const inputRef = useRef(null);
   const editInputRef = useRef(null);
+  const createRipple = useRipple();
 
   const dateId = generateDayId(date);
   const dayNumber = date.getDate();
@@ -108,6 +110,11 @@ function DayCell({ date }) {
   };
 
   const handleCellClick = (e) => {
+    // Add ripple effect on mobile
+    if (window.innerWidth <= 768) {
+      createRipple(e);
+    }
+
     const target = e.target;
     if (target.closest('[data-event-row]') ||
         target.closest('.day-card__add') ||

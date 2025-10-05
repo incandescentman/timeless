@@ -639,9 +639,37 @@ body.dark-mode .day-cell.today .day-card__number {
   color: #ef4444;
 }
 
+/* Ripple effect */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(0);
+  animation: ripple-animation 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
 @media (max-width: 768px) {
+  /* Larger touch targets */
+  .day-cell--baseline {
+    min-height: 220px;
+    padding: 1.2rem 1.1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
   .day-card {
-    padding: 18px 16px 16px;
+    padding: 20px 18px 18px;
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
   }
 
   .day-card__header {
@@ -652,5 +680,30 @@ body.dark-mode .day-cell.today .day-card__number {
 
   .day-card__badge {
     margin-left: 0;
+  }
+
+  /* Active state feedback - use transform for performance */
+  .day-cell--baseline:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  .day-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Lighter shadows for performance */
+  .day-cell--baseline {
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.08);
+  }
+
+  .day-cell--baseline:hover {
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.12);
+    transform: translateY(0) scale(1);
+  }
+
+  .day-card {
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.08);
   }
 }
