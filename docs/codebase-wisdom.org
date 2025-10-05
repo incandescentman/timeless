@@ -528,3 +528,84 @@ Frequency: Low - Usually only happens with date manipulation
      });
    }
    #+end_src
+
+* Command Feedback HUD: Terminator-Style Machine Perception UI
+  Date: 2025-10-04
+
+** What It Is
+   - HUD now feels like a sentient terminal: metadata, telemetry, scanlines, glowing crosshair, and consistent hook ordering.
+
+** Key Features
+   - **Monochromatic cyan palette**: rgba(0, 255, 255, ...) for that classic sci-fi HUD aesthetic
+   - **Animated effects**: Blinking cursor, vertical scanlines, pulsing glow, smooth slide-down entrance
+   - **Information hierarchy**:
+     - Meta section: Host and timestamp in small, subtle text
+     - Core section: Centered command label with targeting reticle crosshairs (::before/::after pseudo-elements)
+     - Telemetry section: Procedurally generated tech-speak (e.g., "SIGMA/[signature] VECTOR LOCKED", "PROC:[command]")
+   - **Typography**: Share Tech Mono with wide letter-spacing (0.16em - 0.32em) for technical readout look
+   - **Portal rendering**: Uses createPortal to render at document.body level, ensuring z-index independence
+
+** Implementation Details
+   Files modified:
+   - src/components/CommandFeedback.jsx (lines 1-114)
+   - src/styles/command-feedback.css (lines 1-312)
+
+   Key CSS techniques:
+   - Multiple layered glow effects with radial gradients and drop-shadows
+   - Grid overlay patterns using repeating-linear-gradient
+   - Crosshair targeting lines using ::before/::after pseudo-elements on .command-feedback__core
+   - steps(2) animation for sharp cursor blinking
+   - prefers-reduced-motion support to disable all animations
+
+** Hook Ordering Fix (Commit 9cd7da5)
+   Fixed useEffect hook ordering to ensure:
+   1. Component mount tracking (setIsMounted)
+   2. Command state updates (setVisibleCommand)
+   3. Visibility triggers (setIsVisible)
+   4. Exit animations (cleanup timeout)
+
+   This prevents race conditions where visibility would trigger before command state was set.
+
+** Tone Variants
+   - `--positive`: Green-tinted borders (rgba(94, 234, 212, ...))
+   - `--warning`: Amber-tinted borders and text (rgba(255, 200, 112, ...))
+   - `--neutral`: Default cyan
+
+** Performance Considerations
+   - Uses requestAnimationFrame for entrance animation to prevent jank
+   - EXIT_ANIMATION_MS constant (280ms) ensures cleanup doesn't happen before animation completes
+   - Portal rendering avoids nested re-renders in main component tree
+
+* Vim Navigation Keys Hijacking Browser Shortcuts
+  Date: 2025-10-04
+
+** The Bug
+   Vim-style navigation keys (h/j/k/l) in keyboard focus mode were hijacking browser shortcuts like Cmd+L (focus address bar).
+
+** The Problem
+   In src/hooks/useKeyboardShortcuts.js, the keyboard navigation code checked for vim keys without excluding modifier key combinations:
+   #+begin_src javascript
+   // WRONG - hijacks Cmd+L
+   if (e.key === 'ArrowLeft' || e.key === 'h') {
+     e.preventDefault();
+     // ...
+   }
+   #+end_src
+
+** The Fix
+   Add modifier key checks to all vim navigation keys:
+   #+begin_src javascript
+   // CORRECT - allows Cmd+L to work
+   if (e.key === 'ArrowLeft' || (e.key === 'h' && !e.metaKey && !e.ctrlKey)) {
+     e.preventDefault();
+     // ...
+   }
+   #+end_src
+
+   Applied to all vim keys: h (left), j (down), k (up), l (right)
+
+** Lessons Learned
+   - [ ] **Always exclude modifier keys from vim-style bindings** - Browser/OS shortcuts take precedence
+   - [ ] **Test keyboard shortcuts with modifiers** - Cmd+K, Cmd+L, Cmd+H, etc.
+   - [ ] **Pattern for vim keys**: `(e.key === 'x' && !e.metaKey && !e.ctrlKey && !e.altKey)`
+   - [ ] **Don't preventDefault on system shortcuts** - Let browser handle Cmd/Ctrl combinations

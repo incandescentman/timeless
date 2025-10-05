@@ -143,16 +143,16 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       if (keyboardFocusDate) {
         let newDate = null;
 
-        if (e.key === 'ArrowLeft' || e.key === 'h') {
+        if (e.key === 'ArrowLeft' || (e.key === 'h' && !e.metaKey && !e.ctrlKey)) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, -1);
-        } else if (e.key === 'ArrowRight' || e.key === 'l') {
+        } else if (e.key === 'ArrowRight' || (e.key === 'l' && !e.metaKey && !e.ctrlKey)) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, 1);
-        } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        } else if (e.key === 'ArrowUp' || (e.key === 'k' && !e.metaKey && !e.ctrlKey)) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, -7);
-        } else if (e.key === 'ArrowDown' || e.key === 'j') {
+        } else if (e.key === 'ArrowDown' || (e.key === 'j' && !e.metaKey && !e.ctrlKey)) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, 7);
         }
