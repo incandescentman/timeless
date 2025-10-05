@@ -31,6 +31,9 @@ All notable changes to Timeless calendar are documented in this file.
 - Reduced shadow complexity on mobile for better performance
 
 ### Fixed - 2025-10-04
+- CRITICAL: Mobile crash caused by rendering hundreds of BottomSheet portals
+  - Changed to only render BottomSheet when isAddingNew is true on mobile
+  - Reduced from 100+ portal instances to 0-1 at any time
 - Vim navigation keys (h/j/k/l) no longer hijack browser shortcuts (Cmd+L now works)
   - Added modifier key checks (!e.metaKey && !e.ctrlKey)
 
