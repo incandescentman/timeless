@@ -208,6 +208,32 @@ Tests:
 Energy Level: Relieved—mobile scroll feels stable again
 Next Step: Monitor for similar regressions when tweaking month window math
 
+** Session: Virtualized Month Rendering
+Time: Overnight
+Task: Replace sentinel-based month loading with virtualization to eliminate scroll compensation hacks
+
+Accomplished:
+- Added `VirtualizedMonthList` component with ResizeObserver-backed measurements
+- Precomputed month metadata for 2020–2035 via `generateMonthsMeta`
+- Wired `CalendarContext` scroll API so UI elements (go to today, jump to date) use virtualization instead of DOM queries
+- Converted `Calendar` to render through the virtual list and registered scroll helpers
+- Updated `AppContent` and `MobileFooter` to call `scrollToDate`
+- Build verifies (`npm run build`)
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/MobileFooter.jsx
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/VirtualizedMonthList.jsx
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/contexts/CalendarContext.jsx
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/utils/months.js
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/App.jsx
+
+Tests:
+- npm run build
+
+Energy Level: Deep focus—architecture now matches the legacy behavior without hacks
+Next Step: Monitor measured heights & sticky header behavior; consider memoizing per-month offsets if needed
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix

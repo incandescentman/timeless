@@ -37,6 +37,24 @@
    - [ ] After adjusting window sizes, scroll far in both directions to ensure months aren’t skipped or duplicated.
    - [ ] Confirm the resize effect still reinitialises the window when breakpoints change (orientation shifts, responsive layouts).
 
+* Virtualized Month Rendering
+  Date: 2025-10-05
+
+** What Changed
+   Replaced sentinel-based month loading with `VirtualizedMonthList`. Months are now rendered via translateY offsets, backed by `ResizeObserver` measurements. Scroll helpers (`scrollToDate`, `scrollToToday`) live in `CalendarContext` and drive the virtual list.
+
+** Architectural Notes
+   - Total scroll height is simulated via cumulative month heights; virtualization controls the DOM count.
+   - `VirtualizedMonthList` keeps measured heights in a `Map`. Measurement updates trigger re-computation, so avoid heavy synchronous work inside `onHeightChange`.
+   - Scroll commands should call `scrollToDate` (context) instead of querying DOM; this ensures the target month renders before aligning the day cell.
+   - `ResizeObserver` is required for accurate heights. In legacy browsers without it, we fall back to window resize listeners—test if supporting older browsers.
+
+** Prevention Checklist
+   - [ ] When updating month markup, keep `.month-section` / `.month-header` classes intact for keyboard navigation helpers.
+   - [ ] Avoid re-creating `monthsMeta` on every render; keep it memoised to prevent virtualization resets.
+   - [ ] If adding variable-height content, ensure it lives inside the observed node so height updates propagate.
+   - [ ] Do not re-introduce `window.scrollBy` hacks—use virtualization API instead.
+
 ** The Bug
    On iOS Safari, Timeless would flash "A problem repeatedly occurred" and reload after a couple of swipes through the calendar.
 

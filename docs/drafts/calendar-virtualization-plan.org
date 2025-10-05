@@ -20,10 +20,14 @@
 - Apply existing height-delta scroll compensation.
 - Verify mobile stability.
 
+  _Status:_ Completed 2025-10-05 (`Remove calendar minRange clamps`).
+
 ** Stage 2 (Next): Implement Virtualization (this plan)
 - Replace manual month insertion with virtualized month list.
 - Anchor scroll via virtualization; deprecate height-delta hack.
 - Integrate sticky header & jump-to-date commands with virtualization.
+
+  _Status:_ Implemented (first pass) 2025-10-05 — monitor measurements & polish sticky header integration.
 
 * Architecture Overview
 - Precompute month metadata (start date, week structure, estimated height) for 2020–2035.
