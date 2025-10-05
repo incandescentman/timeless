@@ -120,7 +120,7 @@ html, body {
   .week-row {
     display: flex !important;
     flex-direction: column;
-    gap: clamp(0.65rem, 2vw, 0.8rem);
+    gap: 0;
   }
 
   .day-cell {

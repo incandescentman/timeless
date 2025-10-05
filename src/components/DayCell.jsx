@@ -3,6 +3,7 @@ import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend, addDays } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
+import BottomSheet from './BottomSheet';
 
 function DayEventRow({
   event,
@@ -105,7 +106,10 @@ function DayCell({ date }) {
     setEditingIndex(null);
     if (!isAddingNew) {
       setIsAddingNew(true);
-      setTimeout(() => inputRef.current?.focus(), 0);
+      // On mobile, don't auto-focus (bottom sheet will handle it)
+      if (window.innerWidth > 768) {
+        setTimeout(() => inputRef.current?.focus(), 0);
+      }
     }
   };
 
@@ -256,58 +260,89 @@ function DayCell({ date }) {
   const formattedDayNumber = String(dayNumber).padStart(2, '0');
   const eventCount = events.length;
   const addButtonDisabled = isMultiSelectMode;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   if (!useCardLayout) {
     return (
-      <div
-        className={className}
-        data-date-id={dateId}
-        onClick={handleCellClick}
-        role="gridcell"
-        aria-label={`Notes for ${date.toDateString()}`}
-      >
-        <div className="day-header">
-          <div className="day-header__weekday">
-            <span className="day-weekday" aria-label={dayLabel}>{dayLabel}</span>
+      <>
+        <div
+          className={className}
+          data-date-id={dateId}
+          onClick={handleCellClick}
+          role="gridcell"
+          aria-label={`Notes for ${date.toDateString()}`}
+        >
+          <div className="day-header">
+            <div className="day-header__weekday">
+              <span className="day-weekday" aria-label={dayLabel}>{dayLabel}</span>
+            </div>
+            <div className="day-header__main">
+              <span className="day-month" aria-label={monthLabel}>{monthLabel}</span>
+              <span className="day-number">{dayNumber}</span>
+            </div>
           </div>
-          <div className="day-header__main">
-            <span className="day-month" aria-label={monthLabel}>{monthLabel}</span>
-            <span className="day-number">{dayNumber}</span>
+          <div className="day-events">
+            {events.map((event, idx) => (
+              <DayEventRow
+                key={`${dateId}-event-${idx}`}
+                event={event}
+                index={idx}
+                isEditing={editingIndex === idx}
+                draftText={editingIndex === idx ? draftText : ''}
+                onStartEdit={startEditing}
+                onChange={setDraftText}
+                onBlur={commitEdit}
+                onKeyDown={handleEditKeyDown}
+                onDelete={handleRemoveEvent}
+                editInputRef={editInputRef}
+                useCardLayout={false}
+              />
+            ))}
           </div>
-        </div>
-        <div className="day-events">
-          {events.map((event, idx) => (
-            <DayEventRow
-              key={`${dateId}-event-${idx}`}
-              event={event}
-              index={idx}
-              isEditing={editingIndex === idx}
-              draftText={editingIndex === idx ? draftText : ''}
-              onStartEdit={startEditing}
-              onChange={setDraftText}
-              onBlur={commitEdit}
-              onKeyDown={handleEditKeyDown}
-              onDelete={handleRemoveEvent}
-              editInputRef={editInputRef}
-              useCardLayout={false}
-            />
-          ))}
+
+          {isAddingNew && !isMobile && (
+            <div className="day-event__composer">
+              <input
+                ref={inputRef}
+                className="day-event__input"
+                value={newEventText}
+                onChange={(e) => setNewEventText(e.target.value)}
+                onKeyDown={handleNewEventKeyDown}
+                onBlur={handleNewEventBlur}
+                autoFocus
+              />
+            </div>
+          )}
         </div>
 
-        {isAddingNew && (
-          <div className="day-event__composer">
-            <input
-              ref={inputRef}
-              className="day-event__input"
-              value={newEventText}
-              onChange={(e) => setNewEventText(e.target.value)}
-              onKeyDown={handleNewEventKeyDown}
-              onBlur={handleNewEventBlur}
-              autoFocus
-            />
-          </div>
+        {/* Mobile Bottom Sheet Composer */}
+        {isMobile && (
+          <BottomSheet
+            isOpen={isAddingNew}
+            onClose={() => {
+              if (newEventText.trim()) {
+                handleAddEvent();
+              } else {
+                setIsAddingNew(false);
+                setNewEventText('');
+              }
+            }}
+            title={`${dayLabel}, ${monthLabel} ${dayNumber}`}
+          >
+            <div className="day-event__composer">
+              <input
+                ref={inputRef}
+                className="day-event__input"
+                value={newEventText}
+                onChange={(e) => setNewEventText(e.target.value)}
+                onKeyDown={handleNewEventKeyDown}
+                placeholder="Add note..."
+                autoFocus
+              />
+            </div>
+          </BottomSheet>
         )}
-      </div>
+      </>
     );
   }
 
