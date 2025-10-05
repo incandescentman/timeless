@@ -34,18 +34,6 @@ function MobileFooter() {
     <div className="mobile-footer">
       <button
         className="mobile-footer__button"
-        onClick={handlePreviousMonth}
-        aria-label="Previous month"
-      >
-        <div className="mobile-footer__icon-container">
-          <svg className="mobile-footer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </div>
-      </button>
-
-      <button
-        className="mobile-footer__button"
         onClick={handleToday}
         aria-label="Go to today"
       >
@@ -55,6 +43,18 @@ function MobileFooter() {
             <line x1="5" y1="11" x2="19" y2="11"></line>
             <line x1="9" y1="5" x2="9" y2="7"></line>
             <line x1="15" y1="5" x2="15" y2="7"></line>
+          </svg>
+        </div>
+      </button>
+
+      <button
+        className="mobile-footer__button"
+        onClick={handlePreviousMonth}
+        aria-label="Previous month"
+      >
+        <div className="mobile-footer__icon-container">
+          <svg className="mobile-footer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </div>
       </button>
