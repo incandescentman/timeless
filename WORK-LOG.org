@@ -4,6 +4,32 @@ All notable changes to Timeless calendar are documented in this file.
 
 ## [Unreleased]
 
+### Added - 2025-10-04
+- Enhanced terminator HUD now default (promoted from experimental mode)
+  - Corner brackets with cyan accents at all 8 corners
+  - Chromatic aberration on title text (RGB split effect)
+  - Edge glow pulse animation sweeping across HUD
+  - Animated data stream background with scrolling hex codes
+  - Static/noise texture overlay for CRT monitor effect
+  - Hexagonal accent shapes on meta and telemetry sections
+  - Real-time data: current date, time, and today's event count
+- ESC key immediately dismisses command HUD
+- Bottom sheet composer for mobile (swipe-to-dismiss)
+- Touch ripple effects on mobile day cells (Material Design style)
+- Loading skeleton UI with shimmer animation
+- Smooth scrolling with momentum on mobile
+
+### Changed - 2025-10-04
+- Larger touch targets on mobile (220px minimum height for day cells)
+- Removed gaps between days within week rows on mobile (flush layout)
+- HUD hidden on mobile for optimal mobile UX
+- All animations optimized to use only transform/opacity for 60fps
+- Reduced shadow complexity on mobile for better performance
+
+### Fixed - 2025-10-04
+- Vim navigation keys (h/j/k/l) no longer hijack browser shortcuts (Cmd+L now works)
+  - Added modifier key checks (!e.metaKey && !e.ctrlKey)
+
 ### Added - 2025-10-02
 - Integrated experimental-mode package for UI variant testing
 - Added ExperimentalModeWrapper component for testing design variants
