@@ -3,7 +3,6 @@ import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend, addDays } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
-import BottomSheet from './BottomSheet';
 
 function DayEventRow({
   event,
@@ -299,7 +298,7 @@ function DayCell({ date }) {
             ))}
           </div>
 
-          {isAddingNew && window.innerWidth > 768 && (
+          {isAddingNew && (
             <div className="day-event__composer">
               <input
                 ref={inputRef}
@@ -311,34 +310,6 @@ function DayCell({ date }) {
                 autoFocus
               />
             </div>
-          )}
-
-          {/* Mobile Bottom Sheet Composer */}
-          {isAddingNew && window.innerWidth <= 768 && (
-            <BottomSheet
-              isOpen={isAddingNew}
-              onClose={() => {
-                if (newEventText.trim()) {
-                  handleAddEvent();
-                } else {
-                  setIsAddingNew(false);
-                  setNewEventText('');
-                }
-              }}
-              title={`${dayLabel}, ${monthLabel} ${dayNumber}`}
-            >
-              <div className="day-event__composer">
-                <input
-                  ref={inputRef}
-                  className="day-event__input"
-                  value={newEventText}
-                  onChange={(e) => setNewEventText(e.target.value)}
-                  onKeyDown={handleNewEventKeyDown}
-                  placeholder="Add note..."
-                  autoFocus
-                />
-              </div>
-            </BottomSheet>
           )}
         </div>
       </>
