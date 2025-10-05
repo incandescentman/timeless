@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-// import { KBarProvider, useKBar } from 'kbar';
+import { KBarProvider, useKBar } from 'kbar';
 import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -7,10 +7,10 @@ import { CommandFeedbackProvider } from './contexts/CommandFeedbackContext';
 import { ToastProvider } from './contexts/ToastContext';
 import Calendar from './components/Calendar';
 import MobileHeader from './components/MobileHeader';
-// import MobileFooter from './components/MobileFooter';
+import MobileFooter from './components/MobileFooter';
 import YearView from './components/YearView';
-// import HelpOverlay from './components/HelpOverlay';
-// import CommandPalette from './components/CommandPalette';
+import HelpOverlay from './components/HelpOverlay';
+import CommandPalette from './components/CommandPalette';
 import LoadingSpinner from './components/LoadingSpinner';
 import ExperimentalModeIndicator from './components/ExperimentalModeIndicator';
 import VariantSwitcher from './components/VariantSwitcher';
@@ -209,7 +209,7 @@ function AppContent({ experimentalMode }) {
 
   return (
     <>
-      {/* <CommandPalette /> */}
+      <CommandPalette />
       <AppShell
         showYearView={showYearView}
         setShowYearView={setShowYearView}
@@ -223,12 +223,12 @@ function AppContent({ experimentalMode }) {
 }
 
 function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoading, experimentalMode }) {
-  // const { query } = useKBar();
+  const { query } = useKBar();
 
   useKeyboardShortcuts({
     onShowYearView: () => setShowYearView(true),
     onShowHelp: () => setShowHelp(prev => !prev),
-    onShowCommandPalette: () => {} // query.toggle()
+    onShowCommandPalette: () => query.toggle()
   });
 
   return (
@@ -244,15 +244,15 @@ function AppShell({ showYearView, setShowYearView, showHelp, setShowHelp, isLoad
       </div>
 
       <MobileHeader />
-      {/* <MobileFooter /> */}
+      <MobileFooter />
 
       {showYearView && (
         <YearView onClose={() => setShowYearView(false)} />
       )}
 
-      {/* {showHelp && (
+      {showHelp && (
         <HelpOverlay onClose={() => setShowHelp(false)} />
-      )} */}
+      )}
 
       {isLoading && <LoadingSpinner />}
 
