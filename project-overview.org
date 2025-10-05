@@ -1,0 +1,33 @@
+#+title: Timeless React Overview
+
+* Project Overview
+- React/Vite single-page app: ~src/main.jsx:1~ boots ~App~ into ~#root~ and layers shared styles for layout, calendar grid, overlays, and mobile tweaks.
+- Root composition in ~src/App.jsx:1~ wraps everything in ~ThemeProvider~ and ~CalendarProvider~, renders the infinite calendar, header, mobile action bar, and toggled overlays (year view, help, command palette, spinner).
+- Feature set matches the original Timeless calendar—local-only storage, infinite past/future weeks, keyboard navigation, multi-select, natural-language jumps—now organized into reusable components.
+
+* State & Utilities
+- ~src/contexts/CalendarContext.jsx:1~ centralizes calendar data, undo/redo stacks, selection/range state, and exposes helpers like ~addNote~, ~toggleDaySelection~, and ~getNotesForDate~; it now also orchestrates server sync (timestamp comparison, debounced saves to Redis).
+- Storage helpers in ~src/utils/storage.js:1~ normalise localStorage data and talk to the serverless endpoint at ~api/calendar.js~, falling back to `/api.php` only if ~VITE_API_BASE_URL~ points to the legacy PHP route.
+- Date utilities in ~src/utils/dateUtils.js:1~ cover ID generation, week/month math, natural-language parsing (“next friday”), and display formatting; they keep the app calendar-agnostic and reusable.
+- ~src/contexts/ThemeContext.jsx:1~ toggles dark mode by flipping a body class and persisting a ~darkMode~ flag.
+- Global keyboard handling via ~src/hooks/useKeyboardShortcuts.js:1~ binds Cmd/Ctrl+K palette, undo/redo, navigation, multi-select, date jumps, and dark-mode toggle while respecting focused inputs.
+
+* Interface Modules
+- ~src/components/Calendar.jsx:1~ builds the infinite week table, prerenders ±26 weeks, scrolls to today on mount, observes sentinel rows to extend upward/downward, and injects month boundary headers.
+- ~src/components/DayCell.jsx:1~ handles per-day note editing: in-cell textarea with auto-resize, markdown-ish shortcuts (Ctrl+B/I/H), escape/enter behavior, multi-select toggles, and visual states for today/weekends/selection.
+- ~src/components/DayCell.jsx:1~ now renders multiple events per day (list of cards) with inline editing, add-input composer, and swipe-to-delete (via ~react-swipeable~).
+- ~src/components/Header.jsx:1~ combines the mini calendar, branding, and controls for dark mode, jump-to-today, year view, exports/imports, help, undo, and opens the kbar command palette.
+- Never add friendly placeholders like "Add note" in UI copy; use neutral terms ("New entry" / empty input) for future variants.
+- ~src/components/MiniCalendar.jsx:1~ renders three months side-by-side, coloring today and noted days, with wheel-driven month navigation and smooth scrolling to clicked dates.
+- ~src/components/YearView.jsx:1~ overlays an annual grid, tracks the chosen year, highlights notes/today, and closes after jumping to a day.
+- ~src/components/CommandPalette.jsx:1~, ~HelpOverlay.jsx:1~, and ~MobileActionBar.jsx:1~ provide palette actions (go to today, dark mode, exports, jump dialog), shortcut documentation, and mobile-first navigation buttons.
+
+- Install and launch with ~npm install~ then ~npm run dev~ (Vite defaults to port 5000 in ~vite.config.js:1~; host is exposed for LAN/Replit access). Create ~.env.local~ with ~VITE_API_BASE_URL~ (and ~REDIS_URL~ if you’re connecting to a remote Redis instance) or run ~vercel dev~ which injects both.
+- ~docs/~, ~README-REACT.md~, and the various ~README.*~ files capture migration notes and original design intent; legacy vanilla assets remain in ~index-vanilla.html~, ~calendar.js~, and ~old-assets/~ for reference.
+- Server sync uses the ~api/calendar.js~ serverless function backed by Redis (configure ~REDIS_URL~ alongside ~VITE_API_BASE_URL~); the legacy PHP stub remains only for reference.
+- Styles live under ~src/styles/~ and are imported globally, so any adjustments there cascade through the whole UI.
+
+* Next Steps (Optional)
+1. Run ~npm run dev~ and explore the UI/features in the browser.
+2. Review ~README-REACT.md~ alongside ~docs/codebase-wisdom.org~ for historical context and future plans.
+3. Consult ~docs/experimental-mode-plan.org~ for the curated variant roadmap; all future documentation should live in Org-mode files (`.org`).

@@ -1,38 +1,167 @@
-#+title: Timeless React Overview
+#+TITLE: CLAUDE.org - Documentation Map for Timeless
+#+DATE: 2025-10-04
+#+DESCRIPTION: Entry point and navigation for all Timeless documentation
+
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: Entry point and map for all documentation
+- Key Docs: All .org files in /docs
+- Always read before: Starting any major change or onboarding
+- Also includes: "For AI Assistants" section with navigation and key invariants
+Last Synced for AI Context: 2025-10-04
+#+END_COMMENT
+
 
 * CRITICAL: Debugging Protocol
 - If debugging takes more than 2 turns, STOP and re-read ~docs/codebase-wisdom.org~ to avoid running in circles
 - Common patterns and fixes are documented there from past debugging sessions
 - Check symptoms against documented issues BEFORE attempting multiple fixes
 
-* Project Overview
-- React/Vite single-page app: ~src/main.jsx:1~ boots ~App~ into ~#root~ and layers shared styles for layout, calendar grid, overlays, and mobile tweaks.
-- Root composition in ~src/App.jsx:1~ wraps everything in ~ThemeProvider~ and ~CalendarProvider~, renders the infinite calendar, header, mobile action bar, and toggled overlays (year view, help, command palette, spinner).
-- Feature set matches the original Timeless calendar—local-only storage, infinite past/future weeks, keyboard navigation, multi-select, natural-language jumps—now organized into reusable components.
+* All Documentation Files
 
-* State & Utilities
-- ~src/contexts/CalendarContext.jsx:1~ centralizes calendar data, undo/redo stacks, selection/range state, and exposes helpers like ~addNote~, ~toggleDaySelection~, and ~getNotesForDate~; it now also orchestrates server sync (timestamp comparison, debounced saves to Redis).
-- Storage helpers in ~src/utils/storage.js:1~ normalise localStorage data and talk to the serverless endpoint at ~api/calendar.js~, falling back to `/api.php` only if ~VITE_API_BASE_URL~ points to the legacy PHP route.
-- Date utilities in ~src/utils/dateUtils.js:1~ cover ID generation, week/month math, natural-language parsing (“next friday”), and display formatting; they keep the app calendar-agnostic and reusable.
-- ~src/contexts/ThemeContext.jsx:1~ toggles dark mode by flipping a body class and persisting a ~darkMode~ flag.
-- Global keyboard handling via ~src/hooks/useKeyboardShortcuts.js:1~ binds Cmd/Ctrl+K palette, undo/redo, navigation, multi-select, date jumps, and dark-mode toggle while respecting focused inputs.
+** Core Documentation
+- [[file:CLAUDE.org][CLAUDE.org]] (this file) - Documentation map and starting point
+- [[file:concept-map.org][concept-map.org]] - Glossary of project-specific terminology
+- [[file:the-timeless-approach.org][the-timeless-approach.org]] - Philosophy and core concepts
+- [[file:design-architecture.org][design-architecture.org]] - Technical architecture with mental models
+- [[file:visual-design-philosophy.org][visual-design-philosophy.org]] - Design system and principles
 
-* Interface Modules
-- ~src/components/Calendar.jsx:1~ builds the infinite week table, prerenders ±26 weeks, scrolls to today on mount, observes sentinel rows to extend upward/downward, and injects month boundary headers.
-- ~src/components/DayCell.jsx:1~ handles per-day note editing: in-cell textarea with auto-resize, markdown-ish shortcuts (Ctrl+B/I/H), escape/enter behavior, multi-select toggles, and visual states for today/weekends/selection.
-- ~src/components/DayCell.jsx:1~ now renders multiple events per day (list of cards) with inline editing, add-input composer, and swipe-to-delete (via ~react-swipeable~).
-- ~src/components/Header.jsx:1~ combines the mini calendar, branding, and controls for dark mode, jump-to-today, year view, exports/imports, help, undo, and opens the kbar command palette.
-- Never add friendly placeholders like "Add note" in UI copy; use neutral terms ("New entry" / empty input) for future variants.
-- ~src/components/MiniCalendar.jsx:1~ renders three months side-by-side, coloring today and noted days, with wheel-driven month navigation and smooth scrolling to clicked dates.
-- ~src/components/YearView.jsx:1~ overlays an annual grid, tracks the chosen year, highlights notes/today, and closes after jumping to a day.
-- ~src/components/CommandPalette.jsx:1~, ~HelpOverlay.jsx:1~, and ~MobileActionBar.jsx:1~ provide palette actions (go to today, dark mode, exports, jump dialog), shortcut documentation, and mobile-first navigation buttons.
+** Development Documentation
+- [[file:codebase-wisdom.org][codebase-wisdom.org]] - Hard-won debugging insights
+- [[file:work-log.org][work-log.org]] - Session-based work tracking
+- [[file:critical-next-steps.org][critical-next-steps.org]] - Technical debt and roadmap
+- [[file:decisions/][decisions/]] - Architecture Decision Records (ADRs)
 
-- Install and launch with ~npm install~ then ~npm run dev~ (Vite defaults to port 5000 in ~vite.config.js:1~; host is exposed for LAN/Replit access). Create ~.env.local~ with ~VITE_API_BASE_URL~ (and ~REDIS_URL~ if you’re connecting to a remote Redis instance) or run ~vercel dev~ which injects both.
-- ~docs/~, ~README-REACT.md~, and the various ~README.*~ files capture migration notes and original design intent; legacy vanilla assets remain in ~index-vanilla.html~, ~calendar.js~, and ~old-assets/~ for reference.
-- Server sync uses the ~api/calendar.js~ serverless function backed by Redis (configure ~REDIS_URL~ alongside ~VITE_API_BASE_URL~); the legacy PHP stub remains only for reference.
-- Styles live under ~src/styles/~ and are imported globally, so any adjustments there cascade through the whole UI.
+** Experimental & Archive
+- [[file:experimental-mode-plan.org][experimental-mode-plan.org]] - Experimental features planning
+- [[file:experimental-mode-feedback.org][experimental-mode-feedback.org]] - Experimental features feedback
+- [[file:archive/][archive/]] - Historical documentation
 
-* Next Steps (Optional)
-1. Run ~npm run dev~ and explore the UI/features in the browser.
-2. Review ~README-REACT.md~ alongside ~docs/codebase-wisdom.org~ for historical context and future plans.
-3. Consult ~docs/experimental-mode-plan.org~ for the curated variant roadmap; all future documentation should live in Org-mode files (`.org`).
+* Pre-Session Ritual (DO NOT SKIP)
+
+Every coding session MUST start with:
+1. Read last entry in [[file:work-log.org::*Session Handoff][work-log.org::*Session Handoff]]
+2. Review "For AI Assistants" section below for navigation guidance
+3. Check [[file:codebase-wisdom.org][codebase-wisdom.org]] for relevant gotchas
+
+Skipping this ritual leads to:
+- Regenerating existing code
+- Missing critical warnings
+- Breaking established patterns
+- Wasting time on preventable bugs
+
+* For Contributors
+
+** How to Update Documentation
+- Work-in-progress notes → [[file:drafts/][/docs/drafts/]]
+- Mature content → promote to /docs/
+- After debugging → add to [[file:codebase-wisdom.org][codebase-wisdom.org]]
+- After major decisions → create ADR in [[file:decisions/][/docs/decisions/]]
+
+** When to Document
+Ask in every retro: "What did we just learn that future developers will need?"
+
+** Documentation Health Checklist
+- [ ] Weekly: Verify all ADR links are valid and up-to-date
+- [ ] Weekly: Update codebase-wisdom.org with new debugging insights
+- [ ] Weekly: Prune /docs/drafts/ of stale or unpromoted notes
+- [ ] Weekly: Check for out-of-date navigation links and cross-refs
+- [ ] Weekly: Review "Recent Updates" section for accuracy
+
+*Tip:* AI assistants should continue to the "For AI Assistants" section below for navigation and invariants.
+
+* For AI Assistants
+[[*Start Here][↑ Back to Start Here Section]]
+
+A dedicated section for language models and AI coding assistants to understand the documentation layout, navigate relevant files, and maintain context continuity.
+
+** Overview for AI Assistants
+This repo uses the following documentation structure:
+- [[file:design-architecture.org][design-architecture.org]] → system-level technical overview
+- [[file:codebase-wisdom.org][codebase-wisdom.org]] → debugging lessons and traps
+- [[file:visual-design-philosophy.org][visual-design-philosophy.org]] → design system and UI rules
+- [[file:concept-map.org][concept-map.org]] → project-specific terminology
+- [[file:work-log.org][work-log.org]] → session tracking and handoffs
+
+** Before Making Code Changes
+1. Always consult [[file:design-architecture.org][design-architecture.org]] first
+2. Check [[file:codebase-wisdom.org][codebase-wisdom.org]] for known gotchas related to your task
+3. Reference [[file:concept-map.org][concept-map.org]] for internal terminology
+4. Review [[file:visual-design-philosophy.org][visual-design-philosophy.org]] for any UI work
+
+** Core Modules
+- ~/src/App.tsx~ - Main application component with event state management
+- ~/src/components/Calendar.tsx~ - Main calendar grid component (12-month year view)
+- ~/src/components/EventCard.tsx~ - Individual event display
+- ~/src/components/EventForm.tsx~ - Event creation/editing form
+- ~/src/types/index.ts~ - TypeScript type definitions (Event interface)
+- ~/src/utils/dateUtils.ts~ - Date handling utilities
+
+** Key Invariants
+- Event data structure must remain backward-compatible
+- All state changes must be immutable (React best practices)
+- Events stored in array, keyed by date string (YYYY-MM-DD format)
+- No external state management library - use React useState
+- Today's cell always visually emphasized in red (#ef4444)
+- No animations or transitions (timeless design principle)
+- All dates use ISO format (YYYY-MM-DD)
+- Calendar always shows full year grid (12 months)
+- All documentation must remain link-consistent (no dangling references)
+
+** Common LLM Anti-Patterns in This Codebase
+
+*** Pattern: Breaking Today Cell Highlighting
+- Problem: LLM modifies cell styling without preserving isToday logic
+- Fix: Always check Calendar.tsx for existing today highlighting before changing styles
+- Prevention: Load [[file:visual-design-philosophy.org][visual-design-philosophy.org]] before UI changes
+- Frequency: High
+
+*** Pattern: Adding Animations
+- Problem: LLM adds CSS transitions or animations
+- Fix: Remove all transitions - violates timeless design principle
+- Prevention: Check design philosophy doc first
+- Frequency: Medium
+
+*** Pattern: Changing Event Data Structure
+- Problem: LLM modifies event interface without considering backward compatibility
+- Fix: Always maintain existing fields, only add new optional fields
+- Prevention: Check [[file:design-architecture.org::*Data Structure][design-architecture.org::*Data Structure]]
+- Frequency: Medium
+
+*** Pattern: Partial Context Submissions
+- Problem: LLM submits code or documentation changes without loading the full relevant context
+- Fix: Always load the *entire* file and related sections (design-architecture.org, codebase-wisdom.org, ADRs) before submitting changes
+- Prevention: Follow pre-session ritual; enforce context-loading checklist
+- Frequency: Common in multi-file or cross-cutting changes
+
+** Quick Reference
+
+*** To add a new event field:
+1. Update ~/src/types/index.ts~ Event interface (make it optional!)
+2. Update EventForm component
+3. Update EventCard display
+4. Test with existing events (backward compatibility)
+
+*** To modify calendar layout:
+1. Check [[file:design-architecture.org][design-architecture.org]] for grid structure
+2. Review [[file:visual-design-philosophy.org][visual-design-philosophy.org]] for constraints
+3. Preserve today cell highlighting logic
+4. Test across different months
+
+*** To fix a bug:
+1. Search [[file:codebase-wisdom.org][codebase-wisdom.org]] for similar issues
+2. Check if it's a known anti-pattern
+3. Document the fix in codebase-wisdom.org
+4. Update work-log.org with LLM session summary
+
+* Project Quick Facts
+
+- **What**: A minimalist calendar for people who think in years, not days
+- **Tech Stack**: React, TypeScript, Tailwind CSS
+- **Architecture**: Single-page app with local state management
+- **Design Philosophy**: Minimal, focused, timeless aesthetic
+
+---
+[[file:the-timeless-approach.org][→ Philosophy]] | [[file:design-architecture.org][→ Architecture]] | [[file:codebase-wisdom.org][→ Wisdom]]
+
+Last Updated: 2025-10-04
