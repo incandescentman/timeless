@@ -30,32 +30,7 @@ A React-based infinite scroll calendar application with persistent note-taking c
 - **Action Bar**: Bottom controls order `Prev • Today • Next • Menu`, with Today anchored center
 - **Tap Targets**: Larger controls (≥80px height) and swipe gestures for note management
 
-## Recent Updates (January 2025)
-
-### Command HUD
-- **Enhanced Terminator HUD**: Sci-fi terminal aesthetic with 7 visual enhancements
-  - Corner brackets with cyan accents at all 8 corners
-  - Chromatic aberration on title text (RGB split effect)
-  - Edge glow pulse animation sweeping across HUD
-  - Animated data stream background with scrolling hex codes
-  - Static/noise texture overlay for CRT monitor effect
-  - Hexagonal accent shapes on meta and telemetry sections
-  - Real-time data: current date, time, and today's event count
-- **Quick Dismiss**: Press `Esc` to immediately dismiss HUD
-- **Hidden on Mobile**: HUD only displays on desktop for optimal mobile UX
-
-### Mobile Enhancements
-- **Bottom Sheet Composer**: Swipe-to-dismiss event composer slides up from bottom
-- **Touch Ripple Effects**: Material Design ripples on day cell taps
-- **Larger Touch Targets**: 220px minimum height for day cells
-- **Active State Feedback**: Visual scale-down on tap (0.98 transform)
-- **Smooth Scrolling**: Momentum-based scrolling with bounce effect
-- **Loading Skeleton**: Shimmer animation during data loading
-- **Performance Optimizations**:
-  - All animations use only transform/opacity for 60fps
-  - Reduced shadow complexity on mobile
-  - GPU acceleration with will-change hints
-- **Flush Layout**: Removed gaps between days within week rows
+## Recent Updates (October 2025)
 
 ### UI/UX Enhancements
 - Restored rounded card design for day cells with 14px border radius
@@ -65,7 +40,6 @@ A React-based infinite scroll calendar application with persistent note-taking c
 - Improved text contrast for better readability
 
 ### Keyboard Navigation
-- Fixed vim navigation keys (h/j/k/l) hijacking browser shortcuts by adding modifier key checks
 - Fixed month navigation with n/p keys using proper viewport detection
 - Added N/P shortcuts for year navigation (12-month jumps)
 - Changed "Add Note to Today" shortcut from n to c/T
