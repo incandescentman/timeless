@@ -11,13 +11,15 @@ import '../styles/calendar.css';
 const MOBILE_CONFIG = {
   initialRange: { before: 1, after: 2 }, // 3 months (≈12 weeks)
   maxMonths: 4, // keep ≈16 weeks in DOM
-  loadMonths: 1
+  loadMonths: 1,
+  minRange: { before: -12, after: 3 } // clamp months to current year window
 };
 
 const DESKTOP_CONFIG = {
   initialRange: { before: 6, after: 6 },
   maxMonths: 18,
-  loadMonths: 3
+  loadMonths: 3,
+  minRange: { before: -36, after: 36 }
 };
 
 function getInitialMonthRange(isMobile) {
@@ -28,7 +30,7 @@ function getInitialMonthRange(isMobile) {
   };
 }
 
-function extendMonthRange(range, direction, load, max) {
+function extendMonthRange(range, direction, load, max, minRange) {
   let { start, end } = range;
 
   if (direction === 'prev') {
@@ -43,6 +45,21 @@ function extendMonthRange(range, direction, load, max) {
       end = start + max - 1;
     } else {
       start = end - (max - 1);
+    }
+  }
+
+  if (minRange) {
+    const minStart = minRange.before ?? Number.NEGATIVE_INFINITY;
+    const maxEnd = minRange.after ?? Number.POSITIVE_INFINITY;
+
+    if (start < minStart) {
+      start = minStart;
+      end = Math.max(start, start + max - 1);
+    }
+
+    if (end > maxEnd) {
+      end = maxEnd;
+      start = Math.min(end, end - (max - 1));
     }
   }
 
@@ -62,7 +79,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   const hasInitialScrollRef = useRef(false);
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
 
-  const { maxMonths, loadMonths } = useMemo(
+  const { maxMonths, loadMonths, minRange } = useMemo(
     () => (isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG),
     [isMobile]
   );
@@ -154,7 +171,7 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
       ? firstElement.getBoundingClientRect().top + window.scrollY
       : null;
 
-    setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths));
+    setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths, minRange));
 
     if (prevAbsoluteTop !== null) {
       window.requestAnimationFrame(() => {
@@ -175,8 +192,8 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   }, [monthsToRender, loadMonths, maxMonths]);
 
   const loadNextMonths = useCallback(() => {
-    setMonthRange(prev => extendMonthRange(prev, 'next', loadMonths, maxMonths));
-  }, [loadMonths, maxMonths]);
+    setMonthRange(prev => extendMonthRange(prev, 'next', loadMonths, maxMonths, minRange));
+  }, [loadMonths, maxMonths, minRange]);
 
   // Infinite scroll: load more weeks when sentinels are visible
   useEffect(() => {
