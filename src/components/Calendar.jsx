@@ -162,34 +162,24 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
       return;
     }
 
-    const firstMonthKey = monthsToRender[0]?.key;
-    const firstElement = firstMonthKey
-      ? document.querySelector(`[data-month-key="${firstMonthKey}"]`)
-      : null;
-
-    const prevAbsoluteTop = firstElement
-      ? firstElement.getBoundingClientRect().top + window.scrollY
-      : null;
+    const previousHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    );
 
     setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths, minRange));
 
-    if (prevAbsoluteTop !== null) {
-      window.requestAnimationFrame(() => {
-        const currentElement = firstMonthKey
-          ? document.querySelector(`[data-month-key="${firstMonthKey}"]`)
-          : null;
-
-        if (currentElement) {
-          const newAbsoluteTop = currentElement.getBoundingClientRect().top + window.scrollY;
-          const diff = newAbsoluteTop - prevAbsoluteTop;
-
-          if (Math.abs(diff) > 1) {
-            window.scrollBy(0, -diff);
-          }
-        }
-      });
-    }
-  }, [monthsToRender, loadMonths, maxMonths]);
+    window.requestAnimationFrame(() => {
+      const newHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight
+      );
+      const diff = newHeight - previousHeight;
+      if (Math.abs(diff) > 1) {
+        window.scrollBy(0, diff);
+      }
+    });
+  }, [monthsToRender, loadMonths, maxMonths, minRange]);
 
   const loadNextMonths = useCallback(() => {
     setMonthRange(prev => extendMonthRange(prev, 'next', loadMonths, maxMonths, minRange));
