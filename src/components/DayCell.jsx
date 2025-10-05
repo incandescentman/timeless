@@ -260,7 +260,6 @@ function DayCell({ date }) {
   const formattedDayNumber = String(dayNumber).padStart(2, '0');
   const eventCount = events.length;
   const addButtonDisabled = isMultiSelectMode;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   if (!useCardLayout) {
     return (
@@ -300,7 +299,7 @@ function DayCell({ date }) {
             ))}
           </div>
 
-          {isAddingNew && !isMobile && (
+          {isAddingNew && window.innerWidth > 768 && (
             <div className="day-event__composer">
               <input
                 ref={inputRef}
@@ -313,35 +312,35 @@ function DayCell({ date }) {
               />
             </div>
           )}
-        </div>
 
-        {/* Mobile Bottom Sheet Composer */}
-        {isMobile && (
-          <BottomSheet
-            isOpen={isAddingNew}
-            onClose={() => {
-              if (newEventText.trim()) {
-                handleAddEvent();
-              } else {
-                setIsAddingNew(false);
-                setNewEventText('');
-              }
-            }}
-            title={`${dayLabel}, ${monthLabel} ${dayNumber}`}
-          >
-            <div className="day-event__composer">
-              <input
-                ref={inputRef}
-                className="day-event__input"
-                value={newEventText}
-                onChange={(e) => setNewEventText(e.target.value)}
-                onKeyDown={handleNewEventKeyDown}
-                placeholder="Add note..."
-                autoFocus
-              />
-            </div>
-          </BottomSheet>
-        )}
+          {/* Mobile Bottom Sheet Composer */}
+          {isAddingNew && window.innerWidth <= 768 && (
+            <BottomSheet
+              isOpen={isAddingNew}
+              onClose={() => {
+                if (newEventText.trim()) {
+                  handleAddEvent();
+                } else {
+                  setIsAddingNew(false);
+                  setNewEventText('');
+                }
+              }}
+              title={`${dayLabel}, ${monthLabel} ${dayNumber}`}
+            >
+              <div className="day-event__composer">
+                <input
+                  ref={inputRef}
+                  className="day-event__input"
+                  value={newEventText}
+                  onChange={(e) => setNewEventText(e.target.value)}
+                  onKeyDown={handleNewEventKeyDown}
+                  placeholder="Add note..."
+                  autoFocus
+                />
+              </div>
+            </BottomSheet>
+          )}
+        </div>
       </>
     );
   }
