@@ -96,6 +96,24 @@ Tests:
 Energy Level: Determined, cleanup focused
 Next Step: Smoke-test on physical iOS Safari (long scroll + rapid swipes) and confirm console silent
 
+** Session: Mobile Hardening Round 3
+Time: Late night
+Task: Reduce mobile rendering weight to avoid iOS Safari crashes
+
+Accomplished:
+- Simplified mobile month headers and day cells (flat background, no gradients or drop-shadows)
+- Added subdued note styling overrides to cut GPU texture load while keeping today highlight intact
+- Rebuilt production bundle (`npm run build`)
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/styles/mobile.css
+
+Tests:
+- npm run build
+
+Energy Level: Steady polish
+Next Step: Re-test on device; if crashes persist, profile DOM node count live via Safari dev tools
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix
