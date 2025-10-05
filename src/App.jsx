@@ -15,7 +15,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ExperimentalModeIndicator from './components/ExperimentalModeIndicator';
 import VariantSwitcher from './components/VariantSwitcher';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import { parseNaturalDate, generateDayId } from './utils/dateUtils';
+import { parseNaturalDate } from './utils/dateUtils';
 import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from './utils/storage';
 
 function AppContent({ experimentalMode }) {
@@ -23,6 +23,7 @@ function AppContent({ experimentalMode }) {
   const [showHelp, setShowHelp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toggleDarkMode } = useTheme();
+  const { scrollToDate } = useCalendar();
   const {
     undo,
     redo,
@@ -33,11 +34,8 @@ function AppContent({ experimentalMode }) {
   } = useCalendar();
 
   const goToToday = useCallback(() => {
-    const todayCell = document.querySelector('.day-cell.today');
-    if (todayCell) {
-      todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, []);
+    scrollToDate(new Date(), { behavior: 'smooth', align: 'center' });
+  }, [scrollToDate]);
 
   const handleJumpToDate = useCallback(() => {
     const input = prompt('Enter a date (e.g., "tomorrow", "next friday", "2024-12-25"):');
@@ -45,17 +43,14 @@ function AppContent({ experimentalMode }) {
 
     const date = parseNaturalDate(input);
     if (date) {
-      const dateId = generateDayId(date);
-      const cell = document.querySelector(`[data-date-id="${dateId}"]`);
-      if (cell) {
-        cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        alert('Date not found in loaded calendar. Scroll further to load more weeks.');
+      const success = scrollToDate(date, { behavior: 'smooth', align: 'center' });
+      if (!success) {
+        alert('Date is outside the supported range.');
       }
     } else {
       alert('Could not parse date. Try "tomorrow", "next monday", or "YYYY-MM-DD".');
     }
-  }, []);
+  }, [scrollToDate]);
 
   const handleImport = useCallback(() => {
     const input = document.createElement('input');

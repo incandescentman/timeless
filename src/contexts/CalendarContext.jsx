@@ -31,6 +31,26 @@ export function CalendarProvider({ children }) {
   const [rangeEnd, setRangeEnd] = useState(null);
   const [isSelectingRange, setIsSelectingRange] = useState(false);
 
+  // Scroll API (registered by Calendar component)
+  const scrollApiRef = useRef(null);
+
+  const registerScrollApi = useCallback((api) => {
+    scrollApiRef.current = api;
+  }, []);
+
+  const scrollToDate = useCallback((date, options) => {
+    if (!scrollApiRef.current?.scrollToDate) return false;
+    return scrollApiRef.current.scrollToDate(date, options);
+  }, []);
+
+  const scrollToToday = useCallback((options) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return scrollApiRef.current?.scrollToDate
+      ? scrollApiRef.current.scrollToDate(today, options)
+      : false;
+  }, []);
+
   // Undo/redo state
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
@@ -368,6 +388,11 @@ export function CalendarProvider({ children }) {
     setRangeStart,
     setRangeEnd,
     setIsSelectingRange,
+
+    // Scroll helpers (registered by Calendar)
+    registerScrollApi,
+    scrollToDate,
+    scrollToToday,
 
     // Server sync
     lastSavedTimestamp,

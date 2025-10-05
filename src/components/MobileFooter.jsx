@@ -1,21 +1,20 @@
 import { useCallback } from 'react';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
 import { useMonthNavigation } from '../hooks/useMonthNavigation';
+import { useCalendar } from '../contexts/CalendarContext';
 import { useKBar } from 'kbar';
 
 function MobileFooter() {
   const { announceCommand } = useCommandFeedback();
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
   const { query } = useKBar();
+  const { scrollToDate } = useCalendar();
 
   const handleToday = useCallback(() => {
     // Scroll to today
     announceCommand({ label: 'Centering on today' });
-    const todayCell = document.querySelector('.day-cell.today');
-    if (todayCell) {
-      todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [announceCommand]);
+    scrollToDate(new Date(), { behavior: 'smooth', align: 'center' });
+  }, [announceCommand, scrollToDate]);
 
   const handlePreviousMonth = useCallback(() => {
     announceAndJump(-1, describeDirection(-1));
