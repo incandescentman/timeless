@@ -154,6 +154,25 @@ Tests:
 Energy Level: Focused iteration
 Next Step: Profile iOS memory with the new 16-week cap; adjust if devices handle more
 
+** Session: Month-Window Infinite Scroll
+Time: Afternoon
+Task: Enable true infinite scroll across years without loading the entire timeline at once
+
+Accomplished:
+- Reworked `Calendar.jsx` to drive rendering off month ranges instead of week buffers
+- Added viewport-specific configs: mobile (±1/2 months) vs desktop (±6) with sliding max window (4 vs 18 months)
+- Updated sentinel loaders to request more months as user hits top/bottom, trimming the opposite edge to keep DOM bounded
+- Verified build succeeds and desktop/mobile still scroll smoothly across year boundaries
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+
+Tests:
+- npm run build
+
+Energy Level: Energised—architecture feels scalable for deeper history/future
+Next Step: Consider memoising month calculations or adding cache if month rendering becomes hotspot under profiling
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix

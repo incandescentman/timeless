@@ -20,6 +20,22 @@
 ** Diagnostic Tip
    If you see `TypeError: c is not a function` originating from `CommandPalette`, the provider is missing. Reintroduce it before debugging other parts of the stack.
 
+* Month Window Infinite Scroll
+  Date: 2025-10-05
+
+** What Changed
+   Calendar rendering now uses month windows (`MOBILE_CONFIG` / `DESKTOP_CONFIG` in `src/components/Calendar.jsx`). Sentinels append or prepend months while trimming the opposite edge to keep DOM size bounded.
+
+** Architectural Notes
+   - Month data is regenerated each render via `getMonthWeeks`. Profile before increasing caps; memoise by `year-month` if needed.
+   - `extendMonthRange` keeps a sliding window. Don’t mutate `monthRange` outside of that helper or you risk popping the visible month.
+   - Mobile and desktop caps differ (4 vs 18 months). Coordinate layout or styling changes with these limits.
+
+** Prevention Checklist
+   - [ ] Keep sentinel observers aligned with the month loader names—update both together.
+   - [ ] After adjusting window sizes, scroll far in both directions to ensure months aren’t skipped or duplicated.
+   - [ ] Confirm the resize effect still reinitialises the window when breakpoints change (orientation shifts, responsive layouts).
+
 ** The Bug
    On iOS Safari, Timeless would flash "A problem repeatedly occurred" and reload after a couple of swipes through the calendar.
 
