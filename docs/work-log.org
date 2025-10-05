@@ -196,7 +196,7 @@ Time: Late evening
 Task: Stop month prepends from slingshotting users back decades
 
 Accomplished:
-- Corrected scroll compensation sign in `loadPreviousMonths` so we counter the layout shift instead of amplifying it
+- Corrected scroll compensation (now uses document height delta like the legacy build) so we counter the layout shift instead of amplifying it
 - Rebuilt production bundle (`npm run build`)
 
 Files Modified:
