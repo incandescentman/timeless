@@ -531,50 +531,96 @@ Frequency: Low - Usually only happens with date manipulation
 
 * Command Feedback HUD: Terminator-Style Machine Perception UI
   Date: 2025-10-04
+  Last Updated: 2025-10-04
 
 ** What It Is
-   - HUD now feels like a sentient terminal: metadata, telemetry, scanlines, glowing crosshair, and consistent hook ordering.
+   A sci-fi themed heads-up display that provides visual feedback for keyboard commands and user actions.
 
-** Key Features
-   - **Monochromatic cyan palette**: rgba(0, 255, 255, ...) for that classic sci-fi HUD aesthetic
-   - **Animated effects**: Blinking cursor, vertical scanlines, pulsing glow, smooth slide-down entrance
-   - **Information hierarchy**:
-     - Meta section: Host and timestamp in small, subtle text
-     - Core section: Centered command label with targeting reticle crosshairs (::before/::after pseudo-elements)
-     - Telemetry section: Procedurally generated tech-speak (e.g., "SIGMA/[signature] VECTOR LOCKED", "PROC:[command]")
-   - **Typography**: Share Tech Mono with wide letter-spacing (0.16em - 0.32em) for technical readout look
-   - **Portal rendering**: Uses createPortal to render at document.body level, ensuring z-index independence
+** Display Sections
+   1. **Meta section** (top):
+      - Date (e.g., "Fri, Oct 4")
+      - Time (12-hour format with AM/PM)
+      - Events Today (count from calendarData)
+   2. **Core section** (center):
+      - Tag: "Command"
+      - Command label with chromatic aberration effect
+      - Blinking cursor (▌)
+      - Optional description (if provided)
+
+** Experimental Mode Variants
+   Two variants available via Option-X toggle:
+
+   ***Default Terminator HUD:***
+   - Clean cyan palette
+   - Basic scanlines and crosshair
+   - Minimal effects
+
+   ***Enhanced Terminator HUD*** (src/styles/experimental.css):
+   - Corner brackets - L-shaped cyan brackets at all 8 corners
+   - Chromatic aberration - RGB split on title text (red left, cyan right)
+   - Edge glow pulse - Subtle traveling light around border (4.5s animation)
+   - Animated data stream - Scrolling hex values in background
+   - Static/noise texture - Flickering grid overlay
+   - Hexagonal accents - Pulsing hex shapes in corners
+
+** User Interactions
+   - **ESC key**: Immediately dismisses HUD (bypasses exit animation)
+   - **Auto-dismiss**: HUD fades out after EXIT_ANIMATION_MS (280ms)
+
+** Commands That Trigger HUD
+   Navigation:
+   - `n`/`p`/`[`/`]` - Month navigation (shows "Jumping forward/back X months")
+   - `N`/`P` - Year navigation (shows "Jumping forward/back 1 year")
+   - `t` - "Centering on today"
+   - `y` - "Opening year view"
+
+   UI Toggles:
+   - `Cmd/Ctrl+K` or `/` - "Opening command palette"
+   - `?` - "Showing keyboard shortcuts"
+   - `Cmd/Ctrl+D` - "Toggling dark mode"
+   - `m` - "Entering/Exiting multi-select"
+
+   Editing:
+   - `c` or `T` - "Opening today composer"
+   - `Cmd/Ctrl+Z` - "Undoing last action"
+   - `Cmd/Ctrl+Shift+Z` or `Cmd/Ctrl+Y` - "Redoing action"
+
+   Mobile:
+   - Mobile footer buttons also trigger HUD
+
+** Commands That Don't Trigger HUD
+   (These provide immediate visual feedback through scrolling/focus)
+   - `i` - Enter keyboard navigation mode
+   - `q`/`Escape` - Exit keyboard navigation mode
+   - `h`/`j`/`k`/`l`/Arrow keys - Navigate days in keyboard mode
+   - `Enter` - Open composer on focused day
+   - `Backspace` - Delete notes from focused day
+   - `Alt+ArrowUp/Down` - Alternative month navigation
 
 ** Implementation Details
-   Files modified:
-   - src/components/CommandFeedback.jsx (lines 1-114)
-   - src/styles/command-feedback.css (lines 1-312)
+   Files:
+   - src/components/CommandFeedback.jsx
+   - src/styles/command-feedback.css
+   - src/styles/experimental.css (enhanced variant)
+   - src/contexts/CommandFeedbackContext.jsx
 
-   Key CSS techniques:
-   - Multiple layered glow effects with radial gradients and drop-shadows
-   - Grid overlay patterns using repeating-linear-gradient
-   - Crosshair targeting lines using ::before/::after pseudo-elements on .command-feedback__core
-   - steps(2) animation for sharp cursor blinking
-   - prefers-reduced-motion support to disable all animations
+   Key patterns:
+   - Uses `useCalendar()` hook to access calendarData for event counts
+   - Uses `date-fns` format() for date/time formatting
+   - Portal rendering to document.body for z-index independence
+   - Keyboard event listener for ESC dismissal
+   - requestAnimationFrame for smooth entrance animation
 
-** Hook Ordering Fix (Commit 9cd7da5)
-   Fixed useEffect hook ordering to ensure:
-   1. Component mount tracking (setIsMounted)
-   2. Command state updates (setVisibleCommand)
-   3. Visibility triggers (setIsVisible)
-   4. Exit animations (cleanup timeout)
-
-   This prevents race conditions where visibility would trigger before command state was set.
-
-** Tone Variants
-   - `--positive`: Green-tinted borders (rgba(94, 234, 212, ...))
-   - `--warning`: Amber-tinted borders and text (rgba(255, 200, 112, ...))
+** Tone Variants (unused currently)
+   - `--positive`: Green-tinted borders
+   - `--warning`: Amber-tinted borders and text
    - `--neutral`: Default cyan
 
 ** Performance Considerations
-   - Uses requestAnimationFrame for entrance animation to prevent jank
-   - EXIT_ANIMATION_MS constant (280ms) ensures cleanup doesn't happen before animation completes
-   - Portal rendering avoids nested re-renders in main component tree
+   - requestAnimationFrame prevents jank
+   - EXIT_ANIMATION_MS ensures cleanup timing
+   - Portal rendering avoids nested re-renders
+   - Event listeners properly cleaned up in useEffect returns
 
 * Vim Navigation Keys Hijacking Browser Shortcuts
   Date: 2025-10-04

@@ -63,8 +63,9 @@
 
 .command-feedback__meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: flex-start;
+  gap: clamp(1rem, 3vw, 2rem);
   font-size: 0.62rem;
   letter-spacing: 0.22em;
   color: rgba(137, 255, 255, 0.72);
@@ -74,6 +75,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  flex: 1;
+  text-align: center;
 }
 
 .command-feedback__meta-label {
@@ -257,22 +260,7 @@
 
 @media (max-width: 768px) {
   .command-feedback {
-    min-width: 90vw;
-    letter-spacing: 0.12em;
-  }
-
-  .command-feedback__meta {
-    font-size: 0.58rem;
-  }
-
-  .command-feedback__core-title {
-    font-size: 0.9rem;
-    letter-spacing: 0.24em;
-  }
-
-  .command-feedback__core-subline,
-  .command-feedback__telemetry {
-    letter-spacing: 0.16em;
+    display: none;
   }
 }
 

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useCalendar } from '../contexts/CalendarContext';
+import { format } from 'date-fns';
 
 const EXIT_ANIMATION_MS = 280;
 
@@ -7,6 +9,7 @@ function CommandFeedbackOverlay({ command }) {
   const [isMounted, setIsMounted] = useState(false);
   const [visibleCommand, setVisibleCommand] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const { calendarData } = useCalendar();
 
   useEffect(() => {
     setIsMounted(true);
@@ -37,26 +40,38 @@ function CommandFeedbackOverlay({ command }) {
     return () => clearTimeout(timeout);
   }, [command, visibleCommand]);
 
-  const hostDisplay = useMemo(() => {
-    if (typeof window === 'undefined') return 'LOCALHOST:31337';
-    return window.location.host || 'LOCALHOST:31337';
-  }, []);
+  // ESC key handler to immediately dismiss HUD
+  useEffect(() => {
+    if (!visibleCommand) return undefined;
 
-  const timestampDisplay = useMemo(() => {
-    const stamp = new Date();
-    return stamp.toLocaleTimeString(undefined, { hour12: false });
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setIsVisible(false);
+        setVisibleCommand(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [visibleCommand]);
+
+  const dateDisplay = useMemo(() => {
+    return format(new Date(), 'EEE, MMM d');
   }, [visibleCommand?.id]);
 
+  const timestampDisplay = useMemo(() => {
+    return format(new Date(), 'h:mm:ss a');
+  }, [visibleCommand?.id]);
+
+  const todayEventCount = useMemo(() => {
+    const todayKey = format(new Date(), 'yyyy-MM-dd');
+    const todayEvents = calendarData[todayKey] || [];
+    return todayEvents.length;
+  }, [calendarData, visibleCommand?.id]);
+
   const telemetryRows = useMemo(() => {
-    if (!visibleCommand) return [];
-    const signature = visibleCommand.id.slice(-6).toUpperCase();
-    const labelVector = visibleCommand.label.replace(/\s+/g, '_').toUpperCase();
-    return [
-      `SIGMA/${signature} VECTOR LOCKED`,
-      `PROC:${labelVector}`,
-      `CHK ${timestampDisplay.replace(/:/g, '')} SYSTEM NOMINAL`
-    ];
-  }, [timestampDisplay, visibleCommand]);
+    return [];
+  }, []);
 
   const classNames = [
     'command-feedback',
@@ -77,17 +92,21 @@ function CommandFeedbackOverlay({ command }) {
       <div className="command-feedback__chrome">
         <div className="command-feedback__meta" aria-hidden="true">
           <div className="command-feedback__meta-group">
-            <span className="command-feedback__meta-label">Command Input</span>
-            <span className="command-feedback__meta-value">{hostDisplay}</span>
+            <span className="command-feedback__meta-label">Date</span>
+            <span className="command-feedback__meta-value">{dateDisplay}</span>
           </div>
           <div className="command-feedback__meta-group">
-            <span className="command-feedback__meta-label">Timestamp</span>
+            <span className="command-feedback__meta-label">Time</span>
             <span className="command-feedback__meta-value">{timestampDisplay}</span>
+          </div>
+          <div className="command-feedback__meta-group">
+            <span className="command-feedback__meta-label">Events Today</span>
+            <span className="command-feedback__meta-value">{todayEventCount}</span>
           </div>
         </div>
 
         <div className="command-feedback__core">
-          <span className="command-feedback__core-tag">Target / Process Status</span>
+          <span className="command-feedback__core-tag">Command</span>
           <span className="command-feedback__core-title">
             {visibleCommand.label}
             <span className="command-feedback__cursor">▌</span>

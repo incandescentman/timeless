@@ -4,140 +4,190 @@
   --exp-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html[data-experimental-variant] body {
-  transition: background 0.6s ease, color 0.6s ease;
+/* ========================= ENHANCED TERMINATOR HUD ========================= */
+
+/* Animations */
+@keyframes edge-glow-pulse {
+  0% {
+    opacity: 0.3;
+    transform: translateX(-100%);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.3;
+    transform: translateX(400%);
+  }
 }
 
-[data-experimental-variant] .day-cell,
-[data-experimental-variant] .day-note,
-[data-experimental-variant] button:not(.variant-nav__button) {
-  transition: all var(--exp-transition);
+@keyframes data-stream {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 }
 
-@keyframes rail-glow {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 0.75; }
+@keyframes noise-flicker {
+  0%, 100% {
+    opacity: 0.08;
+  }
+  50% {
+    opacity: 0.15;
+  }
 }
 
-/* ========================= TIMELINE RAIL ========================= */
-
-html[data-experimental-variant="timeline-rail"] body {
-  background: radial-gradient(circle at top left, #f8fafc 0%, #eef2ff 45%, #e4e9ff 100%);
-  color: #0f172a;
+@keyframes hex-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
 }
 
-[data-experimental-variant="timeline-rail"] .variant-switcher {
-  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+/* Enhanced Terminator variant - Command Feedback enhancements */
+[data-experimental-variant="enhanced-terminator"] .command-feedback {
+  overflow: hidden;
 }
 
-[data-experimental-variant="timeline-rail"] #calendarContainer {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: clamp(2.2rem, 4vw, 3.4rem) clamp(1.6rem, 3vw, 2.6rem);
-}
-
-[data-experimental-variant="timeline-rail"] .calendar-grid {
-  position: relative;
-  padding-left: clamp(4.5rem, 8vw, 6rem);
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.6rem, 2.6vw, 2.6rem);
-  --timeline-offset: clamp(2.1rem, 3.4vw, 3rem);
-}
-
-[data-experimental-variant="timeline-rail"] .calendar-grid::before {
+/* Corner brackets */
+[data-experimental-variant="enhanced-terminator"] .command-feedback__core::after {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--timeline-offset);
-  width: 3px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(59, 130, 246, 0));
-  animation: rail-glow 4s ease-in-out infinite;
+  inset: -2px;
+  background:
+    linear-gradient(90deg, rgba(0, 255, 255, 0.6) 0%, transparent 18px) top left,
+    linear-gradient(0deg, rgba(0, 255, 255, 0.6) 0%, transparent 18px) top left,
+    linear-gradient(90deg, transparent calc(100% - 18px), rgba(0, 255, 255, 0.6) 100%) top right,
+    linear-gradient(0deg, rgba(0, 255, 255, 0.6) 0%, transparent 18px) top right,
+    linear-gradient(90deg, rgba(0, 255, 255, 0.6) 0%, transparent 18px) bottom left,
+    linear-gradient(0deg, transparent calc(100% - 18px), rgba(0, 255, 255, 0.6) 100%) bottom left,
+    linear-gradient(90deg, transparent calc(100% - 18px), rgba(0, 255, 255, 0.6) 100%) bottom right,
+    linear-gradient(0deg, transparent calc(100% - 18px), rgba(0, 255, 255, 0.6) 100%) bottom right;
+  background-size: 24px 2px, 2px 24px;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 16px;
 }
 
-[data-experimental-variant="timeline-rail"] .calendar-day-labels {
-  align-self: stretch;
-  margin-left: 0;
-  padding: 18px clamp(1.5rem, 3vw, 2.4rem);
-  border-radius: 20px;
-  background: rgba(15, 23, 42, 0.85);
-  color: rgba(226, 232, 240, 0.92);
-  border: none;
-  box-shadow: none;
+/* Chromatic aberration on title */
+[data-experimental-variant="enhanced-terminator"] .command-feedback__core-title {
+  text-shadow:
+    -1.5px 0 rgba(255, 0, 100, 0.4),
+    1.5px 0 rgba(0, 255, 255, 0.6),
+    0 0 22px rgba(96, 165, 250, 0.32),
+    0 2px 6px rgba(8, 18, 38, 0.46);
 }
 
-[data-experimental-variant="timeline-rail"] .calendar-day-labels .day-label {
-  color: inherit;
-}
-
-[data-experimental-variant="timeline-rail"] .month-section {
-  background: rgba(255, 255, 255, 0.82);
-  border-radius: 24px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  padding: clamp(1.4rem, 2vw, 2rem) clamp(1.4rem, 2.4vw, 2.4rem);
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
-  position: relative;
-}
-
-[data-experimental-variant="timeline-rail"] .month-section::before {
-  content: attr(data-month-key);
-  position: absolute;
-  left: calc(-1 * clamp(4.5rem, 8vw, 6rem));
-  top: 18px;
-  font-size: 0.72rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.55);
-}
-
-[data-experimental-variant="timeline-rail"] .month-weeks {
-  gap: clamp(1.2rem, 2vw, 1.8rem);
-}
-
-[data-experimental-variant="timeline-rail"] .week-row {
-  display: flex;
-  gap: clamp(1rem, 2vw, 1.8rem);
-  align-items: stretch;
-  position: relative;
-  padding-left: clamp(0.4rem, 1vw, 0.8rem);
-}
-
-[data-experimental-variant="timeline-rail"] .week-row::before {
+/* Edge glow pulse - confined within HUD */
+[data-experimental-variant="enhanced-terminator"] .command-feedback::after {
   content: '';
   position: absolute;
-  left: calc(-1 * clamp(2.4rem, 4vw, 3.2rem));
-  top: 18px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.6));
-  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.12);
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  opacity: 0.15;
+  animation: edge-glow-pulse 4.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
 }
 
-[data-experimental-variant="timeline-rail"] .day-card {
-  border-radius: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  background: rgba(247, 250, 252, 0.92);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-  min-width: clamp(210px, 28vw, 260px);
+/* Animated data stream background */
+[data-experimental-variant="enhanced-terminator"] .command-feedback__chrome::before {
+  content: '0x4A7F 0x2B9C 0xE3A1 0x7D42 0xF1BE 0x9C37 0x5E8A 0xA2F6 0xD4C9 0x6B1E 0x8F3D 0xC7A5 0x3E92 0xB6F8 0x1D4C 0x9A7B 0x4F2E 0xE8D1 0x7C3A 0x2F9E 0xA1D7 0x5B4F 0xC9E2 0x8D6A 0x3F7C 0xB2A9 0x6E1D 0xF4C8 0x9B5E 0x2D8F 0xA7C3 0x4E9B 0xD2F7 0x8A3E 0x5F1C 0xC6D9 0x3B7A 0xE9F2 0x7D4E';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 200%;
+  font-size: 0.55rem;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.3em;
+  color: rgba(0, 255, 255, 0.12);
+  word-wrap: break-word;
+  line-height: 2.2;
+  animation: data-stream 12s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
 }
 
-[data-experimental-variant="timeline-rail"] .day-card__meta {
-  background: rgba(15, 23, 42, 0.08);
-  border-color: rgba(15, 23, 42, 0.15);
-  color: rgba(15, 23, 42, 0.7);
+/* Static/noise texture */
+[data-experimental-variant="enhanced-terminator"] .command-feedback__chrome::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.08) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.08) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 3px
+    );
+  opacity: 0.08;
+  animation: noise-flicker 2.5s steps(3) infinite;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: overlay;
 }
 
-[data-experimental-variant="timeline-rail"] .day-card__badge {
-  background: rgba(217, 119, 6, 0.14);
-  border-color: rgba(217, 119, 6, 0.28);
-  color: #92400e;
+
+/* Hexagonal accent shapes */
+[data-experimental-variant="enhanced-terminator"] .command-feedback__meta::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 14px;
+  height: 14px;
+  background: rgba(0, 255, 255, 0.25);
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  animation: hex-pulse 3s ease-in-out infinite;
 }
 
-[data-experimental-variant="timeline-rail"] .day-card__event {
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+[data-experimental-variant="enhanced-terminator"] .command-feedback__telemetry::before {
+  animation: hex-pulse 3s ease-in-out infinite 0.5s;
+}
+
+[data-experimental-variant="enhanced-terminator"] .command-feedback__telemetry::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  width: 14px;
+  height: 14px;
+  background: rgba(0, 255, 255, 0.25);
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  animation: hex-pulse 3s ease-in-out infinite 1s;
+}
+
+/* Make meta section relative for positioning */
+[data-experimental-variant="enhanced-terminator"] .command-feedback__meta {
+  position: relative;
+}
+
+/* Make telemetry section relative for positioning */
+[data-experimental-variant="enhanced-terminator"] .command-feedback__telemetry {
+  position: relative;
 }

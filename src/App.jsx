@@ -277,22 +277,22 @@ function App() {
   const experimentalVariants = useMemo(() => [
     {
       key: 'default',
-      label: 'Default UI',
+      label: 'Default Terminator HUD',
       description:
-        'WHAT: Nordic Frost palette with pale blue day cells and sky blue timeline. | WHY: Provides a clean, cool aesthetic for focused planning. | TO TEST: Scroll through months and observe the pale frost blue backgrounds and timeline glow. | ASK: Does the frost theme feel cohesive and calming?'
+        'WHAT: Clean terminator-style command feedback with cyan palette, scanlines, and crosshair. | WHY: Provides machine-perception aesthetic without overwhelming the interface. | TO TEST: Trigger commands (n/p for month navigation, t for today) to see the HUD. | ASK: Is the HUD visible and readable?'
     },
     {
-      key: 'timeline-rail',
-      label: 'Timeline Rail',
+      key: 'enhanced-terminator',
+      label: 'Enhanced Terminator HUD',
       description:
-        'WHAT: Horizontal scrolling timeline with vertical rail and month markers. | WHY: Alternative layout pattern showing weeks as horizontal cards along a timeline spine. | TO TEST: Observe the glowing timeline rail, month labels on the left, and horizontal week layout. | ASK: Does the timeline rail provide better context for temporal navigation?'
+        'WHAT: Maximal terminator aesthetic with corner brackets, chromatic aberration, edge glow pulse, data stream, noise overlay, numeric readouts, and hexagonal accents. | WHY: Push the sci-fi HUD aesthetic to its full potential for maximum immersion. | TO TEST: Trigger commands and observe corner brackets, RGB text split, animated border glow, scrolling hex values, and signal strength indicators. | ASK: Does the enhanced version feel more immersive or too busy?'
     }
   ], []);
 
   const experimentalMode = useExperimentalMode({
     variants: experimentalVariants,
     defaultKey: 'default',
-    experimentalDefaultKey: 'timeline-rail'
+    experimentalDefaultKey: 'enhanced-terminator'
   });
 
   // Option-X / Alt+E handled internally by @jaydixit/experimental-mode
