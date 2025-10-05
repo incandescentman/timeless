@@ -1,0 +1,83 @@
+#+TITLE: Calendar Virtualization Implementation Plan
+#+DATE: 2025-10-05
+#+AUTHOR: Jay Dixit & Timeless Team
+#+TAGS: virtualization, scrolling, performance
+
+* Context
+- Mobile rewind issues stem from manipulating scroll offsets after mutating the DOM (prepend/append weeks).
+- DOM grows unpredictably; keeping a bounded, smooth viewport requires virtualization.
+- Goal: Replace manual week/month insertion with a virtualized month list supporting Jan 2020 → 2030+.
+
+* Objectives
+- Fast, smooth scroll on mobile and desktop without scroll-by compensation hacks.
+- Keep DOM size bounded while allowing deep history/future browsing.
+- Support jump-to-today / jump-to-date without visual jumps.
+- Maintain sticky month header and existing command palette integrations.
+
+* Architecture Overview
+- Precompute month metadata (start date, week structure, estimated height) for 2020–2035.
+- Implement a `VirtualizedMonthList`:
+  - Tracks `scrollTop` and computes visible month window (viewport ± buffer).
+  - Renders only visible months inside a translateY wrapper with top/bottom spacers.
+  - Stores measured heights with `ResizeObserver` to refine estimates.
+- Sticky month header reads first visible month from virtualization state.
+- Scroll commands (today, jump-to-date) set `scrollTop` using cumulative heights.
+- Optional: extend month metadata lazily if user scrolls beyond 2035.
+
+* Detailed Steps
+** Phase 1: Metadata & Utilities
+- Build `monthsMeta` array (Jan 2020 → Dec 2035) with:
+  - `key`, `year`, `monthIndex`, `weeks` (array of week descriptors).
+  - `estimatedHeight = numWeeks * WEEK_HEIGHT + headerHeight`.
+- Export helpers:
+  - `getMonthIndexByDate(date)`
+  - `getCumulativeHeight(index, monthsMeta, measuredHeights)`
+
+** Phase 2: Virtualized Month List
+- Create `VirtualizedMonthList` component with props:
+  - `monthsMeta`, `renderMonth`, `initialScrollIndex`.
+- Implementation outline:
+  - Use `useRef` to store scroll container (could be `window` or dedicated div).
+  - On `scroll`, schedule (`requestAnimationFrame`) to update `scrollTop` state.
+  - Determine visible month indices by comparing cumulative heights to viewport bounds.
+  - Render only those months inside an absolutely positioned wrapper:
+    #+begin_src jsx
+    <div style={{ height: totalHeight }}>
+      <div style={{ transform: `translateY(${offset}px)` }}>
+        {visibleMonths.map(renderMonth)}
+      </div>
+    </div>
+    #+end_src
+
+** Phase 3: Height Measurement
+- Wrap each rendered month in a `ResizeObserver` to capture actual height.
+- Update `measuredHeights` map; recalc cumulative sums.
+- Handle first render jitter (e.g., `useLayoutEffect`) to adjust `scrollTop` when heights change for currently visible months.
+
+** Phase 4: Sticky Header & Commands
+- Replace current sticky logic with virtualization observer data:
+  - `firstVisibleMonthIndex` → derive display label.
+- Update `goToToday`, `handleJumpToDate` to compute target index + intra-month day offset.
+- For day-level offsets:
+  - Use day-of-month index * row height (approx) OR measure day cell position via refs when month is rendered.
+
+** Phase 5: Bounds & Lazy Loading
+- Clamp negative scroll to Jan 2020 (earliest month).
+- Pre-generate up to Dec 2035 (or later). If user nears the end, append more months.
+- Garbage-collect old measured heights outside buffer to keep memory small (optional).
+
+** Phase 6: Testing & Tuning
+- Manual QA on iOS Safari (long scroll, rapid direction changes).
+- Desktop QA (trackpad inertial scroll, keyboard navigation).
+- Profiling: ensure `scroll` handler is throttled via `requestAnimationFrame` and heavy computations are memoized.
+
+* Risks & Mitigations
+- **Height drift**: estimated vs. actual heights differ. Mitigate with `ResizeObserver` and smooth `scrollTop` adjustments when measurements update.
+- **Sticky header jitter**: ensure virtualization state updates are debounced so header doesn’t flicker.
+- **Jump-to-date accuracy**: if day cells vary in height, consider measuring day offsets once month renders (store day refs within month component).
+
+* Next Steps
+1. Implement Phase 1 (metadata refactor) alongside existing calendar to keep functionality.
+2. Build `VirtualizedMonthList` in isolation (Storybook or temporary view) for easier debugging.
+3. Swap Calendar component to use virtualization once feature parity is confirmed.
+4. Document final architecture in `design-architecture.org` and add regression tests for jump-to-today/date.
