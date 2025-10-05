@@ -4,6 +4,7 @@ import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { CommandFeedbackProvider } from './contexts/CommandFeedbackContext';
+import { ToastProvider } from './contexts/ToastContext';
 import Calendar from './components/Calendar';
 import MobileHeader from './components/MobileHeader';
 import MobileFooter from './components/MobileFooter';
@@ -301,7 +302,9 @@ function App() {
     <ThemeProvider>
       <CalendarProvider>
         <CommandFeedbackProvider>
-          <AppContent experimentalMode={experimentalMode} />
+          <ToastProvider>
+            <AppContent experimentalMode={experimentalMode} />
+          </ToastProvider>
         </CommandFeedbackProvider>
       </CalendarProvider>
     </ThemeProvider>
