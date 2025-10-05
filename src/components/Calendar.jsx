@@ -141,8 +141,33 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
   }, [monthsToRender]);
 
   const loadPreviousMonths = useCallback(() => {
+    if (!monthsToRender.length) {
+      return;
+    }
+
+    const firstMonthKey = monthsToRender[0]?.key;
+    const firstElement = firstMonthKey
+      ? document.querySelector(`[data-month-key="${firstMonthKey}"]`)
+      : null;
+    const prevTop = firstElement?.getBoundingClientRect().top ?? null;
+
     setMonthRange(prev => extendMonthRange(prev, 'prev', loadMonths, maxMonths));
-  }, [loadMonths, maxMonths]);
+
+    if (prevTop !== null && typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        const currentElement = firstMonthKey
+          ? document.querySelector(`[data-month-key="${firstMonthKey}"]`)
+          : null;
+        if (currentElement) {
+          const newTop = currentElement.getBoundingClientRect().top;
+          const diff = newTop - prevTop;
+          if (diff !== 0) {
+            window.scrollBy(0, diff);
+          }
+        }
+      });
+    }
+  }, [monthsToRender, loadMonths, maxMonths]);
 
   const loadNextMonths = useCallback(() => {
     setMonthRange(prev => extendMonthRange(prev, 'next', loadMonths, maxMonths));
