@@ -29,7 +29,7 @@
 ** Architectural Notes
    - Month data is regenerated each render via `getMonthWeeks`. Profile before increasing caps; memoise by `year-month` if needed.
    - `extendMonthRange` keeps a sliding window. Don’t mutate `monthRange` outside of that helper or you risk popping the visible month.
-   - Loading previous months now compensates scroll with `window.scrollBy(diff)` (see `loadPreviousMonths`); keep that adjustment if you tweak markup so users stay anchored.
+   - Loading previous months now compensates scroll with `window.scrollBy(0, -diff)` (see `loadPreviousMonths`); keep the sign correct or the viewport will lurch decades.
    - Mobile and desktop caps differ (4 vs 18 months). Coordinate layout or styling changes with these limits.
 
 ** Prevention Checklist

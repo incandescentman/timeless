@@ -174,6 +174,40 @@ Tests:
 Energy Level: Energised—architecture feels scalable for deeper history/future
 Next Step: Consider memoising month calculations or adding cache if month rendering becomes hotspot under profiling
 
+** Session: Mobile Footer Alignment
+Time: Evening
+Task: Bring mobile controls in line with product spec (prev • today • next • menu)
+
+Accomplished:
+- Reordered `MobileFooter` buttons so today sits between previous/next
+- Verified production build (`npm run build`)
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/MobileFooter.jsx
+
+Tests:
+- npm run build
+
+Energy Level: Quick UX polish
+Next Step: Confirm hit targets still feel balanced on device
+
+** Session: Month Scroll Compensation Fix
+Time: Late evening
+Task: Stop month prepends from slingshotting users back decades
+
+Accomplished:
+- Corrected scroll compensation sign in `loadPreviousMonths` so we counter the layout shift instead of amplifying it
+- Rebuilt production bundle (`npm run build`)
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/Calendar.jsx
+
+Tests:
+- npm run build
+
+Energy Level: Relieved—mobile scroll feels stable again
+Next Step: Monitor for similar regressions when tweaking month window math
+
 ---
 
 ** Session: UI Polish & Today Cell Highlighting Fix
