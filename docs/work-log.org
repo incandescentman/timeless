@@ -77,6 +77,7 @@ Resolution Notes:
 - Reworked `scrollToDate` so each navigation cancels previous attempts, waits for the target day cell to exist, and surfaces a completion callback for callers that need confirmation.
 - Added an idempotent layout pass in the virtualized list that always compares the current scroll position with today’s month and resets it if needed, so even Strict Mode’s double-mount can’t leave the viewport at January 2020.
 - Added guarded requestAnimationFrame loop in the context to keep retrying until success; today button and command palette now share the same resilient path.
+- Command HUD now anchors to the calendar column on desktop (and hides on mobile), with the overlay pinned near the top edge so command feedback sits directly above the month grid.
 
 Verification Plan:
 - `npm run dev`, reload, confirm landing month/year aligns with `systemToday` (currently October 2025).

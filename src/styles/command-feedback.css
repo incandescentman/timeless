@@ -1,6 +1,6 @@
 .command-feedback {
   position: fixed;
-  top: clamp(0.75rem, 3vw, 1.6rem);
+  top: clamp(0.4rem, 2vw, 1rem);
   left: 50%;
   transform: translate(-50%, -140%);
   min-width: min(92vw, 520px);

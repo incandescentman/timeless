@@ -56,6 +56,24 @@
    - [ ] If adding variable-height content, ensure it lives inside the observed node so height updates propagate.
    - [ ] Do not re-introduce `window.scrollBy` hacks—use virtualization API instead.
 
+** Strict Mode Double-Mount Resetting Initial Scroll
+  Date: 2025-10-07
+
+*** Symptom
+   In `npm run dev` the calendar opened on January 2020 instead of today (October 2025), while production builds behaved correctly.
+
+*** Root Cause
+   React 18 Strict Mode mounts components twice in development. Our first mount scrolled to today and flipped a guard ref so the effect would never run again. The remount inherited the guard (still `true`), but measured heights restarted at zero, so the virtualiser recalculated from month index 0 and rendered the start of the range.
+
+*** Fix
+   Make the layout pass idempotent: every time it runs, compare `window.scrollY` with the computed offset for `systemToday` and snap back if they differ. This survives Strict Mode’s mount → unmount → remount cycle and keeps the context retry loop effective.
+
+*** Prevention Checklist
+   - [ ] Treat "run once" effects as best-effort; guards must reset or re-evaluate after Strict Mode remounts.
+   - [ ] Keep virtualization setup idempotent—derive readiness from current measurements instead of assuming the first mount sticks.
+   - [ ] Test today-centering in both dev (Strict Mode) and production after touching scroll/measurement logic.
+   - [ ] Prefer invariant checks (desired offset vs actual scroll) so remounts or measurement updates auto-correct.
+
 ** The Bug
    On iOS Safari, Timeless would flash "A problem repeatedly occurred" and reload after a couple of swipes through the calendar.
 

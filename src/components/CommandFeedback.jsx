@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useCalendar } from '../contexts/CalendarContext';
 
@@ -8,6 +8,8 @@ function CommandFeedbackOverlay({ command }) {
   const [isMounted, setIsMounted] = useState(false);
   const [visibleCommand, setVisibleCommand] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [hudLeft, setHudLeft] = useState(null);
+  const [isDesktopViewport, setIsDesktopViewport] = useState(true);
   const { calendarData } = useCalendar();
 
   useEffect(() => {
@@ -54,6 +56,51 @@ function CommandFeedbackOverlay({ command }) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [visibleCommand]);
 
+  const updateHudPosition = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    const isDesktop = window.innerWidth > 1024;
+    setIsDesktopViewport(isDesktop);
+
+    if (!isDesktop) {
+      setHudLeft(null);
+      return;
+    }
+
+    const layout = document.querySelector('.calendar-layout');
+    if (!layout) {
+      setHudLeft(null);
+      return;
+    }
+
+    const rect = layout.getBoundingClientRect();
+    const styles = window.getComputedStyle(layout);
+    const paddingLeft = parseFloat(styles.paddingLeft || '0');
+    const paddingRight = parseFloat(styles.paddingRight || '0');
+    const contentWidth = layout.clientWidth - paddingLeft - paddingRight;
+    const centerX = rect.left + paddingLeft + Math.max(contentWidth, 0) / 2;
+    setHudLeft(centerX);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    updateHudPosition();
+    window.addEventListener('resize', updateHudPosition);
+    window.addEventListener('scroll', updateHudPosition, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', updateHudPosition);
+      window.removeEventListener('scroll', updateHudPosition);
+    };
+  }, [updateHudPosition]);
+
+  useEffect(() => {
+    if (!visibleCommand) return undefined;
+    const raf = requestAnimationFrame(() => updateHudPosition());
+    return () => cancelAnimationFrame(raf);
+  }, [visibleCommand, updateHudPosition]);
+
   const dateDisplay = useMemo(() => {
     const now = new Date();
     const weekday = now.toLocaleDateString('en-US', { weekday: 'short' });
@@ -91,12 +138,14 @@ function CommandFeedbackOverlay({ command }) {
 
   const portalTarget = document.body;
 
-  if (!isMounted || !visibleCommand) {
+  if (!isMounted || !visibleCommand || !isDesktopViewport) {
     return null;
   }
 
+  const inlineStyle = hudLeft == null ? undefined : { left: `${hudLeft}px` };
+
   return createPortal(
-    <div className={classNames} role="status" aria-live="polite">
+    <div className={classNames} role="status" aria-live="polite" style={inlineStyle}>
       <div className="command-feedback__scanline" aria-hidden="true" />
       <div className="command-feedback__glow" aria-hidden="true" />
       <div className="command-feedback__chrome">
