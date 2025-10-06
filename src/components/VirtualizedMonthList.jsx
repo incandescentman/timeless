@@ -18,7 +18,6 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
   const containerRef = useRef(null);
   const measuredHeightsRef = useRef(new Map());
   const activeScrollAttemptRef = useRef(null);
-  const initialOffsetAppliedRef = useRef(false);
   const [measurementVersion, setMeasurementVersion] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
@@ -255,7 +254,6 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
   }, []);
 
   useLayoutEffect(() => {
-    if (initialOffsetAppliedRef.current) return;
     if (typeof window === 'undefined') return;
     if (months.length === 0) return;
 
@@ -277,12 +275,14 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
       return;
     }
 
-    const topOffset = (cumulativeHeights[targetIndex] ?? 0) + containerOffsetRef.current;
-    initialOffsetAppliedRef.current = true;
+    const desiredTop = Math.max((cumulativeHeights[targetIndex] ?? 0) + containerOffsetRef.current, 0);
+    const currentScroll = typeof window !== 'undefined' ? window.scrollY : scrollTop;
 
-    const target = Math.max(topOffset, 0);
-    window.scrollTo({ top: target, behavior: 'auto' });
-    setScrollTop(target);
+    if (Math.abs(currentScroll - desiredTop) > 1) {
+      window.scrollTo({ top: desiredTop, behavior: 'auto' });
+    }
+
+    setScrollTop(desiredTop);
   }, [initialDate, initialMonthIndex, months, cumulativeHeights, updateContainerOffset]);
 
   return (

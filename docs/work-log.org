@@ -75,7 +75,7 @@ Files Modified:
 Resolution Notes:
 - Pulled initial jump logic out of `VirtualizedMonthList` and into `CalendarContext`, where we re-attempt the scroll until the virtualization API is registered (handles Strict Mode double-mount without stale refs).
 - Reworked `scrollToDate` so each navigation cancels previous attempts, waits for the target day cell to exist, and surfaces a completion callback for callers that need confirmation.
-- Added a layout-priming pass that precomputes the initial offset using the virtual month heights, applies it to both `window.scrollTo` and the virtualizer state, so we render today’s month before any follow-up retries.
+- Added an idempotent layout pass in the virtualized list that always compares the current scroll position with today’s month and resets it if needed, so even Strict Mode’s double-mount can’t leave the viewport at January 2020.
 - Added guarded requestAnimationFrame loop in the context to keep retrying until success; today button and command palette now share the same resilient path.
 
 Verification Plan:
