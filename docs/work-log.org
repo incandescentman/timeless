@@ -10,6 +10,88 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-06 Sunday
+
+** Session: Initial Scroll Position Bug - Follow-up
+Time: Late night
+Task: Fix app loading at January 2020 instead of today (October 2025)
+Status: **FIX IN PLACE - VERIFY IN DEV**
+
+Problem:
+When running `npm run dev`, the calendar loads showing January 2020 instead of scrolling to October 2025 (today).
+
+Initial Analysis:
+- VirtualizedMonthList.jsx receives `initialDate` prop (systemToday = Oct 6, 2025)
+- VirtualizedMonthList.jsx also receives `initialMonthIndex` prop but it's never used
+- The initial scroll effect exists (lines 193-226) but appears to be fighting with React Strict Mode
+
+Debugging Discoveries:
+1. **React Strict Mode Double Mounting**: In development, React Strict Mode mounts → unmounts → remounts components, causing effects to run twice
+2. **Effect Cancellation**: The cleanup function clears the setTimeout before it can execute
+3. **Ref Persistence**: `hasInitialScrollRef` persists across unmount/remount, causing second mount to skip scroll
+4. **Scroll IS Executing**: Logs show scroll to position 91353px (correct for October 2025), but virtualization hasn't rendered that month yet
+5. **Date Cell Not Found**: After scrolling, the day cell lookup fails because months aren't rendered at that scroll position yet
+
+Attempted Fixes (ALL FAILED):
+1. **Attempt 1**: Added guard to wait for height measurements before scrolling
+   - Result: Effect kept re-running as measurements changed
+
+2. **Attempt 2**: Removed height/viewport dependencies, used 100ms timeout
+   - Result: Timeout still being cancelled by Strict Mode cleanup
+
+3. **Attempt 3**: Used ref-based timer to survive unmount/remount
+   - Result: Ref persisted but timer still cancelled
+
+4. **Attempt 4**: Set `hasInitialScrollRef = true` immediately after guards
+   - Result: Second mount skipped scroll entirely
+
+5. **Attempt 5**: Simplified to use existing `scrollToDate` function with retry logic
+   - Result: Ref check prevented second mount from executing scroll
+
+6. **Attempt 6**: Added scroll position check (`window.scrollY > 1000`) before skipping
+   - Result: Still not working (current state)
+
+Console Logs Show:
+```
+[VirtualizedMonthList] Scheduling initial scroll to 2025-10-06T04:00:00.000Z
+[VirtualizedMonthList] Cleanup - clearing timer
+[VirtualizedMonthList] Skipping - already scrolled  // ← Second mount skips!
+```
+
+Root Cause Hypothesis:
+The combination of:
+1. React Strict Mode's double mount behavior
+2. Ref persistence across mounts
+3. Effect cleanup cancelling setTimeout
+4. Virtualization not rendering distant months immediately
+
+This creates a race condition where either:
+- The scroll executes but months aren't rendered yet, OR
+- The ref is set but the scroll never executes due to cleanup
+
+Files Modified:
+- /Users/jay/Library/CloudStorage/Dropbox/github/timeless/src/components/VirtualizedMonthList.jsx (multiple iterations)
+
+Resolution Notes:
+- Pulled initial jump logic out of `VirtualizedMonthList` and into `CalendarContext`, where we re-attempt the scroll until the virtualization API is registered (handles Strict Mode double-mount without stale refs).
+- Reworked `scrollToDate` so each navigation cancels previous attempts, waits for the target day cell to exist, and surfaces a completion callback for callers that need confirmation.
+- Added a layout-priming pass that precomputes the initial offset using the virtual month heights, applies it to both `window.scrollTo` and the virtualizer state, so we render today’s month before any follow-up retries.
+- Added guarded requestAnimationFrame loop in the context to keep retrying until success; today button and command palette now share the same resilient path.
+
+Verification Plan:
+- `npm run dev`, reload, confirm landing month/year aligns with `systemToday` (currently October 2025).
+- Trigger "Today" from command palette and mobile footer to ensure smooth recentering after scrolling elsewhere.
+
+Key Git Commits to Keep Reviewing (historical context):
+- 7ee61d1 "Log virtualization launch fixes"
+- 6d50ed1 "Pass initial date to virtualization"
+- c1095ab "Integrate initial date scrolling into virtualization"
+- c7f6c0c "Wait for virtualization ready before initial scroll"
+- 041a900 "Retry initial scroll after virtualization ready"
+
+Energy Level: Cautiously optimistic
+Current Status: Awaiting manual verification in dev build
+
 * 2025-10-04 Friday
 
 ** Session: Documentation System Implementation

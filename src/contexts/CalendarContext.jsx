@@ -33,9 +33,15 @@ export function CalendarProvider({ children }) {
 
   // Scroll API (registered by Calendar component)
   const scrollApiRef = useRef(null);
+  const scrollApiVersionRef = useRef(0);
+  const [scrollApiVersion, setScrollApiVersion] = useState(0);
+  const initialScrollDoneRef = useRef(false);
 
   const registerScrollApi = useCallback((api) => {
+    if (scrollApiRef.current === api) return;
     scrollApiRef.current = api;
+    scrollApiVersionRef.current += 1;
+    setScrollApiVersion(scrollApiVersionRef.current);
   }, []);
 
   const scrollToDate = useCallback((date, options) => {
@@ -50,6 +56,48 @@ export function CalendarProvider({ children }) {
       ? scrollApiRef.current.scrollToDate(today, options)
       : false;
   }, []);
+
+  useEffect(() => {
+    if (initialScrollDoneRef.current) return;
+    if (typeof window === 'undefined') return;
+
+    const api = scrollApiRef.current;
+    if (!api?.scrollToDate) return;
+
+    let cancelRequested = false;
+    let rafId = 0;
+
+    const attemptInitialScroll = () => {
+      if (cancelRequested || initialScrollDoneRef.current) return;
+
+      const handled = api.scrollToDate(systemToday, {
+        behavior: 'auto',
+        align: 'center',
+        maxAttempts: 240,
+        onComplete: (succeeded) => {
+          if (cancelRequested) return;
+          if (succeeded) {
+            initialScrollDoneRef.current = true;
+          } else {
+            rafId = window.requestAnimationFrame(attemptInitialScroll);
+          }
+        }
+      });
+
+      if (!handled) {
+        initialScrollDoneRef.current = true;
+      }
+    };
+
+    rafId = window.requestAnimationFrame(attemptInitialScroll);
+
+    return () => {
+      cancelRequested = true;
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+    };
+  }, [systemToday, scrollApiVersion]);
 
   // Undo/redo state
   const [undoStack, setUndoStack] = useState([]);

@@ -16,8 +16,9 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
   ref
 ) {
   const containerRef = useRef(null);
-  const hasInitialScrollRef = useRef(false);
   const measuredHeightsRef = useRef(new Map());
+  const activeScrollAttemptRef = useRef(null);
+  const initialOffsetAppliedRef = useRef(false);
   const [measurementVersion, setMeasurementVersion] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
@@ -145,8 +146,14 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     return true;
   }, [months.length, cumulativeHeights, heights, viewportHeight]);
 
-  const scrollToDate = useCallback((date, { behavior = 'smooth', align = 'start', maxAttempts = 4 } = {}) => {
+  const scrollToDate = useCallback((date, {
+    behavior = 'smooth',
+    align = 'start',
+    maxAttempts = 32,
+    onComplete
+  } = {}) => {
     if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+      onComplete?.(false);
       return false;
     }
 
@@ -155,31 +162,77 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     const targetIndex = months.findIndex((month) => month.year === year && month.monthIndex === monthIndex);
 
     if (targetIndex === -1) {
+      onComplete?.(false);
       return false;
     }
 
-    const success = scrollToMonthIndex(targetIndex, { behavior: 'auto', align });
-    if (!success) {
-      return false;
+    const previousAttempt = activeScrollAttemptRef.current;
+    if (previousAttempt) {
+      previousAttempt.cancelled = true;
+      previousAttempt.skipComplete = true;
     }
 
-    let attempts = 0;
-    const tryFocus = () => {
-      const dateId = generateDayId(date);
-      const cell = document.querySelector(`[data-date-id="${dateId}"]`);
-      if (cell) {
-        cell.scrollIntoView({ behavior, block: 'center' });
-        return true;
-      }
-      attempts += 1;
-      if (attempts >= maxAttempts) {
+    const attempt = {
+      cancelled: false,
+      finished: false,
+      skipComplete: false,
+      targetIndex
+    };
+    activeScrollAttemptRef.current = attempt;
+
+    const performScroll = () => {
+      const finish = (result) => {
+        if (attempt.finished) return;
+        attempt.finished = true;
+        if (attempt.skipComplete) return;
+        onComplete?.(result);
+      };
+
+      if (attempt.cancelled || activeScrollAttemptRef.current !== attempt) {
+        finish(false);
         return false;
       }
+
+      const didScroll = scrollToMonthIndex(targetIndex, { behavior: 'auto', align });
+      if (!didScroll) {
+        finish(false);
+        return false;
+      }
+
+      const dateId = generateDayId(date);
+      let attempts = 0;
+
+      const tryFocus = () => {
+        if (attempt.cancelled || activeScrollAttemptRef.current !== attempt) {
+          finish(false);
+          return;
+        }
+
+        const cell = document.querySelector(`[data-date-id="${dateId}"]`);
+        if (cell) {
+          cell.scrollIntoView({ behavior, block: 'center' });
+          finish(true);
+          return;
+        }
+
+        attempts += 1;
+        if (attempts >= Math.max(1, maxAttempts)) {
+          finish(false);
+          return;
+        }
+
+        scrollToMonthIndex(targetIndex, { behavior: 'auto', align });
+        window.requestAnimationFrame(tryFocus);
+      };
+
       window.requestAnimationFrame(tryFocus);
-      return null;
+      return true;
     };
 
-    window.requestAnimationFrame(tryFocus);
+    const initiated = performScroll();
+    if (!initiated) {
+      return false;
+    }
     return true;
   }, [months, scrollToMonthIndex]);
 
@@ -190,17 +243,47 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
   }), [effectiveStartIndex, endIndex, scrollToMonthIndex, scrollToDate]);
 
   useEffect(() => {
-    if (hasInitialScrollRef.current) return;
-    if (!initialDate) return;
+    if (typeof window === 'undefined') return undefined;
+
+    return () => {
+      if (activeScrollAttemptRef.current) {
+        activeScrollAttemptRef.current.cancelled = true;
+        activeScrollAttemptRef.current.skipComplete = true;
+        activeScrollAttemptRef.current = null;
+      }
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (initialOffsetAppliedRef.current) return;
+    if (typeof window === 'undefined') return;
     if (months.length === 0) return;
 
-    window.requestAnimationFrame(() => {
-      const succeeded = scrollToDate(initialDate, { behavior: 'auto', align: 'center', maxAttempts: 8 });
-      if (succeeded) {
-        hasInitialScrollRef.current = true;
+    updateContainerOffset();
+
+    let targetIndex = initialMonthIndex;
+
+    if (initialDate instanceof Date && !Number.isNaN(initialDate.getTime())) {
+      const matchIndex = months.findIndex((month) => (
+        month.year === initialDate.getFullYear() &&
+        month.monthIndex === initialDate.getMonth()
+      ));
+      if (matchIndex >= 0) {
+        targetIndex = matchIndex;
       }
-    });
-  }, [initialDate, months.length, scrollToDate, measurementVersion, viewportHeight]);
+    }
+
+    if (!Number.isFinite(targetIndex) || targetIndex < 0 || targetIndex >= months.length) {
+      return;
+    }
+
+    const topOffset = (cumulativeHeights[targetIndex] ?? 0) + containerOffsetRef.current;
+    initialOffsetAppliedRef.current = true;
+
+    const target = Math.max(topOffset, 0);
+    window.scrollTo({ top: target, behavior: 'auto' });
+    setScrollTop(target);
+  }, [initialDate, initialMonthIndex, months, cumulativeHeights, updateContainerOffset]);
 
   return (
     <div ref={containerRef} style={{ position: 'relative', height: totalHeight }}>
