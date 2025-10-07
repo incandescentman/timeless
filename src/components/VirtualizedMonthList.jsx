@@ -59,7 +59,21 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
   }, [updateContainerOffset]);
 
   const heights = useMemo(() => {
-    return months.map((month) => measuredHeightsRef.current.get(month.key) ?? month.estimatedHeight);
+    const measuredValues = Array.from(measuredHeightsRef.current.values());
+    const averageMeasuredHeight = measuredValues.length > 0
+      ? measuredValues.reduce((total, height) => total + height, 0) / measuredValues.length
+      : null;
+
+    return months.map((month) => {
+      const measured = measuredHeightsRef.current.get(month.key);
+      if (measured !== undefined) {
+        return measured;
+      }
+      if (averageMeasuredHeight != null) {
+        return averageMeasuredHeight;
+      }
+      return month.estimatedHeight;
+    });
   }, [months, measurementVersion]);
 
   const cumulativeHeights = useMemo(() => {
@@ -175,7 +189,8 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
       cancelled: false,
       finished: false,
       skipComplete: false,
-      targetIndex
+      targetIndex,
+      align
     };
     activeScrollAttemptRef.current = attempt;
 
@@ -252,6 +267,14 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
       }
     };
   }, []);
+
+  useEffect(() => {
+    const attempt = activeScrollAttemptRef.current;
+    if (!attempt || attempt.finished || attempt.cancelled) {
+      return;
+    }
+    scrollToMonthIndex(attempt.targetIndex, { behavior: 'auto', align: attempt.align });
+  }, [measurementVersion, scrollToMonthIndex]);
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;

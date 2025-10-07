@@ -13,7 +13,7 @@ import {
 import '../styles/header.css';
 
 function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
-  const { undo, canUndo, syncWithServer } = useCalendar();
+  const { undo, canUndo, syncWithServer, scrollToToday } = useCalendar();
   const fileInputRef = useRef(null);
   const headerRef = useRef(null);
   const { query } = useKBar();
@@ -53,9 +53,10 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
   }, [useRedesignedHeader]);
 
   const goToToday = () => {
-    const todayCell = document.querySelector('.day-cell.today');
-    if (todayCell) {
-      todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const handled = scrollToToday({ behavior: 'smooth', align: 'center' });
+    if (!handled && typeof document !== 'undefined') {
+      const todayCell = document.querySelector('.day-cell.today');
+      todayCell?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 

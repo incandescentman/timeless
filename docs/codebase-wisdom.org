@@ -74,6 +74,39 @@
    - [ ] Test today-centering in both dev (Strict Mode) and production after touching scroll/measurement logic.
    - [ ] Prefer invariant checks (desired offset vs actual scroll) so remounts or measurement updates auto-correct.
 
+* Mobile Today Button Not Centering
+  Date: 2025-10-07
+
+** Symptom
+   Mobile footer "Today" button fired the HUD announcement but the viewport stayed wherever it already was.
+
+** Root Cause
+   The footer called `scrollToDate(new Date(), …)` directly. On slower devices the virtualised month list needed more than the default 32 animation frames to render today's month, so the scroll attempt timed out without ever finding the day cell.
+
+** Fix
+   Re-route all "jump to today" affordances through `CalendarContext.scrollToToday`, give it a higher retry budget, and fall back to a direct DOM query if virtualization still de-syncs.
+
+** Prevention Checklist
+   - [ ] Use `scrollToToday` (not raw DOM queries) whenever adding a new today button or shortcut.
+   - [ ] Pass alignment/behaviour overrides via options instead of rebuilding the scroll logic per caller.
+
+* Mobile View Renders Blank After Virtualisation Jump
+  Date: 2025-10-07
+
+** Symptom
+   On iPhone-sized viewports the page loaded, the HUD announced "Centering on today", but the visible region was just the dot-grid background. After a long wait the calendar eventually snapped in from far off-screen.
+
+** Root Cause
+   `VirtualizedMonthList` booted with early measurements (January 2020) that were thousands of pixels tall. Because mobile hides the fixed desktop rail, the initial translate offset pushed the rendered months ~140k px above the viewport. With no scaffolding months measured yet, the estimator reused that massive height for every future month, so the layout never recovered.
+
+** Fix
+   Derive fallback heights from the average of already measured months. Once a few mobile months report their true height (~520px) the estimator stays sane and keeps the active range anchored near the viewport.
+
+** Prevention Checklist
+   - [ ] When virtualising, replace "single snapshot" estimates with rolling averages so one mis-measured month cannot skew the entire range.
+   - [ ] Capture mobile screenshots after every scroll-refactor; if the grid disappears, inspect the measured heights map before touching CSS.
+   - [ ] Keep Playwright or device-based smoke tests that wait for the today cell before snapshotting.
+
 ** The Bug
    On iOS Safari, Timeless would flash "A problem repeatedly occurred" and reload after a couple of swipes through the calendar.
 

@@ -23,8 +23,9 @@ function AppContent({ experimentalMode }) {
   const [showHelp, setShowHelp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toggleDarkMode } = useTheme();
-  const { scrollToDate } = useCalendar();
   const {
+    scrollToDate,
+    scrollToToday,
     undo,
     redo,
     canUndo,
@@ -34,8 +35,8 @@ function AppContent({ experimentalMode }) {
   } = useCalendar();
 
   const goToToday = useCallback(() => {
-    scrollToDate(new Date(), { behavior: 'smooth', align: 'center' });
-  }, [scrollToDate]);
+    scrollToToday({ behavior: 'smooth', align: 'center' });
+  }, [scrollToToday]);
 
   const handleJumpToDate = useCallback(() => {
     const input = prompt('Enter a date (e.g., "tomorrow", "next friday", "2024-12-25"):');

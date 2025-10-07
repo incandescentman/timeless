@@ -1,10 +1,13 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
 }
 
 #calendarContainer {

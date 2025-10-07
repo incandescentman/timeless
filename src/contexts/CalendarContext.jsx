@@ -49,13 +49,37 @@ export function CalendarProvider({ children }) {
     return scrollApiRef.current.scrollToDate(date, options);
   }, []);
 
-  const scrollToToday = useCallback((options) => {
-    const today = new Date();
+  const scrollToToday = useCallback((options = {}) => {
+    const scrollApi = scrollApiRef.current?.scrollToDate;
+    if (typeof window === 'undefined' || !scrollApi) {
+      return false;
+    }
+
+    const today = new Date(systemToday);
     today.setHours(0, 0, 0, 0);
-    return scrollApiRef.current?.scrollToDate
-      ? scrollApiRef.current.scrollToDate(today, options)
-      : false;
-  }, []);
+
+    const {
+      onComplete,
+      behavior = 'smooth',
+      align = 'center',
+      maxAttempts = 240,
+      ...rest
+    } = options;
+
+    return scrollApi(today, {
+      behavior,
+      align,
+      maxAttempts,
+      ...rest,
+      onComplete: (succeeded) => {
+        if (!succeeded && typeof document !== 'undefined') {
+          const todayCell = document.querySelector('.day-cell.today');
+          todayCell?.scrollIntoView({ behavior, block: 'center' });
+        }
+        onComplete?.(succeeded);
+      }
+    });
+  }, [systemToday]);
 
   useEffect(() => {
     if (initialScrollDoneRef.current) return;

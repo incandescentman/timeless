@@ -1,28 +1,53 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
 import { useMonthNavigation } from '../hooks/useMonthNavigation';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useKBar } from 'kbar';
+import { scrollWeeks } from '../hooks/useMonthNavigation';
 
 function MobileFooter() {
   const { announceCommand } = useCommandFeedback();
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
   const { query } = useKBar();
-  const { scrollToDate } = useCalendar();
+  const { scrollToToday } = useCalendar();
+  const [isMobileViewport, setIsMobileViewport] = useState(() => (
+    typeof window !== 'undefined' ? window.innerWidth <= 768 : true
+  ));
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
+    const handler = () => {
+      setIsMobileViewport(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   const handleToday = useCallback(() => {
     // Scroll to today
     announceCommand({ label: 'Centering on today' });
-    scrollToDate(new Date(), { behavior: 'smooth', align: 'center' });
-  }, [announceCommand, scrollToDate]);
+    scrollToToday({ behavior: 'smooth', align: 'center' });
+  }, [announceCommand, scrollToToday]);
 
   const handlePreviousMonth = useCallback(() => {
+    if (isMobileViewport) {
+      announceCommand({ label: 'Scrolling to previous week' });
+      scrollWeeks(-1);
+      return;
+    }
     announceAndJump(-1, describeDirection(-1));
-  }, [announceAndJump, describeDirection]);
+  }, [announceAndJump, announceCommand, describeDirection, isMobileViewport]);
 
   const handleNextMonth = useCallback(() => {
+    if (isMobileViewport) {
+      announceCommand({ label: 'Scrolling to next week' });
+      scrollWeeks(1);
+      return;
+    }
     announceAndJump(1, describeDirection(1));
-  }, [announceAndJump, describeDirection]);
+  }, [announceAndJump, announceCommand, describeDirection, isMobileViewport]);
 
   const handleMenu = useCallback(() => {
     announceCommand({ label: 'Opening command palette' });
