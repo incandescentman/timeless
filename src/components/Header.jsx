@@ -155,21 +155,21 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
         icon: <IconMenu2 {...quickIconProps} />,
         variant: 'primary',
         railClass: 'calendar-rail__button--primary'
+      },
+      {
+        key: 'help',
+        label: 'Keyboard shortcuts',
+        description: 'View keyboard shortcuts',
+        onClick: onShowHelp,
+        icon: <IconHelpCircle {...quickIconProps} />,
+        variant: 'primary',
+        railClass: 'calendar-rail__button--primary'
       }
     ],
     [
       {
-        key: 'help',
-        label: 'Help',
-        description: 'View keyboard shortcuts',
-        onClick: onShowHelp,
-        icon: <IconHelpCircle {...quickIconProps} />,
-        variant: 'secondary',
-        railClass: 'calendar-rail__button--secondary'
-      },
-      {
         key: 'export-json',
-        label: 'Export JSON',
+        label: 'Download JSON',
         description: 'Download your calendar backup',
         onClick: downloadCalendarData,
         icon: <IconDownload {...quickIconProps} />,
@@ -178,7 +178,7 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
       },
       {
         key: 'export-md',
-        label: 'Export Diary',
+        label: 'Markdown diary',
         description: 'Save as Markdown diary',
         onClick: downloadMarkdownDiary,
         icon: <IconFileText {...quickIconProps} />,
@@ -187,7 +187,7 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
       },
       {
         key: 'import',
-        label: 'Import',
+        label: 'Restore backup',
         description: 'Restore from a JSON backup',
         onClick: triggerImport,
         icon: <IconUpload {...quickIconProps} />,
