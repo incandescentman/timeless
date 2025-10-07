@@ -155,18 +155,18 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
         icon: <IconMenu2 {...quickIconProps} />,
         variant: 'primary',
         railClass: 'calendar-rail__button--primary'
-      },
+      }
+    ],
+    [
       {
         key: 'help',
         label: 'Keyboard shortcuts',
         description: 'View keyboard shortcuts',
         onClick: onShowHelp,
         icon: <IconHelpCircle {...quickIconProps} />,
-        variant: 'primary',
-        railClass: 'calendar-rail__button--primary'
-      }
-    ],
-    [
+        variant: 'secondary',
+        railClass: 'calendar-rail__button--secondary'
+      },
       {
         key: 'export-json',
         label: 'Download JSON',
@@ -191,6 +191,15 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
         description: 'Restore from a JSON backup',
         onClick: triggerImport,
         icon: <IconUpload {...quickIconProps} />,
+        variant: 'secondary',
+        railClass: 'calendar-rail__button--secondary'
+      },
+      {
+        key: 'menu-secondary',
+        label: 'Open menu',
+        description: 'Open command palette',
+        onClick: openCommandPalette,
+        icon: <IconMenu2 {...quickIconProps} />,
         variant: 'secondary',
         railClass: 'calendar-rail__button--secondary'
       }
