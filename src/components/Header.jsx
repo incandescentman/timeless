@@ -104,7 +104,6 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
 
   const quickIconProps = { size: 28, strokeWidth: 1.8, 'aria-hidden': true };
-  const iconProps = { size: 24, strokeWidth: 1.8, 'aria-hidden': true };
 
   const openCommandPalette = () => {
     announceCommand?.({ label: 'Opening command palette' });
@@ -119,83 +118,87 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
     announceAndJump(1, describeDirection(1));
   };
 
-  const primaryActions = [
-    {
-      key: 'today',
-      label: 'Today',
-      description: 'Jump to the current day',
-      onClick: goToToday,
-      icon: <IconCalendarCheck {...quickIconProps} />
-    },
-    {
-      key: 'prev-month',
-      label: 'Previous month',
-      description: 'Scroll to the previous month',
-      onClick: handlePreviousMonth,
-      icon: <IconChevronLeft {...quickIconProps} />
-    },
-    {
-      key: 'next-month',
-      label: 'Next month',
-      description: 'Scroll to the next month',
-      onClick: handleNextMonth,
-      icon: <IconChevronRight {...quickIconProps} />
-    },
-    {
-      key: 'menu',
-      label: 'Menu',
-      description: 'Open command palette',
-      onClick: openCommandPalette,
-      icon: <IconMenu2 {...quickIconProps} />
-    }
+  const quickActionRows = [
+    [
+      {
+        key: 'today',
+        label: 'Today',
+        description: 'Jump to the current day',
+        onClick: goToToday,
+        icon: <IconCalendarCheck {...quickIconProps} />,
+        variant: 'primary',
+        railClass: 'calendar-rail__button--primary'
+      },
+      {
+        key: 'prev-month',
+        label: 'Previous month',
+        description: 'Scroll to the previous month',
+        onClick: handlePreviousMonth,
+        icon: <IconChevronLeft {...quickIconProps} />,
+        variant: 'primary',
+        railClass: 'calendar-rail__button--primary'
+      },
+      {
+        key: 'next-month',
+        label: 'Next month',
+        description: 'Scroll to the next month',
+        onClick: handleNextMonth,
+        icon: <IconChevronRight {...quickIconProps} />,
+        variant: 'primary',
+        railClass: 'calendar-rail__button--primary'
+      },
+      {
+        key: 'menu',
+        label: 'Menu',
+        description: 'Open command palette',
+        onClick: openCommandPalette,
+        icon: <IconMenu2 {...quickIconProps} />,
+        variant: 'primary',
+        railClass: 'calendar-rail__button--primary'
+      }
+    ],
+    [
+      {
+        key: 'help',
+        label: 'Help',
+        description: 'View keyboard shortcuts',
+        onClick: onShowHelp,
+        icon: <IconHelpCircle {...quickIconProps} />,
+        variant: 'secondary',
+        railClass: 'calendar-rail__button--secondary'
+      },
+      {
+        key: 'export-json',
+        label: 'Export JSON',
+        description: 'Download your calendar backup',
+        onClick: downloadCalendarData,
+        icon: <IconDownload {...quickIconProps} />,
+        variant: 'secondary',
+        railClass: 'calendar-rail__button--secondary'
+      },
+      {
+        key: 'export-md',
+        label: 'Export Diary',
+        description: 'Save as Markdown diary',
+        onClick: downloadMarkdownDiary,
+        icon: <IconFileText {...quickIconProps} />,
+        variant: 'secondary',
+        railClass: 'calendar-rail__button--secondary'
+      },
+      {
+        key: 'import',
+        label: 'Import',
+        description: 'Restore from a JSON backup',
+        onClick: triggerImport,
+        icon: <IconUpload {...quickIconProps} />,
+        variant: 'secondary',
+        railClass: 'calendar-rail__button--secondary'
+      }
+    ]
   ];
 
-  const secondaryActions = [
-    {
-      key: 'help',
-      label: 'Help',
-      description: 'View keyboard shortcuts',
-      onClick: onShowHelp,
-      icon: <IconHelpCircle {...iconProps} />
-    }
-  ];
-
-  const dataActions = [
-    {
-      key: 'export-json',
-      label: 'Export JSON',
-      description: 'Download your calendar backup',
-      onClick: downloadCalendarData,
-      icon: <IconDownload {...iconProps} />
-    },
-    {
-      key: 'export-md',
-      label: 'Export Diary',
-      description: 'Save as Markdown diary',
-      onClick: downloadMarkdownDiary,
-      icon: <IconFileText {...iconProps} />
-    },
-    {
-      key: 'import',
-      label: 'Import',
-      description: 'Restore from a JSON backup',
-      onClick: triggerImport,
-      icon: <IconUpload {...iconProps} />
-    }
-  ];
-
-  const todayAction = primaryActions.find(action => action.key === 'today');
-  const remainingPrimaryActions = primaryActions.filter(action => action.key !== 'today');
-  const railActions = [
-    ...remainingPrimaryActions,
-    ...secondaryActions,
-    ...dataActions
-  ];
-
-  const railButtons = [
-    ...(todayAction ? [todayAction] : []),
-    ...railActions
-  ];
+  const flatQuickActions = quickActionRows.flat();
+  const railButtons = flatQuickActions;
 
   const renderBaselineAction = (action, extraClassName = '') => {
     const { key, ...actionProps } = action;
@@ -226,10 +229,7 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
             footerContent={(
               <div className="calendar-rail__actions" aria-label="Calendar utilities">
                 {railButtons.map(action => {
-                  const variant = action.key === 'today'
-                    ? 'calendar-rail__button--primary'
-                    : 'calendar-rail__button--secondary';
-                  return renderBaselineAction(action, variant);
+                  return renderBaselineAction(action, action.railClass);
                 })}
               </div>
             )}
@@ -260,48 +260,24 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
             <span className="brand-subtitle">The Infinite Calendar</span>
           </div>
 
-          <div className="app-header__quick-actions" aria-label="Calendar quick actions">
-            {primaryActions.map(action => {
-              const { key, ...actionProps } = action;
-              return (
-                <HeaderAction
-                  key={key}
-                  {...actionProps}
-                  variant="primary"
-                />
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="app-header__toolbar" aria-label="Calendar utilities">
-          <div className="app-header__secondary">
-            {secondaryActions.map(action => {
-              const { key, ...actionProps } = action;
-              return (
-                <HeaderAction
-                  key={key}
-                  {...actionProps}
-                  variant="secondary"
-                />
-              );
-            })}
-          </div>
-
-          <div className="app-header__data">
-            {dataActions.map(action => {
-              const { key, ...actionProps } = action;
-              return (
-                <HeaderAction
-                  key={key}
-                  {...actionProps}
-                  variant="ghost"
-                />
-              );
-            })}
-          </div>
+        <div className="app-header__quick-grid" aria-label="Calendar quick actions">
+          {quickActionRows.map((row, rowIndex) => (
+            <div key={`quick-row-${rowIndex}`} className="app-header__quick-row">
+              {row.map(action => {
+                const { key, variant, ...actionProps } = action;
+                return (
+                  <HeaderAction
+                    key={key}
+                    {...actionProps}
+                    variant={variant}
+                  />
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
+    </div>
 
       <aside className="app-header__aside" aria-label="Upcoming months overview">
         <MiniCalendar />

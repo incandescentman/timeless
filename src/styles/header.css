@@ -341,11 +341,17 @@ body.dark-mode .app-header--modern .brand-subtitle {
   color: rgba(226, 232, 240, 0.6);
 }
 
-.app-header--modern .app-header__quick-actions {
-  display: flex;
-  flex-wrap: wrap;
+.app-header--modern .app-header__quick-grid {
+  display: grid;
   gap: 12px;
-  justify-content: flex-end;
+  justify-items: end;
+}
+
+.app-header--modern .app-header__quick-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  gap: 12px;
+  justify-content: end;
 }
 
 .app-header--modern .app-header__toolbar {
