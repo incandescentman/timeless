@@ -107,6 +107,7 @@ This repo uses the following documentation structure:
 - All dates use ISO format (YYYY-MM-DD)
 - Calendar always shows full year grid (12 months)
 - All documentation must remain link-consistent (no dangling references)
+- Mobile footer `Prev`/`Next` buttons step **one week** at a time; desktop month navigation must remain intact.
 
 ** Common LLM Anti-Patterns in This Codebase
 

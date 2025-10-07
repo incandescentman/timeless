@@ -130,8 +130,17 @@ const isToday = (date: Date) => {
 - Precomputes month metadata (2020–2035 by default) with estimated heights.
 - Uses translateY + absolute positioning to simulate full scroll height while only mounting visible months.
 - `ResizeObserver` refines measured heights so scroll offsets stay accurate as content grows.
+- Falls back to the *average* of measured heights whenever a month lacks its own measurement. This prevents a single outlier month (e.g., during initial boot) from pushing subsequent months off-screen on mobile.
+- Any in-flight `scrollToDate` attempt re-runs automatically after fresh measurements arrive so “jump to today” doesn’t land above or below the viewport while the list settles.
 - Exposes `scrollToMonthIndex` / `scrollToDate` for commands (`t`, `g`, mobile today button, etc.).
 - Keeps DOM bounded (mobile ≈4 months, desktop ≈18 months) regardless of date range; the user can scroll years in either direction without height-delta hacks.
+
+** Mobile Navigation Bar (MobileFooter.jsx)
+
+- Shows Today / Prev / Next / Menu buttons below 768px viewports.
+- Today delegates to `CalendarContext.scrollToToday`, which retries until the target day renders and then recenters.
+- Prev/Next move *one week* on mobile to match the week-stacked layout; desktop continues to jump by months using the shared month-navigation helpers.
+- Buttons announce their action through the command feedback HUD to mirror keyboard shortcuts.
 
 ** Event Display (EventCard.tsx)
 

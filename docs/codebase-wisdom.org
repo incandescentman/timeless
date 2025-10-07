@@ -107,6 +107,20 @@
    - [ ] Capture mobile screenshots after every scroll-refactor; if the grid disappears, inspect the measured heights map before touching CSS.
    - [ ] Keep Playwright or device-based smoke tests that wait for the today cell before snapshotting.
 
+* Mobile Footer: Week Navigation vs Month Navigation
+  Date: 2025-10-07
+
+** Symptom
+   Early mobile builds reused the desktop month jump, so a single tap would skip four full rows. Combined with the week-stacked layout it felt like teleporting, and the HUD copy (“Scrolling to next month”) didn’t match what the user saw.
+
+** Fix
+   Detect mobile viewports inside `MobileFooter` and route Prev / Next through `scrollWeeks(±1)`. Desktop and large tablets still use the month-based helpers so keyboard shortcuts and footer buttons stay aligned.
+
+** Prevention Checklist
+   - [ ] When touching footer controls, keep the viewport check so mobile-friendly gestures stay week-sized.
+   - [ ] Update HUD copy if the action semantics change—users rely on that to confirm motion on phones.
+   - [ ] If week layouts ever change height dramatically, re-evaluate the scroll amount used in `scrollWeeks`.
+
 ** The Bug
    On iOS Safari, Timeless would flash "A problem repeatedly occurred" and reload after a couple of swipes through the calendar.
 
