@@ -5,11 +5,16 @@ import { downloadCalendarData, downloadMarkdownDiary, importCalendarData } from 
 import { useKBar } from 'kbar';
 import {
   IconCalendarCheck,
+  IconChevronLeft,
+  IconChevronRight,
   IconHelpCircle,
   IconDownload,
   IconFileText,
-  IconUpload
+  IconUpload,
+  IconMenu2
 } from '@tabler/icons-react';
+import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
+import { useMonthNavigation } from '../hooks/useMonthNavigation';
 import '../styles/header.css';
 
 function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
@@ -95,7 +100,24 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
     reader.readAsText(file);
   };
 
+  const { announceCommand } = useCommandFeedback();
+  const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
+
+  const quickIconProps = { size: 28, strokeWidth: 1.8, 'aria-hidden': true };
   const iconProps = { size: 24, strokeWidth: 1.8, 'aria-hidden': true };
+
+  const openCommandPalette = () => {
+    announceCommand?.({ label: 'Opening command palette' });
+    query.toggle();
+  };
+
+  const handlePreviousMonth = () => {
+    announceAndJump(-1, describeDirection(-1));
+  };
+
+  const handleNextMonth = () => {
+    announceAndJump(1, describeDirection(1));
+  };
 
   const primaryActions = [
     {
@@ -103,7 +125,28 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
       label: 'Today',
       description: 'Jump to the current day',
       onClick: goToToday,
-      icon: <IconCalendarCheck {...iconProps} />
+      icon: <IconCalendarCheck {...quickIconProps} />
+    },
+    {
+      key: 'prev-month',
+      label: 'Previous month',
+      description: 'Scroll to the previous month',
+      onClick: handlePreviousMonth,
+      icon: <IconChevronLeft {...quickIconProps} />
+    },
+    {
+      key: 'next-month',
+      label: 'Next month',
+      description: 'Scroll to the next month',
+      onClick: handleNextMonth,
+      icon: <IconChevronRight {...quickIconProps} />
+    },
+    {
+      key: 'menu',
+      label: 'Menu',
+      description: 'Open command palette',
+      onClick: openCommandPalette,
+      icon: <IconMenu2 {...quickIconProps} />
     }
   ];
 

@@ -183,8 +183,8 @@
 }
 
 .calendar-rail__icon svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 body.dark-mode .calendar-rail {
@@ -391,8 +391,8 @@ body.dark-mode .app-header--modern .brand-subtitle {
 }
 
 .app-header--modern .header-chip svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .app-header--modern .header-chip__icon {
