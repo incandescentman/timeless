@@ -10,6 +10,32 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-07 Monday
+
+** Session: Fix Calendar Rail Button Layout
+Time: Late night
+Task: Fix desktop quick action buttons from 5+3 layout to 4+4 layout
+Status: **COMPLETED**
+
+Problem:
+Desktop calendar rail sidebar showing 5 buttons in top row and 3 in bottom row instead of intended 4+4 layout.
+
+Root Cause:
+The `.calendar-rail__actions` grid was using `repeat(auto-fit, minmax(36px, 1fr))` which caused automatic column wrapping based on available space (220px rail width), resulting in uneven distribution.
+
+Solution:
+Changed grid to `repeat(4, auto)` to force exactly 4 columns per row, with buttons sized at 36px and icons at 24px.
+
+Files Changed:
+- src/styles/header.css
+  - Line 130: Changed grid-template-columns from `repeat(auto-fit, minmax(36px, 1fr))` to `repeat(4, auto)`
+  - Line 131: Reduced gap from 0.45rem to 0.15rem
+  - Line 132: Added max-width: 168px to align with mini-calendar width
+  - Line 185-186: Set icon size to 24px (from 28px)
+
+Key Learning:
+When user reports UI issue on desktop, assume they're looking at the default visible UI (calendar-rail sidebar), not experimental/dormant code paths (app-header--modern). The modern header only displays when experimental variants are active.
+
 * 2025-10-06 Sunday
 
 ** Session: Initial Scroll Position Bug - Follow-up

@@ -127,10 +127,9 @@
 
 .calendar-rail__actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(36px, 1fr));
-  gap: 0.45rem;
-  width: 100%;
-  justify-items: center;
+  grid-template-columns: repeat(4, auto);
+  gap: 0.15rem;
+  max-width: 168px;
 }
 
 .calendar-rail__button {
@@ -140,7 +139,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: transparent;
   color: #0f172a;
@@ -183,8 +182,8 @@
 }
 
 .calendar-rail__icon svg {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
 }
 
 body.dark-mode .calendar-rail {
