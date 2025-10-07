@@ -342,17 +342,15 @@ body.dark-mode .app-header--modern .brand-subtitle {
 }
 
 .app-header--modern .app-header__quick-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 12px;
-  align-items: flex-end;
 }
 
 .app-header--modern .app-header__quick-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
   gap: 12px;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
+  justify-content: end;
 }
 
 .app-header--modern .app-header__toolbar {

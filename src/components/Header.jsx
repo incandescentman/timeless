@@ -193,15 +193,6 @@ function Header({ onShowYearView, onShowHelp, forceBaseline = false }) {
         icon: <IconUpload {...quickIconProps} />,
         variant: 'secondary',
         railClass: 'calendar-rail__button--secondary'
-      },
-      {
-        key: 'menu-secondary',
-        label: 'Open menu',
-        description: 'Open command palette',
-        onClick: openCommandPalette,
-        icon: <IconMenu2 {...quickIconProps} />,
-        variant: 'secondary',
-        railClass: 'calendar-rail__button--secondary'
       }
     ]
   ];
