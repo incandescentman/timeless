@@ -124,6 +124,31 @@ Tests:
 Next Step:
 - Explore batching for rapid sequences if future workflows demand macro chords.
 
+** Session: HUD & Mobile Header Polish
+Time: Late night
+Task: Compact the HUD and align mobile month labels with day one
+Status: **COMPLETED**
+
+Problem:
+The refreshed HUD consumed more vertical space than desired, and on mobile the top-of-month label could drift away from the first day while scrolling through stacked weeks.
+
+Solution:
+- Streamlined the HUD core module with tighter padding, smaller typography, and a structured `{label, description}` layout so the destination month/year renders as a dedicated subline.
+- Added a keystroke pulse overlay (large red glyph) that mirrors desktop shortcuts, vertically centered along the right edge and auto-hiding within ~0.4 s.
+- Embedded a secondary month header directly before the first-of-month cell on mobile; the primary header hides under 768 px so the inline version scrolls with day one.
+
+Files Changed:
+- src/hooks/useMonthNavigation.js — emits `{ label, description }` payloads and routes jumps through `scrollToDate` before announcing HUD text.
+- src/styles/command-feedback.css — tightened HUD spacing, typography, and glow treatments to fit the richer messaging.
+- src/contexts/KeystrokeFeedbackContext.jsx, src/styles/keystroke-overlay.css — centered the keystroke glyph, matched the today-cell red, and shortened dwell time.
+- src/components/Calendar.jsx, src/styles/mobile.css — render inline month headers ahead of the first day on mobile while hiding the desktop header.
+
+Tests:
+- npm run build
+
+Next Step:
+- Gather usability feedback on the compact HUD and mobile inline header; tweak spacing if readability suffers on smaller devices.
+
 * 2025-10-07 Monday
 
 ** Session: Fix Calendar Rail Button Layout
