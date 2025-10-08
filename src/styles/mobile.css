@@ -166,27 +166,41 @@ body {
 
   .day-cell--baseline .day-header {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.35rem;
-    padding-bottom: 0.25rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(0.4rem, 1.8vw, 0.65rem);
+    padding-bottom: 0.15rem;
     margin-bottom: 0.3rem;
+  }
+
+  .day-cell--baseline .day-header__weekday,
+  .day-cell--baseline .day-header__main {
+    display: flex;
+    align-items: baseline;
+    gap: clamp(0.35rem, 1.5vw, 0.5rem);
   }
 
   .day-cell--baseline .day-weekday {
     font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.12em;
     color: rgba(71, 85, 105, 0.68);
     text-transform: uppercase;
+    white-space: nowrap;
   }
 
   body.dark-mode .day-cell--baseline .day-weekday {
     color: rgba(191, 219, 254, 0.68);
   }
 
+  .day-cell--baseline .day-month {
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+
   .day-cell--baseline .day-number {
-    font-size: clamp(1.3rem, 6vw, 1.65rem);
+    font-size: clamp(1.3rem, 6vw, 1.55rem);
     font-weight: 600;
     color: rgba(30, 41, 59, 0.82);
   }
