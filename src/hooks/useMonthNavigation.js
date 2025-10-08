@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 
 const VIEWPORT_TARGET_OFFSET = 100;
@@ -25,21 +25,24 @@ function normalizeTargetIndex(targetAbsolute) {
 
 export function useMonthNavigation({ announceCommand } = {}) {
   const { scrollToDate } = useCalendar();
-  const jumpMonths = useCallback((direction, attempt = 0, state) => {
-    if (!direction) return;
-    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+  const monthFormatter = useMemo(() => new Intl.DateTimeFormat(undefined, {
+    month: 'long',
+    year: 'numeric'
+  }), []);
+  const yearFormatter = useMemo(() => new Intl.DateTimeFormat(undefined, {
+    year: 'numeric'
+  }), []);
+
+  const resolveNavigation = useCallback((direction) => {
+    if (!direction) return null;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return null;
 
     const monthSections = Array.from(document.querySelectorAll('.month-section'));
     if (monthSections.length === 0) {
-      window.scrollBy({
-        top: direction * AVERAGE_MONTH_HEIGHT,
-        behavior: 'smooth'
-      });
-      return;
+      return null;
     }
 
     const viewportBottom = window.innerHeight;
-    const scrollDirection = Math.sign(direction || 1) || 1;
 
     let activeEntry = null;
     let closestDistance = Infinity;
@@ -66,40 +69,52 @@ export function useMonthNavigation({ announceCommand } = {}) {
     }
 
     if (!activeEntry) {
-      window.scrollBy({
-        top: scrollDirection * window.innerHeight * SCROLL_RATIO,
-        behavior: 'smooth'
-      });
-      return;
+      return null;
     }
 
-    let workingState = state;
-    if (!workingState) {
-      const parsed = parseMonthKey(activeEntry.key);
-      if (!parsed) {
-        window.scrollBy({
-          top: scrollDirection * window.innerHeight * SCROLL_RATIO,
-          behavior: 'smooth'
-        });
-        return;
-      }
-      const baseAbsolute = parsed.year * 12 + parsed.monthIndex;
-      workingState = {
-        baseAbsolute,
-        targetAbsolute: baseAbsolute + direction
-      };
+    const parsed = parseMonthKey(activeEntry.key);
+    if (!parsed) {
+      return null;
     }
 
-    const { targetAbsolute } = workingState;
+    const baseAbsolute = parsed.year * 12 + parsed.monthIndex;
+    const targetAbsolute = baseAbsolute + direction;
     if (!Number.isFinite(targetAbsolute)) {
-      return;
+      return null;
     }
 
     const target = normalizeTargetIndex(targetAbsolute);
     const targetKey = `${target.year}-${target.monthIndex}`;
-    const targetSection = document.querySelector(`.month-section[data-month-key="${targetKey}"]`);
-
     const targetDate = new Date(target.year, target.monthIndex, 1);
+    const scrollDirection = Math.sign(direction || 1) || 1;
+
+    return {
+      scrollDirection,
+      target,
+      targetKey,
+      targetDate
+    };
+  }, []);
+
+  const jumpMonths = useCallback((direction, attempt = 0, state) => {
+    if (!direction) return;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+    let workingState = state;
+    if (!workingState) {
+      workingState = resolveNavigation(direction);
+      if (!workingState) {
+        const fallbackDirection = Math.sign(direction || 1) || 1;
+        window.scrollBy({
+          top: fallbackDirection * AVERAGE_MONTH_HEIGHT,
+          behavior: 'smooth'
+        });
+        return;
+      }
+    }
+
+    const { scrollDirection, targetKey, targetDate } = workingState;
+
     const handledByVirtualizer = scrollToDate?.(targetDate, {
       behavior: 'smooth',
       align: 'start',
@@ -109,6 +124,10 @@ export function useMonthNavigation({ announceCommand } = {}) {
     if (handledByVirtualizer) {
       return;
     }
+
+    const targetSection = targetKey
+      ? document.querySelector(`.month-section[data-month-key="${targetKey}"]`)
+      : null;
 
     if (targetSection) {
       const targetHeader = targetSection.querySelector('.month-header') || targetSection;
@@ -123,7 +142,6 @@ export function useMonthNavigation({ announceCommand } = {}) {
       });
       return;
     }
-
     window.scrollBy({
       top: scrollDirection * window.innerHeight * SCROLL_RATIO,
       behavior: 'smooth'
@@ -132,7 +150,7 @@ export function useMonthNavigation({ announceCommand } = {}) {
     window.setTimeout(() => {
       jumpMonths(direction, attempt + 1, workingState);
     }, RETRY_DELAY + attempt * 120);
-  }, [scrollToDate]);
+  }, [resolveNavigation, scrollToDate]);
 
   const announceAndJump = useCallback((direction, message) => {
     if (!direction) return;
@@ -146,17 +164,44 @@ export function useMonthNavigation({ announceCommand } = {}) {
   const describeDirection = useCallback((direction) => {
     if (!direction) return '';
     const magnitude = Math.abs(direction);
-    if (direction === 12) return 'Jumping to next year';
-    if (direction === -12) return 'Jumping to previous year';
+    const context = resolveNavigation(direction);
+
+    if (context?.targetDate) {
+      const { targetDate } = context;
+      const monthLabel = monthFormatter.format(targetDate);
+      const yearLabel = yearFormatter.format(targetDate);
+
+      if (magnitude === 12) {
+        return direction > 0
+          ? `Jumping to next year (${yearLabel})`
+          : `Jumping to previous year (${yearLabel})`;
+      }
+
+      if (magnitude === 1) {
+        return direction > 0
+          ? `Scrolling to next month (${monthLabel})`
+          : `Scrolling to previous month (${monthLabel})`;
+      }
+
+      return direction > 0
+        ? `Scrolling forward ${magnitude} months (${monthLabel})`
+        : `Scrolling back ${magnitude} months (${monthLabel})`;
+    }
+
+    if (magnitude === 12) {
+      return direction > 0 ? 'Jumping to next year' : 'Jumping to previous year';
+    }
+
     if (direction > 0) {
       return magnitude === 1
         ? 'Scrolling to next month'
         : `Scrolling forward ${magnitude} months`;
     }
+
     return magnitude === 1
       ? 'Scrolling to previous month'
       : `Scrolling back ${magnitude} months`;
-  }, []);
+  }, [monthFormatter, resolveNavigation, yearFormatter]);
 
   return {
     jumpMonths,
