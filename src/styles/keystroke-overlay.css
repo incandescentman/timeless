@@ -1,17 +1,17 @@
 .keystroke-overlay {
   position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 50%;
+  right: 2.5rem;
   z-index: 4500;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(-10px) scale(0.94);
-  transition: opacity 120ms ease, transform 180ms ease;
+  transform: translate3d(0, -50%, 0) scale(0.9);
+  transition: opacity 120ms ease, transform 200ms ease;
 }
 
 .keystroke-overlay--visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translate3d(0, -50%, 0) scale(1);
 }
 
 .keystroke-overlay__pill {
