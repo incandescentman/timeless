@@ -156,15 +156,23 @@ export function useMonthNavigation({ announceCommand } = {}) {
     if (!direction) return;
     if (typeof window === 'undefined') return;
     if (announceCommand && message) {
-      announceCommand({ label: message });
+      const payload = typeof message === 'string'
+        ? { label: message }
+        : (typeof message === 'object' && message !== null ? message : null);
+      if (payload?.label) {
+        announceCommand(payload);
+      }
     }
     jumpMonths(direction);
   }, [announceCommand, jumpMonths]);
 
   const describeDirection = useCallback((direction) => {
-    if (!direction) return '';
+    if (!direction) return { label: '' };
     const magnitude = Math.abs(direction);
     const context = resolveNavigation(direction);
+
+    let label;
+    let description = null;
 
     if (context?.targetDate) {
       const { targetDate } = context;
@@ -172,35 +180,28 @@ export function useMonthNavigation({ announceCommand } = {}) {
       const yearLabel = yearFormatter.format(targetDate);
 
       if (magnitude === 12) {
-        return direction > 0
-          ? `Jumping to next year (${yearLabel})`
-          : `Jumping to previous year (${yearLabel})`;
+        label = direction > 0 ? 'Jumping to next year' : 'Jumping to previous year';
+        description = yearLabel;
+      } else if (magnitude === 1) {
+        label = direction > 0 ? 'Scrolling to next month' : 'Scrolling to previous month';
+        description = monthLabel;
+      } else {
+        label = direction > 0
+          ? `Scrolling forward ${magnitude} months`
+          : `Scrolling back ${magnitude} months`;
+        description = monthLabel;
       }
-
-      if (magnitude === 1) {
-        return direction > 0
-          ? `Scrolling to next month (${monthLabel})`
-          : `Scrolling to previous month (${monthLabel})`;
+    } else {
+      if (magnitude === 12) {
+        label = direction > 0 ? 'Jumping to next year' : 'Jumping to previous year';
+      } else if (direction > 0) {
+        label = magnitude === 1 ? 'Scrolling to next month' : `Scrolling forward ${magnitude} months`;
+      } else {
+        label = magnitude === 1 ? 'Scrolling to previous month' : `Scrolling back ${magnitude} months`;
       }
-
-      return direction > 0
-        ? `Scrolling forward ${magnitude} months (${monthLabel})`
-        : `Scrolling back ${magnitude} months (${monthLabel})`;
     }
 
-    if (magnitude === 12) {
-      return direction > 0 ? 'Jumping to next year' : 'Jumping to previous year';
-    }
-
-    if (direction > 0) {
-      return magnitude === 1
-        ? 'Scrolling to next month'
-        : `Scrolling forward ${magnitude} months`;
-    }
-
-    return magnitude === 1
-      ? 'Scrolling to previous month'
-      : `Scrolling back ${magnitude} months`;
+    return { label, description };
   }, [monthFormatter, resolveNavigation, yearFormatter]);
 
   return {
