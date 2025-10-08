@@ -15,8 +15,8 @@ export function KeystrokeFeedbackProvider({ children }) {
 
     const tone = payload.tone || 'neutral';
     const duration = typeof payload.duration === 'number' && payload.duration > 0
-      ? Math.max(240, payload.duration)
-      : 650;
+      ? Math.max(120, payload.duration)
+      : 380;
 
     const keystroke = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
