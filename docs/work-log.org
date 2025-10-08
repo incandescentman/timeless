@@ -42,6 +42,33 @@ Tests:
 Next Step:
 - Monitor for other global CSS that overrides virtualizer behavior (notably `overscroll-behavior` or scroll snapping).
 
+** Session: Distinguish Overflow Days Without Removing Weeks
+Time: Evening
+Task: Make month-boundary weeks readable without duplicating content
+Status: **COMPLETED**
+
+Problem:
+Users perceived the final week of a month as duplicated once the next month rendered, because the Oct 27–Nov 2 row appeared identically above and below the November header.
+
+Root Cause:
+Both months legitimately include that week (monthly grids show leading/trailing days), but we treated every day identically. Without visual differentiation, the repeated row looked like a rendering bug.
+
+Solution:
+- Passed an `isCurrentMonth` flag from `Calendar.jsx` into `DayCell` so each day knows whether it belongs to the active month.
+- Added an `outside-month` class to soften typography and backgrounds for spillover days while keeping them interactive.
+- Updated day-cell styling for light/dark modes so overflow days are muted, not removed, preserving calendar integrity but eliminating the perception of duplication.
+
+Files Changed:
+- src/components/Calendar.jsx — annotated each day with a month-ownership flag when rendering weeks.
+- src/components/DayCell.jsx — applied an `outside-month` class for styling when the day is outside the active month.
+- src/styles/day-cell.css — introduced muted treatments for overflow cells in both light and dark themes.
+
+Tests:
+- npm run build
+
+Next Step:
+- Confirm design review approves the new muted styling; adjust opacity if readability feedback comes in.
+
 * 2025-10-07 Monday
 
 ** Session: Fix Calendar Rail Button Layout

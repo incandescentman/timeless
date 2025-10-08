@@ -64,7 +64,7 @@ function DayEventRow({
   );
 }
 
-function DayCell({ date }) {
+function DayCell({ date, isCurrentMonth = true }) {
   const {
     getNotesForDate,
     addNote,
@@ -253,7 +253,8 @@ function DayCell({ date }) {
     isWeekendDate && 'weekend',
     isKeyboardFocused && 'keyboard-focused',
     isSelected && 'selected',
-    events.length > 0 && 'has-notes'
+    events.length > 0 && 'has-notes',
+    !isCurrentMonth && 'outside-month'
   ].filter(Boolean).join(' ');
 
   const formattedDayNumber = String(dayNumber).padStart(2, '0');

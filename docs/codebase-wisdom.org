@@ -93,6 +93,24 @@
    - [ ] When the launch viewport drifts, inspect both CSS overrides and scroll guards before tweaking effect timing.
    - [ ] Preserve caller intent: user-triggered smooth scrolls stay smooth, but initial programmatic snaps must remain `auto` to avoid replaying months.
 
+* Overflow Days Should Be Muted, Not Removed
+  Date: 2025-10-08
+
+** Symptom
+   End-of-month weeks looked duplicated because the identical seven-day row appeared again beneath the next month’s header (e.g., Oct 27 – Nov 2 showed up twice with full styling).
+
+** Root Cause
+   Month rendering is correct: both months show the bridging week so users can see adjacent days. The bug was visual—every day received the same styling, so spillover cells (e.g., Nov 1–2 inside October) were indistinguishable from in-month days.
+
+** Fix
+   Pass an `isCurrentMonth` flag to `DayCell` and apply an `outside-month` class. The CSS now mutes background, typography, and hover states for spillover cells in both light and dark themes. Weeks remain intact, but the duplicate perception disappears.
+
+** Prevention Checklist
+   - [ ] Avoid deleting overflow weeks; monthly grids rely on lead/lag days for alignment.
+   - [ ] Always tag spillover cells with semantic classes (`outside-month`) so styling can differentiate them.
+   - [ ] Verify light/dark theme treatments keep muted cells legible but clearly secondary.
+   - [ ] When adjusting calendar colors, check month transitions to ensure the contrast signal persists.
+
 * Mobile Today Button Not Centering
   Date: 2025-10-07
 

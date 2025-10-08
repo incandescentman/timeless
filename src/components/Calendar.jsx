@@ -44,9 +44,19 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
       <div className="month-weeks">
         {month.weeks.map((week) => (
           <div key={week.weekStart} className="week-row">
-            {week.days.map((day) => (
-              <DayCell key={day.toISOString()} date={day} />
-            ))}
+            {week.days.map((day) => {
+              const isCurrentMonthDay = (
+                day.getFullYear() === month.year &&
+                day.getMonth() === month.monthIndex
+              );
+              return (
+                <DayCell
+                  key={day.toISOString()}
+                  date={day}
+                  isCurrentMonth={isCurrentMonthDay}
+                />
+              );
+            })}
           </div>
         ))}
       </div>
