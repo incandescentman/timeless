@@ -15,6 +15,7 @@ import './styles/command-feedback.css';
 import './styles/toast.css';
 import './styles/skeleton.css';
 import './styles/bottom-sheet.css';
+import './styles/keystroke-overlay.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

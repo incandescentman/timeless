@@ -1,0 +1,59 @@
+.keystroke-overlay {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 4500;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  transition: opacity 120ms ease, transform 160ms ease;
+}
+
+.keystroke-overlay--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.keystroke-overlay__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.keystroke-overlay__label {
+  font-family: var(--font-mono, 'SFMono-Regular', ui-monospace, 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+body.dark-mode .keystroke-overlay__pill {
+  background: rgba(15, 23, 42, 0.82);
+  border-color: rgba(51, 65, 85, 0.55);
+}
+
+body.dark-mode .keystroke-overlay__label {
+  color: rgba(226, 232, 240, 0.96);
+}
+
+@media (max-width: 768px) {
+  .keystroke-overlay {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .keystroke-overlay__pill {
+    padding: 0.3rem 0.75rem;
+  }
+
+  .keystroke-overlay__label {
+    font-size: 0.7rem;
+  }
+}

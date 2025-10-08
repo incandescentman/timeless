@@ -94,6 +94,32 @@ Tests:
 Next Step:
 - Consider exposing `scrollToMonthIndex` explicitly if future features need absolute month addressing.
 
+** Session: Keystroke Overlay Feedback
+Time: Late night
+Task: Surface registered shortcuts without overloading the HUD
+Status: **COMPLETED**
+
+Problem:
+Users wanted an immediate visual confirmation that a shortcut key registered, but piping the raw keystroke into the command HUD would overwhelm its semantic messaging.
+
+Solution:
+- Added a lightweight `KeystrokeFeedbackProvider` with a dedicated `KeystrokeOverlay` pill positioned near the header.
+- Instrumented `useKeyboardShortcuts` to emit formatted chord labels (e.g., `⌘ + Shift + P`, `N`) whenever a handled shortcut fires.
+- Styled the overlay with a glassmorphic pill that fades after ~650 ms, distinct from the command HUD.
+
+Files Changed:
+- src/contexts/KeystrokeFeedbackContext.jsx — state + timer management for keystroke feedback.
+- src/components/KeystrokeOverlay.jsx — visual pill rendering.
+- src/styles/keystroke-overlay.css — overlay aesthetics for light/dark modes.
+- src/App.jsx / src/main.jsx — wired provider + stylesheet.
+- src/hooks/useKeyboardShortcuts.js — emits keystroke labels alongside command announcements.
+
+Tests:
+- npm run build
+
+Next Step:
+- Explore batching for rapid sequences if future workflows demand macro chords.
+
 * 2025-10-07 Monday
 
 ** Session: Fix Calendar Rail Button Layout
