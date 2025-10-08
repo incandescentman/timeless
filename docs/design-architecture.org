@@ -143,6 +143,14 @@ const isToday = (date: Date) => {
 - Buttons announce their action through the command feedback HUD to mirror keyboard shortcuts.
 - On mobile, an inline month header is injected immediately before the first-of-month cell so the label scrolls with day one while the desktop header stays hidden.
 
+** Mobile Event Composer (MobileEventComposer.jsx)
+
+- Below 768px viewports, tapping an empty day opens a centered overlay instead of the inline composer.
+- The overlay portals to `document.body`, locks background scrolling, and autofocuses the input once mounted.
+- Desktop still renders the inline composer inside `DayCell`; both flows call the same add/update handlers.
+- Mobile uses the existing ripple affordance on tap but routes save/cancel through overlay actions (submit, Escape, backdrop tap).
+- Blank-day layout clamps to a shallower min-height/padding on mobile so empty rows compress while note-bearing cells retain breathing room.
+
 ** Command Feedback HUD & Keystroke Overlay
 
 - `CommandFeedbackProvider` renders the desktop HUD; actions send `{ label, description }` so the title and destination (e.g., "December 2025") appear on separate lines.
@@ -235,6 +243,7 @@ Exported for use across components.
 
 * Recent Updates
 
+- 2025-10-08: Documented mobile composer overlay and tightened mobile spacing
 - 2025-10-04: Initial architecture documentation created
 - 2025-10-04: Established TL;DR and LLM Context sections
 - 2025-10-04: Documented year view layout and state management approach
@@ -340,4 +349,4 @@ setEvents([...events, newEvent]); // ✓ Immutable
 ---
 [[file:CLAUDE.org][← Docs Map]] | [[file:the-timeless-approach.org][← Philosophy]] | [[file:visual-design-philosophy.org][← Design]] | [[file:codebase-wisdom.org][→ Wisdom]]
 
-Last Updated: 2025-10-04
+Last Updated: 2025-10-08
