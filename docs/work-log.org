@@ -85,6 +85,7 @@ Solution:
 - Kept a DOM fallback only if virtualization declines the request (unsupported environments).
 - Enhanced HUD copy to surface the exact destination (e.g., "Scrolling to next month (December 2025)").
 - Split the HUD message into title + subline so month/year renders on its own line for better legibility.
+- Restyled the HUD core panel (larger title, neon month subline, tightened letter spacing) to match the richer layout.
 
 Files Changed:
 - src/hooks/useMonthNavigation.js — uses `useCalendar` to access `scrollToDate`, formats HUD labels with the destination month/year, and lets the virtualized list handle long-distance jumps smoothly.
