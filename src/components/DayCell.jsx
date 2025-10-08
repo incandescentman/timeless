@@ -3,6 +3,7 @@ import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend, addDays } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
+import MobileEventComposer from './MobileEventComposer';
 
 function DayEventRow({
   event,
@@ -81,6 +82,9 @@ function DayCell({ date, isCurrentMonth = true }) {
   const [draftText, setDraftText] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newEventText, setNewEventText] = useState('');
+  const [isMobileViewport, setIsMobileViewport] = useState(() => (
+    typeof window !== 'undefined' && window.innerWidth <= 768
+  ));
   const inputRef = useRef(null);
   const editInputRef = useRef(null);
   const createRipple = useRipple();
@@ -89,6 +93,12 @@ function DayCell({ date, isCurrentMonth = true }) {
   const dayNumber = date.getDate();
   const dayLabel = date.toLocaleDateString(undefined, { weekday: 'short' });
   const monthLabel = date.toLocaleDateString(undefined, { month: 'short' });
+  const mobileComposerLabel = date.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
   const isTodayDate = isToday(date, systemToday);
   const isWeekendDate = isWeekend(date);
   const isKeyboardFocused = keyboardFocusDate && generateDayId(keyboardFocusDate) === dateId;
@@ -100,13 +110,32 @@ function DayCell({ date, isCurrentMonth = true }) {
     setDraftText('');
   }, [events]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const handleResize = () => {
+      setIsMobileViewport(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const cancelNewEvent = () => {
+    setIsAddingNew(false);
+    setNewEventText('');
+  };
+
   const openComposer = () => {
     if (isMultiSelectMode) return;
     setEditingIndex(null);
     if (!isAddingNew) {
       setIsAddingNew(true);
-      // On mobile, don't auto-focus (bottom sheet will handle it)
-      if (typeof window !== 'undefined' && window.innerWidth > 768) {
+      // On desktop we auto-focus the inline input; the mobile overlay handles focus itself
+      if (!isMobileViewport) {
         setTimeout(() => inputRef.current?.focus(), 0);
       }
     }
@@ -114,7 +143,7 @@ function DayCell({ date, isCurrentMonth = true }) {
 
   const handleCellClick = (e) => {
     // Add ripple effect on mobile
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+    if (isMobileViewport) {
       createRipple(e);
     }
 
@@ -152,8 +181,7 @@ function DayCell({ date, isCurrentMonth = true }) {
         // Keep isAddingNew true so the composer stays open
       } else {
         // Cancel the composer if there's no text
-        setIsAddingNew(false);
-        setNewEventText('');
+        cancelNewEvent();
       }
     }
 
@@ -172,8 +200,7 @@ function DayCell({ date, isCurrentMonth = true }) {
       const targetDayId = generateDayId(targetDay);
 
       // Close current composer
-      setIsAddingNew(false);
-      setNewEventText('');
+      cancelNewEvent();
 
       // Wait a tick then open the target day's composer
       setTimeout(() => {
@@ -186,8 +213,7 @@ function DayCell({ date, isCurrentMonth = true }) {
 
     if (e.key === 'Escape') {
       e.preventDefault();
-      setIsAddingNew(false);
-      setNewEventText('');
+      cancelNewEvent();
     }
   };
 
@@ -196,22 +222,20 @@ function DayCell({ date, isCurrentMonth = true }) {
     if (trimmed) {
       addNote(dateId, trimmed);
     }
-    setNewEventText('');
-    setIsAddingNew(false);
+    cancelNewEvent();
   };
 
   const handleNewEventBlur = () => {
     if (newEventText.trim()) {
       handleAddEvent();
     } else {
-      setIsAddingNew(false);
-      setNewEventText('');
+      cancelNewEvent();
     }
   };
 
   const startEditing = (idx) => {
     if (isMultiSelectMode) return;
-    setIsAddingNew(false);  // Cancel adding new if we're editing
+    cancelNewEvent();  // Cancel adding new if we're editing
     setEditingIndex(idx);
     setDraftText(events[idx] ?? '');
     setTimeout(() => editInputRef.current?.focus(), 0);
@@ -259,7 +283,6 @@ function DayCell({ date, isCurrentMonth = true }) {
 
   const formattedDayNumber = String(dayNumber).padStart(2, '0');
   const eventCount = events.length;
-  const addButtonDisabled = isMultiSelectMode;
 
   if (!useCardLayout) {
     return (
@@ -299,7 +322,7 @@ function DayCell({ date, isCurrentMonth = true }) {
             ))}
           </div>
 
-          {isAddingNew && (
+          {isAddingNew && !isMobileViewport && (
             <div className="day-event__composer">
               <input
                 ref={inputRef}
@@ -313,6 +336,16 @@ function DayCell({ date, isCurrentMonth = true }) {
             </div>
           )}
         </div>
+        {isMobileViewport && (
+          <MobileEventComposer
+            open={isAddingNew}
+            value={newEventText}
+            onChange={setNewEventText}
+            onSubmit={handleAddEvent}
+            onCancel={cancelNewEvent}
+            dateLabel={mobileComposerLabel}
+          />
+        )}
       </>
     );
   }
@@ -362,7 +395,7 @@ function DayCell({ date, isCurrentMonth = true }) {
             ))}
           </div>
 
-          {isAddingNew && (
+          {isAddingNew && !isMobileViewport && (
             <div className="day-event__composer day-card__composer">
               <input
                 ref={inputRef}
@@ -378,6 +411,16 @@ function DayCell({ date, isCurrentMonth = true }) {
         </div>
 
       </div>
+      {isMobileViewport && (
+        <MobileEventComposer
+          open={isAddingNew}
+          value={newEventText}
+          onChange={setNewEventText}
+          onSubmit={handleAddEvent}
+          onCancel={cancelNewEvent}
+          dateLabel={mobileComposerLabel}
+        />
+      )}
     </div>
   );
 }

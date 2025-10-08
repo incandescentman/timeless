@@ -664,6 +664,20 @@ UI Centering Fix:
 Energy Level: Challenging but successful
 Next Step: Add animation transitions for smoother interactions
 
+* 2025-10-08 Wednesday
+
+** Session: Mobile layout polish
+Time: Afternoon
+Task: Improve mobile calendar spacing and composer UX
+
+Accomplished:
+- Reduced mobile calendar gutters so day cards span wider on phones
+- Shrunk blank day cells via min-height/padding clamps for denser scrolling
+- Introduced modal mobile event composer to keep text entry centered instead of inline
+
+Energy Level: Focused
+Next Step: QA on multiple mobile breakpoints; consider haptic feedback pass for tap cues
+
 * 2025-10-02 Wednesday
 
 ** Session: React Migration

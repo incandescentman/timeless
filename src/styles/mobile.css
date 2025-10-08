@@ -43,8 +43,8 @@ body {
   }
 
   .calendar-layout {
-    margin: 0;
-    padding: 0 clamp(0.9rem, 5vw, 1.6rem);
+    margin: 0 auto;
+    padding: 0 clamp(0.2rem, 2.1vw, 0.6rem);
     width: 100%;
     max-width: 100%;
   }
@@ -125,15 +125,15 @@ body {
   .week-row {
     display: flex !important;
     flex-direction: column;
-    gap: 0;
+    gap: clamp(0.35rem, 2vw, 0.55rem);
   }
 
   .month-weeks {
-    gap: 0;
+    gap: clamp(0.65rem, 3vw, 0.95rem);
   }
 
   .week-row + .week-row {
-    margin-top: 0;
+    margin-top: clamp(0.85rem, 3vw, 1.15rem);
     padding-top: 0;
   }
 
@@ -143,14 +143,19 @@ body {
   }
 
   .day-cell--baseline {
-    min-height: var(--cell-min-height, 130px);
-    padding: clamp(0.85rem, 3vw, 1rem) clamp(0.95rem, 5vw, 1.3rem);
+    min-height: var(--cell-min-height, 124px);
+    padding: clamp(0.85rem, 3.2vw, 1.05rem) clamp(0.9rem, 5vw, 1.3rem);
     border-radius: 16px;
     margin: 0;
     background: #ffffff;
     border: 1px solid rgba(148, 163, 184, 0.22);
     box-shadow: none;
     gap: clamp(0.6rem, 2vw, 0.85rem);
+  }
+
+  .day-cell--baseline:not(.has-notes) {
+    min-height: clamp(60px, 12vh, 84px);
+    padding-block: clamp(0.5rem, 2.2vw, 0.75rem);
   }
 
   body.dark-mode .day-cell--baseline {

@@ -16,6 +16,7 @@ import './styles/toast.css';
 import './styles/skeleton.css';
 import './styles/bottom-sheet.css';
 import './styles/keystroke-overlay.css';
+import './styles/mobile-composer.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
