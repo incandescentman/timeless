@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useCalendar } from '../contexts/CalendarContext';
 
 const VIEWPORT_TARGET_OFFSET = 100;
 const SCROLL_RATIO = 0.9;
@@ -23,6 +24,7 @@ function normalizeTargetIndex(targetAbsolute) {
 }
 
 export function useMonthNavigation({ announceCommand } = {}) {
+  const { scrollToDate } = useCalendar();
   const jumpMonths = useCallback((direction, attempt = 0, state) => {
     if (!direction) return;
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -97,6 +99,17 @@ export function useMonthNavigation({ announceCommand } = {}) {
     const targetKey = `${target.year}-${target.monthIndex}`;
     const targetSection = document.querySelector(`.month-section[data-month-key="${targetKey}"]`);
 
+    const targetDate = new Date(target.year, target.monthIndex, 1);
+    const handledByVirtualizer = scrollToDate?.(targetDate, {
+      behavior: 'smooth',
+      align: 'start',
+      maxAttempts: 240
+    });
+
+    if (handledByVirtualizer) {
+      return;
+    }
+
     if (targetSection) {
       const targetHeader = targetSection.querySelector('.month-header') || targetSection;
       targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -119,7 +132,7 @@ export function useMonthNavigation({ announceCommand } = {}) {
     window.setTimeout(() => {
       jumpMonths(direction, attempt + 1, workingState);
     }, RETRY_DELAY + attempt * 120);
-  }, []);
+  }, [scrollToDate]);
 
   const announceAndJump = useCallback((direction, message) => {
     if (!direction) return;

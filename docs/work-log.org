@@ -69,6 +69,30 @@ Tests:
 Next Step:
 - Confirm design review approves the new muted styling; adjust opacity if readability feedback comes in.
 
+** Session: Smooth Year Jump Navigation
+Time: Late night
+Task: Reduce jitter when jumping ±12 months via keyboard or HUD
+Status: **COMPLETED**
+
+Problem:
+Pressing `P/N` (±12 months) felt like a stuttering scroll—each retry shifted by one viewport and the animation re-ran several times before landing on the target month.
+
+Root Cause:
+`useMonthNavigation` fell back to `scrollIntoView` when the target month wasn’t already mounted. Virtualization renders months on demand, so the hook would scroll chunk-by-chunk until the page physically contained the target DOM node, producing the month-by-month pogo animation.
+
+Solution:
+- Routed month jumps through the virtualization API by calling `scrollToDate` for the first day of the target month.
+- Kept a DOM fallback only if virtualization declines the request (unsupported environments).
+
+Files Changed:
+- src/hooks/useMonthNavigation.js — uses `useCalendar` to access `scrollToDate` and lets the virtualized list handle long-distance jumps smoothly.
+
+Tests:
+- npm run build
+
+Next Step:
+- Consider exposing `scrollToMonthIndex` explicitly if future features need absolute month addressing.
+
 * 2025-10-07 Monday
 
 ** Session: Fix Calendar Rail Button Layout

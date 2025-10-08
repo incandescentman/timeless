@@ -111,6 +111,23 @@
    - [ ] Verify light/dark theme treatments keep muted cells legible but clearly secondary.
    - [ ] When adjusting calendar colors, check month transitions to ensure the contrast signal persists.
 
+* Virtualized Month Jumps Must Use Scroll API
+  Date: 2025-10-08
+
+** Symptom
+   Jumping a full year (`P`/`N`) made the calendar “hop” month-by-month. The HUD repeated “Jumping to next year” while the viewport visibly scrolled past every intermediate month before settling.
+
+** Root Cause
+   `useMonthNavigation` traversed the DOM and called `scrollIntoView`. When the target month wasn’t mounted yet, it scrolled by 90% of the viewport and retried. Virtualization re-measured after each scroll, causing the stair-step animation until the target section finally existed.
+
+** Fix
+   Delegate to the virtualization API: call `scrollToDate(new Date(targetYear, targetMonth, 1), { behavior: 'smooth', align: 'start' })`. If the API handles the request, virtualization renders the target window immediately and performs a single smooth animation. Keep the DOM fallback only for environments where the scroll API is unavailable.
+
+** Prevention Checklist
+   - [ ] When adding navigation helpers, prefer context-provided scroll functions over manual DOM scrolling.
+   - [ ] Any jump larger than a couple of months should request virtualization first, with DOM fallbacks as last resort.
+   - [ ] Re-test long jumps (`±12` months, `±48` months) after virtualization changes to ensure no stair-step animations return.
+
 * Mobile Today Button Not Centering
   Date: 2025-10-07
 
