@@ -5,8 +5,8 @@
   z-index: 4500;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(-8px) scale(0.98);
-  transition: opacity 120ms ease, transform 160ms ease;
+  transform: translateY(-10px) scale(0.94);
+  transition: opacity 120ms ease, transform 180ms ease;
 }
 
 .keystroke-overlay--visible {
@@ -17,43 +17,34 @@
 .keystroke-overlay__pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.72);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .keystroke-overlay__label {
   font-family: var(--font-mono, 'SFMono-Regular', ui-monospace, 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  font-size: clamp(2.25rem, 3.2vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(226, 232, 240, 0.92);
-}
-
-body.dark-mode .keystroke-overlay__pill {
-  background: rgba(15, 23, 42, 0.82);
-  border-color: rgba(51, 65, 85, 0.55);
+  color: rgba(15, 23, 42, 0.72);
+  text-shadow:
+    0 2px 12px rgba(15, 23, 42, 0.18),
+    0 0 22px rgba(15, 23, 42, 0.12);
 }
 
 body.dark-mode .keystroke-overlay__label {
-  color: rgba(226, 232, 240, 0.96);
+  color: rgba(226, 232, 240, 0.92);
+  text-shadow:
+    0 2px 18px rgba(15, 23, 42, 0.6),
+    0 0 24px rgba(56, 189, 248, 0.18);
 }
 
 @media (max-width: 768px) {
   .keystroke-overlay {
-    top: 1rem;
-    right: 1rem;
-  }
-
-  .keystroke-overlay__pill {
-    padding: 0.3rem 0.75rem;
-  }
-
-  .keystroke-overlay__label {
-    font-size: 0.7rem;
+    display: none;
   }
 }

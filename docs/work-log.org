@@ -105,7 +105,7 @@ Users wanted an immediate visual confirmation that a shortcut key registered, bu
 Solution:
 - Added a lightweight `KeystrokeFeedbackProvider` with a dedicated `KeystrokeOverlay` pill positioned near the header.
 - Instrumented `useKeyboardShortcuts` to emit formatted chord labels (e.g., `⌘ + Shift + P`, `N`) whenever a handled shortcut fires.
-- Styled the overlay with a glassmorphic pill that fades after ~650 ms, distinct from the command HUD.
+- Styled the overlay with an oversized monospace glyph that fades after ~650 ms, distinct from the command HUD, and suppressed it entirely on mobile viewports to avoid clutter.
 
 Files Changed:
 - src/contexts/KeystrokeFeedbackContext.jsx — state + timer management for keystroke feedback.
