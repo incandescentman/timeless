@@ -150,6 +150,7 @@ const isToday = (date: Date) => {
 - Desktop still renders the inline composer inside `DayCell`; both flows call the same add/update handlers.
 - Mobile uses the existing ripple affordance on tap but routes save/cancel through overlay actions (submit, Escape, backdrop tap).
 - Blank-day layout clamps to a shallower min-height/padding on mobile so empty rows compress while note-bearing cells retain breathing room.
+- Day headers collapse into a single row on mobile: weekday stays left-aligned, month + day are right-justified, and all abbreviations come from `dateUtils.daysOfWeek` / `dateUtils.shortMonths` so wording stays consistent across the app.
 
 ** Command Feedback HUD & Keystroke Overlay
 
@@ -243,6 +244,7 @@ Exported for use across components.
 
 * Recent Updates
 
+- 2025-10-08: Added mobile single-row day headers with canonical weekday/month abbreviations
 - 2025-10-08: Documented mobile composer overlay and tightened mobile spacing
 - 2025-10-04: Initial architecture documentation created
 - 2025-10-04: Established TL;DR and LLM Context sections

@@ -166,27 +166,21 @@ body {
 
   .day-cell--baseline .day-header {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-    gap: clamp(0.4rem, 1.8vw, 0.65rem);
-    padding-bottom: 0.15rem;
+    justify-content: space-between;
+    gap: clamp(0.45rem, 2vw, 0.75rem);
+    padding-bottom: 0.12rem;
     margin-bottom: 0.3rem;
   }
 
-  .day-cell--baseline .day-header__weekday,
-  .day-cell--baseline .day-header__main {
+  .day-cell--baseline .day-header__weekday {
     display: flex;
-    align-items: baseline;
-    gap: clamp(0.35rem, 1.5vw, 0.5rem);
-  }
-
-  .day-cell--baseline .day-weekday {
+    align-items: center;
     font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
-    color: rgba(71, 85, 105, 0.68);
+    letter-spacing: 0.16em;
     text-transform: uppercase;
+    color: rgba(71, 85, 105, 0.68);
     white-space: nowrap;
   }
 
@@ -194,15 +188,32 @@ body {
     color: rgba(191, 219, 254, 0.68);
   }
 
-  .day-cell--baseline .day-month {
-    letter-spacing: 0.12em;
+  .day-cell--baseline .day-header__main {
+    margin-left: auto;
+    display: flex;
+    align-items: baseline;
+    gap: clamp(0.35rem, 1.5vw, 0.55rem);
+    text-align: right;
     white-space: nowrap;
   }
 
+  .day-cell--baseline .day-month {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(71, 85, 105, 0.68);
+  }
+
+  body.dark-mode .day-cell--baseline .day-month {
+    color: rgba(191, 219, 254, 0.68);
+  }
+
   .day-cell--baseline .day-number {
-    font-size: clamp(1.3rem, 6vw, 1.55rem);
+    font-size: clamp(1.28rem, 5.8vw, 1.52rem);
     font-weight: 600;
     color: rgba(30, 41, 59, 0.82);
+    line-height: 1;
   }
 
   body.dark-mode .day-cell--baseline .day-number {

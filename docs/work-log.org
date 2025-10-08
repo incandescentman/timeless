@@ -674,6 +674,7 @@ Accomplished:
 - Reduced mobile calendar gutters so day cards span wider on phones
 - Shrunk blank day cells via min-height/padding clamps for denser scrolling
 - Introduced modal mobile event composer to keep text entry centered instead of inline
+- Right-aligned mobile day headers and sourced weekday/month abbreviations from dateUtils canonical lists
 
 Energy Level: Focused
 Next Step: QA on multiple mobile breakpoints; consider haptic feedback pass for tap cues

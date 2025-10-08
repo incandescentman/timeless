@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
-import { generateDayId, isToday, isWeekend, addDays } from '../utils/dateUtils';
+import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
 import MobileEventComposer from './MobileEventComposer';
 
@@ -65,6 +65,22 @@ function DayEventRow({
   );
 }
 
+const DAY_LABELS = [
+  daysOfWeek[6], // Sunday
+  daysOfWeek[0], // Monday
+  daysOfWeek[1], // Tuesday
+  daysOfWeek[2], // Wednesday
+  daysOfWeek[3], // Thursday
+  daysOfWeek[4], // Friday
+  daysOfWeek[5]  // Saturday
+].map((label, index) => {
+  if (label && typeof label === 'string') {
+    return label.toUpperCase();
+  }
+  const fallback = new Date(2024, 0, index);
+  return fallback.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase();
+});
+
 function DayCell({ date, isCurrentMonth = true }) {
   const {
     getNotesForDate,
@@ -91,8 +107,12 @@ function DayCell({ date, isCurrentMonth = true }) {
 
   const dateId = generateDayId(date);
   const dayNumber = date.getDate();
-  const dayLabel = date.toLocaleDateString(undefined, { weekday: 'short' });
-  const monthLabel = date.toLocaleDateString(undefined, { month: 'short' });
+  const dayLabel = DAY_LABELS[date.getDay()] ?? date.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase();
+  const monthIndex = date.getMonth();
+  const monthLabelSource = shortMonths?.[monthIndex] ?? date.toLocaleDateString(undefined, { month: 'short' });
+  const monthLabel = monthLabelSource.toUpperCase();
+  const dayA11yLabel = date.toLocaleDateString(undefined, { weekday: 'long' });
+  const monthA11yLabel = date.toLocaleDateString(undefined, { month: 'long' });
   const mobileComposerLabel = date.toLocaleDateString(undefined, {
     weekday: 'long',
     month: 'long',
@@ -296,10 +316,10 @@ function DayCell({ date, isCurrentMonth = true }) {
         >
           <div className="day-header">
             <div className="day-header__weekday">
-              <span className="day-weekday" aria-label={dayLabel}>{dayLabel}</span>
+              <span className="day-weekday" aria-label={dayA11yLabel}>{dayLabel}</span>
             </div>
             <div className="day-header__main">
-              <span className="day-month" aria-label={monthLabel}>{monthLabel}</span>
+              <span className="day-month" aria-label={monthA11yLabel}>{monthLabel}</span>
               <span className="day-number">{dayNumber}</span>
             </div>
           </div>
