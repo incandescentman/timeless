@@ -28,9 +28,10 @@ Solution:
 - Removed the global smooth-scroll rule so only explicit smooth requests animate.
 - Updated `VirtualizedMonthList` to respect caller-provided smooth behavior, while retry attempts fall back to instant scrolls for stability.
 - Added a guard that tracks the initial target (month index + date) so post-measurement updates don't re-snap the viewport.
+- Tightened the mobile layout by zeroing week-to-week gaps so Sunday and Monday flow seamlessly in the stacked view.
 
 Files Changed:
-- src/styles/mobile.css — removed root-level `scroll-behavior: smooth`.
+- src/styles/mobile.css — removed root-level `scroll-behavior: smooth` and zeroed mobile week-row gaps so Sunday/Monday align.
 - src/components/VirtualizedMonthList.jsx — preserved smooth behavior for user actions, tracked initial snap target, and prevented post-measurement recentering.
 
 Tests:

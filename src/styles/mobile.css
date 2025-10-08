@@ -118,6 +118,15 @@ body {
     gap: 0;
   }
 
+  .month-weeks {
+    gap: 0;
+  }
+
+  .week-row + .week-row {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
   .day-cell {
     width: 100% !important;
     max-width: none;
