@@ -10,6 +10,35 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-08 Tuesday
+
+** Session: Restore Centered Initial Viewport
+Time: Afternoon
+Task: Stop launch crawl from January 2020 and keep Today-centered viewport
+Status: **COMPLETED**
+
+Problem:
+App launch snapped to October 2025 but `scroll-behavior: smooth` forced a long animated crawl from January 2020, and hydration re-measurements occasionally nudged Today back to the top edge.
+
+Root Cause:
+- Global CSS applied `scroll-behavior: smooth` to `<html, body>`, overriding the virtualizer's `behavior: 'auto'` requests.
+- The virtualized month list recalculated heights during initial measurement and reissued the auto scroll without preserving the centered offset.
+
+Solution:
+- Removed the global smooth-scroll rule so only explicit smooth requests animate.
+- Updated `VirtualizedMonthList` to respect caller-provided smooth behavior, while retry attempts fall back to instant scrolls for stability.
+- Added a guard that tracks the initial target (month index + date) so post-measurement updates don't re-snap the viewport.
+
+Files Changed:
+- src/styles/mobile.css — removed root-level `scroll-behavior: smooth`.
+- src/components/VirtualizedMonthList.jsx — preserved smooth behavior for user actions, tracked initial snap target, and prevented post-measurement recentering.
+
+Tests:
+- npm run build
+
+Next Step:
+- Monitor for other global CSS that overrides virtualizer behavior (notably `overscroll-behavior` or scroll snapping).
+
 * 2025-10-07 Monday
 
 ** Session: Fix Calendar Rail Button Layout

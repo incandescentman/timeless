@@ -74,6 +74,25 @@
    - [ ] Test today-centering in both dev (Strict Mode) and production after touching scroll/measurement logic.
    - [ ] Prefer invariant checks (desired offset vs actual scroll) so remounts or measurement updates auto-correct.
 
+** Global Smooth Scroll Overrides Virtualizer
+  Date: 2025-10-08
+
+*** Symptom
+   Desktop launch appeared to start at January 2020 and then animated month-by-month toward today, taking several seconds. Even after the animation finished, reflows sometimes nudged the today cell to the top edge instead of keeping it centered.
+
+*** Root Cause
+   `src/styles/mobile.css` set `scroll-behavior: smooth` on `html, body`. That global rule coerced every `window.scrollTo({ behavior: 'auto' })` call into a slow animation, including the virtualizer’s initial snap. Virtualized height measurements then retriggered an auto scroll without preserving the centered alignment, so the viewport drifted after hydration.
+
+*** Fix
+   - Removed the global smooth-scroll declaration so only explicit smooth requests animate.
+   - Let `VirtualizedMonthList` honor caller-provided smooth behavior for Today/keyboard jumps while falling back to instant retries to stabilise height recalculations.
+   - Tracked the initial target (month index and date) and marked the snap as done once applied, preventing subsequent measurement passes from re-running the top-aligned scroll.
+
+*** Prevention Checklist
+   - [ ] Avoid global `scroll-behavior`, scroll snapping, or momentum overrides—scope them to specific containers so virtualization keeps control.
+   - [ ] When the launch viewport drifts, inspect both CSS overrides and scroll guards before tweaking effect timing.
+   - [ ] Preserve caller intent: user-triggered smooth scrolls stay smooth, but initial programmatic snaps must remain `auto` to avoid replaying months.
+
 * Mobile Today Button Not Centering
   Date: 2025-10-07
 

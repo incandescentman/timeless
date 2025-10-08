@@ -18,6 +18,8 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
   const containerRef = useRef(null);
   const measuredHeightsRef = useRef(new Map());
   const activeScrollAttemptRef = useRef(null);
+  const initialSnapDoneRef = useRef(false);
+  const initialTargetRef = useRef({ monthIndex: null, dateKey: null });
   const [measurementVersion, setMeasurementVersion] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
@@ -185,12 +187,17 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
       previousAttempt.skipComplete = true;
     }
 
+    const normalizedBehavior = behavior === 'smooth' ? 'smooth' : 'auto';
+    const retryBehavior = normalizedBehavior === 'smooth' ? 'auto' : normalizedBehavior;
+
     const attempt = {
       cancelled: false,
       finished: false,
       skipComplete: false,
       targetIndex,
-      align
+      align,
+      behavior: normalizedBehavior,
+      retryBehavior
     };
     activeScrollAttemptRef.current = attempt;
 
@@ -207,7 +214,7 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
         return false;
       }
 
-      const didScroll = scrollToMonthIndex(targetIndex, { behavior: 'auto', align });
+      const didScroll = scrollToMonthIndex(targetIndex, { behavior: normalizedBehavior, align });
       if (!didScroll) {
         finish(false);
         return false;
@@ -235,7 +242,7 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
           return;
         }
 
-        scrollToMonthIndex(targetIndex, { behavior: 'auto', align });
+        scrollToMonthIndex(targetIndex, { behavior: retryBehavior, align });
         window.requestAnimationFrame(tryFocus);
       };
 
@@ -268,12 +275,19 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     };
   }, []);
 
+  const initialDateKey = useMemo(() => (
+    initialDate instanceof Date && !Number.isNaN(initialDate.getTime())
+      ? initialDate.getTime()
+      : null
+  ), [initialDate]);
+
   useEffect(() => {
     const attempt = activeScrollAttemptRef.current;
     if (!attempt || attempt.finished || attempt.cancelled) {
       return;
     }
-    scrollToMonthIndex(attempt.targetIndex, { behavior: 'auto', align: attempt.align });
+    const behavior = attempt.retryBehavior ?? attempt.behavior ?? 'auto';
+    scrollToMonthIndex(attempt.targetIndex, { behavior, align: attempt.align });
   }, [measurementVersion, scrollToMonthIndex]);
 
   useLayoutEffect(() => {
@@ -281,6 +295,19 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     if (months.length === 0) return;
 
     updateContainerOffset();
+
+    const previousTarget = initialTargetRef.current;
+    if (
+      previousTarget.monthIndex !== initialMonthIndex ||
+      previousTarget.dateKey !== initialDateKey
+    ) {
+      initialSnapDoneRef.current = false;
+      initialTargetRef.current = { monthIndex: initialMonthIndex, dateKey: initialDateKey };
+    }
+
+    if (initialSnapDoneRef.current) {
+      return;
+    }
 
     let targetIndex = initialMonthIndex;
 
@@ -306,7 +333,8 @@ const VirtualizedMonthList = forwardRef(function VirtualizedMonthList(
     }
 
     setScrollTop(desiredTop);
-  }, [initialDate, initialMonthIndex, months, cumulativeHeights, updateContainerOffset]);
+    initialSnapDoneRef.current = true;
+  }, [initialDateKey, initialMonthIndex, months, cumulativeHeights, updateContainerOffset]);
 
   return (
     <div ref={containerRef} style={{ position: 'relative', height: totalHeight }}>
