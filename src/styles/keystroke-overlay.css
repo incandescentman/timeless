@@ -30,17 +30,15 @@
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.72);
-  text-shadow:
-    0 2px 12px rgba(15, 23, 42, 0.18),
-    0 0 22px rgba(15, 23, 42, 0.12);
+  color: #D43E44;
+  text-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 body.dark-mode .keystroke-overlay__label {
-  color: rgba(226, 232, 240, 0.92);
-  text-shadow:
-    0 2px 18px rgba(15, 23, 42, 0.6),
-    0 0 24px rgba(56, 189, 248, 0.18);
+  color: #D43E44;
 }
 
 @media (max-width: 768px) {
