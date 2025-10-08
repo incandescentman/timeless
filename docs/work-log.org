@@ -44,6 +44,53 @@ Next Step:
 
 * 2025-10-07 Monday
 
+** Session: Fix Week Duplication Across Month Boundaries
+Time: Evening
+Task: Fix weeks appearing twice when spanning month boundaries
+Status: **COMPLETED**
+
+Problem:
+Desktop calendar view showed duplicate weeks at month boundaries. For example, the week of Oct 27 - Nov 2 appeared both at the end of October and at the beginning of November.
+
+Investigation Approach:
+1. Read Calendar.jsx to understand how months are rendered
+2. Traced back to generateMonthsMeta in src/utils/months.js
+3. Found it calls getMonthWeeks from src/utils/dateUtils.js
+4. Analyzed the getMonthWeeks logic
+
+Root Cause:
+The `getMonthWeeks()` function used `while (currentWeek <= lastDay)` which included any week whose Monday fell on or before the month's last day. When a week spanned two months:
+- The week starting Oct 27 was included in October (because Oct 27 <= Oct 31)
+- The same week was also included in November (because the function found that Nov 1 falls in a week starting Oct 27, which is <= Nov 30)
+
+The boundary condition was wrong—it should only include weeks where the Monday (week start) falls within the month itself.
+
+Solution:
+Changed the logic to:
+1. Find the first Monday in or after the month's first day
+2. If that Monday is in the previous month, skip to the next Monday
+3. Include weeks only while their Monday is before the next month starts
+
+This ensures each week appears exactly once, in the month where its Monday falls.
+
+Files Changed:
+- src/utils/dateUtils.js (lines 163-184)
+  - Changed boundary check from `currentWeek <= lastDay` to `currentWeek < nextMonthStart`
+  - Added guard to skip weeks whose Monday is in the previous month
+  - Simplified date comparisons for clarity
+
+Documentation:
+- docs/codebase-wisdom.org - Added "Week Duplication Across Month Boundaries" entry with diagnostic pattern
+
+Tests:
+- Manual inspection of calendar UI showing October/November boundary
+
+Key Learning:
+When generating week ranges for calendar months, ownership must be exclusive. Each week belongs to exactly one month (the month containing its Monday), not to every month it intersects.
+
+Energy Level: Focused, straightforward fix
+Next Step: Monitor other month boundaries to ensure fix is comprehensive
+
 ** Session: Fix Calendar Rail Button Layout
 Time: Late night
 Task: Fix desktop quick action buttons from 5+3 layout to 4+4 layout

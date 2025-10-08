@@ -161,14 +161,21 @@ export function getDatesInMonth(year, month) {
  * Get weeks for a month view
  */
 export function getMonthWeeks(year, month) {
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
+  const firstDayOfMonth = new Date(year, month, 1);
+  const nextMonthStart = new Date(year, month + 1, 1);
 
-  const firstWeek = getWeekStart(firstDay);
+  // Find first Monday in or after the first day of the month
+  let currentWeek = getWeekStart(firstDayOfMonth);
+
+  // If the week start is in the previous month, skip to next week
+  // This ensures each week appears only once (in the month where its Monday falls)
+  if (currentWeek < firstDayOfMonth) {
+    currentWeek = addDays(currentWeek, 7);
+  }
+
   const weeks = [];
 
-  let currentWeek = new Date(firstWeek);
-  while (currentWeek <= lastDay) {
+  while (currentWeek < nextMonthStart) {
     weeks.push(getWeekDays(currentWeek));
     currentWeek = addDays(currentWeek, 7);
   }

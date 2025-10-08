@@ -802,6 +802,59 @@ Frequency: Low - Usually only happens with date manipulation
    - Portal rendering avoids nested re-renders
    - Event listeners properly cleaned up in useEffect returns
 
+* Week Duplication Across Month Boundaries
+  Date: 2025-10-07
+
+** The Bug
+   On desktop view, when a week spanned two months (e.g., Oct 27 - Nov 2), the entire week appeared twice: once at the end of October and again at the beginning of November.
+
+** The Truth
+   `getMonthWeeks()` in `src/utils/dateUtils.js` was including any week that intersected with the month, regardless of where the week's Monday fell. When a week spanned two months:
+   - October saw the week starting Oct 27 and included it (because Oct 31 is in that week)
+   - November saw that same week and included it too (because Nov 1-2 are in that week)
+
+   The function used `while (currentWeek <= lastDay)` which checked if the week *start* was before or on the month's last day. This caused weeks starting in the previous month but ending in the current month to be duplicated.
+
+** The Fix
+   Changed the logic so each week appears only in the month where its Monday (week start) falls:
+   #+begin_src javascript
+   export function getMonthWeeks(year, month) {
+     const firstDayOfMonth = new Date(year, month, 1);
+     const nextMonthStart = new Date(year, month + 1, 1);
+
+     let currentWeek = getWeekStart(firstDayOfMonth);
+
+     // Skip to next week if this Monday is in the previous month
+     if (currentWeek < firstDayOfMonth) {
+       currentWeek = addDays(currentWeek, 7);
+     }
+
+     const weeks = [];
+     while (currentWeek < nextMonthStart) {
+       weeks.push(getWeekDays(currentWeek));
+       currentWeek = addDays(currentWeek, 7);
+     }
+
+     return weeks;
+   }
+   #+end_src
+
+** Prevention Checklist
+   - [ ] When generating week ranges for months, ensure each week is owned by exactly one month
+   - [ ] Use `< nextMonthStart` instead of `<= lastDay` to prevent boundary overlap
+   - [ ] Always compare week start dates against month boundaries, not week end dates
+   - [ ] Test month transitions where weeks span boundaries (months ending on weekdays)
+
+** Diagnostic Pattern
+   #+begin_src javascript
+   // Quick test to verify no duplication
+   const oct = getMonthWeeks(2025, 9);  // October
+   const nov = getMonthWeeks(2025, 10); // November
+   const octWeeks = oct.map(w => w[0].toISOString().split('T')[0]);
+   const novWeeks = nov.map(w => w[0].toISOString().split('T')[0]);
+   console.log('Duplicate weeks:', octWeeks.filter(w => novWeeks.includes(w)));
+   #+end_src
+
 * Vim Navigation Keys Hijacking Browser Shortcuts
   Date: 2025-10-04
 
