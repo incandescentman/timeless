@@ -29,10 +29,12 @@ Solution:
 - Updated `VirtualizedMonthList` to respect caller-provided smooth behavior, while retry attempts fall back to instant scrolls for stability.
 - Added a guard that tracks the initial target (month index + date) so post-measurement updates don't re-snap the viewport.
 - Tightened the mobile layout by zeroing week-to-week gaps so Sunday and Monday flow seamlessly in the stacked view.
+- Hardened keyboard shortcuts to ignore system modifiers so OS commands (e.g., Command+C) pass through.
 
 Files Changed:
 - src/styles/mobile.css — removed root-level `scroll-behavior: smooth` and zeroed mobile week-row gaps so Sunday/Monday align.
 - src/components/VirtualizedMonthList.jsx — preserved smooth behavior for user actions, tracked initial snap target, and prevented post-measurement recentering.
+- src/hooks/useKeyboardShortcuts.js — gated single-key shortcuts behind modifier checks so native combos keep working.
 
 Tests:
 - npm run build

@@ -36,6 +36,8 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         return;
       }
 
+      const hasSystemModifier = e.metaKey || e.ctrlKey || e.altKey;
+
       // Command palette: Cmd/Ctrl+K or /
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -45,14 +47,14 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
 
       // Help: ? key (Shift+/ varies by keyboard layout)
-      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      if (!hasSystemModifier && (e.key === '?' || (e.shiftKey && e.key === '/'))) {
         e.preventDefault();
         announceCommand({ label: 'Showing keyboard shortcuts' });
         onShowHelp();
         return;
       }
 
-      if (e.key === '/' && !e.shiftKey) {
+      if (!hasSystemModifier && e.key === '/' && !e.shiftKey) {
         e.preventDefault();
         announceCommand({ label: 'Opening command palette' });
         onShowCommandPalette();
@@ -60,7 +62,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
 
       // Year view: y key
-      if (e.key === 'y') {
+      if (!hasSystemModifier && e.key === 'y') {
         e.preventDefault();
         announceCommand({ label: 'Opening year view' });
         onShowYearView();
@@ -76,7 +78,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
 
       // Jump to today: t key (lowercase only)
-      if (e.key === 't') {
+      if (!hasSystemModifier && e.key === 't') {
         e.preventDefault();
         announceCommand({ label: 'Centering on today' });
         const todayCell = document.querySelector('.day-cell.today');
@@ -87,7 +89,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
 
       // Quick add note to today: c or T key
-      if (e.key === 'c' || e.key === 'T') {
+      if (!hasSystemModifier && (e.key === 'c' || e.key === 'T')) {
         e.preventDefault();
         announceCommand({ label: 'Opening today composer' });
         const todayCell = document.querySelector('.day-cell.today');
@@ -101,7 +103,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
 
       // Multi-select mode: m key
-      if (e.key === 'm') {
+      if (!hasSystemModifier && e.key === 'm') {
         e.preventDefault();
         announceCommand({ label: isMultiSelectMode ? 'Exiting multi-select' : 'Entering multi-select' });
         toggleMultiSelectMode();
@@ -126,14 +128,14 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
 
       // Keyboard navigation mode: i key to enter
-      if (e.key === 'i' && !keyboardFocusDate) {
+      if (!hasSystemModifier && e.key === 'i' && !keyboardFocusDate) {
         e.preventDefault();
         setKeyboardFocusDate(systemToday);
         return;
       }
 
       // Exit keyboard navigation: q or Escape
-      if ((e.key === 'q' || e.key === 'Escape') && keyboardFocusDate) {
+      if (keyboardFocusDate && ((e.key === 'q' && !hasSystemModifier) || e.key === 'Escape')) {
         e.preventDefault();
         setKeyboardFocusDate(null);
         return;
@@ -143,16 +145,16 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       if (keyboardFocusDate) {
         let newDate = null;
 
-        if (e.key === 'ArrowLeft' || (e.key === 'h' && !e.metaKey && !e.ctrlKey)) {
+        if (!hasSystemModifier && (e.key === 'ArrowLeft' || e.key === 'h')) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, -1);
-        } else if (e.key === 'ArrowRight' || (e.key === 'l' && !e.metaKey && !e.ctrlKey)) {
+        } else if (!hasSystemModifier && (e.key === 'ArrowRight' || e.key === 'l')) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, 1);
-        } else if (e.key === 'ArrowUp' || (e.key === 'k' && !e.metaKey && !e.ctrlKey)) {
+        } else if (!hasSystemModifier && (e.key === 'ArrowUp' || e.key === 'k')) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, -7);
-        } else if (e.key === 'ArrowDown' || (e.key === 'j' && !e.metaKey && !e.ctrlKey)) {
+        } else if (!hasSystemModifier && (e.key === 'ArrowDown' || e.key === 'j')) {
           e.preventDefault();
           newDate = addDays(keyboardFocusDate, 7);
         }
@@ -172,7 +174,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         }
 
         // Enter key: add note to focused day
-        if (e.key === 'Enter') {
+        if (!hasSystemModifier && e.key === 'Enter') {
           e.preventDefault();
           const dateId = generateDayId(keyboardFocusDate);
           const cell = document.querySelector(`[data-date-id="${dateId}"]`);
@@ -188,7 +190,7 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         }
 
         // Backspace key: remove notes from focused day
-        if (e.key === 'Backspace') {
+        if (!hasSystemModifier && e.key === 'Backspace') {
           e.preventDefault();
           if (confirm('Delete all notes for this day?')) {
             const dateId = generateDayId(keyboardFocusDate);
@@ -199,26 +201,26 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
       }
 
       // Month navigation: Alt+Up/Down or [/] or p/n
-      if (e.key === '[' || e.key === 'p') {
+      if (!hasSystemModifier && (e.key === '[' || e.key === 'p')) {
         e.preventDefault();
         triggerMonthJump(-1, describeDirection(-1));
         return;
       }
 
-      if (e.key === ']' || e.key === 'n') {
+      if (!hasSystemModifier && (e.key === ']' || e.key === 'n')) {
         e.preventDefault();
         triggerMonthJump(1, describeDirection(1));
         return;
       }
 
       // Year navigation: P/N
-      if (e.key === 'P') {
+      if (!hasSystemModifier && e.key === 'P') {
         e.preventDefault();
         triggerMonthJump(-12, describeDirection(-12));
         return;
       }
 
-      if (e.key === 'N') {
+      if (!hasSystemModifier && e.key === 'N') {
         e.preventDefault();
         triggerMonthJump(12, describeDirection(12));
         return;
