@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
@@ -33,7 +33,10 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
       className="month-section"
       data-month-key={month.key}
     >
-      <header className="month-header" aria-label={`${monthNames[month.monthIndex]} ${month.year}`}>
+      <header
+        className="month-header month-header--primary"
+        aria-label={`${monthNames[month.monthIndex]} ${month.year}`}
+      >
         <div className="month-header__label">
           <span className="month-header__month">{monthNames[month.monthIndex]}</span>
           <span className="month-header__year">{month.year}</span>
@@ -49,12 +52,27 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
                 day.getFullYear() === month.year &&
                 day.getMonth() === month.monthIndex
               );
+              const isFirstOfMonth = isCurrentMonthDay && day.getDate() === 1;
+
               return (
-                <DayCell
-                  key={day.toISOString()}
-                  date={day}
-                  isCurrentMonth={isCurrentMonthDay}
-                />
+                <Fragment key={day.toISOString()}>
+                  {isFirstOfMonth && (
+                    <header
+                      className="month-header month-header--mobile-inline"
+                      aria-label={`${monthNames[month.monthIndex]} ${month.year}`}
+                    >
+                      <div className="month-header__label">
+                        <span className="month-header__month">{monthNames[month.monthIndex]}</span>
+                        <span className="month-header__year">{month.year}</span>
+                      </div>
+                      <div className="month-header__rule" aria-hidden="true" />
+                    </header>
+                  )}
+                  <DayCell
+                    date={day}
+                    isCurrentMonth={isCurrentMonthDay}
+                  />
+                </Fragment>
               );
             })}
           </div>

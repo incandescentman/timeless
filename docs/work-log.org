@@ -57,6 +57,7 @@ Solution:
 - Passed an `isCurrentMonth` flag from `Calendar.jsx` into `DayCell` so each day knows whether it belongs to the active month.
 - Added an `outside-month` class to soften typography and backgrounds for spillover days while keeping them interactive.
 - Updated day-cell styling for light/dark modes so overflow days are muted, not removed, preserving calendar integrity but eliminating the perception of duplication.
+- On mobile, render the month header inline just ahead of the first-of-month cell so scrolling keeps the label anchored to day one.
 
 Files Changed:
 - src/components/Calendar.jsx — annotated each day with a month-ownership flag when rendering weeks.

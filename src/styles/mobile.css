@@ -69,6 +69,16 @@ body {
     box-shadow: none;
   }
 
+  .month-header--primary {
+    display: none !important;
+  }
+
+  .month-header--mobile-inline {
+    display: flex !important;
+    width: 100%;
+    margin: clamp(0.6rem, 3vw, 0.9rem) 0 clamp(0.55rem, 2.6vw, 0.8rem);
+  }
+
   .month-header::before {
     display: none;
   }

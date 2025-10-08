@@ -178,6 +178,10 @@ body.dark-mode .calendar-day-labels .day-label:nth-child(7) {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
+.month-header--mobile-inline {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .month-header {
     padding: 0.65rem 0.875rem;
