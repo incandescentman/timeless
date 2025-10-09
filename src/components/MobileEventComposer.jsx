@@ -31,9 +31,19 @@ function MobileEventComposer({
     return null;
   }
 
+  const commitAndClose = () => {
+    const trimmed = value.trim();
+    if (trimmed) {
+      onSubmit();
+    } else {
+      onCancel();
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!value.trim()) {
+      onCancel();
       return;
     }
     onSubmit();
@@ -42,7 +52,7 @@ function MobileEventComposer({
   const handleKeyDown = (event) => {
     if (event.key === 'Escape') {
       event.preventDefault();
-      onCancel();
+      commitAndClose();
     }
   };
 
@@ -53,7 +63,7 @@ function MobileEventComposer({
       aria-modal="true"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
-          onCancel();
+          commitAndClose();
         }
       }}
     >
@@ -62,15 +72,9 @@ function MobileEventComposer({
         role="document"
         onClick={(event) => event.stopPropagation()}
       >
-        <header className="mobile-composer__header">
-          <div className="mobile-composer__date">{dateLabel}</div>
-          <button
-            type="button"
-            className="mobile-composer__close"
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
+        <header className="mobile-composer__meta">
+          <span className="mobile-composer__label">New Note</span>
+          <span className="mobile-composer__date">{dateLabel}</span>
         </header>
         <form className="mobile-composer__form" onSubmit={handleSubmit}>
           <input
@@ -83,24 +87,12 @@ function MobileEventComposer({
             placeholder="Add a note"
             autoComplete="off"
             aria-label={`Event details for ${dateLabel}`}
+            enterKeyHint="done"
+            autoCapitalize="sentences"
+            autoCorrect="on"
           />
-          <div className="mobile-composer__actions">
-            <button
-              type="button"
-              className="mobile-composer__action mobile-composer__action--secondary"
-              onClick={onCancel}
-            >
-              Dismiss
-            </button>
-            <button
-              type="submit"
-              className="mobile-composer__action mobile-composer__action--primary"
-              disabled={!value.trim()}
-            >
-              Add
-            </button>
-          </div>
         </form>
+        <p className="mobile-composer__hint">Tap outside to {value.trim() ? 'save' : 'close'}.</p>
       </div>
     </div>,
     document.body

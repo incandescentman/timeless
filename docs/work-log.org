@@ -10,6 +10,35 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-09 Thursday
+
+** Session: Simplify Mobile Composer
+Time: Afternoon
+Task: Align mobile note entry with canonical minimalist capture
+Status: **COMPLETED**
+
+Problem:
+- Mobile overlay presented redundant controls (`Cancel`, `Dismiss`, `Add`) that cluttered the minimalist flow and conflicted with the canonical tap-out behavior.
+
+Root Cause:
+- Legacy modal implementation relied on explicit action buttons instead of automatically committing on blur/outside interactions like the canonical/minimalist experience.
+
+Solution:
+- Refactored `MobileEventComposer` to auto-focus the single input and funnel close events through a `commitAndClose` helper that saves non-empty drafts and otherwise closes silently.
+- Removed footer button row; outside taps, Escape key, and backdrop clicks now either save or dismiss based on content.
+- Restyled the modal to float mid-screen with centered metadata + hint copy so it visually mirrors the canonical minimalist card while respecting Timeless color tokens.
+
+Files Changed:
+- src/components/MobileEventComposer.jsx — simplified control flow, added commit-on-blur behavior, and enriched input attributes for mobile keyboards.
+- src/styles/mobile-composer.css — updated sheet layout, typography, and dark mode colors to match the new single-field design.
+- docs/design-architecture.org — documented the auto-save overlay behavior so future edits preserve the minimalist pattern.
+
+Tests:
+- npm run build
+
+Next Step:
+- QA on physical iOS Safari to confirm outside-tap persistence and keyboard “Done” flow behave identically.
+
 * 2025-10-08 Tuesday
 
 ** Session: Restore Centered Initial Viewport

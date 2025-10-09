@@ -148,7 +148,7 @@ const isToday = (date: Date) => {
 - Below 768px viewports, tapping an empty day opens a centered overlay instead of the inline composer.
 - The overlay portals to `document.body`, locks background scrolling, and autofocuses the input once mounted.
 - Desktop still renders the inline composer inside `DayCell`; both flows call the same add/update handlers.
-- Mobile uses the existing ripple affordance on tap but routes save/cancel through overlay actions (submit, Escape, backdrop tap).
+- Mobile keeps the ripple affordance on tap but the overlay now auto-commits when non-empty input loses focus (outside tap/Escape) and simply closes if empty—no explicit buttons rendered.
 - Blank-day layout clamps to a shallower min-height/padding on mobile so empty rows compress while note-bearing cells retain breathing room.
 - Day headers collapse into a single row on mobile: weekday stays left-aligned, month + day are right-justified, and all abbreviations come from `dateUtils.daysOfWeek` / `dateUtils.shortMonths` so wording stays consistent across the app.
 
