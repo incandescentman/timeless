@@ -10,6 +10,7 @@ function MobileEventComposer({
   dateLabel
 }) {
   const inputRef = useRef(null);
+  const ignoreBlurRef = useRef(false);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -17,13 +18,22 @@ function MobileEventComposer({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    const timer = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
+    const focusTick = requestAnimationFrame(() => {
+      const input = inputRef.current;
+      if (!input) {
+        return;
+      }
+      input.focus({ preventScroll: true });
+      if (typeof input.setSelectionRange === 'function') {
+        const caret = input.value.length;
+        input.setSelectionRange(caret, caret);
+      }
+    });
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      clearTimeout(timer);
+      cancelAnimationFrame(focusTick);
+      ignoreBlurRef.current = false;
     };
   }, [open]);
 
@@ -38,15 +48,22 @@ function MobileEventComposer({
     } else {
       onCancel();
     }
+    ignoreBlurRef.current = false;
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!value.trim()) {
+    const trimmed = value.trim();
+
+    if (!trimmed) {
       onCancel();
       return;
     }
+    ignoreBlurRef.current = true;
     onSubmit();
+    requestAnimationFrame(() => {
+      ignoreBlurRef.current = false;
+    });
   };
 
   const handleKeyDown = (event) => {
@@ -54,6 +71,13 @@ function MobileEventComposer({
       event.preventDefault();
       commitAndClose();
     }
+  };
+
+  const handleBlur = () => {
+    if (ignoreBlurRef.current) {
+      return;
+    }
+    commitAndClose();
   };
 
   return createPortal(
@@ -84,6 +108,7 @@ function MobileEventComposer({
             value={value}
             onChange={(event) => onChange(event.target.value)}
             onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
             placeholder="Add a note"
             autoComplete="off"
             aria-label={`Event details for ${dateLabel}`}
@@ -92,7 +117,12 @@ function MobileEventComposer({
             autoCorrect="on"
           />
         </form>
-        <p className="mobile-composer__hint">Tap outside to {value.trim() ? 'save' : 'close'}.</p>
+        <div className="mobile-composer__hint" aria-live="polite">
+          <span className="mobile-composer__hint-icon" aria-hidden="true">✓</span>
+          <span className="mobile-composer__hint-text">
+            Tap outside to {value.trim() ? 'save' : 'close'}
+          </span>
+        </div>
       </div>
     </div>,
     document.body

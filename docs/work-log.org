@@ -24,9 +24,9 @@ Root Cause:
 - Legacy modal implementation relied on explicit action buttons instead of automatically committing on blur/outside interactions like the canonical/minimalist experience.
 
 Solution:
-- Refactored `MobileEventComposer` to auto-focus the single input and funnel close events through a `commitAndClose` helper that saves non-empty drafts and otherwise closes silently.
-- Removed footer button row; outside taps, Escape key, and backdrop clicks now either save or dismiss based on content.
-- Restyled the modal to float mid-screen with centered metadata + hint copy so it visually mirrors the canonical minimalist card while respecting Timeless color tokens.
+- Refactored `MobileEventComposer` to request focus on the first frame so Mobile Safari spawns the keyboard immediately, and funnel close events through a `commitAndClose` helper that saves non-empty drafts and otherwise closes silently.
+- Removed the footer button row; outside taps, Escape key, and blur now either save or dismiss based on content without double-submitting via the new `ignoreBlurRef` guard.
+- Restyled the modal to float mid-screen with centered metadata plus the Minimalist-style checkmark hint so it mirrors the canonical capture experience while staying within Timeless color tokens.
 
 Files Changed:
 - src/components/MobileEventComposer.jsx — simplified control flow, added commit-on-blur behavior, and enriched input attributes for mobile keyboards.
