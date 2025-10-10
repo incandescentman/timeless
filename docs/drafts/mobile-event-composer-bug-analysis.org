@@ -65,7 +65,7 @@
 
 * Implementation Snapshot - 2025-10-09
 - Focus now runs in a layout effect without `preventScroll`, with coarse-pointer retry + synthetic click assistance to satisfy iOS keyboard activation.
-- Overlay locking uses a fixed-body strategy (capture `scrollY`, set `body.position = fixed`, restore afterwards) instead of `overflow: hidden`, preserving caret alignment while keeping the background frozen.
-- Blur handling drops `ignoreBlurRef`; we track focus transitions and only auto-close after verifying focus has genuinely left the composer, preventing the second-attempt auto-cancel.
-- Rebuild: `npm run build` (passes).
+- Overlay absorbs touch-move events instead of locking the body, keeping the background from scrolling without disturbing fixed footers.
+- Blur handling drops `ignoreBlurRef`; we track focus transitions and only auto-close after verifying focus has genuinely left the composer (blur-to-body just hides the keyboard).
 - Viewport meta tag relaxed to match Minimalist guidance (no `maximum-scale`, `user-scalable=no`).
+- Rebuild: `npm run build` (passes).

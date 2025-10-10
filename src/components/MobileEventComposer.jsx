@@ -15,7 +15,6 @@ function MobileEventComposer({
   const focusRetryTimeoutRef = useRef(null);
   const focusWithinRef = useRef(false);
   const closingRef = useRef(false);
-  const lockedScrollRef = useRef({ top: 0, applied: false, styles: {} });
 
   const clearFocusRetry = () => {
     if (focusRetryTimeoutRef.current) {
@@ -44,12 +43,12 @@ function MobileEventComposer({
     }
 
     // If focus didn't stick, retry a couple of times on a short backoff.
-    if (typeof document !== 'undefined' && document.activeElement !== input) {
-      if (focusAttemptsRef.current < 3) {
-        focusAttemptsRef.current += 1;
-        focusRetryTimeoutRef.current = setTimeout(attemptFocus, 80);
+      if (typeof document !== 'undefined' && document.activeElement !== input) {
+        if (focusAttemptsRef.current < 3) {
+          focusAttemptsRef.current += 1;
+          focusRetryTimeoutRef.current = setTimeout(attemptFocus, 80);
+        }
       }
-    }
   };
 
   useLayoutEffect(() => {
@@ -67,40 +66,6 @@ function MobileEventComposer({
       focusAttemptsRef.current = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  useLayoutEffect(() => {
-    if (!open || typeof window === 'undefined') {
-      return undefined;
-    }
-
-    const body = document.body;
-    const scrollY = window.scrollY || window.pageYOffset || 0;
-    const previous = {
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
-      overflow: body.style.overflow
-    };
-
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.width = '100%';
-    body.style.overflow = 'hidden';
-
-    lockedScrollRef.current = { top: scrollY, applied: true, styles: previous };
-
-    return () => {
-      const { applied, styles, top } = lockedScrollRef.current;
-      lockedScrollRef.current = { top: 0, applied: false, styles: {} };
-      if (applied) {
-        body.style.position = styles.position;
-        body.style.top = styles.top;
-        body.style.width = styles.width;
-        body.style.overflow = styles.overflow;
-        window.scrollTo(0, top);
-      }
-    };
   }, [open]);
 
   useEffect(() => {
@@ -159,7 +124,13 @@ function MobileEventComposer({
       }
       const active = typeof document !== 'undefined' ? document.activeElement : null;
       const composerNode = overlayRef.current;
-      if (composerNode && active && composerNode.contains(active)) {
+      if (!composerNode) {
+        return;
+      }
+      if (!active || active === document.body) {
+        return;
+      }
+      if (composerNode.contains(active)) {
         return;
       }
       commitAndClose();
@@ -177,11 +148,21 @@ function MobileEventComposer({
           commitAndClose();
         }
       }}
+      onTouchMove={(event) => {
+        event.preventDefault();
+      }}
     >
       <div
         className="mobile-composer"
         role="document"
         onClick={(event) => event.stopPropagation()}
+        onPointerDown={() => {
+          focusAttemptsRef.current = 0;
+          clearFocusRetry();
+          requestAnimationFrame(() => {
+            attemptFocus();
+          });
+        }}
       >
         <header className="mobile-composer__meta">
           <span className="mobile-composer__label">New Note</span>
