@@ -1,0 +1,71 @@
+#+TITLE: Mobile Event Composer Deep Dive
+#+DATE: 2025-10-09
+#+DESCRIPTION: Analysis of mobile composer keyboard/focus regressions
+
+* Context
+- Reported from a physical phone: tapping a day opens the mobile composer, but the keyboard does not open automatically. After manually tapping the input the keyboard appears, text is accepted, yet the caret renders away from the field. A second attempt to add an event causes the composer to dismiss as soon as the input is touched.
+- Scope limited to investigation; no code changes made. All findings derived from ~src/components/MobileEventComposer.jsx~, ~src/components/DayCell.jsx~, and ~src/styles/mobile-composer.css~.
+- Target devices: iOS Safari (likely iOS 16/17) but applies to any mobile browser that enforces “user activation” rules for virtual keyboards.
+
+* Reproduction Notes
+1. Open Timeless on a phone-sized viewport (≤768 px).
+2. Tap any empty day cell → mobile composer overlay appears (expected).
+3. Keyboard stays hidden until the input is tapped manually.
+4. While typing, characters show inside the input, but the blinking insertion caret appears offset lower on the screen.
+5. Close the composer (it saves correctly), pick another day, tap to add → overlay opens, keyboard still hidden.
+6. Tap “Add a note” placeholder → overlay closes immediately without opening the keyboard. Only a hard refresh recovers the flow.
+
+* Code Paths Reviewed
+- Auto-focus and body scroll lock in ~MobileEventComposer.jsx:15-37~.
+- Blur/cancel logic in ~MobileEventComposer.jsx:44-81~ driving `commitAndClose`.
+- Composer invocation and mobile viewport detection in ~DayCell.jsx:147-188~.
+- Overlay/backdrop styling (fixed positioning, blur) in ~mobile-composer.css:1-23~.
+
+* Findings
+** F1: Auto-focus happens outside the user-activation window
+- The composer mounts, sets `document.body.style.overflow = 'hidden'`, then schedules `input.focus()` inside `requestAnimationFrame` (~MobileEventComposer.jsx:18-31~).
+- On iOS, programmatic focus calls only raise the keyboard when they run during the original tap’s event turn. Deferred calls (rAF, setTimeout, resolved promises) are treated as non-user initiated and the OS denies keyboard activation. This matches the “no keyboard until second tap” symptom.
+- Manual tap succeeds because direct interaction re-enters the activation state.
+
+** F2: Body scroll lock + backdrop blur distorts the caret
+- While the input is focused, the overlay keeps the body in `overflow: hidden` (~MobileEventComposer.jsx:18-35~) and the backdrop uses `backdrop-filter: blur(4px)` (~mobile-composer.css:8~).
+- Mobile Safari has an open bug where caret positioning is computed against the scrolled layout viewport even when the focusable lives in a fixed overlay with backdrop blur. The result is text rendering correctly but the caret painted several hundred pixels away (observed “cursor further down”).
+- Removing either the blur or the body scroll lock during testing is expected to align the caret; both together trigger the glitch consistently.
+
+** F3: Blur-based cancel fires during the second attempt
+- Any blur while the draft is empty calls `commitAndClose()` → `onCancel()` (~MobileEventComposer.jsx:76-80,44-51~).
+- After the first event is saved, reopening the composer hits the same auto-focus path (F1) that still fails to focus the field. When the user taps the input, Safari briefly focuses then immediately blurs the element while attempting to reconcile the locked scrolling context, which our handler treats as “tap outside” and cancels the composer before the keyboard can appear.
+- Because the second attempt begins with an empty draft, the blur path always cancels, explaining the “tap to focus closes the sheet” behaviour.
+
+* Proposed Fixes (no code yet)
+1. **Focus within the activation turn**
+   - Trigger focus synchronously from the original pointer handler. One option: expose a `requestMobileFocus` callback from the composer and call it inside `DayCell`’s `handleCellClick` before releasing the tap. Alternatively, swap `useEffect`/rAF for `useLayoutEffect` with a synchronous `focus()` guarded by `document.activeElement !== input`.
+   - Provide a retry on `pointerdown` inside the overlay so Safari replays `focus()` after user interaction if the first attempt fails.
+
+2. **iOS-friendly scroll locking**
+   - Replace `document.body.style.overflow = 'hidden'` with a scroll-lock approach that preserves the visual viewport (e.g., store `window.scrollY`, set `position: fixed` on the root element, restore on close). This avoids the viewport jump that produces the orphaned caret and the immediate blur.
+   - Gate `backdrop-filter` behind the same capability check and drop it (or move it to a pseudo-element) on iOS where it exacerbates the caret rendering bug.
+
+3. **Make blur cancellations intent-aware**
+   - Track pointer focus inside the composer (e.g., set a ref on `pointerdown` within the modal) so a failed focus attempt does not trigger `commitAndClose`.
+   - Only auto-cancel on blur when `value.trim()` is empty *and* the blur target sits outside the composer container; otherwise keep the sheet open for the user to retry.
+
+* Validation Plan
+- Instrument the composer with temporary console logs for `focus`/`blur` events to confirm the second-attempt sequence (expect `focus → blur` back-to-back on iOS).
+- Test concrete mitigations individually:
+  - Synchronous focus (no rAF) – keyboard should appear on first open.
+  - Disable body scroll lock / blur – caret should stay aligned.
+  - Adjusted blur guard – second tap should no longer cancel.
+- Cross-check on Android Chrome to ensure no regressions in other browsers.
+
+* Open Questions
+- Do we want to keep the “tap outside auto-saves” behaviour on mobile, or switch to an explicit primary button to reduce reliance on blur events?
+- Should we add a platform sniff (e.g., `navigator.userAgent.includes('iPhone')`) to disable backdrop blur until WebKit resolves the caret bug?
+- If we adopt a scroll-lock utility, can we reuse it for other overlays (help HUD, menus) to keep behaviour consistent?
+
+* Implementation Snapshot - 2025-10-09
+- Focus now runs in a layout effect without `preventScroll`, with coarse-pointer retry + synthetic click assistance to satisfy iOS keyboard activation.
+- Overlay locking uses a fixed-body strategy (capture `scrollY`, set `body.position = fixed`, restore afterwards) instead of `overflow: hidden`, preserving caret alignment while keeping the background frozen.
+- Blur handling drops `ignoreBlurRef`; we track focus transitions and only auto-close after verifying focus has genuinely left the composer, preventing the second-attempt auto-cancel.
+- Rebuild: `npm run build` (passes).
+- Viewport meta tag relaxed to match Minimalist guidance (no `maximum-scale`, `user-scalable=no`).

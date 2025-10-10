@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 
 function MobileEventComposer({
   open,
@@ -10,31 +10,104 @@ function MobileEventComposer({
   dateLabel
 }) {
   const inputRef = useRef(null);
-  const ignoreBlurRef = useRef(false);
+  const overlayRef = useRef(null);
+  const focusAttemptsRef = useRef(0);
+  const focusRetryTimeoutRef = useRef(null);
+  const focusWithinRef = useRef(false);
+  const closingRef = useRef(false);
+  const lockedScrollRef = useRef({ top: 0, applied: false, styles: {} });
 
-  useEffect(() => {
-    if (!open) return undefined;
+  const clearFocusRetry = () => {
+    if (focusRetryTimeoutRef.current) {
+      clearTimeout(focusRetryTimeoutRef.current);
+      focusRetryTimeoutRef.current = null;
+    }
+  };
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+  const attemptFocus = () => {
+    const input = inputRef.current;
+    if (!input) {
+      return;
+    }
 
-    const focusTick = requestAnimationFrame(() => {
-      const input = inputRef.current;
-      if (!input) {
-        return;
+    input.focus();
+    // Coarse pointers (touch devices) sometimes need an explicit click to raise the keyboard.
+    if (typeof window !== 'undefined') {
+      const coarsePointer = window.matchMedia?.('(pointer: coarse)')?.matches;
+      if (coarsePointer) {
+        input.click();
       }
-      input.focus({ preventScroll: true });
-      if (typeof input.setSelectionRange === 'function') {
-        const caret = input.value.length;
-        input.setSelectionRange(caret, caret);
+    }
+    if (typeof input.setSelectionRange === 'function') {
+      const caret = input.value.length;
+      input.setSelectionRange(caret, caret);
+    }
+
+    // If focus didn't stick, retry a couple of times on a short backoff.
+    if (typeof document !== 'undefined' && document.activeElement !== input) {
+      if (focusAttemptsRef.current < 3) {
+        focusAttemptsRef.current += 1;
+        focusRetryTimeoutRef.current = setTimeout(attemptFocus, 80);
       }
-    });
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (!open) {
+      clearFocusRetry();
+      focusAttemptsRef.current = 0;
+      return undefined;
+    }
+
+    focusAttemptsRef.current = 0;
+    attemptFocus();
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-      cancelAnimationFrame(focusTick);
-      ignoreBlurRef.current = false;
+      clearFocusRetry();
+      focusAttemptsRef.current = 0;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open || typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const body = document.body;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const previous = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow
+    };
+
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+
+    lockedScrollRef.current = { top: scrollY, applied: true, styles: previous };
+
+    return () => {
+      const { applied, styles, top } = lockedScrollRef.current;
+      lockedScrollRef.current = { top: 0, applied: false, styles: {} };
+      if (applied) {
+        body.style.position = styles.position;
+        body.style.top = styles.top;
+        body.style.width = styles.width;
+        body.style.overflow = styles.overflow;
+        window.scrollTo(0, top);
+      }
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      focusWithinRef.current = false;
+      closingRef.current = false;
+    }
   }, [open]);
 
   if (!open) {
@@ -42,13 +115,17 @@ function MobileEventComposer({
   }
 
   const commitAndClose = () => {
+    if (closingRef.current) {
+      return;
+    }
+    closingRef.current = true;
+    clearFocusRetry();
     const trimmed = value.trim();
     if (trimmed) {
       onSubmit();
     } else {
       onCancel();
     }
-    ignoreBlurRef.current = false;
   };
 
   const handleSubmit = (event) => {
@@ -59,11 +136,7 @@ function MobileEventComposer({
       onCancel();
       return;
     }
-    ignoreBlurRef.current = true;
     onSubmit();
-    requestAnimationFrame(() => {
-      ignoreBlurRef.current = false;
-    });
   };
 
   const handleKeyDown = (event) => {
@@ -73,11 +146,24 @@ function MobileEventComposer({
     }
   };
 
+  const handleFocus = () => {
+    focusWithinRef.current = true;
+  };
+
   const handleBlur = () => {
-    if (ignoreBlurRef.current) {
-      return;
-    }
-    commitAndClose();
+    focusWithinRef.current = false;
+    // Allow focus to move within the composer before deciding to close.
+    requestAnimationFrame(() => {
+      if (focusWithinRef.current) {
+        return;
+      }
+      const active = typeof document !== 'undefined' ? document.activeElement : null;
+      const composerNode = overlayRef.current;
+      if (composerNode && active && composerNode.contains(active)) {
+        return;
+      }
+      commitAndClose();
+    });
   };
 
   return createPortal(
@@ -85,6 +171,7 @@ function MobileEventComposer({
       className="mobile-composer-overlay"
       role="dialog"
       aria-modal="true"
+      ref={overlayRef}
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           commitAndClose();
@@ -108,6 +195,7 @@ function MobileEventComposer({
             value={value}
             onChange={(event) => onChange(event.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder="Add a note"
             autoComplete="off"

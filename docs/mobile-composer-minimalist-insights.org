@@ -1,0 +1,344 @@
+#+TITLE: Mobile Composer: Lessons from Canonical/Minimalist Implementation
+#+DATE: 2025-10-10
+#+AUTHOR: Claude
+#+DESCRIPTION: Key insights from comparing the working Canonical/Minimalist mobile composer with Timeless's broken implementation
+
+* Executive Summary
+
+The Canonical/Minimalist mobile composer works flawlessly while Timeless's has critical bugs. The difference? Minimalist follows the principle of *"Don't fight the browser"* while Timeless over-engineers with complex state management and viewport restrictions.
+
+*Key Insight:* The simpler implementation is not just cleaner—it's more reliable.
+
+* The Tale of Two Composers
+
+** Timeless (Broken)
+- Can't spawn keyboard on first tap
+- Cursor appears misaligned from input
+- Second event creation completely fails
+- Requires hard refresh to recover
+
+** Canonical/Minimalist (Working)
+- Keyboard appears immediately
+- Cursor positioned correctly
+- Unlimited sequential captures work
+- No refresh ever needed
+
+* Critical Implementation Differences
+
+** 1. Viewport Meta Tag - The Foundation
+
+*** Timeless (PROBLEMATIC)
+#+begin_src html
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+#+end_src
+
+Problems:
+- `maximum-scale=1` prevents zoom adjustments
+- `user-scalable=no` blocks natural keyboard viewport handling
+- Browser can't adjust view when keyboard appears
+- Causes cursor misalignment
+
+*** Canonical/Minimalist (CORRECT)
+#+begin_src html
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+#+end_src
+
+Benefits:
+- Allows browser's natural zoom behavior
+- Keyboard viewport adjustments work properly
+- No cursor position issues
+- Respects user accessibility preferences
+
+*** Fix for Timeless
+Replace the viewport meta tag immediately. This single change will solve the cursor misalignment issue.
+
+** 2. Focus Management - Simplicity Wins
+
+*** Timeless (OVER-ENGINEERED)
+#+begin_src javascript
+// Complex with race conditions
+const focusTick = requestAnimationFrame(() => {
+  const input = inputRef.current;
+  if (!input) {
+    return; // Silent failure
+  }
+  input.focus({ preventScroll: true }); // <- Problem!
+  if (typeof input.setSelectionRange === 'function') {
+    const caret = input.value.length;
+    input.setSelectionRange(caret, caret);
+  }
+});
+#+end_src
+
+Problems:
+- `preventScroll: true` blocks keyboard viewport adjustments
+- RAF may fire before portal renders
+- No retry mechanism
+- Silent failures
+
+*** Canonical/Minimalist (SIMPLE)
+#+begin_src javascript
+const openComposer = useCallback(() => {
+  setComposerVisible(true)
+  setDraft('')
+  setTimeout(() => {
+    inputRef.current?.focus()
+  }, 0)
+}, [])
+#+end_src
+
+Benefits:
+- No preventScroll - lets viewport adjust
+- Simple setTimeout works reliably
+- Clear and predictable
+
+*** UPDATE: Timeless Now Using Better Approach
+I notice Timeless has been updated with a retry mechanism:
+#+begin_src javascript
+const attemptFocus = () => {
+  const input = inputRef.current;
+  if (!input) return;
+
+  input.focus();
+  // Smart: detect touch devices and click to raise keyboard
+  if (window.matchMedia?.('(pointer: coarse)')?.matches) {
+    input.click();
+  }
+
+  // Retry if focus didn't stick
+  if (document.activeElement !== input && focusAttemptsRef.current < 3) {
+    focusAttemptsRef.current += 1;
+    setTimeout(attemptFocus, 80);
+  }
+};
+#+end_src
+
+This is good! But still uses a portal which adds complexity.
+
+** 3. The ignoreBlurRef Pattern - A Fatal Flaw
+
+*** Timeless (DANGEROUS)
+Original implementation had a fatal race condition:
+#+begin_src javascript
+// In handleSubmit
+ignoreBlurRef.current = true;
+onSubmit();
+requestAnimationFrame(() => {
+  ignoreBlurRef.current = false; // <- May never run!
+});
+
+// In handleBlur
+if (ignoreBlurRef.current) {
+  return; // Blur ignored forever if RAF fails
+}
+#+end_src
+
+The Problem Chain:
+1. First save sets `ignoreBlurRef = true`
+2. RAF callback fails or component unmounts
+3. `ignoreBlurRef` stays `true` forever
+4. Next time: tap input → blur fires → checks ref (still true) → ignores
+5. But tap also tries to focus → browser confused → closes modal
+
+*** Canonical/Minimalist (CONTROLLED)
+#+begin_src javascript
+// Only for Enter key, guaranteed reset
+if (origin === 'enter') {
+  ignoreBlurRef.current = true
+  setDraft('')
+  requestAnimationFrame(() => {
+    inputRef.current?.focus()
+    ignoreBlurRef.current = false // Always resets!
+  })
+}
+#+end_src
+
+Key differences:
+- Only used for Enter key submits
+- Immediately followed by reset
+- Not used for blur handling at all
+
+*** UPDATE: Timeless Now Using focusWithinRef
+The updated Timeless code uses a different pattern:
+#+begin_src javascript
+const handleBlur = () => {
+  focusWithinRef.current = false;
+  requestAnimationFrame(() => {
+    if (focusWithinRef.current) return;
+    const active = document.activeElement;
+    if (overlayRef.current?.contains(active)) return;
+    commitAndClose();
+  });
+};
+#+end_src
+
+This is better! It checks if focus moved within the composer before closing.
+
+** 4. Portal vs In-DOM Rendering
+
+*** Timeless (PORTAL)
+#+begin_src javascript
+return createPortal(
+  <div className="mobile-composer-overlay">...</div>,
+  document.body
+);
+#+end_src
+
+Problems:
+- Timing issues between React tree and DOM
+- Cleanup happens after unmount
+- Refs can become stale
+- Focus management more complex
+
+*** Canonical/Minimalist (IN-DOM)
+#+begin_src javascript
+{composerVisible && (
+  <Card ref={refs.setFloating} {...getFloatingProps()}>
+    <Input ... />
+  </Card>
+)}
+#+end_src
+
+Benefits:
+- Rendered in normal React flow
+- No portal timing issues
+- Refs always fresh
+- Natural cleanup
+
+** 5. External Libraries for Edge Cases
+
+*** Timeless (MANUAL)
+- Manual blur/click handling
+- Custom dismiss logic
+- Home-grown focus management
+
+*** Canonical/Minimalist (BATTLE-TESTED)
+- Uses `@floating-ui/react` for dismissal
+- Handles edge cases automatically
+- Well-tested patterns
+
+#+begin_src javascript
+const { refs, context } = useFloating({
+  open: composerVisible,
+  onOpenChange: (open) => {
+    if (!open && draft.trim()) {
+      submitDraft(draft, 'blur')
+    }
+  }
+})
+
+const dismiss = useDismiss(context, {
+  outsidePress: true,
+  escapeKey: true,
+})
+#+end_src
+
+** 6. Mobile Input Attributes
+
+*** Canonical/Minimalist (COMPLETE)
+#+begin_src html
+inputMode="text"
+autoCapitalize="sentences"
+enterKeyHint="done"
+#+end_src
+
+These hints help mobile browsers provide the right keyboard and behavior.
+
+* Lessons Learned
+
+** 1. Don't Fight the Browser
+- Remove viewport restrictions (`maximum-scale`, `user-scalable=no`)
+- Don't use `preventScroll: true` on focus
+- Let the browser handle keyboard viewport adjustments
+
+** 2. Simpler is More Reliable
+- Complex ref-based state management creates race conditions
+- Portal rendering adds unnecessary complexity
+- Simple setTimeout often beats requestAnimationFrame for focus
+
+** 3. Mobile Needs Special Attention
+- Touch devices may need `input.click()` after `focus()`
+- Use proper input attributes (`inputMode`, `enterKeyHint`)
+- Test on actual devices, not just responsive mode
+
+** 4. Use Battle-Tested Libraries
+- Floating UI handles dismiss edge cases
+- Don't reinvent focus trapping and dismissal
+- Libraries have solved problems you haven't discovered yet
+
+** 5. State Must Be Predictable
+- Refs that control behavior must always reset
+- Never leave refs in intermediate states
+- Consider state machines over complex ref juggling
+
+* Recommended Fixes for Timeless
+
+** Immediate (Critical)
+1. [ ] Change viewport meta tag - remove `maximum-scale` and `user-scalable`
+2. [ ] Remove `preventScroll: true` from any focus calls
+3. [ ] Ensure all behavior-controlling refs reset properly
+
+** Short-term (Important)
+1. [ ] Add `input.click()` after `focus()` for touch devices
+2. [ ] Add proper mobile input attributes
+3. [ ] Consider moving away from portal to in-DOM rendering
+
+** Long-term (Ideal)
+1. [ ] Replace manual dismiss logic with Floating UI
+2. [ ] Implement proper focus trap
+3. [ ] Add comprehensive mobile device testing
+
+* Code Comparison Table
+
+| Aspect | Timeless (Broken) | Minimalist (Working) | Impact |
+|--------+------------------+---------------------+---------|
+| Viewport | Restricted zoom | Natural zoom | Cursor alignment |
+| Focus | preventScroll + RAF | Simple setTimeout | Keyboard spawn |
+| Blur Handling | Complex ignoreBlurRef | Controlled reset | Second event failure |
+| Rendering | Portal | In-DOM | Timing issues |
+| Libraries | Manual | Floating UI | Edge case bugs |
+| Input Attrs | Missing | Complete | Mobile UX |
+
+* The Golden Rule
+
+#+begin_quote
+When building mobile input experiences, the secret is not to be clever—it's to be simple and let the browser do what it does best.
+#+end_quote
+
+The Canonical/Minimalist implementation succeeds because it:
+- Trusts the browser's default behaviors
+- Uses simple, predictable patterns
+- Leverages tested libraries
+- Keeps state management straightforward
+
+The Timeless implementation fails because it:
+- Restricts natural browser behavior
+- Over-engineers with complex refs
+- Has race conditions in critical paths
+- Fights the platform instead of working with it
+
+* Testing Checklist
+
+After implementing fixes, verify:
+
+- [ ] First tap on day cell opens composer WITH keyboard visible
+- [ ] Cursor appears at correct position in input
+- [ ] Can save first event successfully
+- [ ] Can immediately create second event without refresh
+- [ ] Can create 10+ events in sequence
+- [ ] Empty input + tap outside = close (no save)
+- [ ] Text input + tap outside = save and close
+- [ ] Works on iOS Safari (real device)
+- [ ] Works on Android Chrome (real device)
+- [ ] Works in landscape orientation
+- [ ] Works with external keyboard
+
+* Conclusion
+
+The comparison between Timeless and Canonical/Minimalist mobile composers is a masterclass in why **simplicity beats complexity** in mobile web development. The working implementation has fewer lines of code, fewer edge cases, and fewer bugs—not in spite of being simple, but *because* it's simple.
+
+The path forward for Timeless is clear: remove the clever complexity, trust the browser, and implement the proven patterns from Minimalist. The bugs aren't in the details—they're in the fundamental approach.
+
+---
+*Analysis completed: 2025-10-10*
+*Based on side-by-side comparison of working (Minimalist) vs broken (Timeless) implementations*

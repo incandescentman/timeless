@@ -1,0 +1,279 @@
+#+TITLE: Mobile Bugs Analysis - Timeless Calendar
+#+DATE: 2025-10-10
+#+AUTHOR: Claude
+#+DESCRIPTION: Analysis of mobile-specific bugs, issues, and improvement opportunities
+
+* Executive Summary
+
+This document analyzes the mobile implementation of Timeless Calendar, focusing on the mobile composer for adding calendar entries and overall mobile experience. The analysis is based on code review of the following key components:
+- ~MobileEventComposer.jsx~ - Modal overlay for adding notes on mobile
+- ~DayCell.jsx~ - Day cell interactions and event management
+- ~MobileHeader.jsx~ / ~MobileFooter.jsx~ - Mobile-specific navigation
+- Mobile viewport detection (≤768px width)
+
+* Current Mobile Implementation
+
+** Mobile Composer (MobileEventComposer)
+- **Location**: ~src/components/MobileEventComposer.jsx~
+- **Trigger**: Tap on empty space in day cell
+- **Features**:
+  - Portal-based modal overlay with backdrop blur
+  - Auto-focus with cursor positioning at end
+  - Body scroll lock when open
+  - Tap outside to save/close
+  - Mobile-optimized input attributes
+
+** Mobile Detection
+- **Viewport Threshold**: 768px width
+- **Detection Method**: ~window.innerWidth <= 768~ in DayCell component
+- **State Management**: Local ~isMobileViewport~ state with resize listener
+
+** Mobile-Specific Components
+- ~MobileHeader~ - Mobile navigation header
+- ~MobileFooter~ - Mobile navigation footer with Prev/Next buttons
+- ~BottomSheet~ - Bottom sheet component (if used)
+- Mobile-specific CSS in ~mobile-composer.css~
+
+* Identified Issues & Potential Bugs
+
+** 1. Race Conditions
+*** Issue: Focus Management Race Condition
+- **Location**: ~src/components/MobileEventComposer.jsx:21-31~
+- **Problem**: Uses ~requestAnimationFrame~ for focus, which may race with React renders
+- **Impact**: Input may not focus reliably on all devices
+- **Severity**: Medium
+#+begin_src javascript
+// Current implementation
+const focusTick = requestAnimationFrame(() => {
+  const input = inputRef.current;
+  if (!input) {
+    return; // Silent failure
+  }
+  input.focus({ preventScroll: true });
+  // ...
+});
+#+end_src
+
+*** Issue: Blur Event Handling Race
+- **Location**: ~src/components/MobileEventComposer.jsx:76-81~
+- **Problem**: Uses ~ignoreBlurRef~ to manage blur events, prone to timing issues
+- **Impact**: May save/cancel unexpectedly
+- **Severity**: Medium
+
+** 2. Viewport Detection Issues
+*** Issue: Initial Viewport Detection
+- **Location**: ~src/components/DayCell.jsx:101-102~
+- **Problem**: Only checks viewport on mount, may miss SSR/hydration mismatches
+- **Impact**: Wrong UI rendered initially
+- **Severity**: Low
+#+begin_src javascript
+const [isMobileViewport, setIsMobileViewport] = useState(() => (
+  typeof window !== 'undefined' && window.innerWidth <= 768
+));
+#+end_src
+
+*** Issue: Resize Listener Memory Leak
+- **Location**: ~src/components/DayCell.jsx~ (resize listener)
+- **Problem**: Need to verify cleanup on unmount
+- **Impact**: Potential memory leak
+- **Severity**: Low
+
+** 3. Accessibility Issues
+*** Issue: Focus Trap Missing
+- **Location**: ~src/components/MobileEventComposer.jsx~
+- **Problem**: Modal doesn't trap focus, keyboard navigation can escape
+- **Impact**: Poor keyboard/screen reader experience
+- **Severity**: High
+- **Fix**: Implement focus trap when modal opens
+
+*** Issue: Escape Key Behavior
+- **Location**: ~src/components/MobileEventComposer.jsx:70-73~
+- **Problem**: Escape key commits instead of canceling (counterintuitive)
+- **Impact**: Unexpected data submission
+- **Severity**: Medium
+#+begin_src javascript
+if (event.key === 'Escape') {
+  event.preventDefault();
+  commitAndClose(); // Should probably just cancel?
+}
+#+end_src
+
+** 4. Input Handling Issues
+*** Issue: Virtual Keyboard Management
+- **Problem**: No handling for virtual keyboard resize events
+- **Impact**: Input may be hidden behind keyboard
+- **Severity**: High
+- **Fix**: Use visualViewport API or adjust positioning
+
+*** Issue: Auto-capitalize/Auto-correct Attributes
+- **Location**: ~src/components/MobileEventComposer.jsx:116-117~
+- **Current**: Hard-coded to "sentences" and "on"
+- **Problem**: May not match user preferences for calendar entries
+- **Severity**: Low
+
+** 5. State Management Issues
+*** Issue: Double Submit Prevention
+- **Location**: ~src/components/MobileEventComposer.jsx:54-67~
+- **Problem**: Complex ignore flag logic, may allow double submits
+- **Impact**: Duplicate entries possible
+- **Severity**: Medium
+
+*** Issue: Empty Trim Check Inconsistency
+- **Location**: Multiple locations check ~value.trim()~
+- **Problem**: Inconsistent handling between submit and blur
+- **Impact**: Confusing UX
+- **Severity**: Low
+
+** 6. Performance Issues
+*** Issue: Portal Re-renders
+- **Location**: ~src/components/MobileEventComposer.jsx:83~
+- **Problem**: Creates portal on every render when open
+- **Impact**: Performance overhead
+- **Severity**: Low
+- **Fix**: Memoize portal content
+
+*** Issue: Ripple Effect on Every Click
+- **Location**: ~src/components/DayCell.jsx:166-168~
+- **Problem**: Creates ripple animation on every mobile tap
+- **Impact**: Performance on low-end devices
+- **Severity**: Low
+
+* Improvement Opportunities
+
+** 1. Enhanced Mobile Gestures
+- [ ] Swipe to navigate between months (in addition to footer buttons)
+- [ ] Long-press to multi-select days
+- [ ] Pinch to zoom between month/year view
+- [ ] Pull-to-refresh for server sync
+
+** 2. Better Input Experience
+- [ ] Adjustable composer position based on keyboard height
+- [ ] Quick action buttons (e.g., common tags, times)
+- [ ] Voice input integration
+- [ ] Paste detection for quick entry
+
+** 3. Improved Visual Feedback
+- [ ] Loading states for async operations
+- [ ] Success animations on save
+- [ ] Haptic feedback on interactions (where supported)
+- [ ] Better error state handling
+
+** 4. Responsive Design Refinements
+- [ ] Tablet-specific layout (768px-1024px)
+- [ ] Landscape mode optimizations
+- [ ] Dynamic font sizing based on viewport
+- [ ] Better handling of safe areas (notch, home indicator)
+
+** 5. Performance Optimizations
+- [ ] Virtual scrolling for year view
+- [ ] Lazy loading of off-screen months
+- [ ] Service worker for offline support
+- [ ] Optimistic updates for better perceived performance
+
+* Testing Recommendations
+
+** Manual Testing Checklist
+- [ ] Test on various mobile devices (iOS Safari, Chrome Android)
+- [ ] Test with different keyboard types
+- [ ] Test in landscape orientation
+- [ ] Test with accessibility features enabled
+- [ ] Test with slow network connections
+- [ ] Test rapid tap/input scenarios
+- [ ] Test browser back/forward navigation
+- [ ] Test with browser zoom enabled
+
+** Automated Testing Needs
+- [ ] Mobile viewport detection tests
+- [ ] Touch event simulation tests
+- [ ] Focus management tests
+- [ ] Portal rendering tests
+- [ ] Resize observer tests
+
+** Device-Specific Testing
+- [ ] iOS Safari - Focus behavior, keyboard events
+- [ ] Android Chrome - Back button handling
+- [ ] iPad - Hover state handling
+- [ ] Small phones (<375px width)
+- [ ] Foldable devices
+
+* Recommended Fixes Priority
+
+** High Priority (Blocking Issues)
+1. Virtual keyboard overlapping input
+2. Focus trap for accessibility
+3. Double-submit prevention
+
+** Medium Priority (UX Issues)
+1. Focus race condition fix
+2. Escape key behavior correction
+3. Blur handling improvements
+4. Resize listener cleanup
+
+** Low Priority (Enhancements)
+1. Gesture support
+2. Animation improvements
+3. Tablet optimization
+4. Performance optimizations
+
+* Code Quality Observations
+
+** Positive Aspects
+- Clean component separation
+- Good use of React Portals
+- Responsive design consideration
+- Dark mode support
+- Semantic HTML with ARIA labels
+
+** Areas for Improvement
+- Complex ref-based state management
+- Missing TypeScript types (JSX instead of TSX)
+- Limited error boundaries
+- No loading/error states
+- Limited test coverage (based on file structure)
+
+* Implementation Notes
+
+** Key Files to Review
+- ~src/components/MobileEventComposer.jsx~ - Main composer component
+- ~src/components/DayCell.jsx:164-188~ - Click handling and composer trigger
+- ~src/styles/mobile-composer.css~ - Styling and animations
+- ~src/hooks/useRipple.js~ - Ripple effect implementation
+
+** State Flow
+1. User taps day cell (~handleCellClick~)
+2. ~openComposer()~ sets ~isAddingNew~ to true
+3. ~MobileEventComposer~ renders via conditional
+4. Input focus via ~requestAnimationFrame~
+5. Save via ~handleAddEvent~ → ~addNote()~
+6. Close and reset state
+
+** CSS Architecture
+- Mobile-first breakpoints
+- CSS variables for theming
+- Separate mobile composer styles
+- Dark mode via body class
+
+* Conclusions
+
+The mobile implementation of Timeless Calendar is functional but has several areas that need attention:
+
+1. **Critical Issues**: Virtual keyboard management and accessibility need immediate attention
+2. **Stability**: Race conditions in focus/blur handling should be addressed
+3. **Performance**: Generally good but could benefit from optimizations
+4. **UX**: Core experience is solid but lacks modern mobile gestures
+5. **Code Quality**: Clean architecture but needs TypeScript migration and better error handling
+
+The mobile composer is well-designed visually but needs technical refinements for production reliability.
+
+* Next Steps
+
+1. Create test suite for mobile-specific features
+2. Fix high-priority bugs (keyboard, focus trap)
+3. Add error boundaries and loading states
+4. Consider TypeScript migration for type safety
+5. Implement gesture support for better mobile UX
+6. Add analytics to track mobile-specific issues
+
+---
+*Generated by Claude on 2025-10-10*
+*Based on code review of Timeless Calendar mobile implementation*

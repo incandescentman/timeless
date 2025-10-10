@@ -1,0 +1,451 @@
+#+TITLE: Mobile Event Composer Critical Problems - Deep Dive Analysis
+#+DATE: 2025-10-10
+#+AUTHOR: Claude
+#+DESCRIPTION: Root cause analysis and solutions for mobile composer focus and state management issues
+
+* Executive Summary
+
+The mobile event composer has critical focus management and state persistence issues that make it unusable after the first event creation. The problems stem from:
+1. Race conditions in focus management
+2. Improper blur event handling with `ignoreBlurRef`
+3. State not properly resetting after event submission
+4. Viewport and keyboard interaction issues on mobile Safari/Chrome
+
+* Problem Breakdown
+
+** Problem 1: Keyboard Doesn't Appear on First Tap
+*** Symptoms
+- Composer modal opens when tapping a day cell 
+- Keyboard doesn't appear automatically L
+- User must tap input field again to get keyboard L
+
+*** Root Cause Analysis
+The focus logic in `MobileEventComposer.jsx:21-31` uses `requestAnimationFrame` with `preventScroll: true`:
+
+#+begin_src javascript
+const focusTick = requestAnimationFrame(() => {
+  const input = inputRef.current;
+  if (!input) {
+    return;
+  }
+  input.focus({ preventScroll: true }); // <-- PROBLEM
+  if (typeof input.setSelectionRange === 'function') {
+    const caret = input.value.length;
+    input.setSelectionRange(caret, caret);
+  }
+});
+#+end_src
+
+**Issues identified:**
+1. `preventScroll: true` prevents the viewport from adjusting for the keyboard
+2. `requestAnimationFrame` may fire before the portal is fully rendered
+3. Mobile browsers often require user interaction to trigger keyboard
+4. The input may be focused but not "activated" for keyboard display
+
+** Problem 2: Cursor Position Misalignment
+*** Symptoms
+- Text appears in the input field 
+- Cursor appears displaced below the actual input L
+- Visual disconnect between typing and cursor position L
+
+*** Root Cause Analysis
+Multiple factors contribute:
+
+1. **Viewport Meta Tag** (`index.html:5`):
+   #+begin_src html
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+   #+end_src
+   - `maximum-scale=1` and `user-scalable=no` prevent zoom
+   - Mobile browsers may create invisible zoom for input focus
+   - This causes visual/actual position mismatch
+
+2. **Fixed Positioning + Transform** (`mobile-composer.css`):
+   - Portal uses `position: fixed`
+   - Parent components may have transforms that affect fixed positioning
+   - CSS transforms create new stacking contexts
+
+3. **Body Overflow Hidden** (`MobileEventComposer.jsx:19`):
+   #+begin_src javascript
+   document.body.style.overflow = 'hidden';
+   #+end_src
+   - Prevents scrolling while composer is open
+   - Can interfere with keyboard viewport adjustments
+
+** Problem 3: Second Event Creation Fails
+*** Symptoms
+- First event saves correctly 
+- Tapping another day opens composer 
+- Keyboard doesn't appear L
+- Tapping input CLOSES composer instead of focusing L
+- Only fix is hard refresh L
+
+*** Root Cause Analysis
+This is the most critical issue, caused by state persistence and blur handling:
+
+1. **ignoreBlurRef Persistence** (`MobileEventComposer.jsx:13,36,51,62-66,77-79`):
+   #+begin_src javascript
+   // In handleSubmit
+   ignoreBlurRef.current = true;
+   onSubmit();
+   requestAnimationFrame(() => {
+     ignoreBlurRef.current = false; // <-- RACE CONDITION
+   });
+   #+end_src
+
+   **The Problem:**
+   - After first save, `ignoreBlurRef` may remain `true`
+   - The `requestAnimationFrame` callback may not fire properly
+   - When opening composer again, blur events are still ignored
+   - Tapping the input triggers blur ’ handleBlur checks ignoreBlurRef (true) ’ does nothing
+   - But the tap also tries to focus ’ browser sees blur/focus conflict ’ closes composer
+
+2. **Component Lifecycle Issue**:
+   - MobileEventComposer unmounts when `open=false`
+   - But refs don't reset properly between mounts
+   - The cleanup in useEffect (line 36) sets `ignoreBlurRef.current = false`
+   - But this happens AFTER unmount, when ref may be stale
+
+3. **State Reset in DayCell** (`DayCell.jsx:147-150,245`):
+   #+begin_src javascript
+   const cancelNewEvent = () => {
+     setIsAddingNew(false);
+     setNewEventText('');
+   };
+
+   const handleAddEvent = () => {
+     const trimmed = newEventText.trim();
+     if (trimmed) {
+       addNote(dateId, trimmed);
+     }
+     cancelNewEvent(); // Resets state
+   };
+   #+end_src
+   - State resets correctly in parent
+   - But child component (MobileEventComposer) has stale refs
+
+* Technical Deep Dive
+
+** Focus Management Flow
+1. User taps day cell
+2. `handleCellClick` ’ `openComposer` ’ `setIsAddingNew(true)`
+3. MobileEventComposer renders via portal
+4. useEffect runs ’ requestAnimationFrame queued
+5. PROBLEM: RAF callback may run before portal DOM is ready
+6. Focus call fails silently or focuses without keyboard
+
+** Blur Event Flow
+1. Input receives focus
+2. User taps outside or submits
+3. Blur event fires
+4. `handleBlur` checks `ignoreBlurRef`
+5. If ref is stale/true, blur is ignored
+6. Component enters broken state
+
+** Portal Rendering Issues
+- Portal renders to `document.body`
+- Parent component in React tree elsewhere
+- Refs and state can desync between parent and portal
+- Cleanup timing is unpredictable
+
+* Proposed Solutions
+
+** Solution 1: Fix Focus Management
+Replace requestAnimationFrame with more robust focus strategy:
+
+#+begin_src javascript
+useEffect(() => {
+  if (!open) return;
+
+  const previousOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+
+  // Use multiple strategies to ensure focus
+  const focusInput = () => {
+    const input = inputRef.current;
+    if (!input) return false;
+
+    // Method 1: Direct focus
+    input.focus();
+
+    // Method 2: Click to ensure keyboard activation on mobile
+    input.click();
+
+    // Method 3: Set selection
+    if (typeof input.setSelectionRange === 'function') {
+      const len = input.value.length;
+      input.setSelectionRange(len, len);
+    }
+
+    return true;
+  };
+
+  // Try immediately
+  if (!focusInput()) {
+    // Retry with timeout if portal not ready
+    const timeoutId = setTimeout(focusInput, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.body.style.overflow = previousOverflow;
+    };
+  }
+
+  return () => {
+    document.body.style.overflow = previousOverflow;
+  };
+}, [open]);
+#+end_src
+
+** Solution 2: Remove ignoreBlurRef Completely
+Replace the complex ref-based blur handling with simpler state machine:
+
+#+begin_src javascript
+function MobileEventComposer({ open, value, onChange, onSubmit, onCancel, dateLabel }) {
+  const inputRef = useRef(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (event) => {
+    event?.preventDefault();
+    const trimmed = value.trim();
+
+    if (!trimmed) {
+      onCancel();
+      return;
+    }
+
+    setIsSubmitting(true);
+    onSubmit();
+    // Parent will unmount this component, no need to reset
+  };
+
+  const handleBlur = () => {
+    // Don't handle blur if we're submitting
+    if (isSubmitting) return;
+
+    // Simple rule: blur with text saves, without text cancels
+    const trimmed = value.trim();
+    if (trimmed) {
+      handleSubmit();
+    } else {
+      onCancel();
+    }
+  };
+
+  const handleOverlayClick = (event) => {
+    if (event.target === event.currentTarget) {
+      handleSubmit();
+    }
+  };
+
+  // Rest of component...
+}
+#+end_src
+
+** Solution 3: Fix Viewport Meta Tag
+Update `index.html` to allow proper keyboard viewport adjustments:
+
+#+begin_src html
+<!-- OLD - Prevents zoom and keyboard adjustments -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- NEW - Allows keyboard viewport adjustments -->
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover">
+#+end_src
+
+Or handle programmatically:
+#+begin_src javascript
+useEffect(() => {
+  if (!open) return;
+
+  // Store original viewport
+  const viewport = document.querySelector('meta[name="viewport"]');
+  const originalContent = viewport?.getAttribute('content');
+
+  // Set mobile-input-friendly viewport
+  if (viewport) {
+    viewport.setAttribute('content', 'width=device-width, initial-scale=1, minimum-scale=1');
+  }
+
+  return () => {
+    // Restore original viewport
+    if (viewport && originalContent) {
+      viewport.setAttribute('content', originalContent);
+    }
+  };
+}, [open]);
+#+end_src
+
+** Solution 4: Use visualViewport API
+Handle keyboard appearance properly:
+
+#+begin_src javascript
+useEffect(() => {
+  if (!open || !window.visualViewport) return;
+
+  const handleViewportChange = () => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    // Check if keyboard is visible
+    const keyboardHeight = window.innerHeight - window.visualViewport.height;
+
+    if (keyboardHeight > 50) {
+      // Keyboard is visible, ensure input is in view
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  window.visualViewport.addEventListener('resize', handleViewportChange);
+  window.visualViewport.addEventListener('scroll', handleViewportChange);
+
+  return () => {
+    window.visualViewport.removeEventListener('resize', handleViewportChange);
+    window.visualViewport.removeEventListener('scroll', handleViewportChange);
+  };
+}, [open]);
+#+end_src
+
+** Solution 5: Complete Rewrite with Controlled State
+Instead of complex ref management, use fully controlled component:
+
+#+begin_src javascript
+function MobileEventComposer({ open, value, onChange, onSubmit, onCancel, dateLabel }) {
+  const inputRef = useRef(null);
+  const [internalOpen, setInternalOpen] = useState(open);
+  const [focusAttempts, setFocusAttempts] = useState(0);
+
+  // Sync internal state with prop
+  useEffect(() => {
+    setInternalOpen(open);
+    if (open) {
+      setFocusAttempts(0);
+    }
+  }, [open]);
+
+  // Handle focus with retry logic
+  useEffect(() => {
+    if (!internalOpen || focusAttempts > 3) return;
+
+    const attemptFocus = () => {
+      const input = inputRef.current;
+      if (!input) {
+        setFocusAttempts(prev => prev + 1);
+        return;
+      }
+
+      // For mobile, we need both focus and click
+      input.focus();
+      input.click();
+
+      // Verify focus was successful
+      setTimeout(() => {
+        if (document.activeElement !== input) {
+          setFocusAttempts(prev => prev + 1);
+        }
+      }, 100);
+    };
+
+    const timer = setTimeout(attemptFocus, 50 * (focusAttempts + 1));
+    return () => clearTimeout(timer);
+  }, [internalOpen, focusAttempts]);
+
+  const handleSave = () => {
+    const trimmed = value.trim();
+    if (trimmed) {
+      onSubmit();
+    } else {
+      onCancel();
+    }
+  };
+
+  if (!internalOpen) return null;
+
+  return createPortal(
+    <div
+      className="mobile-composer-overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleSave();
+        }
+      }}
+      onTouchEnd={(e) => {
+        // Handle touch events separately from click
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+          handleSave();
+        }
+      }}
+    >
+      <div className="mobile-composer">
+        <input
+          ref={inputRef}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSave();
+            }
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              onCancel();
+            }
+          }}
+          // Remove onBlur handler - rely on overlay clicks instead
+          placeholder="Add a note"
+          inputMode="text"
+          enterKeyHint="done"
+        />
+      </div>
+    </div>,
+    document.body
+  );
+}
+#+end_src
+
+* Implementation Priority
+
+** Immediate Fixes (High Priority)
+1. Remove `ignoreBlurRef` completely - it's the main cause of the second-event bug
+2. Fix viewport meta tag to remove `maximum-scale` and `user-scalable=no`
+3. Remove `preventScroll: true` from focus call
+4. Add `input.click()` after `input.focus()` to ensure keyboard activation
+
+** Short-term Improvements (Medium Priority)
+1. Implement retry logic for focus
+2. Add visualViewport API handling
+3. Use `onTouchEnd` in addition to `onClick` for overlay
+4. Add `inputMode="text"` to input element
+
+** Long-term Refactor (Low Priority)
+1. Consider moving away from Portal to in-DOM rendering
+2. Implement proper focus trap
+3. Add haptic feedback for actions
+4. Consider native mobile UI patterns (bottom sheet)
+
+* Testing Checklist
+
+After implementing fixes, test:
+- [ ] First event: Tap day ’ Composer opens ’ Keyboard appears immediately
+- [ ] Cursor position: Cursor appears at correct position in input
+- [ ] First save: Enter text ’ Tap outside ’ Event saves
+- [ ] Second event: Tap different day ’ Composer opens ’ Keyboard appears
+- [ ] Second save: Enter text ’ Tap outside ’ Event saves
+- [ ] Multiple events: Can add 5+ events without refresh
+- [ ] Empty submission: Tap outside with empty input ’ Composer closes
+- [ ] Escape key: Press Escape ’ Composer closes appropriately
+- [ ] Browser back: Composer handles back button correctly
+- [ ] Orientation change: Works in portrait and landscape
+- [ ] Different devices: Test on iOS Safari, Chrome Android, tablets
+
+* Conclusion
+
+The mobile composer's problems stem from over-engineering the blur/focus handling with refs and race conditions. The `ignoreBlurRef` pattern is fundamentally flawed for this use case. A simpler, more predictable state machine approach will resolve all the identified issues.
+
+The viewport meta tag restrictions also contribute to the poor mobile experience by preventing the browser's natural keyboard handling behavior.
+
+Implementing the proposed solutions, particularly removing `ignoreBlurRef` and fixing the viewport settings, should immediately resolve the critical issues that make the composer unusable after the first event.
+
+---
+*Analysis completed: 2025-10-10*
+*Based on code review of MobileEventComposer.jsx, DayCell.jsx, and related files*
