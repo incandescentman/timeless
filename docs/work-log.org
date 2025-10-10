@@ -10,6 +10,35 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-12 Sunday
+
+** Session: Mobile swipe gestures
+Time: Afternoon
+Task: Restore swipe-to-delete and add swipe-to-edit affordances
+Status: **COMPLETED**
+
+Problem:
+- Mobile event rows ignored horizontal swipes, so deleting required opening the editor, and month-level swipe handlers sometimes hijacked the gesture.
+
+Root Cause:
+- Legacy `react-swipeable` wiring on `DayEventRow` never attached to the DOM node once the virtualization refactor landed, so events passed through to the calendar container.
+- Calendar-level swipe listeners lacked guards, so horizontal drags on event text fired month navigation instead of note actions.
+
+Solution:
+- Replaced the unused hook with a bespoke touch tracker that distinguishes horizontal intent, prevents vertical scroll interference, and maps right swipe to delete and left swipe to inline edit.
+- Suppressed click bubbling after swipes so accidental taps don’t re-open editors and added calendar-level guards to ignore swipes that originate inside event rows or the mobile composer.
+- Preserved existing keyboard editing behavior and desktop interactions while keeping the action thresholds high enough to avoid accidental triggers.
+
+Files Changed:
+- src/components/DayCell.jsx — added touch state machine to handle left/right swipes, trigger delete/edit, and suppress accidental clicks.
+- src/components/Calendar.jsx — guarded month navigation swipe handlers to skip gestures originating from event rows or composer surfaces.
+
+Tests:
+- npm run build
+
+Next Step:
+- Explore lightweight visual affordances (e.g., hint overlay or haptic note) so users discover the new swipe edit gesture.
+
 * 2025-10-09 Thursday
 
 ** Session: Simplify Mobile Composer

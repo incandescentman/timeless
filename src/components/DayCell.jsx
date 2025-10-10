@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { useSwipeable } from 'react-swipeable';
 import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
 import MobileEventComposer from './MobileEventComposer';
+
+const SWIPE_DELETE_THRESHOLD = 80;
+const SWIPE_EDIT_THRESHOLD = 80;
+const HORIZONTAL_ACTIVATION_THRESHOLD = 14;
+const VERTICAL_ABORT_THRESHOLD = 16;
 
 function DayEventRow({
   event,
@@ -18,12 +22,130 @@ function DayEventRow({
   editInputRef,
   useCardLayout
 }) {
-  const handlers = useSwipeable({
-    onSwipedRight: () => onDelete(index),
-    preventScrollOnSwipe: true,
-    trackTouch: true,
-    delta: 40
+  const touchStateRef = useRef({
+    active: false,
+    tracking: false,
+    startX: 0,
+    startY: 0,
+    action: null,
+    suppressClick: false
   });
+
+  const resetTouchState = ({ preserveSuppressClick = false } = {}) => {
+    const suppressClick = preserveSuppressClick && touchStateRef.current.suppressClick;
+    touchStateRef.current = {
+      active: false,
+      tracking: false,
+      startX: 0,
+      startY: 0,
+      action: null,
+      suppressClick
+    };
+  };
+
+  const handleTouchStart = (event) => {
+    if (event.touches.length !== 1) {
+      resetTouchState();
+      return;
+    }
+
+    const touch = event.touches[0];
+    touchStateRef.current = {
+      active: true,
+      tracking: false,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      action: null,
+      suppressClick: false
+    };
+    event.stopPropagation();
+  };
+
+  const handleTouchMove = (event) => {
+    const state = touchStateRef.current;
+    if (!state.active || state.action || event.touches.length !== 1) {
+      return;
+    }
+
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - state.startX;
+    const deltaY = touch.clientY - state.startY;
+
+    if (!state.tracking) {
+      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > VERTICAL_ABORT_THRESHOLD) {
+        resetTouchState();
+        return;
+      }
+
+      if (Math.abs(deltaX) < HORIZONTAL_ACTIVATION_THRESHOLD) {
+        return;
+      }
+
+      touchStateRef.current = {
+        ...state,
+        tracking: true
+      };
+    }
+
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+    event.stopPropagation();
+
+    if (deltaX >= SWIPE_DELETE_THRESHOLD) {
+      touchStateRef.current = {
+        active: false,
+        tracking: false,
+        startX: state.startX,
+        startY: state.startY,
+        action: 'delete',
+        suppressClick: true
+      };
+      onDelete(index);
+      return;
+    }
+
+    if (deltaX <= -SWIPE_EDIT_THRESHOLD && !isEditing) {
+      touchStateRef.current = {
+        active: false,
+        tracking: false,
+        startX: state.startX,
+        startY: state.startY,
+        action: 'edit',
+        suppressClick: true
+      };
+      onStartEdit(index);
+    }
+  };
+
+  const handleTouchEnd = (event) => {
+    const state = touchStateRef.current;
+    if (state.action) {
+      if (event?.cancelable) {
+        event.preventDefault();
+      }
+      event.stopPropagation();
+      resetTouchState({ preserveSuppressClick: true });
+      return;
+    }
+
+    resetTouchState();
+  };
+
+  const handleTouchCancel = () => {
+    resetTouchState();
+  };
+
+  const handleRowClick = () => {
+    if (touchStateRef.current.suppressClick) {
+      resetTouchState();
+      return;
+    }
+
+    if (!isEditing) {
+      onStartEdit(index);
+    }
+  };
 
   const eventClassName = [
     'day-event',
@@ -46,8 +168,11 @@ function DayEventRow({
     <div
       className={eventClassName}
       data-event-row
-      {...handlers}
-      onClick={() => !isEditing && onStartEdit(index)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+      onClick={handleRowClick}
     >
       {isEditing ? (
         <input

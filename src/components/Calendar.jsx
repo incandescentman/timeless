@@ -83,13 +83,33 @@ function Calendar({ onShowYearView = () => {}, onShowHelp = () => {} }) {
 
   const { announceAndJump, describeDirection } = useMonthNavigation({ announceCommand });
 
+  const shouldIgnoreSwipe = useCallback((eventData) => {
+    const originalEvent = eventData?.event;
+    if (!originalEvent?.target) {
+      return false;
+    }
+
+    const target = originalEvent.target;
+    if (typeof target.closest !== 'function') {
+      return false;
+    }
+
+    return Boolean(
+      target.closest('[data-event-row]') ||
+      target.closest('.day-event__input') ||
+      target.closest('.mobile-composer')
+    );
+  }, []);
+
   const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => {
+    onSwipedLeft: (eventData) => {
       if (!isMobile) return;
+      if (shouldIgnoreSwipe(eventData)) return;
       announceAndJump(1, describeDirection(1));
     },
-    onSwipedRight: () => {
+    onSwipedRight: (eventData) => {
       if (!isMobile) return;
+      if (shouldIgnoreSwipe(eventData)) return;
       announceAndJump(-1, describeDirection(-1));
     },
     trackTouch: true,
