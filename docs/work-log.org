@@ -36,6 +36,37 @@ Files Changed:
 Tests:
 - npm run build
 
+* 2025-10-11 Saturday
+
+** Session: Stabilize Mobile Composer Focus Flow
+Time: Morning
+Task: Fix iOS composer regressions (no open, caret drift, infinite reopen loop)
+Status: **COMPLETED**
+
+Problem:
+- Mobile composer stopped opening on taps and the keyboard cursor floated below the input. Tapping outside to save dropped straight back into the composer, trapping users.
+
+Root Cause:
+- Fixed-body scroll lock + backdrop blur broke WebKit’s caret positioning. Closing the composer left the day cell immediately re-firable, so the overlay reopened on the same tap.
+
+Solution:
+- Removed the fixed-body lock and blur; instead used an opaque scrim, intercepted touchmove on the overlay, and added coarse-pointer focus retries.
+- Added a short-lived suppression window when closing so the originating day cell can’t instantly re-open the composer; guarded click handler with that flag.
+- Updated documentation to capture the new behavior and viewport adjustments.
+
+Files Changed:
+- src/components/MobileEventComposer.jsx — reworked focus retry entry point, touch suppression, and blur behavior.
+- src/components/DayCell.jsx — added composer-close suppression to avoid immediate reopen.
+- src/styles/mobile-composer.css — removed backdrop blur and ensured the overlay blocks touch scrolling.
+- docs/drafts/mobile-event-composer-bug-analysis.org — logged implementation snapshot for future debugging.
+- index.html — relaxed viewport meta tag for natural keyboard zoom.
+
+Tests:
+- npm run build
+
+Next Step:
+- QA on physical iOS/Android devices to confirm keyboard alignment and repeated capture flows.
+
 Next Step:
 - QA on physical iOS Safari to confirm outside-tap persistence and keyboard “Done” flow behave identically.
 

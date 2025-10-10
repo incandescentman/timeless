@@ -67,5 +67,7 @@
 - Focus now runs in a layout effect without `preventScroll`, with coarse-pointer retry + synthetic click assistance to satisfy iOS keyboard activation.
 - Overlay absorbs touch-move events instead of locking the body, keeping the background from scrolling without disturbing fixed footers.
 - Blur handling drops `ignoreBlurRef`; we track focus transitions and only auto-close after verifying focus has genuinely left the composer (blur-to-body just hides the keyboard).
+- Tap-out closure suppresses the next open for a short window so the underlying day cell doesn’t immediately re-trigger the composer.
+- Overlay backdrop blur removed (opaque scrim instead) to avoid the WebKit caret offset bug.
 - Viewport meta tag relaxed to match Minimalist guidance (no `maximum-scale`, `user-scalable=no`).
 - Rebuild: `npm run build` (passes).

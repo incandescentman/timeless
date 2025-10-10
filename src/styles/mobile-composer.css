@@ -5,8 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: clamp(1.5rem, 6vw, 2.5rem);
-  background: rgba(15, 23, 42, 0.35);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.55);
   z-index: 1000;
   touch-action: none;
 }

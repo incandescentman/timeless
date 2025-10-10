@@ -104,6 +104,8 @@ function DayCell({ date, isCurrentMonth = true }) {
   const inputRef = useRef(null);
   const editInputRef = useRef(null);
   const createRipple = useRipple();
+  const suppressOpenRef = useRef(false);
+  const suppressTimeoutRef = useRef(null);
 
   const dateId = generateDayId(date);
   const dayNumber = date.getDate();
@@ -130,6 +132,15 @@ function DayCell({ date, isCurrentMonth = true }) {
     setDraftText('');
   }, [events]);
 
+  useEffect(() => (
+    () => {
+      if (suppressTimeoutRef.current) {
+        clearTimeout(suppressTimeoutRef.current);
+        suppressTimeoutRef.current = null;
+      }
+    }
+  ), []);
+
   useEffect(() => {
     if (typeof window === 'undefined') {
       return undefined;
@@ -144,7 +155,21 @@ function DayCell({ date, isCurrentMonth = true }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const cancelNewEvent = () => {
+  const suppressNextOpen = (duration = 220) => {
+    suppressOpenRef.current = true;
+    if (suppressTimeoutRef.current) {
+      clearTimeout(suppressTimeoutRef.current);
+    }
+    suppressTimeoutRef.current = setTimeout(() => {
+      suppressOpenRef.current = false;
+      suppressTimeoutRef.current = null;
+    }, duration);
+  };
+
+  const cancelNewEvent = ({ suppress = true } = {}) => {
+    if (suppress) {
+      suppressNextOpen();
+    }
     setIsAddingNew(false);
     setNewEventText('');
   };
@@ -162,6 +187,9 @@ function DayCell({ date, isCurrentMonth = true }) {
   };
 
   const handleCellClick = (e) => {
+    if (suppressOpenRef.current) {
+      return;
+    }
     // Add ripple effect on mobile
     if (isMobileViewport) {
       createRipple(e);
@@ -220,7 +248,7 @@ function DayCell({ date, isCurrentMonth = true }) {
       const targetDayId = generateDayId(targetDay);
 
       // Close current composer
-      cancelNewEvent();
+      cancelNewEvent({ suppress: false });
 
       // Wait a tick then open the target day's composer
       setTimeout(() => {
@@ -242,20 +270,20 @@ function DayCell({ date, isCurrentMonth = true }) {
     if (trimmed) {
       addNote(dateId, trimmed);
     }
-    cancelNewEvent();
+    cancelNewEvent({ suppress: true });
   };
 
   const handleNewEventBlur = () => {
     if (newEventText.trim()) {
       handleAddEvent();
     } else {
-      cancelNewEvent();
+      cancelNewEvent({ suppress: true });
     }
   };
 
   const startEditing = (idx) => {
     if (isMultiSelectMode) return;
-    cancelNewEvent();  // Cancel adding new if we're editing
+    cancelNewEvent({ suppress: true });  // Cancel adding new if we're editing
     setEditingIndex(idx);
     setDraftText(events[idx] ?? '');
     setTimeout(() => editInputRef.current?.focus(), 0);
