@@ -3,11 +3,12 @@ import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
 import MobileEventComposer from './MobileEventComposer';
-
-const SWIPE_DELETE_THRESHOLD = 80;
-const SWIPE_EDIT_THRESHOLD = 80;
-const HORIZONTAL_ACTIVATION_THRESHOLD = 14;
-const VERTICAL_ABORT_THRESHOLD = 16;
+import {
+  SwipeableList,
+  SwipeableListItem,
+  ActionAnimations
+} from '@sandstreamdev/react-swipeable-list';
+import '@sandstreamdev/react-swipeable-list/dist/styles.css';
 
 function DayEventRow({
   event,
@@ -22,126 +23,7 @@ function DayEventRow({
   editInputRef,
   useCardLayout
 }) {
-  const touchStateRef = useRef({
-    active: false,
-    tracking: false,
-    startX: 0,
-    startY: 0,
-    action: null,
-    suppressClick: false
-  });
-
-  const resetTouchState = ({ preserveSuppressClick = false } = {}) => {
-    const suppressClick = preserveSuppressClick && touchStateRef.current.suppressClick;
-    touchStateRef.current = {
-      active: false,
-      tracking: false,
-      startX: 0,
-      startY: 0,
-      action: null,
-      suppressClick
-    };
-  };
-
-  const handleTouchStart = (event) => {
-    if (event.touches.length !== 1) {
-      resetTouchState();
-      return;
-    }
-
-    const touch = event.touches[0];
-    touchStateRef.current = {
-      active: true,
-      tracking: false,
-      startX: touch.clientX,
-      startY: touch.clientY,
-      action: null,
-      suppressClick: false
-    };
-    event.stopPropagation();
-  };
-
-  const handleTouchMove = (event) => {
-    const state = touchStateRef.current;
-    if (!state.active || state.action || event.touches.length !== 1) {
-      return;
-    }
-
-    const touch = event.touches[0];
-    const deltaX = touch.clientX - state.startX;
-    const deltaY = touch.clientY - state.startY;
-
-    if (!state.tracking) {
-      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > VERTICAL_ABORT_THRESHOLD) {
-        resetTouchState();
-        return;
-      }
-
-      if (Math.abs(deltaX) < HORIZONTAL_ACTIVATION_THRESHOLD) {
-        return;
-      }
-
-      touchStateRef.current = {
-        ...state,
-        tracking: true
-      };
-    }
-
-    if (event.cancelable) {
-      event.preventDefault();
-    }
-    event.stopPropagation();
-
-    if (deltaX >= SWIPE_DELETE_THRESHOLD) {
-      touchStateRef.current = {
-        active: false,
-        tracking: false,
-        startX: state.startX,
-        startY: state.startY,
-        action: 'delete',
-        suppressClick: true
-      };
-      onDelete(index);
-      return;
-    }
-
-    if (deltaX <= -SWIPE_EDIT_THRESHOLD && !isEditing) {
-      touchStateRef.current = {
-        active: false,
-        tracking: false,
-        startX: state.startX,
-        startY: state.startY,
-        action: 'edit',
-        suppressClick: true
-      };
-      onStartEdit(index);
-    }
-  };
-
-  const handleTouchEnd = (event) => {
-    const state = touchStateRef.current;
-    if (state.action) {
-      if (event?.cancelable) {
-        event.preventDefault();
-      }
-      event.stopPropagation();
-      resetTouchState({ preserveSuppressClick: true });
-      return;
-    }
-
-    resetTouchState();
-  };
-
-  const handleTouchCancel = () => {
-    resetTouchState();
-  };
-
   const handleRowClick = () => {
-    if (touchStateRef.current.suppressClick) {
-      resetTouchState();
-      return;
-    }
-
     if (!isEditing) {
       onStartEdit(index);
     }
@@ -164,14 +46,10 @@ function DayEventRow({
     useCardLayout && 'day-card__event-text'
   ].filter(Boolean).join(' ');
 
-  return (
+  const eventContent = (
     <div
       className={eventClassName}
       data-event-row
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
       onClick={handleRowClick}
     >
       {isEditing ? (
@@ -187,6 +65,56 @@ function DayEventRow({
         <span className={textClassName}>{event}</span>
       )}
     </div>
+  );
+
+  // Only enable swipe actions when NOT editing
+  if (isEditing) {
+    return eventContent;
+  }
+
+  return (
+    <SwipeableListItem
+      swipeLeft={{
+        content: (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            height: '100%',
+            paddingLeft: '16px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '14px'
+          }}>
+            Edit
+          </div>
+        ),
+        action: () => onStartEdit(index)
+      }}
+      swipeRight={{
+        content: (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            height: '100%',
+            paddingRight: '16px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '14px'
+          }}>
+            Delete
+          </div>
+        ),
+        action: () => onDelete(index),
+        actionAnimation: ActionAnimations.REMOVE
+      }}
+      threshold={0.3}
+    >
+      {eventContent}
+    </SwipeableListItem>
   );
 }
 

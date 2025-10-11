@@ -156,12 +156,15 @@ const isToday = (date: Date) => {
 
 ** Mobile Event Gestures
 
-- `DayCell.jsx` owns touch gesture handling for individual notes via a lightweight state machine in `DayEventRow`.
-- Horizontal intent is detected only after surpassing `HORIZONTAL_ACTIVATION_THRESHOLD` and while vertical drift stays below `VERTICAL_ABORT_THRESHOLD`, so casual scrolling remains unaffected.
-- Swiping **right** ≥ `SWIPE_DELETE_THRESHOLD` immediately removes the event (mirrors desktop delete shortcut). Swiping **left** ≥ `SWIPE_EDIT_THRESHOLD` toggles the inline editor for that note.
-- After either gesture, click events are suppressed until the next interaction to avoid instant re-open or accidental edits.
+- `DayCell.jsx` uses `@sandstreamdev/react-swipeable-list` library for swipe-to-delete and swipe-to-edit gestures on individual event rows.
+- Swiping **right** reveals a red "Delete" background and triggers `onDelete(index)` when the swipe crosses the 30% threshold (`threshold={0.3}`).
+- Swiping **left** reveals a blue "Edit" background and triggers `onStartEdit(index)` when the threshold is crossed.
+- The library provides **progressive visual feedback**: the background color and action text are revealed as you swipe, and the event content follows your finger in real-time.
+- Delete action uses `ActionAnimations.REMOVE` for a smooth removal animation.
+- Swipe gestures are disabled when an event is in editing mode to prevent conflicts with text selection.
+- The swipeable wrapper only applies to non-editing event rows; editing rows render as plain divs.
 - Calendar-level swipe navigation is guarded (`Calendar.jsx`) to ignore any gesture that begins inside `[data-event-row]` or the mobile composer, preventing month jumps from hijacking note actions.
-- If thresholds ever change, update the shared constants near the top of `DayCell.jsx` and re-validate on real devices to keep gestures consistent and discoverable.
+- If threshold sensitivity needs adjustment, modify the `threshold` prop on `SwipeableListItem` (current: 0.3 = 30% of item width).
 
 ** Command Feedback HUD & Keystroke Overlay
 

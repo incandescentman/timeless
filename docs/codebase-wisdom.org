@@ -870,3 +870,113 @@ Frequency: Low - Usually only happens with date manipulation
    - [ ] **Test keyboard shortcuts with modifiers** - Cmd+K, Cmd+L, Cmd+H, etc.
    - [ ] **Pattern for vim keys**: `(e.key === 'x' && !e.metaKey && !e.ctrlKey && !e.altKey)`
    - [ ] **Don't preventDefault on system shortcuts** - Let browser handle Cmd/Ctrl combinations
+
+* Mobile Swipe Gestures: Use Established Library Over Custom Touch Handlers
+  Date: 2025-10-11
+
+** The Bug
+   Custom touch handlers for swipe-to-delete/edit had zero visual feedback. Events would suddenly vanish when swiping right with no indication of what was happening—the event just disappeared "without a trace."
+
+** The Problem
+   The original implementation in `DayEventRow` (src/components/DayCell.jsx:12-191) used raw touch event handlers:
+   - `handleTouchStart` / `handleTouchMove` / `handleTouchEnd` tracking deltaX/deltaY
+   - Hard-coded thresholds (`SWIPE_DELETE_THRESHOLD = 80px`)
+   - Immediately deleted or opened editor when threshold crossed
+   - No progressive visual feedback during the swipe
+   - No background color reveal
+   - No slide-with-finger animation
+   - Event would just vanish, creating a jarring UX
+
+** Why Custom Touch Handlers Failed
+   1. **No visual feedback loop**: Touch handlers only checked final position, didn't update UI during gesture
+   2. **Instant action**: Crossing threshold immediately fired `onDelete()` with no animation
+   3. **Missing animation library knowledge**: Would need to manually implement transform, transition timing, background reveal
+   4. **Maintenance burden**: Custom gesture code is fragile and hard to debug across devices
+   5. **Reinventing the wheel**: Standard swipe-to-action UX already solved by existing libraries
+
+** The Fix
+   Replaced custom touch handlers with `@sandstreamdev/react-swipeable-list` library:
+
+   #+begin_src javascript
+   import {
+     SwipeableListItem,
+     ActionAnimations
+   } from '@sandstreamdev/react-swipeable-list';
+
+   // Swipe right → Delete with red background
+   <SwipeableListItem
+     swipeRight={{
+       content: (
+         <div style={{
+           backgroundColor: '#ef4444',  // Red background
+           color: 'white',
+           paddingRight: '16px',
+           // ... flex centering
+         }}>
+           Delete
+         </div>
+       ),
+       action: () => onDelete(index),
+       actionAnimation: ActionAnimations.REMOVE  // Smooth remove animation
+     }}
+     swipeLeft={{
+       content: (
+         <div style={{
+           backgroundColor: '#3b82f6',  // Blue background
+           color: 'white',
+           // ...
+         }}>
+           Edit
+         </div>
+       ),
+       action: () => onStartEdit(index)
+     }}
+     threshold={0.3}  // 30% swipe triggers action
+   >
+     {eventContent}
+   </SwipeableListItem>
+   #+end_src
+
+** What the Library Provides (That Custom Handlers Didn't)
+   - **Progressive visual feedback**: Background and action text revealed as you swipe
+   - **Follows your finger**: Event content slides with touch position in real-time
+   - **Smooth animations**: Built-in `ActionAnimations.REMOVE` for delete
+   - **Threshold configuration**: Easy to tune sensitivity (`threshold={0.3}`)
+   - **Cross-browser/device tested**: Handles edge cases (multi-touch, scroll conflicts)
+   - **onSwipeProgress callback**: Could add progress-based effects if needed
+
+** Lessons Learned / Prevention Checklist
+   - [ ] **Use established UI libraries for standard gestures** - Don't reinvent swipe-to-delete/edit
+   - [ ] **Visual feedback is not optional** - Users need to see the action before it happens
+   - [ ] **Research existing solutions first** - `react-swipeable-list`, `framer-motion`, etc.
+   - [ ] **Custom touch handlers only when truly custom** - E.g., novel gesture interactions
+   - [ ] **Test gesture UX on real devices** - Touch simulators don't reveal feedback issues
+   - [ ] **Check if library already installed** - Project already had `react-swipeable` (unused)
+
+** Popular React Swipe Libraries (For Future Reference)
+   - **@sandstreamdev/react-swipeable-list** - Full-featured, built-in action animations (chosen)
+   - **react-swipeable** - Lower-level, just gesture detection (already installed but not right fit)
+   - **framer-motion** - General animation library with drag support (already installed, overkill for this)
+   - **react-swipe-to-delete-component** - Simpler but less maintained
+
+** Quick Pattern for Swipeable List Items
+   #+begin_src javascript
+   // Install: npm install @sandstreamdev/react-swipeable-list
+   import { SwipeableListItem, ActionAnimations } from '@sandstreamdev/react-swipeable-list';
+   import '@sandstreamdev/react-swipeable-list/dist/styles.css';
+
+   <SwipeableListItem
+     swipeRight={{
+       content: <ActionBackground label="Delete" color="red" />,
+       action: handleDelete,
+       actionAnimation: ActionAnimations.REMOVE
+     }}
+     swipeLeft={{
+       content: <ActionBackground label="Edit" color="blue" />,
+       action: handleEdit
+     }}
+     threshold={0.3}
+   >
+     <YourContent />
+   </SwipeableListItem>
+   #+end_src
