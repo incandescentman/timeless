@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
+import { useToast } from '../contexts/ToastContext';
 import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
 import MobileEventComposer from './MobileEventComposer';
@@ -234,12 +235,14 @@ function DayCell({ date, isCurrentMonth = true }) {
     addNote,
     updateEvent,
     removeEvent,
+    removeEventWithUndo,
     systemToday,
     keyboardFocusDate,
     isMultiSelectMode,
     selectedDays,
     toggleDaySelection
   } = useCalendar();
+  const { showToast } = useToast();
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [draftText, setDraftText] = useState('');
@@ -460,7 +463,14 @@ function DayCell({ date, isCurrentMonth = true }) {
   };
 
   const handleRemoveEvent = (idx) => {
-    removeEvent(dateId, idx);
+    removeEventWithUndo(dateId, idx, ({ deletedEvent, restore }) => {
+      showToast('Event deleted', {
+        action: {
+          label: 'Undo',
+          onClick: restore
+        }
+      });
+    });
   };
 
   const useCardLayout = false;

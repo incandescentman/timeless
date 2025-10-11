@@ -49,8 +49,47 @@ Benefits:
 - More polished, professional feel
 - Consistent with other mobile gesture patterns
 
-Next Stages:
-- Stage 2: Undo Toast After Delete
+*** Stage 2: Undo Toast After Delete **COMPLETED**
+
+Problem:
+Once an event was deleted via swipe, there was no way to recover it without using the global undo (⌘Z).
+
+Solution:
+- Extended existing Toast system to support action buttons
+- Added `removeEventWithUndo` function to CalendarContext
+- Toast shows "Event deleted" message with "Undo" button for 4 seconds
+- Clicking undo restores the event at its original position
+- If timeout expires without undo, deletion becomes permanent
+
+Implementation:
+- Enhanced Toast component to accept optional `action` prop with label and onClick
+- Updated ToastContext to pass action to toast
+- Added `removeEventWithUndo` to CalendarContext that:
+  - Stores deleted event temporarily
+  - Performs deletion
+  - Shows toast with restore callback
+  - Restores event at original index if undo clicked
+- Updated DayCell to use `removeEventWithUndo` on swipe delete
+- Styled toast action button with cyan accent, uppercase text, hover states
+
+Files Changed:
+- src/components/Toast.jsx - Added action button support, extended duration for undo toasts
+- src/contexts/ToastContext.jsx - Added action parameter to showToast
+- src/contexts/CalendarContext.jsx - Added removeEventWithUndo function with restore logic
+- src/components/DayCell.jsx - Integrated undo toast on event deletion
+- src/styles/toast.css - Styled toast action button, flex layout for message + button
+
+Tests:
+- npm run build ✓
+
+Benefits:
+- Immediate recoverability without using global undo
+- User-friendly error recovery
+- 4-second window provides enough time to undo without being intrusive
+- Consistent with common mobile patterns (Gmail, iOS Mail, etc.)
+- No external library needed (extended existing toast system)
+
+Next Stage:
 - Stage 3: Progressive Color Intensity
 
 ** Session: Major Mobile UI Fixes - Cursor, Save Actions, and Swipe Gestures

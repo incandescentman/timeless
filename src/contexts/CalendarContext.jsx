@@ -264,6 +264,51 @@ export function CalendarProvider({ children }) {
     });
   }, [pushUndoState]);
 
+  // Remove event with undo support
+  const removeEventWithUndo = useCallback((dateId, index, onUndoToast) => {
+    // Store the deleted event for potential restore
+    const deletedEvent = calendarDataRef.current[dateId]?.[index];
+    if (!deletedEvent) return;
+
+    // Perform the deletion
+    pushUndoState();
+    setCalendarData(prev => {
+      const current = Array.isArray(prev[dateId]) ? [...prev[dateId]] : [];
+      if (!current[index]) {
+        return prev;
+      }
+
+      current.splice(index, 1);
+      const next = { ...prev };
+      if (current.length === 0) {
+        delete next[dateId];
+      } else {
+        next[dateId] = current;
+      }
+      return next;
+    });
+
+    // Show undo toast
+    if (onUndoToast) {
+      onUndoToast({
+        dateId,
+        index,
+        deletedEvent,
+        restore: () => {
+          // Restore the deleted event at its original position
+          setCalendarData(prev => {
+            const current = Array.isArray(prev[dateId]) ? [...prev[dateId]] : [];
+            current.splice(index, 0, deletedEvent);
+            return {
+              ...prev,
+              [dateId]: current
+            };
+          });
+        }
+      });
+    }
+  }, [pushUndoState]);
+
   // Undo last change
   const undo = useCallback(() => {
     if (undoStack.length === 0) return;
@@ -452,6 +497,7 @@ export function CalendarProvider({ children }) {
     clearNotesFromSelectedDays,
     updateEvent,
     removeEvent,
+    removeEventWithUndo,
 
     // Range selection
     rangeStart,
