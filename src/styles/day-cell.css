@@ -209,6 +209,12 @@ body.dark-mode .day-cell--baseline .day-weekday {
   color: rgba(15, 23, 42, 0.88);
 }
 
+.day-cell--baseline .day-event__text.completed {
+  text-decoration: line-through;
+  opacity: 0.5;
+  color: rgba(15, 23, 42, 0.6);
+}
+
 .day-cell--baseline .day-event__composer {
   display: flex;
   align-items: center;
@@ -258,6 +264,12 @@ body.dark-mode .day-cell--baseline .day-event.editing {
 
 body.dark-mode .day-cell--baseline .day-event__text {
   color: rgba(226, 232, 240, 0.8);
+}
+
+body.dark-mode .day-cell--baseline .day-event__text.completed {
+  text-decoration: line-through;
+  opacity: 0.4;
+  color: rgba(226, 232, 240, 0.5);
 }
 
 body.dark-mode .day-cell--baseline .day-event__input {
@@ -526,6 +538,12 @@ body.dark-mode .day-cell--baseline .day-event__composer button:hover {
   color: #1f2937;
 }
 
+.day-card__event-text.completed {
+  text-decoration: line-through;
+  opacity: 0.5;
+  color: rgba(31, 41, 55, 0.6);
+}
+
 .day-card__event-input {
   flex: 1;
   padding: 0.55rem 0.75rem;
@@ -629,6 +647,12 @@ body.dark-mode .day-card__meta {
 body.dark-mode .day-card__number,
 body.dark-mode .day-card__event-text {
   color: #e2e8f0;
+}
+
+body.dark-mode .day-card__event-text.completed {
+  text-decoration: line-through;
+  opacity: 0.4;
+  color: rgba(226, 232, 240, 0.5);
 }
 
 body.dark-mode .day-card__badge {

@@ -5,7 +5,8 @@ import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } f
 import { useRipple } from '../hooks/useRipple';
 import MobileEventComposer from './MobileEventComposer';
 import { useSwipeable } from 'react-swipeable';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconCheck, IconTags } from '@tabler/icons-react';
+import { getEventText, isEventCompleted, getEventTags } from '../utils/eventUtils';
 import '../styles/swipeable-overrides.css';
 
 // Swipeable event row component
@@ -168,7 +169,9 @@ function SwipeableEventRow({
             onKeyDown={onKeyDown}
           />
         ) : (
-          <span className={textClassName}>{event}</span>
+          <span className={`${textClassName} ${isEventCompleted(event) ? 'completed' : ''}`}>
+            {getEventText(event)}
+          </span>
         )}
       </div>
     </div>
@@ -227,7 +230,9 @@ function DayEventRow({
           onKeyDown={onKeyDown}
         />
       ) : (
-        <span className={textClassName}>{event}</span>
+        <span className={`${textClassName} ${isEventCompleted(event) ? 'completed' : ''}`}>
+          {getEventText(event)}
+        </span>
       )}
     </div>
   );

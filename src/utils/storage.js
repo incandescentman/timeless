@@ -3,6 +3,7 @@
  */
 
 import { generateDayId } from './dateUtils';
+import { normalizeEvents } from './eventUtils';
 
 const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -68,13 +69,11 @@ function resolveItemTokens(rawValue, itemMap) {
 }
 
 function toEventArray(value) {
-  if (Array.isArray(value)) {
-    return value
-      .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
-      .filter(Boolean);
-  }
+  let rawEvents = [];
 
-  if (typeof value === 'string') {
+  if (Array.isArray(value)) {
+    rawEvents = value;
+  } else if (typeof value === 'string') {
     const trimmed = value.trim();
     if (!trimmed) {
       return [];
@@ -83,21 +82,25 @@ function toEventArray(value) {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
-        return parsed
-          .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+        rawEvents = parsed;
+      } else {
+        // Not an array, split by newlines/commas
+        rawEvents = trimmed
+          .split(/[\n,]/)
+          .map(entry => entry.trim())
           .filter(Boolean);
       }
     } catch (error) {
-      // fall through to splitting
+      // Not JSON, split by newlines/commas
+      rawEvents = trimmed
+        .split(/[\n,]/)
+        .map(entry => entry.trim())
+        .filter(Boolean);
     }
-
-    return trimmed
-      .split(/[\n,]/)
-      .map(entry => entry.trim())
-      .filter(Boolean);
   }
 
-  return [];
+  // Normalize all events to object format
+  return normalizeEvents(rawEvents);
 }
 
 function normaliseCalendarEntries(entries) {
@@ -317,7 +320,13 @@ export function exportAsMarkdownDiary() {
 
     events.forEach((event, idx) => {
       const prefix = events.length > 1 ? `**${day} (${idx + 1})**` : `**${day}**`;
-      markdown += `${prefix}: ${event}\n\n`;
+      // Handle both string and object events
+      const eventText = typeof event === 'string' ? event : event.text;
+      const completed = typeof event === 'object' && event.completed ? ' [✓]' : '';
+      const tags = typeof event === 'object' && event.tags && event.tags.length > 0
+        ? ` #${event.tags.join(' #')}`
+        : '';
+      markdown += `${prefix}: ${eventText}${completed}${tags}\n\n`;
     });
   });
 

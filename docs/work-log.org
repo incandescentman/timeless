@@ -130,6 +130,68 @@ Summary of Enhancements:
 Overall Result:
 Mobile swipe gestures now feel professional, forgiving, and provide clear visual feedback at every stage of the interaction.
 
+** Session: Event Data Structure Migration - Strings to Objects
+Time: Evening (continued)
+Task: Migrate event data structure from strings to objects to support completion status and tags
+Status: **COMPLETED**
+
+Problem:
+Events were stored as simple strings in arrays, limiting functionality to just text. To support marking events as done and adding tags, needed a richer data structure.
+
+Solution:
+- Migrated events from strings to objects: `{ text, completed, tags }`
+- Maintained full backward compatibility with existing string events
+- All string events automatically normalized to object format on load
+- New events created as objects with `completed: false` and `tags: []`
+
+Implementation:
+- Created eventUtils.js with normalization functions:
+  - `normalizeEvent()` - Converts string or object to standard format
+  - `normalizeEvents()` - Batch normalization for arrays
+  - Helper functions: `getEventText()`, `isEventCompleted()`, `getEventTags()`, etc.
+- Updated storage.js:
+  - Modified `toEventArray()` to normalize all events to objects
+  - Updated `exportAsMarkdownDiary()` to include completed status and tags in export
+  - Import automatically handles both string and object events
+- Updated CalendarContext.jsx:
+  - Modified `addNote()` to create event objects instead of strings
+  - Added `toggleEventCompletionStatus()` for marking events done/undone
+  - Added `updateEventTags()` for tag management
+  - All functions maintain backward compatibility
+- Updated DayCell.jsx:
+  - Modified rendering to use `getEventText()` for display
+  - Added `.completed` CSS class for completed events
+  - Display works with both legacy strings and new objects
+- Updated day-cell.css:
+  - Added `.completed` styling: strikethrough, reduced opacity (0.5 light, 0.4 dark)
+  - Styles applied to both baseline and card layouts
+  - Proper dark mode support
+
+Files Changed:
+- src/utils/eventUtils.js - New file with event normalization utilities
+- src/utils/storage.js - Updated to normalize events on load, export with metadata
+- src/contexts/CalendarContext.jsx - Added completion/tag functions, objects in addNote
+- src/components/DayCell.jsx - Updated rendering to handle event objects
+- src/styles/day-cell.css - Added completed state styling
+
+Tests:
+- npm run build ✓
+
+Benefits:
+- Full backward compatibility - existing string events work without migration
+- Automatic normalization on load
+- Foundation for new gesture meanings:
+  - Swipe right → mark done/undone
+  - Long press → delete
+  - Swipe left → add/edit tags
+- Export preserves new metadata
+- Clean separation of concerns (data model vs display)
+
+Next Steps:
+- Implement new gesture meanings using the new data structure
+- Create tag input interface
+- Add long press detection for delete
+
 ** Session: Major Mobile UI Fixes - Cursor, Save Actions, and Swipe Gestures
 Time: Evening
 Task: Fix critical mobile UI issues - cursor position, save interactions, and jittery swipes

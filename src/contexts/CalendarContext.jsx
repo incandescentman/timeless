@@ -8,6 +8,7 @@ import {
   saveCalendarToServer
 } from '../utils/storage';
 import { generateDayId, parseDate } from '../utils/dateUtils';
+import { toggleEventCompletion, setEventTags } from '../utils/eventUtils';
 
 const CalendarContext = createContext();
 
@@ -203,9 +204,15 @@ export function CalendarProvider({ children }) {
     pushUndoState();
     setCalendarData(prev => {
       const current = Array.isArray(prev[dateId]) ? prev[dateId] : [];
+      // Create new event object
+      const newEvent = {
+        text: trimmed,
+        completed: false,
+        tags: []
+      };
       return {
         ...prev,
-        [dateId]: [...current, trimmed]
+        [dateId]: [...current, newEvent]
       };
     });
   }, [pushUndoState]);
@@ -307,6 +314,44 @@ export function CalendarProvider({ children }) {
         }
       });
     }
+  }, [pushUndoState]);
+
+  // Toggle event completion status
+  const toggleEventCompletionStatus = useCallback((dateId, index) => {
+    pushUndoState();
+    setCalendarData(prev => {
+      const current = Array.isArray(prev[dateId]) ? [...prev[dateId]] : [];
+      if (!current[index]) {
+        return prev;
+      }
+
+      const updatedEvent = toggleEventCompletion(current[index]);
+      current[index] = updatedEvent;
+
+      return {
+        ...prev,
+        [dateId]: current
+      };
+    });
+  }, [pushUndoState]);
+
+  // Update event tags
+  const updateEventTags = useCallback((dateId, index, tags) => {
+    pushUndoState();
+    setCalendarData(prev => {
+      const current = Array.isArray(prev[dateId]) ? [...prev[dateId]] : [];
+      if (!current[index]) {
+        return prev;
+      }
+
+      const updatedEvent = setEventTags(current[index], tags);
+      current[index] = updatedEvent;
+
+      return {
+        ...prev,
+        [dateId]: current
+      };
+    });
   }, [pushUndoState]);
 
   // Undo last change
@@ -498,6 +543,8 @@ export function CalendarProvider({ children }) {
     updateEvent,
     removeEvent,
     removeEventWithUndo,
+    toggleEventCompletionStatus,
+    updateEventTags,
 
     // Range selection
     rangeStart,
