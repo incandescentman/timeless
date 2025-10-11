@@ -9,6 +9,7 @@ import {
   ActionAnimations
 } from '@sandstreamdev/react-swipeable-list';
 import '@sandstreamdev/react-swipeable-list/dist/styles.css';
+import '../styles/swipeable-overrides.css';
 
 function DayEventRow({
   event,
