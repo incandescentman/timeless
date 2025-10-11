@@ -980,3 +980,128 @@ Frequency: Low - Usually only happens with date manipulation
      <YourContent />
    </SwipeableListItem>
    #+end_src
+
+* Third-Party UI Libraries: CSS Override Pattern for Wrapper Interference
+  Date: 2025-10-11
+
+** The Bug
+   After adding `@sandstreamdev/react-swipeable-list`, event cards lost their carefully designed visual styling—gradients, shadows, borders all disappeared. Events looked like plain rectangles and didn't have minimum widths, causing collapse on short text.
+
+** The Problem
+   The swipeable library wraps your content in its own styled divs:
+   - `.swipeable-list-item` → Adds margins, padding, white background
+   - `.swipeable-list-item__content` → Overrides background, min-height, box-sizing
+   - These wrapper styles override your component's carefully designed appearance
+   - Library assumes its own styling priorities, not aware of your design system
+
+** Why This Happens
+   Third-party UI libraries often:
+   1. **Apply default styling** to wrappers for "sensible defaults"
+   2. **Use higher specificity** (class selectors) that override your styles
+   3. **Add structural divs** that introduce new layout contexts
+   4. **Don't know your design system** - they can't match your gradients/shadows
+   5. **Bundle CSS you must import** - you get their styles whether you want them or not
+
+** The Fix: CSS Override File Pattern
+   Create a dedicated override file (src/styles/swipeable-overrides.css) that:
+   1. **Neutralizes library wrappers** - Makes them transparent/invisible
+   2. **Restores your component styling** - Re-applies original design
+   3. **Imports after library CSS** - Ensures proper cascade order
+
+   #+begin_src css
+   /* swipeable-overrides.css */
+
+   /* 1. Neutralize library wrappers */
+   .swipeable-list-item {
+     margin: 0 !important;
+     padding: 0 !important;
+     background: transparent !important;
+   }
+
+   .swipeable-list-item__content {
+     background: transparent !important;
+     min-height: auto !important;
+     width: 100% !important;
+   }
+
+   /* 2. Restore your component styling inside wrapper */
+   .swipeable-list-item .day-event {
+     /* Original event card styles */
+     background: linear-gradient(...);
+     border-radius: 12px;
+     box-shadow: ...;
+     min-width: 100px;
+   }
+
+   /* 3. Add performance optimizations */
+   .swipeable-list-item__content {
+     transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+     will-change: transform;
+   }
+   #+end_src
+
+** Import Order Matters
+   #+begin_src javascript
+   // In your component file
+   import '@sandstreamdev/react-swipeable-list/dist/styles.css';  // Library CSS first
+   import '../styles/swipeable-overrides.css';  // Your overrides second
+   #+end_src
+
+** What to Override
+   - [ ] **Wrappers** → Make transparent (`background: transparent !important`)
+   - [ ] **Layout** → Reset spacing (`margin: 0 !important`, `padding: 0 !important`)
+   - [ ] **Sizing** → Allow natural sizing (`min-height: auto !important`)
+   - [ ] **Child selectors** → Target your components inside wrappers (`.wrapper .your-component`)
+   - [ ] **Animations** → Add better transitions (`cubic-bezier`, `will-change`)
+
+** When to Use This Pattern
+   Use override files when:
+   - Library adds structural wrappers with default styling
+   - Your existing component styling gets overridden
+   - You need the library's functionality but not its aesthetics
+   - Library CSS can't be disabled/customized easily
+
+** Lessons Learned / Prevention Checklist
+   - [ ] **Inspect library DOM first** - Use DevTools to see what wrappers/classes it adds
+   - [ ] **Create dedicated override file** - Don't mix library overrides into component CSS
+   - [ ] **Import order matters** - Library CSS → Your overrides → Component CSS
+   - [ ] **Use !important sparingly** - Only on wrapper neutralization, not everywhere
+   - [ ] **Preserve library functionality** - Don't break the library's JS by hiding required elements
+   - [ ] **Test dark mode** - Override files must support all your themes
+   - [ ] **Document why** - Comment explaining what you're overriding and why
+
+** Alternative Approaches (When Overrides Aren't Enough)
+   If overrides become too complex:
+   1. **Build custom with primitives** - Use `framer-motion` + `use-gesture` directly
+   2. **Fork the library** - Modify source to remove unwanted styling
+   3. **Different library** - Find one with less opinionated styling
+   4. **CSS-in-JS** - Use styled-components to force higher specificity
+
+** Quick Pattern: Override File Template
+   #+begin_src css
+   /* File: src/styles/[library-name]-overrides.css */
+
+   /* Neutralize library wrappers */
+   .[library-wrapper-class] {
+     margin: 0 !important;
+     padding: 0 !important;
+     background: transparent !important;
+   }
+
+   /* Restore component styling */
+   .[library-wrapper-class] .your-component {
+     /* Your original styles */
+   }
+
+   /* Dark mode support */
+   body.dark-mode .[library-wrapper-class] .your-component {
+     /* Dark theme overrides */
+   }
+
+   /* Mobile adjustments */
+   @media (max-width: 768px) {
+     .[library-wrapper-class] .your-component {
+       /* Mobile overrides */
+     }
+   }
+   #+end_src
