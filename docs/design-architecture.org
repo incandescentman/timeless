@@ -1,5 +1,5 @@
 #+TITLE: Design Architecture - Timeless Calendar
-#+DATE: 2025-10-04
+#+DATE: 2025-10-12
 #+TAGS: architecture, technical, design
 #+KEYWORDS: react, typescript, tailwind, state-management
 
@@ -153,6 +153,15 @@ const isToday = (date: Date) => {
 - The footer hint mirrors the Minimalist capture treatment (checkmark + "Tap anywhere to save") while staying within Timeless color tokens.
 - Blank-day layout clamps to a shallower min-height/padding on mobile so empty rows compress while note-bearing cells retain breathing room.
 - Day headers collapse into a single row on mobile: weekday stays left-aligned, month + day are right-justified, and all abbreviations come from `dateUtils.daysOfWeek` / `dateUtils.shortMonths` so wording stays consistent across the app.
+
+** Mobile Event Gestures
+
+- `DayCell.jsx` owns touch gesture handling for individual notes via a lightweight state machine in `DayEventRow`.
+- Horizontal intent is detected only after surpassing `HORIZONTAL_ACTIVATION_THRESHOLD` and while vertical drift stays below `VERTICAL_ABORT_THRESHOLD`, so casual scrolling remains unaffected.
+- Swiping **right** ≥ `SWIPE_DELETE_THRESHOLD` immediately removes the event (mirrors desktop delete shortcut). Swiping **left** ≥ `SWIPE_EDIT_THRESHOLD` toggles the inline editor for that note.
+- After either gesture, click events are suppressed until the next interaction to avoid instant re-open or accidental edits.
+- Calendar-level swipe navigation is guarded (`Calendar.jsx`) to ignore any gesture that begins inside `[data-event-row]` or the mobile composer, preventing month jumps from hijacking note actions.
+- If thresholds ever change, update the shared constants near the top of `DayCell.jsx` and re-validate on real devices to keep gestures consistent and discoverable.
 
 ** Command Feedback HUD & Keystroke Overlay
 
