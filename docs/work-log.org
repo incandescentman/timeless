@@ -10,6 +10,47 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-11 Saturday (continued)
+
+** Session: Major Mobile UI Fixes - Cursor, Save Actions, and Swipe Gestures
+Time: Evening
+Task: Fix critical mobile UI issues - cursor position, save interactions, and jittery swipes
+Status: **COMPLETED**
+
+Problem:
+1. Mobile composer cursor appeared two lines below the typed text
+2. Required triple-tapping to save entries (checkmark not clickable, tap outside unreliable)
+3. Swipe gestures were jittery and shaky, especially during delete action
+
+Root Cause:
+1. Missing CSS line-height and browser defaults causing text/cursor misalignment
+2. Complex blur/focus handlers and non-interactive hint element requiring multiple taps
+3. @sandstreamdev/react-swipeable-list library causing janky animations
+
+Solution:
+1. **Fixed cursor position**: Added `line-height: 1.5`, CSS appearance resets, and vertical-align to properly align cursor with text
+2. **Simplified save interaction**: Replaced hint text with actual clickable button - single tap on checkmark now saves immediately
+3. **Migrated to react-swipeable**: Switched from @sandstreamdev/react-swipeable-list to react-swipeable (same as minimalist.html) for smooth, controlled swipe animations with cubic-bezier easing
+
+Implementation Details:
+- MobileEventComposer now uses a proper button element for save/close action
+- SwipeableEventRow component rebuilt using useSwipeable hook with direct transform control
+- Added smooth transitions (0.18s cubic-bezier) matching minimalist.html pattern
+- Swipe right to delete, left to edit with visual feedback during swipe
+- Hardware acceleration with translateZ(0) and backface-visibility for smooth performance
+
+Files Changed:
+- src/components/MobileEventComposer.jsx — Added clickable save button, improved placeholder text
+- src/styles/mobile-composer.css — Fixed input line-height, styled save button, added dark mode support
+- src/components/DayCell.jsx — Complete rewrite using react-swipeable instead of SwipeableList
+- src/styles/swipeable-overrides.css — New styles for smooth swipe actions with gradient backgrounds
+
+Tests:
+- npm run build ✓
+
+Next Step:
+- Test on physical iOS/Android devices to confirm smooth swipe performance
+
 * 2025-10-12 Sunday
 
 ** Session: Mobile swipe gestures

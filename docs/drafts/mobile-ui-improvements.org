@@ -1,0 +1,259 @@
+#+TITLE: Mobile UI Improvement Suggestions
+#+DATE: 2025-10-11
+#+TAGS: mobile, ui, ux, improvements
+#+KEYWORDS: mobile-interface, event-entry, deletion, user-experience
+
+#+BEGIN_COMMENT
+LLM_CONTEXT:
+- Purpose: Suggested improvements for mobile calendar entry and deletion interface
+- Status: Draft recommendations based on current implementation analysis
+- Components analyzed: MobileEventComposer, DayCell, mobile styles
+#+END_COMMENT
+
+* Current Mobile UI Analysis
+
+** What's Working Well
+
+*** Clean Modal Approach
+- The MobileEventComposer uses a centered modal overlay that's non-intrusive
+- Good use of backdrop blur and shadow for depth
+- Clear visual hierarchy with centered positioning
+
+*** Swipe Gestures
+- Intuitive swipe-left to edit, swipe-right to delete pattern
+- Uses SwipeableListItem library for consistent behavior
+- Visual feedback with colored backgrounds (blue for edit, red for delete)
+
+*** Tap Outside to Save
+- Simple interaction model with clear visual hint
+- Auto-saves when tapping outside if content exists
+- Clear distinction between save (has content) and cancel (empty)
+
+*** Responsive Text Sizing
+- Good use of clamp() for scalable typography
+- Adapts well to different screen sizes
+- Maintains readability across devices
+
+** 5. Enhanced Visual Hierarchy for Events
+
+*** Problem
+- All events look identical
+- No visual distinction between multiple events
+- Flat gray background lacks depth
+
+*** Solutions
+**** Subtle Alternating Shades
+#+BEGIN_SRC css
+/* Add to day-cell.css */
+.day-event:nth-child(even) {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.day-event:nth-child(odd) {
+  background: rgba(148, 163, 184, 0.12);
+}
+#+END_SRC
+
+**** Time-Based Visual Cues (if timestamps added)
+- Morning events: lighter shade
+- Afternoon events: medium shade
+- Evening events: darker shade
+
+*** Implementation Location
+- ~src/styles/mobile.css:229-234~ (event styling)
+- ~src/styles/swipeable-overrides.css:19-37~ (swipeable event styling)
+
+** 6. Keyboard UX Improvements
+
+*** Problem
+- No clear "Done" button above keyboard
+- Keyboard may cover input on small devices
+- Enter key behavior not obvious
+
+*** Solutions
+**** Add Input Accessory View
+- "Done" button above keyboard
+- Character count if applicable
+- Clear completion action
+
+**** Improve Enter Key Handling
+#+BEGIN_SRC jsx
+// Current: Enter saves and closes
+// Suggestion: Enter adds new line, Cmd/Ctrl+Enter saves
+handleKeyDown = (e) => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    e.preventDefault();
+    commitAndClose();
+  }
+  // Allow regular Enter for new lines
+};
+#+END_SRC
+
+*** Implementation Location
+- ~src/components/MobileEventComposer.jsx:107-112~ (handleKeyDown)
+
+* Priority 3: Nice-to-Have Improvements
+
+** 7. Empty State Improvements
+
+*** Problem
+- Days without events feel too empty
+- No clear affordance for adding events
+- Users may not discover tap-to-add
+
+### Solutions
+**** Subtle Add Hint
+#+BEGIN_SRC jsx
+// In DayCell.jsx, add to empty cells:
+{events.length === 0 && !isAddingNew && (
+  <div className="day-cell__empty-hint">
+    <span className="day-cell__plus">+</span>
+    <span className="day-cell__hint-text">Tap to add</span>
+  </div>
+)}
+#+END_SRC
+
+**** First-Use Tutorial
+- Show hint on first app use
+- Dismiss after first event added
+- Store in localStorage
+
+*** Implementation Location
+- ~src/components/DayCell.jsx~ (after events map)
+
+** 8. Swipe Actions Visual Polish
+
+*** Problem
+- Blue/red backgrounds don't match design system
+- No icons with text labels
+- Actions not discoverable for new users
+
+### Solutions
+**** Consistent Color Palette
+#+BEGIN_SRC jsx
+// Update in DayCell.jsx:
+swipeLeft={{
+  content: (
+    <div style={{
+      backgroundColor: '#4b5563', // Use gray instead of blue
+      // Add icon here
+    }}>
+      ✏️ Edit
+    </div>
+  )
+}}
+#+END_SRC
+
+**** Discovery Hint
+- Show swipe hint on first event
+- "Swipe to edit or delete" tooltip
+- Fade after first interaction
+
+*** Implementation Location
+- ~src/components/DayCell.jsx:78-116~ (SwipeableListItem props)
+
+** 9. Haptic Feedback (iOS)
+
+*** Problem
+- No tactile feedback on actions
+- Less engaging than native apps
+- Missed opportunity for confirmation
+
+### Solutions
+**** Add Haptic Triggers
+#+BEGIN_SRC javascript
+// Utility function for haptics
+const triggerHaptic = (style = 'light') => {
+  if ('vibrate' in navigator) {
+    // Basic vibration API
+    navigator.vibrate(10);
+  }
+  // For iOS, would need Capacitor/Cordova plugin
+};
+
+// Use on:
+// - Successful save
+// - Delete action
+// - Error states
+#+END_SRC
+
+*** Implementation Location
+- Create ~src/utils/haptics.js~
+- Call in relevant event handlers
+
+* Implementation Checklist
+
+** Phase 1: Critical Fixes (1-2 days)
+- [ ] Add undo capability for deletions
+- [ ] Improve save/cancel feedback
+- [ ] Increase minimum touch targets
+- [ ] Test on various devices
+
+** Phase 2: UX Enhancements (2-3 days)
+- [ ] Implement multi-line input
+- [ ] Add visual hierarchy to events
+- [ ] Improve keyboard handling
+- [ ] Add empty state hints
+
+** Phase 3: Polish (1-2 days)
+- [ ] Refine swipe action visuals
+- [ ] Add haptic feedback
+- [ ] User testing and refinement
+- [ ] Update documentation
+
+* Design Constraints to Maintain
+
+** From visual-design-philosophy.org
+- NO animations (except existing ripple effect)
+- Red (#ef4444) ONLY for today's cell
+- Gray palette for everything else
+- No trendy effects (glassmorphism, etc.)
+- Clarity over cleverness
+
+** From the-timeless-approach.org
+- Timeless over trendy
+- Restraint over richness
+- Function over form
+- Instant response (no delays)
+
+* Testing Considerations
+
+** Device Testing Matrix
+- iPhone SE (smallest common screen)
+- iPhone 14 Pro (standard)
+- iPhone 15 Pro Max (large)
+- iPad (tablet considerations)
+- Android devices (various sizes)
+
+** Accessibility Testing
+- VoiceOver compatibility
+- Dynamic text sizing
+- Reduced motion settings
+- Color contrast verification
+
+** User Flow Testing
+1. First-time user experience
+2. Power user workflows
+3. Error recovery paths
+4. Data persistence
+
+* References
+
+** Files Analyzed
+- [[file:../../src/components/MobileEventComposer.jsx][MobileEventComposer.jsx]]
+- [[file:../../src/components/DayCell.jsx][DayCell.jsx]]
+- [[file:../../src/styles/mobile-composer.css][mobile-composer.css]]
+- [[file:../../src/styles/mobile.css][mobile.css]]
+- [[file:../../src/styles/swipeable-overrides.css][swipeable-overrides.css]]
+- [[file:../visual-design-philosophy.org][visual-design-philosophy.org]]
+
+** External Resources
+- Apple Human Interface Guidelines
+- Material Design Touch Targets
+- WCAG Mobile Accessibility Guidelines
+
+---
+[[file:../CLAUDE.org][← Back to Docs Map]]
+
+Last Updated: 2025-10-11
+Status: Draft - Pending Review

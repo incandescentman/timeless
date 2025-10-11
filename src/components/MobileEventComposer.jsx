@@ -148,21 +148,11 @@ function MobileEventComposer({
           commitAndClose();
         }
       }}
-      onTouchMove={(event) => {
-        event.preventDefault();
-      }}
     >
       <div
         className="mobile-composer"
         role="document"
         onClick={(event) => event.stopPropagation()}
-        onPointerDown={() => {
-          focusAttemptsRef.current = 0;
-          clearFocusRetry();
-          requestAnimationFrame(() => {
-            attemptFocus();
-          });
-        }}
       >
         <header className="mobile-composer__meta">
           <span className="mobile-composer__label">New Note</span>
@@ -178,7 +168,7 @@ function MobileEventComposer({
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder="Add a note"
+            placeholder="What happened today?"
             autoComplete="off"
             aria-label={`Event details for ${dateLabel}`}
             enterKeyHint="done"
@@ -186,12 +176,17 @@ function MobileEventComposer({
             autoCorrect="on"
           />
         </form>
-        <div className="mobile-composer__hint" aria-live="polite">
-          <span className="mobile-composer__hint-icon" aria-hidden="true">✓</span>
+        <button
+          type="button"
+          className="mobile-composer__save-button"
+          onClick={commitAndClose}
+          aria-label={value.trim() ? 'Save note' : 'Close'}
+        >
+          <span className="mobile-composer__hint-icon">✓</span>
           <span className="mobile-composer__hint-text">
-            Tap outside to {value.trim() ? 'save' : 'close'}
+            {value.trim() ? 'Save' : 'Close'}
           </span>
-        </div>
+        </button>
       </div>
     </div>,
     document.body

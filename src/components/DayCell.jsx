@@ -3,15 +3,11 @@ import { useCalendar } from '../contexts/CalendarContext';
 import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
 import MobileEventComposer from './MobileEventComposer';
-import {
-  SwipeableList,
-  SwipeableListItem,
-  ActionAnimations
-} from '@sandstreamdev/react-swipeable-list';
-import '@sandstreamdev/react-swipeable-list/dist/styles.css';
+import { useSwipeable } from 'react-swipeable';
 import '../styles/swipeable-overrides.css';
 
-function DayEventRow({
+// Swipeable event row component
+function SwipeableEventRow({
   event,
   index,
   isEditing,
@@ -21,6 +17,150 @@ function DayEventRow({
   onBlur,
   onKeyDown,
   onDelete,
+  editInputRef,
+  useCardLayout
+}) {
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteAnimationMs = 180;
+
+  const handleRowClick = () => {
+    if (!isEditing && swipeOffset === 0) {
+      onStartEdit(index);
+    }
+  };
+
+  const eventClassName = [
+    'day-event',
+    useCardLayout && 'day-note',
+    useCardLayout && 'day-card__event',
+    isEditing && 'editing'
+  ].filter(Boolean).join(' ');
+
+  const inputClassName = [
+    'day-event__input',
+    useCardLayout && 'day-card__event-input'
+  ].filter(Boolean).join(' ');
+
+  const textClassName = [
+    'day-event__text',
+    useCardLayout && 'day-card__event-text'
+  ].filter(Boolean).join(' ');
+
+  const swipeHandlers = useSwipeable({
+    onSwiping: (eventData) => {
+      // Only handle horizontal swipes
+      if (Math.abs(eventData.deltaX) <= Math.abs(eventData.deltaY)) {
+        setSwipeOffset(0);
+        return;
+      }
+      // Handle both left and right swipes with visual feedback
+      if (eventData.dir === 'Right' && eventData.deltaX > 0) {
+        setSwipeOffset(eventData.deltaX);
+      } else if (eventData.dir === 'Left' && eventData.deltaX < 0) {
+        setSwipeOffset(eventData.deltaX);
+      }
+    },
+    onSwipedRight: (eventData) => {
+      if (Math.abs(eventData.deltaX) <= Math.abs(eventData.deltaY)) {
+        setSwipeOffset(0);
+        return;
+      }
+      // Delete on right swipe
+      if (eventData.deltaX > 100) {
+        setIsDeleting(true);
+        const targetOffset = window.innerWidth ? window.innerWidth + 120 : 480;
+        setSwipeOffset(targetOffset);
+        setTimeout(() => {
+          onDelete(index);
+        }, deleteAnimationMs);
+      } else {
+        setSwipeOffset(0);
+      }
+    },
+    onSwipedLeft: (eventData) => {
+      if (Math.abs(eventData.deltaX) <= Math.abs(eventData.deltaY)) {
+        setSwipeOffset(0);
+        return;
+      }
+      // Edit on left swipe
+      if (Math.abs(eventData.deltaX) > 50) {
+        setSwipeOffset(0);
+        setTimeout(() => {
+          onStartEdit(index);
+        }, 100);
+      } else {
+        setSwipeOffset(0);
+      }
+    },
+    onTouchEndOrOnMouseUp: () => {
+      if (!isDeleting && Math.abs(swipeOffset) < 100) {
+        setSwipeOffset(0);
+      }
+    },
+    trackMouse: false,
+    trackTouch: true,
+    touchEventOptions: { passive: true },
+  });
+
+  const opacity = swipeOffset > 0 ? Math.max(0, 1 - (swipeOffset / 280)) : 1;
+  const shouldAnimate = isDeleting || swipeOffset === 0;
+  const transitionStyle = shouldAnimate ? 'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
+
+  return (
+    <div className="day-event-wrapper">
+      {/* Visual feedback for left swipe (Edit) */}
+      {swipeOffset < -50 && (
+        <div className="swipe-action swipe-action--left">
+          <span>Edit</span>
+        </div>
+      )}
+
+      {/* Visual feedback for right swipe (Delete) */}
+      {swipeOffset > 50 && (
+        <div className="swipe-action swipe-action--right">
+          <span>Delete</span>
+        </div>
+      )}
+
+      <div
+        {...swipeHandlers}
+        className={eventClassName}
+        data-event-row
+        onClick={handleRowClick}
+        style={{
+          transform: `translateX(${swipeOffset}px)`,
+          transition: transitionStyle,
+          opacity
+        }}
+      >
+        {isEditing ? (
+          <input
+            ref={editInputRef}
+            className={inputClassName}
+            value={draftText}
+            onChange={(e) => onChange(e.target.value)}
+            onBlur={onBlur}
+            onKeyDown={onKeyDown}
+          />
+        ) : (
+          <span className={textClassName}>{event}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Regular non-swipeable event row for desktop
+function DayEventRow({
+  event,
+  index,
+  isEditing,
+  draftText,
+  onStartEdit,
+  onChange,
+  onBlur,
+  onKeyDown,
   editInputRef,
   useCardLayout
 }) {
@@ -47,7 +187,7 @@ function DayEventRow({
     useCardLayout && 'day-card__event-text'
   ].filter(Boolean).join(' ');
 
-  const eventContent = (
+  return (
     <div
       className={eventClassName}
       data-event-row
@@ -61,61 +201,11 @@ function DayEventRow({
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           onKeyDown={onKeyDown}
-          />
+        />
       ) : (
         <span className={textClassName}>{event}</span>
       )}
     </div>
-  );
-
-  // Only enable swipe actions when NOT editing
-  if (isEditing) {
-    return eventContent;
-  }
-
-  return (
-    <SwipeableListItem
-      swipeLeft={{
-        content: (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            height: '100%',
-            paddingLeft: '16px',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            fontWeight: '600',
-            fontSize: '14px'
-          }}>
-            Edit
-          </div>
-        ),
-        action: () => onStartEdit(index)
-      }}
-      swipeRight={{
-        content: (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            height: '100%',
-            paddingRight: '16px',
-            backgroundColor: '#ef4444',
-            color: 'white',
-            fontWeight: '600',
-            fontSize: '14px'
-          }}>
-            Delete
-          </div>
-        ),
-        action: () => onDelete(index),
-        actionAnimation: ActionAnimations.REMOVE
-      }}
-      threshold={0.3}
-    >
-      {eventContent}
-    </SwipeableListItem>
   );
 }
 
@@ -407,20 +497,36 @@ function DayCell({ date, isCurrentMonth = true }) {
           </div>
           <div className="day-events">
             {events.map((event, idx) => (
-              <DayEventRow
-                key={`${dateId}-event-${idx}`}
-                event={event}
-                index={idx}
-                isEditing={editingIndex === idx}
-                draftText={editingIndex === idx ? draftText : ''}
-                onStartEdit={startEditing}
-                onChange={setDraftText}
-                onBlur={commitEdit}
-                onKeyDown={handleEditKeyDown}
-                onDelete={handleRemoveEvent}
-                editInputRef={editInputRef}
-                useCardLayout={false}
-              />
+              isMobileViewport ? (
+                <SwipeableEventRow
+                  key={`${dateId}-event-${idx}`}
+                  event={event}
+                  index={idx}
+                  isEditing={editingIndex === idx}
+                  draftText={editingIndex === idx ? draftText : ''}
+                  onStartEdit={startEditing}
+                  onChange={setDraftText}
+                  onBlur={commitEdit}
+                  onKeyDown={handleEditKeyDown}
+                  onDelete={handleRemoveEvent}
+                  editInputRef={editInputRef}
+                  useCardLayout={false}
+                />
+              ) : (
+                <DayEventRow
+                  key={`${dateId}-event-${idx}`}
+                  event={event}
+                  index={idx}
+                  isEditing={editingIndex === idx}
+                  draftText={editingIndex === idx ? draftText : ''}
+                  onStartEdit={startEditing}
+                  onChange={setDraftText}
+                  onBlur={commitEdit}
+                  onKeyDown={handleEditKeyDown}
+                  editInputRef={editInputRef}
+                  useCardLayout={false}
+                />
+              )
             ))}
           </div>
 
@@ -480,20 +586,36 @@ function DayCell({ date, isCurrentMonth = true }) {
         <div className="day-card__body">
           <div className="day-events">
             {events.map((event, idx) => (
-              <DayEventRow
-                key={`${dateId}-event-${idx}`}
-                event={event}
-                index={idx}
-                isEditing={editingIndex === idx}
-                draftText={editingIndex === idx ? draftText : ''}
-                onStartEdit={startEditing}
-                onChange={setDraftText}
-                onBlur={commitEdit}
-                onKeyDown={handleEditKeyDown}
-                onDelete={handleRemoveEvent}
-                editInputRef={editInputRef}
-                useCardLayout={useCardLayout}
-              />
+              isMobileViewport ? (
+                <SwipeableEventRow
+                  key={`${dateId}-event-${idx}`}
+                  event={event}
+                  index={idx}
+                  isEditing={editingIndex === idx}
+                  draftText={editingIndex === idx ? draftText : ''}
+                  onStartEdit={startEditing}
+                  onChange={setDraftText}
+                  onBlur={commitEdit}
+                  onKeyDown={handleEditKeyDown}
+                  onDelete={handleRemoveEvent}
+                  editInputRef={editInputRef}
+                  useCardLayout={useCardLayout}
+                />
+              ) : (
+                <DayEventRow
+                  key={`${dateId}-event-${idx}`}
+                  event={event}
+                  index={idx}
+                  isEditing={editingIndex === idx}
+                  draftText={editingIndex === idx ? draftText : ''}
+                  onStartEdit={startEditing}
+                  onChange={setDraftText}
+                  onBlur={commitEdit}
+                  onKeyDown={handleEditKeyDown}
+                  editInputRef={editInputRef}
+                  useCardLayout={useCardLayout}
+                />
+              )
             ))}
           </div>
 

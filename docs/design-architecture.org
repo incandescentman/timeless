@@ -165,6 +165,7 @@ const isToday = (date: Date) => {
 - The swipeable wrapper only applies to non-editing event rows; editing rows render as plain divs.
 - Calendar-level swipe navigation is guarded (`Calendar.jsx`) to ignore any gesture that begins inside `[data-event-row]` or the mobile composer, preventing month jumps from hijacking note actions.
 - If threshold sensitivity needs adjustment, modify the `threshold` prop on `SwipeableListItem` (current: 0.3 = 30% of item width).
+- We intentionally skip `navigator.vibrate` haptics on commit/delete; Safari on iOS ignores the API, so keeping the interaction purely visual avoids platform inconsistency.
 
 ** Command Feedback HUD & Keystroke Overlay
 
