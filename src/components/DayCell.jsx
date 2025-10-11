@@ -4,6 +4,7 @@ import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } f
 import { useRipple } from '../hooks/useRipple';
 import MobileEventComposer from './MobileEventComposer';
 import { useSwipeable } from 'react-swipeable';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import '../styles/swipeable-overrides.css';
 
 // Swipeable event row component
@@ -112,6 +113,7 @@ function SwipeableEventRow({
       {/* Visual feedback for left swipe (Edit) */}
       {swipeOffset < -50 && (
         <div className="swipe-action swipe-action--left">
+          <IconPencil size={18} stroke={2.5} />
           <span>Edit</span>
         </div>
       )}
@@ -119,6 +121,7 @@ function SwipeableEventRow({
       {/* Visual feedback for right swipe (Delete) */}
       {swipeOffset > 50 && (
         <div className="swipe-action swipe-action--right">
+          <IconTrash size={18} stroke={2.5} />
           <span>Delete</span>
         </div>
       )}
