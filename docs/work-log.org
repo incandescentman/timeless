@@ -89,8 +89,46 @@ Benefits:
 - Consistent with common mobile patterns (Gmail, iOS Mail, etc.)
 - No external library needed (extended existing toast system)
 
-Next Stage:
-- Stage 3: Progressive Color Intensity
+*** Stage 3: Progressive Color Intensity **COMPLETED**
+
+Problem:
+Swipe actions had static colors that didn't provide clear feedback about whether the swipe threshold had been reached.
+
+Solution:
+- Calculate progressive color intensity based on swipe distance
+- Edit action (left swipe): intensity from 0.4 to 1.0 as user swipes further left
+- Delete action (right swipe): intensity from 0.5 to 1.0 as user swipes further right
+- Background color becomes more vibrant as user approaches action threshold
+
+Implementation:
+- Added `editIntensity` calculation: `Math.min(1.0, Math.max(0.4, Math.abs(swipeOffset) / 120))`
+- Added `deleteIntensity` calculation: `Math.min(1.0, Math.max(0.5, swipeOffset / 120))`
+- Applied intensity to inline background gradients using rgba with variable alpha
+- Edit gradient: slate gray (100, 116, 139) with progressive intensity
+- Delete gradient: red (239, 68, 68) with progressive intensity
+
+Files Changed:
+- src/components/DayCell.jsx - Added progressive intensity calculations and dynamic inline styles
+
+Tests:
+- npm run build ✓
+
+Benefits:
+- Clear visual feedback about swipe progress
+- Users can see when they've reached the action threshold (100px for delete, 50px for edit)
+- More intuitive swipe interaction
+- Smoother, more responsive feel
+- Color intensity naturally guides users to complete or cancel the action
+
+**All three stages completed successfully!**
+
+Summary of Enhancements:
+1. Icons + Text - Added visual icons (pencil, trash) alongside text labels
+2. Undo Toast - 4-second undo opportunity after deletion
+3. Progressive Color - Background intensity increases with swipe distance
+
+Overall Result:
+Mobile swipe gestures now feel professional, forgiving, and provide clear visual feedback at every stage of the interaction.
 
 ** Session: Major Mobile UI Fixes - Cursor, Save Actions, and Swipe Gestures
 Time: Evening

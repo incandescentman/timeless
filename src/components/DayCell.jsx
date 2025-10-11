@@ -109,11 +109,24 @@ function SwipeableEventRow({
   const shouldAnimate = isDeleting || swipeOffset === 0;
   const transitionStyle = shouldAnimate ? 'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
 
+  // Calculate progressive color intensity based on swipe distance
+  // Edit action (left swipe): intensity from 0.4 to 1.0 as you swipe left
+  const editIntensity = Math.min(1.0, Math.max(0.4, Math.abs(swipeOffset) / 120));
+  // Delete action (right swipe): intensity from 0.5 to 1.0 as you swipe right
+  const deleteIntensity = Math.min(1.0, Math.max(0.5, swipeOffset / 120));
+
   return (
     <div className="day-event-wrapper">
       {/* Visual feedback for left swipe (Edit) */}
       {swipeOffset < -50 && (
-        <div className="swipe-action swipe-action--left">
+        <div
+          className="swipe-action swipe-action--left"
+          style={{
+            background: `linear-gradient(to right,
+              rgba(100, 116, 139, ${editIntensity}),
+              rgba(71, 85, 105, ${editIntensity * 0.9}))`
+          }}
+        >
           <IconPencil size={18} stroke={2.5} />
           <span>Edit</span>
         </div>
@@ -121,7 +134,14 @@ function SwipeableEventRow({
 
       {/* Visual feedback for right swipe (Delete) */}
       {swipeOffset > 50 && (
-        <div className="swipe-action swipe-action--right">
+        <div
+          className="swipe-action swipe-action--right"
+          style={{
+            background: `linear-gradient(to left,
+              rgba(239, 68, 68, ${deleteIntensity}),
+              rgba(220, 38, 38, ${deleteIntensity * 0.95}))`
+          }}
+        >
           <IconTrash size={18} stroke={2.5} />
           <span>Delete</span>
         </div>
