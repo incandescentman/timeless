@@ -1203,13 +1203,21 @@ Today's Accomplishments:
 1. **Simplified gesture system** - Removed long press, changed swipe left to delete
 2. **Mobile composer improvements** - Keyboard-only save, fixed cursor alignment, removed redundant button
 3. **Fixed swipe hint positions** - Actions now appear in revealed space (delete on right, done on left)
+4. **Fixed scroll jump after saving** - Viewport now stays stable when adding events
 
 Key Improvements:
 - Simpler 2-gesture system (swipe right = done, swipe left = delete)
 - Cleaner mobile composer following iOS conventions
 - More intuitive visual feedback for swipe actions
 - Fixed cursor/text alignment bug
+- Fixed scroll jump issue - newly added event remains visible after save
 - All changes maintain backward compatibility
+
+Implementation Details:
+- Scroll fix stores position before keyboard dismisses
+- After DOM update, checks if day cell is near viewport edges
+- If needed, scrolls to position day cell in upper third of viewport
+- Otherwise restores original position if significant jump occurred
 
 Next Steps:
 - Test on physical iOS/Android devices
