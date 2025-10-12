@@ -65,17 +65,39 @@ Each month contains a traditional 7-column day grid.
 
 ** 3. Backward-Compatible Data Structure
 
-Event interface must never break existing stored events. New fields must be optional.
+Event data evolved from simple strings to rich objects while maintaining full backward compatibility.
 
-#+begin_src typescript
-interface Event {
-  id: string;           // Required - unique identifier
-  title: string;        // Required - event name
-  date: string;         // Required - ISO format YYYY-MM-DD
-  description?: string; // Optional - event details
-  // Future fields must be optional!
+Current event format (stored in CalendarContext):
+#+begin_src javascript
+// Events are stored as arrays keyed by dateId (M_D_YYYY format)
+calendarData = {
+  "9_15_2025": [
+    {
+      text: "Event text",      // Required - event content
+      completed: false,         // Required - completion status (boolean)
+      tags: []                  // Required - array of tag strings
+    }
+  ]
 }
 #+end_src
+
+Legacy string events are automatically normalized on load:
+#+begin_src javascript
+// Legacy format (still supported)
+"9_15_2025": ["Simple string event"]
+
+// Automatically normalizes to:
+"9_15_2025": [{ text: "Simple string event", completed: false, tags: [] }]
+#+end_src
+
+Event utilities ([[file:../src/utils/eventUtils.js][eventUtils.js]]):
+- normalizeEvent() - Converts string or object to standard format
+- getEventText() - Extracts text from string or object
+- isEventCompleted() - Safely checks completion status
+- toggleEventCompletion() - Returns new event with toggled completion
+- setEventTags() - Returns new event with updated tags
+
+Storage layer ([[file:../src/utils/storage.js][storage.js]]) automatically normalizes on load/import and exports with metadata.
 
 ** 4. ISO Date Format (YYYY-MM-DD)
 
@@ -156,16 +178,38 @@ const isToday = (date: Date) => {
 
 ** Mobile Event Gestures
 
-- `DayCell.jsx` uses `@sandstreamdev/react-swipeable-list` library for swipe-to-delete and swipe-to-edit gestures on individual event rows.
-- Swiping **right** reveals a red "Delete" background and triggers `onDelete(index)` when the swipe crosses the 30% threshold (`threshold={0.3}`).
-- Swiping **left** reveals a blue "Edit" background and triggers `onStartEdit(index)` when the threshold is crossed.
-- The library provides **progressive visual feedback**: the background color and action text are revealed as you swipe, and the event content follows your finger in real-time.
-- Delete action uses `ActionAnimations.REMOVE` for a smooth removal animation.
-- Swipe gestures are disabled when an event is in editing mode to prevent conflicts with text selection.
-- The swipeable wrapper only applies to non-editing event rows; editing rows render as plain divs.
-- Calendar-level swipe navigation is guarded (`Calendar.jsx`) to ignore any gesture that begins inside `[data-event-row]` or the mobile composer, preventing month jumps from hijacking note actions.
-- If threshold sensitivity needs adjustment, modify the `threshold` prop on `SwipeableListItem` (current: 0.3 = 30% of item width).
-- We intentionally skip `navigator.vibrate` haptics on commit/delete; Safari on iOS ignores the API, so keeping the interaction purely visual avoids platform inconsistency.
+Mobile event rows support three gesture interactions optimized for task/todo workflows:
+
+*** Swipe Right → Toggle Completion
+- Reveals **green checkmark** background with "Done" or "Undone" label
+- Progressive green gradient intensity (rgba(34, 197, 94)) as swipe extends
+- Triggers `toggleEventCompletionStatus()` when swipe exceeds 100px threshold
+- Instant toggle on release, no animation
+- Visual feedback: completed events show strikethrough + reduced opacity
+
+*** Long Press → Delete
+- **500ms press threshold** triggers red overlay with trash icon
+- Full-screen red background (rgba(239, 68, 68, 0.95)) with "Delete" label
+- Cancels automatically if finger moves >10px in any direction
+- Triggers slide-out delete animation on release
+- Shows undo toast for 4-second recovery window
+
+*** Swipe Left → Tag Management
+- Reveals **blue/gray tags icon** with "Tags" label
+- Progressive slate gradient intensity (rgba(100, 116, 139))
+- Triggers tag manager when swipe exceeds 50px threshold
+- Currently shows placeholder toast (UI deferred to future session)
+
+*** Implementation Details
+- Uses `react-swipeable` library with direct transform control
+- Touch handlers (onTouchStart/Move/End) for long press detection
+- SwipeableEventRow component wraps mobile event rows (<768px)
+- Desktop uses non-swipeable DayEventRow with click-to-edit
+- Progressive color intensity provides clear visual feedback during swipe
+- Smooth transitions (0.18s cubic-bezier) when resetting position
+- Calendar-level swipe navigation guarded to ignore gestures originating from `[data-event-row]`
+- Hardware acceleration via translateX for smooth performance
+- All gesture thresholds tuned to prevent accidental triggers
 
 ** Command Feedback HUD & Keystroke Overlay
 
@@ -259,6 +303,9 @@ Exported for use across components.
 
 * Recent Updates
 
+- 2025-10-12: Documented new event object structure with completion status and tags
+- 2025-10-12: Documented new gesture meanings (swipe right = done, long press = delete, swipe left = tags)
+- 2025-10-12: Updated Mobile Event Gestures section with task/todo workflow optimizations
 - 2025-10-08: Added mobile single-row day headers with canonical weekday/month abbreviations
 - 2025-10-08: Documented mobile composer overlay and tightened mobile spacing
 - 2025-10-04: Initial architecture documentation created
@@ -366,4 +413,4 @@ setEvents([...events, newEvent]); // ✓ Immutable
 ---
 [[file:CLAUDE.org][← Docs Map]] | [[file:the-timeless-approach.org][← Philosophy]] | [[file:visual-design-philosophy.org][← Design]] | [[file:codebase-wisdom.org][→ Wisdom]]
 
-Last Updated: 2025-10-08
+Last Updated: 2025-10-12

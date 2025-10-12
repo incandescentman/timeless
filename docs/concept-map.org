@@ -50,11 +50,61 @@ Design Rule: [[file:visual-design-philosophy.org::*Today Highlighting][visual-de
 
 * Event
 
-A user-created calendar entry associated with a specific date. Events have a title, optional description, and date. The data structure must remain backward-compatible.
+A user-created calendar entry associated with a specific date. Events are stored as objects with text, completion status, and tags. Legacy string events are automatically normalized on load to maintain backward compatibility.
 
-Related: [[*Event Card]], [[*Event Form]]
-Implementation: See [[file:../src/types/index.ts][types/index.ts]] Event interface
-Data Flow: [[file:design-architecture.org::*Event Management][design-architecture.org::*Event Management]]
+Modern Format (2025-10-12+):
+#+begin_src javascript
+{ text: "Event text", completed: false, tags: [] }
+#+end_src
+
+Legacy Format (pre-2025-10-12, still supported):
+#+begin_src javascript
+"Simple string event"
+#+end_src
+
+Related: [[*Event Object]], [[*Completion Status]], [[*Tags]], [[*Event Card]]
+Implementation: See [[file:../src/utils/eventUtils.js][eventUtils.js]] normalization utilities
+Data Flow: [[file:design-architecture.org::*Backward-Compatible Data Structure][design-architecture.org::*Backward-Compatible Data Structure]]
+
+* Event Object
+
+The rich data structure for calendar events, introduced in 2025-10-12 to support task/todo workflows.
+
+Structure:
+- **text** (string): Event content/description
+- **completed** (boolean): Whether event is marked done
+- **tags** (array): Array of tag strings for categorization
+
+All event objects are created with `completed: false` and `tags: []` by default. Legacy string events normalize automatically to this format.
+
+Related: [[*Event]], [[*Completion Status]], [[*Tags]]
+Implementation: [[file:../src/utils/eventUtils.js][eventUtils.js]]
+Context: [[file:../src/contexts/CalendarContext.jsx][CalendarContext.jsx]]
+
+* Completion Status
+
+Boolean flag indicating whether an event is marked as done/complete. Toggled via swipe right gesture on mobile or dedicated controls on desktop.
+
+Visual Feedback:
+- Completed events show strikethrough text
+- Reduced opacity (0.5 light mode, 0.4 dark mode)
+
+Related: [[*Event Object]], [[*Swipe Right Gesture]]
+Implementation: [[file:../src/styles/day-cell.css][day-cell.css]] .completed class
+Context Function: toggleEventCompletionStatus() in [[file:../src/contexts/CalendarContext.jsx][CalendarContext.jsx]]
+
+* Tags
+
+Array of string labels attached to events for categorization and filtering. Currently in foundation stage with UI deferred to future session.
+
+Planned Features:
+- Tag input with autocomplete
+- Tag colors or categories
+- Filter events by tag
+
+Related: [[*Event Object]], [[*Swipe Left Gesture]]
+Implementation: [[file:../src/utils/eventUtils.js][eventUtils.js]] setEventTags()
+Context Function: updateEventTags() in [[file:../src/contexts/CalendarContext.jsx][CalendarContext.jsx]]
 
 * Event Card
 
@@ -113,5 +163,68 @@ All dates in the application use the ISO 8601 format: YYYY-MM-DD. This ensures c
 Related: [[*Event]], [[*Invariants]]
 Implementation: See [[file:../src/utils/dateUtils.ts][dateUtils.ts]]
 
+* Mobile Gestures
+
+Touch-based interactions for manipulating events on mobile devices (<768px viewports). Introduced 2025-10-12 to optimize for task/todo workflows.
+
+Three core gestures:
+- [[*Swipe Right Gesture]]: Toggle completion
+- [[*Long Press Gesture]]: Delete event
+- [[*Swipe Left Gesture]]: Tag management
+
+Related: [[*Event Object]], [[*Completion Status]], [[*Tags]]
+Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] SwipeableEventRow
+Design: [[file:design-architecture.org::*Mobile Event Gestures][design-architecture.org::*Mobile Event Gestures]]
+
+* Swipe Right Gesture
+
+Mobile gesture to toggle event completion status. Swipe an event row from left to right.
+
+Visual Feedback:
+- Green checkmark icon with "Done" or "Undone" label
+- Progressive green gradient (rgba(34, 197, 94)) increases with swipe distance
+- Requires 100px swipe threshold to trigger
+
+Behavior:
+- Instant toggle on release (no animation)
+- Completed events show strikethrough + reduced opacity
+
+Related: [[*Mobile Gestures]], [[*Completion Status]]
+Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] onSwipedRight handler
+
+* Long Press Gesture
+
+Mobile gesture to delete an event. Press and hold on an event row for 500ms.
+
+Visual Feedback:
+- Red overlay (rgba(239, 68, 68, 0.95)) covers entire row
+- Trash icon with "Delete" label appears centered
+- Cancels if finger moves >10px in any direction
+
+Behavior:
+- Triggers slide-out delete animation on release
+- Shows undo toast with 4-second recovery window
+
+Related: [[*Mobile Gestures]], [[*Event]]
+Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] touch handlers
+
+* Swipe Left Gesture
+
+Mobile gesture to open tag management interface. Swipe an event row from right to left.
+
+Visual Feedback:
+- Tags icon with "Tags" label
+- Progressive blue/gray gradient (rgba(100, 116, 139))
+- Requires 50px swipe threshold to trigger
+
+Current Status:
+- Shows placeholder toast (UI deferred to future session)
+- Foundation ready for tag selector/input interface
+
+Related: [[*Mobile Gestures]], [[*Tags]]
+Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] onSwipedLeft handler
+
 ---
 [[file:CLAUDE.org][← Docs Map]] | [[file:the-timeless-approach.org][→ Philosophy]] | [[file:design-architecture.org][→ Architecture]]
+
+Last Updated: 2025-10-12
