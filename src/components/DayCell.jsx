@@ -447,6 +447,38 @@ function DayCell({ date, isCurrentMonth = true }) {
     const trimmed = newEventText.trim();
     if (trimmed) {
       addNote(dateId, trimmed);
+
+      // On mobile, ensure the newly added event is visible after keyboard dismisses
+      if (isMobileViewport) {
+        // Store current scroll position before keyboard dismisses
+        const scrollY = window.scrollY;
+
+        // Wait for DOM update and keyboard dismissal
+        setTimeout(() => {
+          const dayCell = document.querySelector(`[data-date-id="${dateId}"]`);
+          if (dayCell) {
+            // Get the day cell's position
+            const rect = dayCell.getBoundingClientRect();
+            const absoluteTop = rect.top + window.scrollY;
+
+            // If the day cell is below the viewport or too high, center it
+            if (rect.top < 100 || rect.bottom > window.innerHeight - 100) {
+              // Scroll to position the day cell in the upper third of the viewport
+              // This ensures the newly added event is visible
+              window.scrollTo({
+                top: absoluteTop - 120,
+                behavior: 'smooth'
+              });
+            } else if (Math.abs(window.scrollY - scrollY) > 50) {
+              // If there was a significant jump, restore approximate position
+              window.scrollTo({
+                top: scrollY,
+                behavior: 'instant'
+              });
+            }
+          }
+        }, 150); // Slightly longer delay to ensure keyboard is fully dismissed
+      }
     }
     cancelNewEvent({ suppress: true });
   };
