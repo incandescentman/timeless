@@ -195,7 +195,7 @@ Mobile event rows support two simple gesture interactions optimized for task/tod
 - Progressive red gradient intensity (rgba(239, 68, 68)) as swipe extends
 - Action appears in the revealed space (right side when swiping left)
 - Triggers delete when swipe exceeds 100px threshold
-- Slide-left animation on delete (180ms) followed by height collapse to ease layout shift
+- Slide-left animation on delete (180ms) followed by height collapse; removal waits for transitionend to avoid viewport jumps
 - Shows undo toast for 4-second recovery window
 
 *** Implementation Details

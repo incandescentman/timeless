@@ -27,11 +27,11 @@ function SwipeableEventRow({
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const deleteAnimationMs = 180;
-  const collapseDurationMs = 220;
   const [isCollapsing, setIsCollapsing] = useState(false);
   const wrapperRef = useRef(null);
   const collapseTimeoutRef = useRef(null);
   const removalTimeoutRef = useRef(null);
+  const pendingRemovalRef = useRef(false);
 
   useEffect(() => (
     () => {
@@ -43,6 +43,7 @@ function SwipeableEventRow({
         clearTimeout(removalTimeoutRef.current);
         removalTimeoutRef.current = null;
       }
+      pendingRemovalRef.current = false;
     }
   ), []);
 
@@ -108,6 +109,7 @@ function SwipeableEventRow({
         setIsDeleting(true);
         const targetOffset = -(window.innerWidth ? window.innerWidth + 120 : 480);
         setSwipeOffset(targetOffset);
+        pendingRemovalRef.current = true;
         if (collapseTimeoutRef.current) {
           clearTimeout(collapseTimeoutRef.current);
         }
@@ -117,9 +119,13 @@ function SwipeableEventRow({
         collapseTimeoutRef.current = setTimeout(() => {
           setIsCollapsing(true);
         }, deleteAnimationMs);
+        // Fallback in case transitionend fails to fire
         removalTimeoutRef.current = setTimeout(() => {
-          onDelete(index);
-        }, deleteAnimationMs + collapseDurationMs);
+          if (pendingRemovalRef.current) {
+            pendingRemovalRef.current = false;
+            onDelete(index);
+          }
+        }, deleteAnimationMs + 400);
       } else {
         setSwipeOffset(0);
       }
@@ -148,6 +154,33 @@ function SwipeableEventRow({
     'day-event-wrapper',
     isCollapsing && 'day-event-wrapper--collapsing'
   ].filter(Boolean).join(' ');
+
+  useEffect(() => {
+    if (!isCollapsing) {
+      return undefined;
+    }
+
+    const node = wrapperRef.current;
+    if (!node) {
+      return undefined;
+    }
+
+    const handleTransitionEnd = (event) => {
+      if (event.propertyName !== 'max-height') {
+        return;
+      }
+      node.removeEventListener('transitionend', handleTransitionEnd);
+      if (pendingRemovalRef.current) {
+        pendingRemovalRef.current = false;
+        onDelete(index);
+      }
+    };
+
+    node.addEventListener('transitionend', handleTransitionEnd);
+    return () => {
+      node.removeEventListener('transitionend', handleTransitionEnd);
+    };
+  }, [isCollapsing, index, onDelete]);
 
   return (
     <div
