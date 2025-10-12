@@ -168,11 +168,12 @@ const isToday = (date: Date) => {
 ** Mobile Event Composer (MobileEventComposer.jsx)
 
 - Below 768px viewports, tapping an empty day opens a centered overlay instead of the inline composer.
-- The overlay portals to `document.body`, locks background scrolling, and autofocuses the input once mounted.
+- The overlay portals to `document.body` and autofocuses the input once mounted.
 - Desktop still renders the inline composer inside `DayCell`; both flows call the same add/update handlers.
-- Mobile keeps the ripple affordance on tap but the overlay now auto-commits when non-empty input loses focus (outside tap/Escape) and simply closes if empty—no explicit buttons rendered.
-- Input focus is requested on the first frame after mount so Mobile Safari raises the keyboard immediately (mirroring Canonical's Minimalist capture modal).
-- The footer hint mirrors the Minimalist capture treatment (checkmark + "Tap anywhere to save") while staying within Timeless color tokens.
+- Mobile uses keyboard-only save: iOS keyboard checkmark (Enter) saves, tap outside or Escape cancels.
+- No save button displayed - follows iOS conventions where keyboard action is primary.
+- Input focus is requested on the first frame after mount so Mobile Safari raises the keyboard immediately.
+- Cursor alignment fixed with `line-height: normal` to prevent text/cursor misalignment.
 - Blank-day layout clamps to a shallower min-height/padding on mobile so empty rows compress while note-bearing cells retain breathing room.
 - Day headers collapse into a single row on mobile: weekday stays left-aligned, month + day are right-justified, and all abbreviations come from `dateUtils.daysOfWeek` / `dateUtils.shortMonths` so wording stays consistent across the app.
 
@@ -181,15 +182,17 @@ const isToday = (date: Date) => {
 Mobile event rows support two simple gesture interactions optimized for task/todo workflows:
 
 *** Swipe Right → Toggle Completion
-- Reveals **green checkmark** background with "Done" or "Undone" label
+- Reveals **green checkmark** on LEFT side with "Done" or "Undone" label
 - Progressive green gradient intensity (rgba(34, 197, 94)) as swipe extends
+- Action appears in the revealed space (left side when swiping right)
 - Triggers `toggleEventCompletionStatus()` when swipe exceeds 100px threshold
 - Instant toggle on release, no animation
 - Visual feedback: completed events show strikethrough + reduced opacity
 
 *** Swipe Left → Delete
-- Reveals **red trash icon** background with "Delete" label
+- Reveals **red trash icon** on RIGHT side with "Delete" label
 - Progressive red gradient intensity (rgba(239, 68, 68)) as swipe extends
+- Action appears in the revealed space (right side when swiping left)
 - Triggers delete when swipe exceeds 100px threshold
 - Slide-left animation on delete (300ms)
 - Shows undo toast for 4-second recovery window
@@ -296,6 +299,9 @@ Exported for use across components.
 
 * Recent Updates
 
+- 2025-10-12: Fixed swipe action hints to appear in revealed space (delete on right, done on left)
+- 2025-10-12: Simplified mobile composer to keyboard-only save (removed save button)
+- 2025-10-12: Fixed mobile composer cursor alignment issue
 - 2025-10-12: Simplified gesture system to 2 gestures (swipe right = done, swipe left = delete)
 - 2025-10-12: Removed long press detection for simpler, more discoverable interactions
 - 2025-10-12: Documented new event object structure with completion status and tags
