@@ -125,8 +125,8 @@ function SwipeableEventRow({
           className="swipe-action swipe-action--left"
           style={{
             background: `linear-gradient(to left,
-              rgba(239, 68, 68, ${deleteIntensity}),
-              rgba(220, 38, 38, ${deleteIntensity * 0.95}))`
+              rgba(201, 34, 40, ${deleteIntensity}),
+              rgba(201, 34, 40, ${deleteIntensity * 0.9}))`
           }}
         >
           <IconTrash size={18} stroke={2.5} />
@@ -140,8 +140,8 @@ function SwipeableEventRow({
           className="swipe-action swipe-action--right"
           style={{
             background: `linear-gradient(to right,
-              rgba(34, 197, 94, ${doneIntensity}),
-              rgba(22, 163, 74, ${doneIntensity * 0.95}))`
+              rgba(74, 222, 128, ${doneIntensity}),
+              rgba(74, 222, 128, ${doneIntensity * 0.9}))`
           }}
         >
           <IconCheck size={18} stroke={2.5} />
