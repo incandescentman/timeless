@@ -20,24 +20,90 @@ function SwipeableEventRow({
   onBlur,
   onKeyDown,
   onDelete,
+  onToggleCompletion,
+  onOpenTagManager,
   editInputRef,
   useCardLayout
 }) {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLongPressing, setIsLongPressing] = useState(false);
   const deleteAnimationMs = 180;
+  const longPressThreshold = 500; // 500ms for long press
+  const longPressTimerRef = useRef(null);
+  const touchStartTimeRef = useRef(null);
+  const touchStartPosRef = useRef(null);
 
   const handleRowClick = () => {
-    if (!isEditing && swipeOffset === 0) {
+    if (!isEditing && swipeOffset === 0 && !isLongPressing) {
       onStartEdit(index);
     }
   };
+
+  const handleTouchStart = (e) => {
+    touchStartTimeRef.current = Date.now();
+    const touch = e.touches[0];
+    touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+
+    // Start long press timer
+    longPressTimerRef.current = setTimeout(() => {
+      setIsLongPressing(true);
+    }, longPressThreshold);
+  };
+
+  const handleTouchMove = (e) => {
+    // Cancel long press if user moves finger significantly
+    if (touchStartPosRef.current) {
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartPosRef.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStartPosRef.current.y);
+
+      if (deltaX > 10 || deltaY > 10) {
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+        setIsLongPressing(false);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    if (isLongPressing) {
+      // Trigger delete on long press
+      setIsDeleting(true);
+      const targetOffset = window.innerWidth ? window.innerWidth + 120 : 480;
+      setSwipeOffset(targetOffset);
+      setTimeout(() => {
+        onDelete(index);
+      }, deleteAnimationMs);
+    }
+
+    setIsLongPressing(false);
+    touchStartTimeRef.current = null;
+    touchStartPosRef.current = null;
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
 
   const eventClassName = [
     'day-event',
     useCardLayout && 'day-note',
     useCardLayout && 'day-card__event',
-    isEditing && 'editing'
+    isEditing && 'editing',
+    isLongPressing && 'long-pressing'
   ].filter(Boolean).join(' ');
 
   const inputClassName = [
@@ -52,6 +118,13 @@ function SwipeableEventRow({
 
   const swipeHandlers = useSwipeable({
     onSwiping: (eventData) => {
+      // Cancel long press on swipe
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+      setIsLongPressing(false);
+
       // Only handle horizontal swipes
       if (Math.abs(eventData.deltaX) <= Math.abs(eventData.deltaY)) {
         setSwipeOffset(0);
@@ -69,14 +142,12 @@ function SwipeableEventRow({
         setSwipeOffset(0);
         return;
       }
-      // Delete on right swipe
+      // Toggle completion on right swipe
       if (eventData.deltaX > 100) {
-        setIsDeleting(true);
-        const targetOffset = window.innerWidth ? window.innerWidth + 120 : 480;
-        setSwipeOffset(targetOffset);
+        setSwipeOffset(0);
         setTimeout(() => {
-          onDelete(index);
-        }, deleteAnimationMs);
+          onToggleCompletion(index);
+        }, 50);
       } else {
         setSwipeOffset(0);
       }
@@ -86,11 +157,11 @@ function SwipeableEventRow({
         setSwipeOffset(0);
         return;
       }
-      // Edit on left swipe
+      // Open tag manager on left swipe
       if (Math.abs(eventData.deltaX) > 50) {
         setSwipeOffset(0);
         setTimeout(() => {
-          onStartEdit(index);
+          onOpenTagManager(index);
         }, 100);
       } else {
         setSwipeOffset(0);
@@ -111,36 +182,56 @@ function SwipeableEventRow({
   const transitionStyle = shouldAnimate ? 'transform 0.18s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
 
   // Calculate progressive color intensity based on swipe distance
-  // Edit action (left swipe): intensity from 0.4 to 1.0 as you swipe left
-  const editIntensity = Math.min(1.0, Math.max(0.4, Math.abs(swipeOffset) / 120));
-  // Delete action (right swipe): intensity from 0.5 to 1.0 as you swipe right
-  const deleteIntensity = Math.min(1.0, Math.max(0.5, swipeOffset / 120));
+  // Tags action (left swipe): intensity from 0.4 to 1.0 as you swipe left
+  const tagsIntensity = Math.min(1.0, Math.max(0.4, Math.abs(swipeOffset) / 120));
+  // Done action (right swipe): intensity from 0.5 to 1.0 as you swipe right
+  const doneIntensity = Math.min(1.0, Math.max(0.5, swipeOffset / 120));
 
   return (
     <div className="day-event-wrapper">
-      {/* Visual feedback for left swipe (Edit) */}
+      {/* Visual feedback for left swipe (Tags) */}
       {swipeOffset < -50 && (
         <div
           className="swipe-action swipe-action--left"
           style={{
             background: `linear-gradient(to right,
-              rgba(100, 116, 139, ${editIntensity}),
-              rgba(71, 85, 105, ${editIntensity * 0.9}))`
+              rgba(100, 116, 139, ${tagsIntensity}),
+              rgba(71, 85, 105, ${tagsIntensity * 0.9}))`
           }}
         >
-          <IconPencil size={18} stroke={2.5} />
-          <span>Edit</span>
+          <IconTags size={18} stroke={2.5} />
+          <span>Tags</span>
         </div>
       )}
 
-      {/* Visual feedback for right swipe (Delete) */}
+      {/* Visual feedback for right swipe (Done/Undone) */}
       {swipeOffset > 50 && (
         <div
           className="swipe-action swipe-action--right"
           style={{
             background: `linear-gradient(to left,
-              rgba(239, 68, 68, ${deleteIntensity}),
-              rgba(220, 38, 38, ${deleteIntensity * 0.95}))`
+              rgba(34, 197, 94, ${doneIntensity}),
+              rgba(22, 163, 74, ${doneIntensity * 0.95}))`
+          }}
+        >
+          <IconCheck size={18} stroke={2.5} />
+          <span>{isEventCompleted(event) ? 'Undone' : 'Done'}</span>
+        </div>
+      )}
+
+      {/* Visual feedback for long press (Delete) */}
+      {isLongPressing && (
+        <div
+          className="swipe-action swipe-action--longpress"
+          style={{
+            background: 'rgba(239, 68, 68, 0.95)',
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            zIndex: 10
           }}
         >
           <IconTrash size={18} stroke={2.5} />
@@ -153,6 +244,9 @@ function SwipeableEventRow({
         className={eventClassName}
         data-event-row
         onClick={handleRowClick}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         style={{
           transform: `translateX(${swipeOffset}px)`,
           transition: transitionStyle,
@@ -261,6 +355,8 @@ function DayCell({ date, isCurrentMonth = true }) {
     updateEvent,
     removeEvent,
     removeEventWithUndo,
+    toggleEventCompletionStatus,
+    updateEventTags,
     systemToday,
     keyboardFocusDate,
     isMultiSelectMode,
@@ -498,6 +594,16 @@ function DayCell({ date, isCurrentMonth = true }) {
     });
   };
 
+  const handleToggleCompletion = (idx) => {
+    toggleEventCompletionStatus(dateId, idx);
+  };
+
+  const handleOpenTagManager = (idx) => {
+    // TODO: Implement tag management UI
+    // For now, just show a toast
+    showToast('Tag management coming soon');
+  };
+
   const useCardLayout = false;
 
   const className = [
@@ -547,6 +653,8 @@ function DayCell({ date, isCurrentMonth = true }) {
                   onBlur={commitEdit}
                   onKeyDown={handleEditKeyDown}
                   onDelete={handleRemoveEvent}
+                  onToggleCompletion={handleToggleCompletion}
+                  onOpenTagManager={handleOpenTagManager}
                   editInputRef={editInputRef}
                   useCardLayout={false}
                 />
@@ -636,6 +744,8 @@ function DayCell({ date, isCurrentMonth = true }) {
                   onBlur={commitEdit}
                   onKeyDown={handleEditKeyDown}
                   onDelete={handleRemoveEvent}
+                  onToggleCompletion={handleToggleCompletion}
+                  onOpenTagManager={handleOpenTagManager}
                   editInputRef={editInputRef}
                   useCardLayout={useCardLayout}
                 />

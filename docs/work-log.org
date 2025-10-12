@@ -130,6 +130,66 @@ Summary of Enhancements:
 Overall Result:
 Mobile swipe gestures now feel professional, forgiving, and provide clear visual feedback at every stage of the interaction.
 
+** Session: New Gesture Meanings - Completion, Delete, Tags
+Time: Evening (continued from data migration)
+Task: Implement new gesture meanings for mobile event interactions
+Status: **COMPLETED** (except tag management UI)
+
+Problem:
+User requested changing the gesture meanings to better align with task management workflows:
+- Old: Swipe right → delete, swipe left → edit
+- New: Swipe right → mark done/undone, long press → delete, swipe left → tags
+
+Solution:
+Implemented new gesture system that leverages the object-based event structure:
+- **Swipe right** → Toggle completion status
+  - Green checkmark icon with "Done"/"Undone" label
+  - Progressive green color intensity (green gradient: rgba(34, 197, 94))
+  - Instant toggle on release, no delete animation
+- **Long press** → Delete event
+  - 500ms threshold for long press detection
+  - Red overlay with trash icon appears during press
+  - Cancels if finger moves >10px
+  - Triggers slide-out delete animation on release
+- **Swipe left** → Tag management
+  - Tags icon (IconTags) with "Tags" label
+  - Opens tag manager (currently shows placeholder toast)
+  - Progressive blue/gray intensity
+
+Implementation:
+- Added touch event handlers (onTouchStart, onTouchMove, onTouchEnd) to SwipeableEventRow
+- Implemented long press detection with timer and movement cancellation
+- Updated swipe handlers to call new action callbacks:
+  - `onToggleCompletion` instead of delete on right swipe
+  - `onOpenTagManager` instead of edit on left swipe
+- Changed visual indicators:
+  - Right swipe: Green gradient with IconCheck (was red with IconTrash)
+  - Left swipe: Blue/gray with IconTags (was with IconPencil)
+  - Long press: Red overlay with IconTrash at center
+- Added `long-pressing` CSS class for visual feedback
+- Updated CalendarContext integration with toggleEventCompletionStatus
+- Preserved click-to-edit behavior on desktop (non-swipeable rows)
+
+Files Changed:
+- src/components/DayCell.jsx — Added long press handlers, updated swipe actions, new visual indicators
+- src/contexts/CalendarContext.jsx — Already had toggleEventCompletionStatus from migration
+
+Tests:
+- npm run build ✓
+
+Benefits:
+- More intuitive for task/todo workflows
+- Completion status easily toggled with quick swipe
+- Delete action harder to trigger accidentally (requires long press)
+- Foundation ready for tag management feature
+- Visual feedback clearly communicates each gesture
+
+Next Steps:
+- Create tag management UI component (modal or inline selector)
+- Implement tag input interface with autocomplete
+- Consider tag colors or categories
+- Test all gestures on physical mobile devices
+
 ** Session: Event Data Structure Migration - Strings to Objects
 Time: Evening (continued)
 Task: Migrate event data structure from strings to objects to support completion status and tags
