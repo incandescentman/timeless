@@ -102,7 +102,7 @@ Planned Features:
 - Tag colors or categories
 - Filter events by tag
 
-Related: [[*Event Object]], [[*Swipe Left Gesture]]
+Related: [[*Event Object]]
 Implementation: [[file:../src/utils/eventUtils.js][eventUtils.js]] setEventTags()
 Context Function: updateEventTags() in [[file:../src/contexts/CalendarContext.jsx][CalendarContext.jsx]]
 
@@ -165,14 +165,13 @@ Implementation: See [[file:../src/utils/dateUtils.ts][dateUtils.ts]]
 
 * Mobile Gestures
 
-Touch-based interactions for manipulating events on mobile devices (<768px viewports). Introduced 2025-10-12 to optimize for task/todo workflows.
+Touch-based interactions for manipulating events on mobile devices (<768px viewports). Introduced 2025-10-12 to optimize for task/todo workflows. Simplified to two gestures for better discoverability.
 
-Three core gestures:
+Two core gestures:
 - [[*Swipe Right Gesture]]: Toggle completion
-- [[*Long Press Gesture]]: Delete event
-- [[*Swipe Left Gesture]]: Tag management
+- [[*Swipe Left Gesture]]: Delete event
 
-Related: [[*Event Object]], [[*Completion Status]], [[*Tags]]
+Related: [[*Event Object]], [[*Completion Status]]
 Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] SwipeableEventRow
 Design: [[file:design-architecture.org::*Mobile Event Gestures][design-architecture.org::*Mobile Event Gestures]]
 
@@ -192,36 +191,21 @@ Behavior:
 Related: [[*Mobile Gestures]], [[*Completion Status]]
 Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] onSwipedRight handler
 
-* Long Press Gesture
-
-Mobile gesture to delete an event. Press and hold on an event row for 500ms.
-
-Visual Feedback:
-- Red overlay (rgba(239, 68, 68, 0.95)) covers entire row
-- Trash icon with "Delete" label appears centered
-- Cancels if finger moves >10px in any direction
-
-Behavior:
-- Triggers slide-out delete animation on release
-- Shows undo toast with 4-second recovery window
-
-Related: [[*Mobile Gestures]], [[*Event]]
-Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] touch handlers
-
 * Swipe Left Gesture
 
-Mobile gesture to open tag management interface. Swipe an event row from right to left.
+Mobile gesture to delete an event. Swipe an event row from right to left.
 
 Visual Feedback:
-- Tags icon with "Tags" label
-- Progressive blue/gray gradient (rgba(100, 116, 139))
-- Requires 50px swipe threshold to trigger
+- Red trash icon with "Delete" label
+- Progressive red gradient (rgba(239, 68, 68)) increases with swipe distance
+- Requires 100px swipe threshold to trigger
 
-Current Status:
-- Shows placeholder toast (UI deferred to future session)
-- Foundation ready for tag selector/input interface
+Behavior:
+- Triggers slide-left delete animation (300ms)
+- Shows undo toast with 4-second recovery window
+- Consistent with common mobile app deletion patterns
 
-Related: [[*Mobile Gestures]], [[*Tags]]
+Related: [[*Mobile Gestures]], [[*Event]]
 Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] onSwipedLeft handler
 
 ---

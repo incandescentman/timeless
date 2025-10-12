@@ -178,7 +178,7 @@ const isToday = (date: Date) => {
 
 ** Mobile Event Gestures
 
-Mobile event rows support three gesture interactions optimized for task/todo workflows:
+Mobile event rows support two simple gesture interactions optimized for task/todo workflows:
 
 *** Swipe Right → Toggle Completion
 - Reveals **green checkmark** background with "Done" or "Undone" label
@@ -187,29 +187,22 @@ Mobile event rows support three gesture interactions optimized for task/todo wor
 - Instant toggle on release, no animation
 - Visual feedback: completed events show strikethrough + reduced opacity
 
-*** Long Press → Delete
-- **500ms press threshold** triggers red overlay with trash icon
-- Full-screen red background (rgba(239, 68, 68, 0.95)) with "Delete" label
-- Cancels automatically if finger moves >10px in any direction
-- Triggers slide-out delete animation on release
+*** Swipe Left → Delete
+- Reveals **red trash icon** background with "Delete" label
+- Progressive red gradient intensity (rgba(239, 68, 68)) as swipe extends
+- Triggers delete when swipe exceeds 100px threshold
+- Slide-left animation on delete (300ms)
 - Shows undo toast for 4-second recovery window
-
-*** Swipe Left → Tag Management
-- Reveals **blue/gray tags icon** with "Tags" label
-- Progressive slate gradient intensity (rgba(100, 116, 139))
-- Triggers tag manager when swipe exceeds 50px threshold
-- Currently shows placeholder toast (UI deferred to future session)
 
 *** Implementation Details
 - Uses `react-swipeable` library with direct transform control
-- Touch handlers (onTouchStart/Move/End) for long press detection
 - SwipeableEventRow component wraps mobile event rows (<768px)
 - Desktop uses non-swipeable DayEventRow with click-to-edit
 - Progressive color intensity provides clear visual feedback during swipe
 - Smooth transitions (0.18s cubic-bezier) when resetting position
 - Calendar-level swipe navigation guarded to ignore gestures originating from `[data-event-row]`
 - Hardware acceleration via translateX for smooth performance
-- All gesture thresholds tuned to prevent accidental triggers
+- Swipe thresholds tuned to prevent accidental triggers (100px for both gestures)
 
 ** Command Feedback HUD & Keystroke Overlay
 
@@ -303,8 +296,9 @@ Exported for use across components.
 
 * Recent Updates
 
+- 2025-10-12: Simplified gesture system to 2 gestures (swipe right = done, swipe left = delete)
+- 2025-10-12: Removed long press detection for simpler, more discoverable interactions
 - 2025-10-12: Documented new event object structure with completion status and tags
-- 2025-10-12: Documented new gesture meanings (swipe right = done, long press = delete, swipe left = tags)
 - 2025-10-12: Updated Mobile Event Gestures section with task/todo workflow optimizations
 - 2025-10-08: Added mobile single-row day headers with canonical weekday/month abbreviations
 - 2025-10-08: Documented mobile composer overlay and tightened mobile spacing
