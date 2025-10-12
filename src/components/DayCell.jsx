@@ -27,6 +27,24 @@ function SwipeableEventRow({
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const deleteAnimationMs = 180;
+  const collapseDurationMs = 220;
+  const [isCollapsing, setIsCollapsing] = useState(false);
+  const wrapperRef = useRef(null);
+  const collapseTimeoutRef = useRef(null);
+  const removalTimeoutRef = useRef(null);
+
+  useEffect(() => (
+    () => {
+      if (collapseTimeoutRef.current) {
+        clearTimeout(collapseTimeoutRef.current);
+        collapseTimeoutRef.current = null;
+      }
+      if (removalTimeoutRef.current) {
+        clearTimeout(removalTimeoutRef.current);
+        removalTimeoutRef.current = null;
+      }
+    }
+  ), []);
 
   const handleRowClick = () => {
     if (!isEditing && swipeOffset === 0) {
@@ -90,9 +108,18 @@ function SwipeableEventRow({
         setIsDeleting(true);
         const targetOffset = -(window.innerWidth ? window.innerWidth + 120 : 480);
         setSwipeOffset(targetOffset);
-        setTimeout(() => {
-          onDelete(index);
+        if (collapseTimeoutRef.current) {
+          clearTimeout(collapseTimeoutRef.current);
+        }
+        if (removalTimeoutRef.current) {
+          clearTimeout(removalTimeoutRef.current);
+        }
+        collapseTimeoutRef.current = setTimeout(() => {
+          setIsCollapsing(true);
         }, deleteAnimationMs);
+        removalTimeoutRef.current = setTimeout(() => {
+          onDelete(index);
+        }, deleteAnimationMs + collapseDurationMs);
       } else {
         setSwipeOffset(0);
       }
@@ -117,8 +144,16 @@ function SwipeableEventRow({
   // Done action (right swipe): intensity from 0.5 to 1.0 as you swipe right
   const doneIntensity = Math.min(1.0, Math.max(0.5, swipeOffset / 120));
 
+  const wrapperClassName = [
+    'day-event-wrapper',
+    isCollapsing && 'day-event-wrapper--collapsing'
+  ].filter(Boolean).join(' ');
+
   return (
-    <div className="day-event-wrapper">
+    <div
+      ref={wrapperRef}
+      className={wrapperClassName}
+    >
       {/* Visual feedback for left swipe (Delete) - appears on right */}
       {swipeOffset < -50 && (
         <div

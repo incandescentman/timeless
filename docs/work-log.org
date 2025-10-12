@@ -91,17 +91,21 @@ Solution:
 - Matched composer input border treatment to day cells
 - Increased line-height and set slate caret color for richer writing feel
 - Recast composer as a bottom sheet with frosted grab handle and pinned date header
+- Added post-swipe collapse animation so delete rows glide away without layout snap
 
 Files Changed:
 - src/styles/mobile.css — softened weekday/month header typography
 - src/styles/mobile-composer.css — refreshed input styling and bottom-sheet layout
 - src/components/MobileEventComposer.jsx — added grab handle structure
+- src/components/DayCell.jsx — staged swipe delete collapse timing
+- src/styles/swipeable-overrides.css — height collapse transition for swipe rows
 
 Benefits:
 - Scroll feels less noisy on long stretches of empty days
 - Composer now feels bespoke to the calendar surface
 - Maintains timeless palette while adding subtle delight
 - Bottom sheet launch feels faster and more connected to tapped day
+- Swipe delete resolves smoothly instead of jumping siblings
 
 ** Session: Simplified Gesture System - Swipe Left to Delete
 Time: Evening

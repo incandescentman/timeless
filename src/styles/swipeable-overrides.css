@@ -6,6 +6,18 @@
   overflow: hidden;
   border-radius: 12px;
   margin-bottom: 0.5rem;
+  max-height: 480px;
+  opacity: 1;
+  transition:
+    max-height 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    margin-bottom 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.18s ease;
+}
+
+.day-event-wrapper--collapsing {
+  max-height: 0;
+  margin-bottom: 0;
+  opacity: 0;
 }
 
 /* Swipe action backgrounds */
