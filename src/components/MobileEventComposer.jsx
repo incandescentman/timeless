@@ -79,7 +79,7 @@ function MobileEventComposer({
     return null;
   }
 
-  const commitAndClose = () => {
+  const saveAndClose = () => {
     if (closingRef.current) {
       return;
     }
@@ -93,21 +93,24 @@ function MobileEventComposer({
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const trimmed = value.trim();
-
-    if (!trimmed) {
-      onCancel();
+  const cancelAndClose = () => {
+    if (closingRef.current) {
       return;
     }
-    onSubmit();
+    closingRef.current = true;
+    clearFocusRetry();
+    onCancel();
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    saveAndClose();
   };
 
   const handleKeyDown = (event) => {
     if (event.key === 'Escape') {
       event.preventDefault();
-      commitAndClose();
+      cancelAndClose();
     }
   };
 
@@ -117,24 +120,7 @@ function MobileEventComposer({
 
   const handleBlur = () => {
     focusWithinRef.current = false;
-    // Allow focus to move within the composer before deciding to close.
-    requestAnimationFrame(() => {
-      if (focusWithinRef.current) {
-        return;
-      }
-      const active = typeof document !== 'undefined' ? document.activeElement : null;
-      const composerNode = overlayRef.current;
-      if (!composerNode) {
-        return;
-      }
-      if (!active || active === document.body) {
-        return;
-      }
-      if (composerNode.contains(active)) {
-        return;
-      }
-      commitAndClose();
-    });
+    // Do nothing on blur - require explicit save or cancel
   };
 
   return createPortal(
@@ -145,7 +131,7 @@ function MobileEventComposer({
       ref={overlayRef}
       onClick={(event) => {
         if (event.target === event.currentTarget) {
-          commitAndClose();
+          cancelAndClose();
         }
       }}
     >
@@ -179,13 +165,11 @@ function MobileEventComposer({
         <button
           type="button"
           className="mobile-composer__save-button"
-          onClick={commitAndClose}
-          aria-label={value.trim() ? 'Save note' : 'Close'}
+          onClick={saveAndClose}
+          aria-label="Save note"
         >
           <span className="mobile-composer__hint-icon">✓</span>
-          <span className="mobile-composer__hint-text">
-            {value.trim() ? 'Save' : 'Close'}
-          </span>
+          <span className="mobile-composer__hint-text">Save</span>
         </button>
       </div>
     </div>,

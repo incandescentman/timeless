@@ -10,6 +10,92 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-12 Sunday (continued)
+
+** Session: Explicit Save for Mobile Composer
+Time: Evening
+Task: Make mobile composer save actions more intentional
+Status: **COMPLETED**
+
+Problem:
+Mobile event composer had multiple ways to save (tap outside, blur, Enter, checkmark) which could lead to accidental saves.
+
+Solution:
+Modified MobileEventComposer to require explicit save action:
+- **Enter key** → saves note
+- **Checkmark button** → saves note
+- **Escape key** → cancels without saving
+- **Tap outside** → cancels without saving
+- **Focus blur** → does nothing (modal stays open)
+
+Implementation:
+- Refactored `commitAndClose` into `saveAndClose` and `cancelAndClose`
+- Removed auto-save on blur events
+- Changed tap outside to cancel instead of save
+- Checkmark button always says "Save" (no conditional text)
+- Modal only closes via explicit action (Enter, Checkmark, Escape, or tap outside)
+
+Files Changed:
+- src/components/MobileEventComposer.jsx
+
+Benefits:
+- More intentional saving (no accidental saves from blur)
+- Clear distinction between save and cancel
+- Consistent with desktop behavior (explicit save required)
+- Tap outside cancels (common mobile pattern)
+
+** Session: Simplified Gesture System - Swipe Left to Delete
+Time: Evening
+Task: Simplify mobile gestures based on user feedback
+Status: **COMPLETED**
+
+Problem:
+User requested simplifying the gesture system:
+- Remove long press detection (too complex)
+- Change swipe left to delete (instead of tags)
+- Keep swipe right for completion toggle
+
+Solution:
+Updated gesture meanings to be simpler and more intuitive:
+- **Swipe right** → Toggle completion (unchanged)
+  - Green checkmark with "Done"/"Undone" label
+  - Instant toggle, progressive green intensity
+- **Swipe left** → Delete event (changed from tags)
+  - Red trash icon with "Delete" label
+  - Slides left and triggers deletion animation
+  - Progressive red intensity (rgba(239, 68, 68))
+  - Triggers undo toast for recovery
+
+Implementation:
+- Removed all long press detection code:
+  - Removed touch event handlers (onTouchStart, onTouchMove, onTouchEnd)
+  - Removed long press state and refs
+  - Removed long press overlay visual feedback
+  - Removed long press cleanup effect
+- Updated swipe left handler:
+  - Changed from `onOpenTagManager` to delete action
+  - Added slide-left animation (negative targetOffset)
+  - Calls `onDelete` with undo toast support
+- Updated visual indicators:
+  - Left swipe now shows red gradient with IconTrash (was blue with IconTags)
+  - Removed long press red overlay
+- Updated opacity calculation for left swipes
+- Removed onOpenTagManager callback and handler function
+- Removed unnecessary prop from SwipeableEventRow invocations
+
+Files Changed:
+- src/components/DayCell.jsx — Removed long press, updated swipe left to delete
+
+Tests:
+- npm run build ✓
+
+Benefits:
+- Simpler gesture system (2 gestures instead of 3)
+- More intuitive - swipe left to delete is a common pattern
+- Easier to discover and remember
+- No accidental triggers from resting finger on screen
+- Consistent with many mobile apps (Mail, Messages, etc.)
+
 * 2025-10-11 Saturday (continued)
 
 ** Session: Swipe Gesture Enhancements - Icons and Visual Feedback
