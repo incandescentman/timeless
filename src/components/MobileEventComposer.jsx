@@ -162,15 +162,6 @@ function MobileEventComposer({
             autoCorrect="on"
           />
         </form>
-        <button
-          type="button"
-          className="mobile-composer__save-button"
-          onClick={saveAndClose}
-          aria-label="Save note"
-        >
-          <span className="mobile-composer__hint-icon">✓</span>
-          <span className="mobile-composer__hint-text">Save</span>
-        </button>
       </div>
     </div>,
     document.body

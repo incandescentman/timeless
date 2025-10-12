@@ -57,7 +57,7 @@
   border-radius: 16px;
   padding: 1rem 1.1rem;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: normal;
   font-family: inherit;
   outline: none;
   color: rgba(15, 23, 42, 0.92);
@@ -65,8 +65,8 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  vertical-align: top;
   resize: none;
+  display: block;
 }
 
 .mobile-composer__input:focus {
@@ -75,47 +75,6 @@
   background: #ffffff;
 }
 
-.mobile-composer__save-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  background: rgba(248, 250, 252, 0.95);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(100, 116, 139, 0.7);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  transition: none;
-}
-
-.mobile-composer__save-button:active {
-  background: rgba(241, 245, 249, 1);
-  border-color: rgba(148, 163, 184, 0.35);
-}
-
-.mobile-composer__hint-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: rgba(74, 222, 128, 0.8);
-  background: rgba(248, 250, 252, 0.85);
-}
-
-.mobile-composer__hint-text {
-  white-space: nowrap;
-}
 
 body.dark-mode .mobile-composer-overlay {
   background: rgba(2, 6, 23, 0.55);
@@ -148,19 +107,3 @@ body.dark-mode .mobile-composer__input:focus {
   background: rgba(15, 23, 42, 0.95);
 }
 
-body.dark-mode .mobile-composer__save-button {
-  background: rgba(30, 41, 59, 0.85);
-  color: rgba(148, 163, 184, 0.65);
-  border-color: rgba(71, 85, 105, 0.45);
-}
-
-body.dark-mode .mobile-composer__save-button:active {
-  background: rgba(15, 23, 42, 0.95);
-  border-color: rgba(71, 85, 105, 0.55);
-}
-
-body.dark-mode .mobile-composer__hint-icon {
-  border-color: rgba(148, 163, 184, 0.45);
-  color: rgba(134, 239, 172, 0.9);
-  background: rgba(15, 23, 42, 0.9);
-}

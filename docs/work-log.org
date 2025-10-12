@@ -12,37 +12,38 @@ LLM_CONTEXT:
 
 * 2025-10-12 Sunday (continued)
 
-** Session: Explicit Save for Mobile Composer
+** Session: Simplified Mobile Composer - Keyboard-Only Save
 Time: Evening
-Task: Make mobile composer save actions more intentional
+Task: Simplify mobile composer to use only keyboard for saving
 Status: **COMPLETED**
 
-Problem:
-Mobile event composer had multiple ways to save (tap outside, blur, Enter, checkmark) which could lead to accidental saves.
+Problems:
+1. Cursor appeared one line below the typed text
+2. Save button didn't work when tapped - only iOS keyboard checkmark worked
 
 Solution:
-Modified MobileEventComposer to require explicit save action:
-- **Enter key** → saves note
-- **Checkmark button** → saves note
-- **Escape key** → cancels without saving
+Removed redundant save button and fixed cursor alignment:
+- **iOS keyboard checkmark (Enter)** → saves note
 - **Tap outside** → cancels without saving
-- **Focus blur** → does nothing (modal stays open)
+- **Escape key** → cancels without saving
+- Removed white save button entirely
 
 Implementation:
-- Refactored `commitAndClose` into `saveAndClose` and `cancelAndClose`
-- Removed auto-save on blur events
-- Changed tap outside to cancel instead of save
-- Checkmark button always says "Save" (no conditional text)
-- Modal only closes via explicit action (Enter, Checkmark, Escape, or tap outside)
+- Removed save button from MobileEventComposer.jsx
+- Fixed cursor alignment by changing `line-height: 1.5` to `line-height: normal`
+- Removed all CSS for `.mobile-composer__save-button` and related classes
+- Simplified to match iOS patterns where keyboard action is primary
 
 Files Changed:
-- src/components/MobileEventComposer.jsx
+- src/components/MobileEventComposer.jsx - Removed save button
+- src/styles/mobile-composer.css - Fixed cursor alignment, removed button styles
 
 Benefits:
-- More intentional saving (no accidental saves from blur)
-- Clear distinction between save and cancel
-- Consistent with desktop behavior (explicit save required)
-- Tap outside cancels (common mobile pattern)
+- Cleaner, simpler interface
+- Follows iOS conventions (keyboard Done button)
+- No redundant UI elements
+- Fixed cursor/text alignment issue
+- Single, clear way to save
 
 ** Session: Simplified Gesture System - Swipe Left to Delete
 Time: Evening
