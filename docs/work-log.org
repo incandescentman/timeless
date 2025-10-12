@@ -76,6 +76,30 @@ Benefits:
 - Fixed cursor/text alignment issue
 - Single, clear way to save
 
+** Session: Mobile Typographic + Composer Polish
+Time: Evening
+Task: Refine mobile calendar typography and composer styling
+Status: **COMPLETED**
+
+Problem:
+- Mobile day headers felt shouty with heavy uppercase tracking
+- Composer input looked generic and disconnected from day card styling
+
+Solution:
+- Reduced letter-spacing and removed uppercase for weekday/month labels
+- Rebalanced font sizing/weight for calmer hierarchy
+- Matched composer input border treatment to day cells
+- Increased line-height and set slate caret color for richer writing feel
+
+Files Changed:
+- src/styles/mobile.css — softened weekday/month header typography
+- src/styles/mobile-composer.css — refreshed input line-height, border, caret color
+
+Benefits:
+- Scroll feels less noisy on long stretches of empty days
+- Composer now feels bespoke to the calendar surface
+- Maintains timeless palette while adding subtle delight
+
 ** Session: Simplified Gesture System - Swipe Left to Delete
 Time: Evening
 Task: Simplify mobile gestures based on user feedback
