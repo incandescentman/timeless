@@ -119,12 +119,12 @@ function SwipeableEventRow({
 
   return (
     <div className="day-event-wrapper">
-      {/* Visual feedback for left swipe (Delete) */}
+      {/* Visual feedback for left swipe (Delete) - appears on right */}
       {swipeOffset < -50 && (
         <div
           className="swipe-action swipe-action--left"
           style={{
-            background: `linear-gradient(to right,
+            background: `linear-gradient(to left,
               rgba(239, 68, 68, ${deleteIntensity}),
               rgba(220, 38, 38, ${deleteIntensity * 0.95}))`
           }}
@@ -134,12 +134,12 @@ function SwipeableEventRow({
         </div>
       )}
 
-      {/* Visual feedback for right swipe (Done/Undone) */}
+      {/* Visual feedback for right swipe (Done/Undone) - appears on left */}
       {swipeOffset > 50 && (
         <div
           className="swipe-action swipe-action--right"
           style={{
-            background: `linear-gradient(to left,
+            background: `linear-gradient(to right,
               rgba(34, 197, 94, ${doneIntensity}),
               rgba(22, 163, 74, ${doneIntensity * 0.95}))`
           }}

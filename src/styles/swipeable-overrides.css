@@ -26,16 +26,16 @@
 }
 
 .swipe-action--left {
-  left: 0;
-  right: 50%;
-  justify-content: flex-end;
+  left: 50%;
+  right: 0;
+  justify-content: flex-start;
   background: linear-gradient(to right, #64748b, #475569);
 }
 
 .swipe-action--right {
-  left: 50%;
-  right: 0;
-  justify-content: flex-start;
+  left: 0;
+  right: 50%;
+  justify-content: flex-end;
   background: linear-gradient(to left, #ef4444, #dc2626);
 }
 
@@ -87,11 +87,11 @@ body.dark-mode .day-event-wrapper .day-event.editing {
 }
 
 body.dark-mode .swipe-action--left {
-  background: linear-gradient(to right, #475569, #334155);
+  background: linear-gradient(to left, #475569, #334155);
 }
 
 body.dark-mode .swipe-action--right {
-  background: linear-gradient(to left, #dc2626, #b91c1c);
+  background: linear-gradient(to right, #dc2626, #b91c1c);
 }
 
 /* Mobile optimizations */
