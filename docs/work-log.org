@@ -94,6 +94,7 @@ Solution:
 - Added post-swipe collapse animation so delete rows glide away without layout snap
 - Wait for height transition to finish before removing row to prevent viewport jump
 - Softened swipe action gradients so full commits feel airy instead of heavy
+- Persist mobile composer drafts per-day in localStorage so accidental cancels reopen with text intact
 
 Files Changed:
 - src/styles/mobile.css — softened weekday/month header typography
@@ -103,6 +104,7 @@ Files Changed:
 - src/styles/swipeable-overrides.css — height collapse transition for swipe rows
 - src/components/DayCell.jsx — hook transitionend to trigger actual deletion once collapse completes
 - src/components/DayCell.jsx — refined swipe gradients for lighter fully-committed states
+- src/components/DayCell.jsx — added localStorage-backed draft persistence
 
 Benefits:
 - Scroll feels less noisy on long stretches of empty days
@@ -111,6 +113,7 @@ Benefits:
 - Bottom sheet launch feels faster and more connected to tapped day
 - Swipe delete resolves smoothly instead of jumping siblings
 - Swipe hints stay legible without overpowering the calendar
+- Cancelling the composer no longer drops in-progress notes
 
 ** Session: Simplified Gesture System - Swipe Left to Delete
 Time: Evening

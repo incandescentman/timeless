@@ -175,6 +175,7 @@ const isToday = (date: Date) => {
 - Input focus is requested on the first frame after mount so Mobile Safari raises the keyboard immediately.
 - Composer header pins the selected date at the top of the sheet; typography uses reduced tracking to match day cells.
 - Input styling mirrors the day cell border treatment with taller line-height and slate caret to feel native to the calendar.
+- Draft text is cached per date in `localStorage`; closing the sheet without saving repopulates the last draft on reopen.
 - Blank-day layout clamps to a shallower min-height/padding on mobile so empty rows compress while note-bearing cells retain breathing room.
 - Day headers collapse into a single row on mobile: weekday stays left-aligned, month + day are right-justified, and all abbreviations come from `dateUtils.daysOfWeek` / `dateUtils.shortMonths` so wording stays consistent across the app.
 
