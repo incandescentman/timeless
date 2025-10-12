@@ -167,13 +167,14 @@ const isToday = (date: Date) => {
 
 ** Mobile Event Composer (MobileEventComposer.jsx)
 
-- Below 768px viewports, tapping an empty day opens a centered overlay instead of the inline composer.
-- The overlay portals to `document.body` and autofocuses the input once mounted.
+- Below 768px viewports, tapping an empty day opens a bottom-sheet overlay instead of the inline composer.
+- The sheet portals to `document.body`, anchors to the viewport bottom, and shows a frosted grab handle for affordance.
 - Desktop still renders the inline composer inside `DayCell`; both flows call the same add/update handlers.
 - Mobile uses keyboard-only save: iOS keyboard checkmark (Enter) saves, tap outside or Escape cancels.
 - No save button displayed - follows iOS conventions where keyboard action is primary.
 - Input focus is requested on the first frame after mount so Mobile Safari raises the keyboard immediately.
-- Cursor alignment fixed with `line-height: normal` to prevent text/cursor misalignment.
+- Composer header pins the selected date at the top of the sheet; typography uses reduced tracking to match day cells.
+- Input styling mirrors the day cell border treatment with taller line-height and slate caret to feel native to the calendar.
 - Blank-day layout clamps to a shallower min-height/padding on mobile so empty rows compress while note-bearing cells retain breathing room.
 - Day headers collapse into a single row on mobile: weekday stays left-aligned, month + day are right-justified, and all abbreviations come from `dateUtils.daysOfWeek` / `dateUtils.shortMonths` so wording stays consistent across the app.
 
