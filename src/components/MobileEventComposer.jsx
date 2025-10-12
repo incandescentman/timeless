@@ -140,6 +140,7 @@ function MobileEventComposer({
         role="document"
         onClick={(event) => event.stopPropagation()}
       >
+        <div className="mobile-composer__handle" aria-hidden="true" />
         <header className="mobile-composer__meta">
           <span className="mobile-composer__label">New Note</span>
           <span className="mobile-composer__date">{dateLabel}</span>

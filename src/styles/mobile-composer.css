@@ -4,30 +4,50 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(1.5rem, 6vw, 2.5rem);
-  background: rgba(15, 23, 42, 0.55);
+  padding: clamp(0.75rem, 4vw, 1.5rem) clamp(1rem, 5vw, 1.75rem) env(safe-area-inset-bottom, 0px);
+  background: rgba(15, 23, 42, 0.5);
   z-index: 1000;
   touch-action: none;
 }
 
+@media (max-width: 768px) {
+  .mobile-composer-overlay {
+    align-items: flex-end;
+    justify-content: center;
+  }
+}
+
 .mobile-composer {
-  width: min(500px, calc(100% - 2rem));
-  background: #ffffff;
-  border-radius: 22px;
+  width: min(540px, 100%);
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 26px 26px 0 0;
   border: 1px solid rgba(148, 163, 184, 0.16);
-  padding: clamp(1.2rem, 4vw, 1.8rem);
+  padding: clamp(1.35rem, 4vw, 1.8rem) clamp(1.25rem, 4vw, 1.85rem) clamp(1.65rem, 5vw, 2.1rem);
   display: flex;
   flex-direction: column;
-  gap: clamp(1rem, 3vw, 1.35rem);
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+  gap: clamp(1rem, 3vw, 1.4rem);
+  box-shadow: 0 -18px 42px rgba(15, 23, 42, 0.14);
+  margin: 0 auto;
+}
+
+.mobile-composer__handle {
+  width: 48px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(15, 23, 42, 0.12);
+  margin: 0 auto clamp(1rem, 3vw, 1.4rem);
 }
 
 .mobile-composer__meta {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  text-align: center;
+  align-items: flex-start;
+  gap: 0.45rem;
+  text-align: left;
+  width: 100%;
 }
 
 .mobile-composer__label {
@@ -40,9 +60,8 @@
 .mobile-composer__date {
   font-size: 0.95rem;
   font-weight: 500;
-  color: rgba(30, 41, 59, 0.92);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  color: rgba(30, 41, 59, 0.88);
+  letter-spacing: 0.04em;
 }
 
 .mobile-composer__form {
@@ -80,14 +99,21 @@
 
 
 body.dark-mode .mobile-composer-overlay {
-  background: rgba(2, 6, 23, 0.55);
+  background: rgba(2, 6, 23, 0.6);
 }
 
 body.dark-mode .mobile-composer {
-  background: rgba(17, 24, 39, 0.94);
-  border-color: rgba(71, 85, 105, 0.32);
-  box-shadow: 0 18px 38px rgba(2, 6, 23, 0.48);
+  background: rgba(17, 24, 39, 0.96);
+  border-color: rgba(71, 85, 105, 0.28);
+  box-shadow: 0 -18px 42px rgba(2, 6, 23, 0.58);
   color: rgba(226, 232, 240, 0.92);
+}
+
+body.dark-mode .mobile-composer__handle {
+  background: rgba(71, 85, 105, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(148, 163, 184, 0.35),
+    0 1px 2px rgba(2, 6, 23, 0.55);
 }
 
 body.dark-mode .mobile-composer__label {
@@ -95,7 +121,7 @@ body.dark-mode .mobile-composer__label {
 }
 
 body.dark-mode .mobile-composer__date {
-  color: rgba(226, 232, 240, 0.85);
+  color: rgba(226, 232, 240, 0.82);
 }
 
 body.dark-mode .mobile-composer__input {
