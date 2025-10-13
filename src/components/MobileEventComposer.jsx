@@ -14,7 +14,6 @@ function MobileEventComposer({
   const focusAttemptsRef = useRef(0);
   const focusRetryTimeoutRef = useRef(null);
   const focusWithinRef = useRef(false);
-  const closingRef = useRef(false);
 
   const clearFocusRetry = () => {
     if (focusRetryTimeoutRef.current) {
@@ -57,7 +56,6 @@ function MobileEventComposer({
     if (!open) {
       clearFocusRetry();
       focusAttemptsRef.current = 0;
-      closingRef.current = false;
       if (dialog) {
         if (typeof dialog.close === 'function' && dialog.open) {
           dialog.close();
@@ -88,7 +86,6 @@ function MobileEventComposer({
     return () => {
       clearFocusRetry();
       focusAttemptsRef.current = 0;
-      closingRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -99,15 +96,7 @@ function MobileEventComposer({
     };
   }, []);
 
-  if (!open) {
-    return null;
-  }
-
   const saveAndClose = () => {
-    if (closingRef.current) {
-      return;
-    }
-    closingRef.current = true;
     clearFocusRetry();
     const trimmed = value.trim();
     if (trimmed) {
@@ -118,10 +107,6 @@ function MobileEventComposer({
   };
 
   const cancelAndClose = () => {
-    if (closingRef.current) {
-      return;
-    }
-    closingRef.current = true;
     clearFocusRetry();
     onCancel();
   };
@@ -200,15 +185,8 @@ function MobileEventComposer({
         }
       }}
       onCancel={(event) => {
-        if (closingRef.current) {
-          // Already in a close sequence; let the browser finish it.
-          return;
-        }
         event.preventDefault();
         cancelAndClose();
-      }}
-      onClose={() => {
-        closingRef.current = false;
       }}
     >
       <div
