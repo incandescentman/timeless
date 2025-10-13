@@ -57,6 +57,7 @@ function MobileEventComposer({
     if (!open) {
       clearFocusRetry();
       focusAttemptsRef.current = 0;
+      closingRef.current = false;
       if (dialog) {
         if (typeof dialog.close === 'function' && dialog.open) {
           dialog.close();
@@ -87,6 +88,7 @@ function MobileEventComposer({
     return () => {
       clearFocusRetry();
       focusAttemptsRef.current = 0;
+      closingRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
