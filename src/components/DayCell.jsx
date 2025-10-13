@@ -571,7 +571,7 @@ function DayCell({ date, isCurrentMonth = true }) {
     if (isMultiSelectMode) return;
     cancelNewEvent({ suppress: true });  // Cancel adding new if we're editing
     setEditingIndex(idx);
-    setDraftText(events[idx] ?? '');
+    setDraftText(getEventText(events[idx]) ?? '');
     setTimeout(() => editInputRef.current?.focus(), 0);
   };
 

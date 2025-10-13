@@ -8,7 +8,7 @@ import {
   saveCalendarToServer
 } from '../utils/storage';
 import { generateDayId, parseDate } from '../utils/dateUtils';
-import { toggleEventCompletion, setEventTags } from '../utils/eventUtils';
+import { toggleEventCompletion, setEventTags, setEventText } from '../utils/eventUtils';
 
 const CalendarContext = createContext();
 
@@ -240,13 +240,14 @@ export function CalendarProvider({ children }) {
         return prev;
       }
 
+      const next = { ...prev };
+
       if (!trimmed) {
         current.splice(index, 1);
       } else {
-        current[index] = trimmed;
+        current[index] = setEventText(current[index], trimmed);
       }
 
-      const next = { ...prev };
       if (current.length === 0) {
         delete next[dateId];
       } else {
