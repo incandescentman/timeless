@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 function MobileEventComposer({
   open,
@@ -15,79 +15,6 @@ function MobileEventComposer({
   const focusRetryTimeoutRef = useRef(null);
   const focusWithinRef = useRef(false);
   const closingRef = useRef(false);
-  const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const [supportsDialog, setSupportsDialog] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') {
-      return;
-    }
-
-    let isMounted = true;
-    try {
-      const dialogSupported = typeof window.HTMLDialogElement === 'function';
-      if (!dialogSupported) {
-        if (isMounted) {
-          setSupportsDialog(false);
-        }
-        return;
-      }
-
-      const element = document.createElement('dialog');
-      const canShowModal = typeof element.showModal === 'function';
-      if (isMounted) {
-        setSupportsDialog(canShowModal);
-      }
-    } catch (error) {
-      if (isMounted) {
-        setSupportsDialog(false);
-      }
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const showDialog = useCallback(() => {
-    if (!supportsDialog) {
-      return;
-    }
-
-    const dialog = dialogRef.current;
-    if (!dialog || dialog.open) {
-      return;
-    }
-
-    if (typeof dialog.showModal === 'function') {
-      try {
-        dialog.showModal();
-      } catch (error) {
-        // Ignore InvalidStateError when dialog is already open
-      }
-    } else {
-      dialog.setAttribute('open', 'true');
-    }
-  }, [supportsDialog]);
-
-  const closeDialog = useCallback(() => {
-    if (!supportsDialog) {
-      return;
-    }
-
-    const dialog = dialogRef.current;
-    if (!dialog) {
-      return;
-    }
-
-    if (typeof dialog.close === 'function') {
-      if (dialog.open) {
-        dialog.close();
-      }
-    } else {
-      dialog.removeAttribute('open');
-    }
-  }, [supportsDialog]);
 
   const clearFocusRetry = () => {
     if (focusRetryTimeoutRef.current) {
@@ -124,16 +51,36 @@ function MobileEventComposer({
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    const dialog = dialogRef.current;
+
     if (!open) {
       clearFocusRetry();
       focusAttemptsRef.current = 0;
-      closeDialog();
+      if (dialog) {
+        if (typeof dialog.close === 'function' && dialog.open) {
+          dialog.close();
+        } else {
+          dialog?.removeAttribute('open');
+        }
+      }
       return undefined;
     }
 
     focusAttemptsRef.current = 0;
-    showDialog();
+
+    if (dialog) {
+      try {
+        if (typeof dialog.showModal === 'function' && !dialog.open) {
+          dialog.showModal();
+        } else if (!dialog.hasAttribute('open')) {
+          dialog.setAttribute('open', 'true');
+        }
+      } catch (error) {
+        // Fallback: ensure dialog remains open even if showModal throws.
+        dialog.setAttribute('open', 'true');
+      }
+    }
 
     attemptFocus();
 
@@ -142,46 +89,13 @@ function MobileEventComposer({
       focusAttemptsRef.current = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, closeDialog, showDialog]);
-
-  useEffect(() => {
-    if (!open) {
-      focusWithinRef.current = false;
-      closingRef.current = false;
-      setKeyboardOffset(0);
-    }
   }, [open]);
 
   useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
-
-    const viewport = window.visualViewport;
-    if (!viewport) {
-      return undefined;
-    }
-
-    const updateOffset = () => {
-      const rawOffset = window.innerHeight - viewport.height - viewport.offsetTop;
-      const nextOffset = rawOffset > 0 ? Math.round(rawOffset) : 0;
-      setKeyboardOffset((prev) => (prev === nextOffset ? prev : nextOffset));
-    };
-
-    updateOffset();
-
-    viewport.addEventListener('resize', updateOffset);
-    viewport.addEventListener('scroll', updateOffset);
-
     return () => {
-      viewport.removeEventListener('resize', updateOffset);
-      viewport.removeEventListener('scroll', updateOffset);
+      clearFocusRetry();
     };
-  }, [open]);
+  }, []);
 
   if (!open) {
     return null;
@@ -199,8 +113,14 @@ function MobileEventComposer({
     } else {
       onCancel();
     }
-
-    closeDialog();
+    const dialog = dialogRef.current;
+    if (dialog) {
+      if (typeof dialog.close === 'function' && dialog.open) {
+        dialog.close();
+      } else {
+        dialog.removeAttribute('open');
+      }
+    }
   };
 
   const cancelAndClose = () => {
@@ -210,7 +130,14 @@ function MobileEventComposer({
     closingRef.current = true;
     clearFocusRetry();
     onCancel();
-    closeDialog();
+    const dialog = dialogRef.current;
+    if (dialog) {
+      if (typeof dialog.close === 'function' && dialog.open) {
+        dialog.close();
+      } else {
+        dialog.removeAttribute('open');
+      }
+    }
   };
 
   const handleSubmit = (event) => {
@@ -276,51 +203,31 @@ function MobileEventComposer({
     </div>
   );
 
-  if (supportsDialog) {
-    return createPortal(
-      <dialog
-        ref={dialogRef}
-        className="mobile-composer-dialog"
-        aria-label="New note composer"
-        onCancel={(event) => {
-          event.preventDefault();
-          cancelAndClose();
-        }}
-        onClose={() => {
-          closingRef.current = false;
-          setKeyboardOffset(0);
-        }}
-      >
-        <div
-          className="mobile-composer-container"
-          style={{ '--keyboard-offset': `${keyboardOffset}px` }}
-          onClick={(event) => {
-            if (event.target === event.currentTarget) {
-              cancelAndClose();
-            }
-          }}
-        >
-          {composerSurface}
-        </div>
-      </dialog>,
-      document.body
-    );
-  }
-
   return createPortal(
-    <div
-      className="mobile-composer-overlay"
-      role="dialog"
-      aria-modal="true"
-      style={{ '--keyboard-offset': `${keyboardOffset}px` }}
+    <dialog
+      ref={dialogRef}
+      className="mobile-composer-dialog"
+      aria-label="New note composer"
       onClick={(event) => {
-        if (event.target === event.currentTarget) {
+        if (event.target === event.currentTarget && event.target === dialogRef.current) {
           cancelAndClose();
         }
       }}
+      onCancel={(event) => {
+        event.preventDefault();
+        cancelAndClose();
+      }}
+      onClose={() => {
+        closingRef.current = false;
+      }}
     >
-      {composerSurface}
-    </div>,
+      <div
+        className="mobile-composer-container"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {composerSurface}
+      </div>
+    </dialog>,
     document.body
   );
 }

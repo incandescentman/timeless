@@ -93,14 +93,14 @@ Task: Replace custom overlay with native `<dialog>` for simpler focus/keyboard h
 Status: **COMPLETED**
 
 Accomplished:
-- Swapped the portal overlay for an HTML `<dialog>` in `MobileEventComposer.jsx`, using modal semantics to manage backdrop and focus trapping (with automatic fallback to the legacy overlay where `<dialog>` is unsupported)
-- Kept the keyboard offset logic by piping `visualViewport` measurements into the dialog container’s padding via `--keyboard-offset`
+- Swapped the portal overlay for an HTML `<dialog>` in `MobileEventComposer.jsx`, relying entirely on the browser for focus trapping, ESC handling, and backdrop clicks
+- Removed the keyboard offset math—native dialog behaviour keeps the field visible without extra measurements
 - Restyled `mobile-composer.css` to theme the dialog/backdrop while preserving the bottom-sheet look in both light and dark modes
 
 Lessons Learned:
 - Native dialog handles focus containment and ESC/backdrop cancellation for free; custom overlays mainly recreated built-in browser behavior
-- Provide fallback guards (`showModal`/`close`) so older browsers that lack full dialog support degrade without throwing
-- Container-level padding still needs explicit safe-area + keyboard math; the browser doesn’t add that automatically
+- Simpler always beats bespoke scroll math—letting the browser drive viewport adjustments avoids jagged transitions
+- Safe-area padding still matters; dialog content needs explicit bottom padding so sheet styling feels intentional
 
 Next Step:
 - Run smoke tests on mobile Safari/Chrome to confirm the native dialog respects our swipe gestures and today highlighting
@@ -112,7 +112,7 @@ Status: **COMPLETED**
 
 Accomplished:
 - Simplified `DayCell` by dropping the localStorage-backed draft cache so new entries start blank every time
-- Reinstated the primary `MobileEventComposer` so all modal fixes (dialog fallback, keyboard offset) apply consistently
+- Reinstated the primary `MobileEventComposer` so the native dialog path is the single source of truth
 
 Lessons Learned:
 - Background draft persistence conflicts with the fast-capture workflow when users expect a clean state after each save
