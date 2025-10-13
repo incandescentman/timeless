@@ -1,17 +1,46 @@
+.mobile-composer-dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  width: 100%;
+  max-width: 100%;
+}
+
+.mobile-composer-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+}
+
 .mobile-composer-overlay {
   position: fixed;
   inset: 0;
+  --keyboard-offset: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(0.75rem, 4vw, 1.5rem) clamp(1rem, 5vw, 1.75rem) env(safe-area-inset-bottom, 0px);
+  padding: clamp(0.75rem, 4vw, 1.5rem) clamp(1rem, 5vw, 1.75rem) calc(env(safe-area-inset-bottom, 0px) + var(--keyboard-offset, 0px));
   background: rgba(15, 23, 42, 0.5);
   z-index: 1000;
   touch-action: none;
 }
 
+.mobile-composer-container {
+  --keyboard-offset: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: clamp(0.75rem, 4vw, 1.5rem) clamp(1rem, 5vw, 1.75rem) calc(env(safe-area-inset-bottom, 0px) + var(--keyboard-offset, 0px));
+  touch-action: none;
+}
+
 @media (max-width: 768px) {
   .mobile-composer-overlay {
+    align-items: flex-end;
+  }
+
+  .mobile-composer-container {
     align-items: flex-end;
   }
 }
@@ -122,6 +151,10 @@
   background: #ffffff;
 }
 
+
+body.dark-mode .mobile-composer-dialog::backdrop {
+  background: rgba(2, 6, 23, 0.6);
+}
 
 body.dark-mode .mobile-composer-overlay {
   background: rgba(2, 6, 23, 0.6);

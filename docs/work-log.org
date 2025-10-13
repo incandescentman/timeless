@@ -112,7 +112,7 @@ Status: **COMPLETED**
 
 Accomplished:
 - Simplified `DayCell` by dropping the localStorage-backed draft cache so new entries start blank every time
-- Reinstated the primary `MobileEventComposer` so the UI relies on a single code path again
+- Reinstated the primary `MobileEventComposer` so all modal fixes (dialog fallback, keyboard offset) apply consistently
 
 Lessons Learned:
 - Background draft persistence conflicts with the fast-capture workflow when users expect a clean state after each save
@@ -120,23 +120,6 @@ Lessons Learned:
 
 Next Step:
 - Verify on-device that the composer no longer reopens with stale text after saving or cancelling
-
-** Session: Remove Modal Keyboard Offset Experiment
-Time: Late evening
-Task: Roll back native-dialog/keyboard-offset logic per request
-Status: **COMPLETED**
-
-Accomplished:
-- Simplified `MobileEventComposer` to the original overlay-only implementation
-- Removed visualViewport keyboard offset calculations and native `<dialog>` fallback code, returning to the straightforward portal overlay
-- Pruned unused dialog-related CSS to keep styles lean
-
-Lessons Learned:
-- Native dialog support introduced extra branches without clear UX win; simpler overlay matches expected feel
-- Keyboard offset juggling added maintenance cost and visual artifacts when the keyboard dismissed mid-save
-
-Next Step:
-- Re-test mobile capture flow to confirm saves complete without layout shifts or lingering drafts
 
 ** Session: Fixed Swipe Action Hint Positions
 Time: Evening
