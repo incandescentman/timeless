@@ -29,6 +29,8 @@ function MobileEventComposer({
   const focusAttemptsRef = useRef(0);
   const focusRetryTimeoutRef = useRef(null);
   const focusWithinRef = useRef(false);
+  const closeIntentRef = useRef(null);
+  const blurTimeoutRef = useRef(null);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const [isIOS, setIsIOS] = useState(() => detectIOS());
   const [iosViewportRect, setIosViewportRect] = useState(() => ({
@@ -241,27 +243,48 @@ function MobileEventComposer({
       viewport.removeEventListener('resize', handleViewportChange);
       viewport.removeEventListener('scroll', handleViewportChange);
     };
-  }, [open]);
+  }, [open, isIOS]);
 
   useEffect(() => {
     return () => {
       clearFocusRetry();
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
     };
   }, []);
 
-  const saveAndClose = () => {
+  const closeWithIntent = (intent) => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+    closeIntentRef.current = intent;
     clearFocusRetry();
-    const trimmed = value.trim();
-    if (trimmed) {
-      onSubmit();
+
+    if (intent === 'save') {
+      const trimmed = value.trim();
+      if (trimmed) {
+        onSubmit();
+      } else {
+        onCancel();
+      }
     } else {
       onCancel();
     }
+
+    setTimeout(() => {
+      closeIntentRef.current = null;
+    }, 0);
+  };
+
+  const saveAndClose = () => {
+    closeWithIntent('save');
   };
 
   const cancelAndClose = () => {
-    clearFocusRetry();
-    onCancel();
+    closeWithIntent('cancel');
   };
 
   const handleCloseClick = () => {
@@ -271,6 +294,10 @@ function MobileEventComposer({
   const handleCloseTouchEnd = (event) => {
     event.preventDefault();
     cancelAndClose();
+  };
+
+  const markCancelIntent = () => {
+    closeIntentRef.current = 'cancel';
   };
 
   const handleSubmit = (event) => {
@@ -291,7 +318,31 @@ function MobileEventComposer({
 
   const handleBlur = () => {
     focusWithinRef.current = false;
-    // Do nothing on blur - require explicit save or cancel
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+    }
+    blurTimeoutRef.current = setTimeout(() => {
+      blurTimeoutRef.current = null;
+
+      if (!open) {
+        return;
+      }
+
+      if (focusWithinRef.current) {
+        return;
+      }
+
+      if (closeIntentRef.current) {
+        return;
+      }
+
+      const trimmed = value.trim();
+      if (trimmed) {
+        closeWithIntent('save');
+      } else {
+        closeWithIntent('cancel');
+      }
+    }, 120);
   };
 
   const composerClassName = [
@@ -320,6 +371,8 @@ function MobileEventComposer({
           type="button"
           className="mobile-composer__close"
           aria-label="Close composer"
+          onMouseDown={markCancelIntent}
+          onTouchStart={markCancelIntent}
           onClick={handleCloseClick}
           onTouchEnd={handleCloseTouchEnd}
         >
@@ -357,6 +410,8 @@ function MobileEventComposer({
         className="mobile-composer-backdrop"
         role="presentation"
         onClick={cancelAndClose}
+        onMouseDown={markCancelIntent}
+        onTouchStart={markCancelIntent}
       >
         <div
           className="mobile-composer-container mobile-composer-container--ios"
