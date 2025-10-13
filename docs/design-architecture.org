@@ -228,6 +228,11 @@ Props:
 
 Styling: Minimal card with hover state, no animations
 
+*** Inline Editing Behavior
+- Desktop inline edits use `DayCell.jsx` to swap the event row for an `<input>` in-place.
+- While editing, a document-level `pointerdown` listener cancels the edit if the tap/click lands outside the active row. This keeps tap-away behavior consistent with Escape key cancellation, especially on touch devices where users expect to dismiss fields by touching the background.
+- The listener runs in capture phase so it fires before other handlers; avoid removing it when refactoring the component tree or edits can become stuck.
+
 ** Event Creation/Editing (EventForm.tsx)
 
 Modal form for adding/editing events.
@@ -302,6 +307,7 @@ Exported for use across components.
 
 * Recent Updates
 
+- 2025-10-14: Added pointerdown-based outside click handling to cancel inline edits when the user taps away from a row.
 - 2025-10-12: Fixed swipe action hints to appear in revealed space (delete on right, done on left)
 - 2025-10-12: Simplified mobile composer to keyboard-only save (removed save button)
 - 2025-10-12: Fixed mobile composer cursor alignment issue

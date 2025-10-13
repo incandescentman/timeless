@@ -1402,3 +1402,17 @@ Accomplished:
 
 Energy Level: Quick polish
 Next Step: Verify multiple overlapping toasts queue correctly during rapid deletes.
+
+* 2025-10-14 Tuesday
+
+** Session: Inline edit tap-away + docs refresh
+Time: Afternoon
+Task: Allow inline edits to cancel on outside tap and sync documentation
+
+Accomplished:
+- Added a capture-phase pointerdown listener in DayCell so tapping away from an inline edit cancels without saving unintended changes.
+- Consolidated edit cancellation helpers into shared callbacks so Escape key and tap-away paths stay in sync.
+- Updated CLAUDE.org quick reference and design-architecture inline editing notes; recorded the change in Recent Updates.
+
+Energy Level: Focused
+Next Step: QA inline editing with both mouse and touch to confirm pointerdown capture covers swipe rows without side effects.

@@ -155,6 +155,10 @@ This repo uses the following documentation structure:
 3. Document the fix in codebase-wisdom.org
 4. Update work-log.org with LLM session summary
 
+*** Inline editing interactions:
+1. Desktop inline edits cancel when a pointerdown lands outside the active row—do not remove the capture listener in ~/src/components/DayCell.jsx~ or tap-away escape will break.
+2. `cancelEdit()` is shared by Escape key and outside taps; reuse that helper when introducing new dismissal paths so timers and state reset stay in sync.
+
 * Project Quick Facts
 
 - **What**: A minimalist calendar for people who think in years, not days
@@ -165,4 +169,4 @@ This repo uses the following documentation structure:
 ---
 [[file:the-timeless-approach.org][→ Philosophy]] | [[file:design-architecture.org][→ Architecture]] | [[file:codebase-wisdom.org][→ Wisdom]]
 
-Last Updated: 2025-10-04
+Last Updated: 2025-10-14
