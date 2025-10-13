@@ -189,6 +189,11 @@ function MobileEventComposer({
     let rafId = null;
 
     const updateOffset = () => {
+      // Freeze position if we're closing or about to close
+      if (closeIntentRef.current || blurTimeoutRef.current) {
+        return;
+      }
+
       const viewportHeight = viewport.height ?? window.innerHeight;
       const viewportOffsetTop = viewport.offsetTop ?? 0;
       const top = viewport.offsetTop ?? 0;

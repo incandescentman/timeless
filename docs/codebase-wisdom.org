@@ -113,6 +113,25 @@
    - [ ] Test the very first capture after a reload—persistent viewport shifts hide first-launch regressions.
    - [ ] Don’t assume desktop emulation reveals keyboard issues; verify on physical devices or real mobile browsers.
 
+* iOS Accessory Checkmark Drops Composer
+  Date: 2025-10-13
+
+** Symptom
+   On mobile Safari the composer behaved while typing, but tapping the keyboard accessory ✓ saved and then left the modal stranded at the bottom of the screen. The UI froze until a full page refresh.
+
+** Root Cause
+   The accessory checkmark dismisses the keyboard without firing a click on our buttons. The input blurred, the keyboard closed, and React re-rendered before we cleared the sheet. Without an explicit intent the blur auto-cancelled, but the overlay was already mid-transition so we ended up with a half-open zombie modal.
+
+** Fix
+   - Tracked close intent with refs so we know whether the user meant to cancel, save, or simply lost focus.
+   - Deferred blur auto-save/auto-cancel with a short timeout to let the button handlers mark their intent first.
+   - Locked body scroll during the overlay and anchored it to `visualViewport` so iOS no longer repositions the sheet mid-close.
+
+** Prevention Checklist
+   - [ ] Treat blur as advisory only on mobile: always record the user’s intent before dismissing the keyboard.
+   - [ ] When the keyboard accessory can dismiss inputs, verify both taps and hardware Return/Done paths on-device.
+   - [ ] Keep the composer outside transformed containers so React state drives close animations instead of CSS hacks.
+
 * Overflow Days Should Be Muted, Not Removed
   Date: 2025-10-08
 

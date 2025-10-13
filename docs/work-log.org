@@ -1375,4 +1375,18 @@ Next Steps:
 ---
 [[file:CLAUDE.org][← Docs Map]] | [[file:design-architecture.org][← Architecture]] | [[file:critical-next-steps.org][→ Next Steps]]
 
-Last Updated: 2025-10-12
+Last Updated: 2025-10-13
+
+* 2025-10-13 Monday
+
+** Session: iOS mobile composer stabilization
+Time: Late evening
+Task: Make the mobile event composer behave on physical iPhones
+
+Accomplished:
+- Replaced the native `<dialog>` path on iOS with a portal-backed overlay anchored to `visualViewport` so the sheet tracks the on-screen keyboard.
+- Locked body scroll and keyboard offsets so the input caret stays aligned even when the accessory bar toggles.
+- Added intent-aware close handling to auto-save or cancel after the keyboard checkmark dismisses the input without firing a click.
+
+Energy Level: Persistently debugging
+Next Step: Spot-check longer notes and multi-line input on iOS; confirm Android regression tests still pass.
