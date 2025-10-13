@@ -351,6 +351,8 @@ function DayCell({ date, isCurrentMonth = true }) {
   ));
   const inputRef = useRef(null);
   const editInputRef = useRef(null);
+  const editFocusAttemptsRef = useRef(0);
+  const editFocusRetryRef = useRef(null);
   const createRipple = useRipple();
   const suppressOpenRef = useRef(false);
   const suppressTimeoutRef = useRef(null);
@@ -386,6 +388,7 @@ function DayCell({ date, isCurrentMonth = true }) {
         clearTimeout(suppressTimeoutRef.current);
         suppressTimeoutRef.current = null;
       }
+      clearEditFocusRetry();
     }
   ), []);
 
@@ -572,7 +575,9 @@ function DayCell({ date, isCurrentMonth = true }) {
     cancelNewEvent({ suppress: true });  // Cancel adding new if we're editing
     setEditingIndex(idx);
     setDraftText(getEventText(events[idx]) ?? '');
-    setTimeout(() => editInputRef.current?.focus(), 0);
+    editFocusAttemptsRef.current = 0;
+    clearEditFocusRetry();
+    setTimeout(focusEditInput, 0);
   };
 
   const handleEditKeyDown = (e) => {
@@ -591,11 +596,13 @@ function DayCell({ date, isCurrentMonth = true }) {
     updateEvent(dateId, editingIndex, draftText);
     setEditingIndex(null);
     setDraftText('');
+    clearEditFocusRetry();
   };
 
   const cancelEdit = () => {
     setEditingIndex(null);
     setDraftText('');
+    clearEditFocusRetry();
   };
 
   const handleRemoveEvent = (idx) => {
@@ -805,3 +812,40 @@ function DayCell({ date, isCurrentMonth = true }) {
 }
 
 export default DayCell;
+  const clearEditFocusRetry = () => {
+    if (editFocusRetryRef.current) {
+      clearTimeout(editFocusRetryRef.current);
+      editFocusRetryRef.current = null;
+    }
+  };
+
+  const focusEditInput = () => {
+    const input = editInputRef.current;
+    if (!input) {
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      const coarsePointer = window.matchMedia?.('(pointer: coarse)')?.matches;
+      if (coarsePointer && typeof input.click === 'function') {
+        input.click();
+      }
+    }
+
+    const focusResult = input.focus?.({ preventScroll: true });
+    if (focusResult instanceof Promise) {
+      focusResult.catch(() => {});
+    }
+
+    if (typeof input.setSelectionRange === 'function') {
+      const caret = input.value.length;
+      input.setSelectionRange(caret, caret);
+    }
+
+    if (typeof document !== 'undefined' && document.activeElement !== input) {
+      if (editFocusAttemptsRef.current < 4) {
+        editFocusAttemptsRef.current += 1;
+        editFocusRetryRef.current = setTimeout(focusEditInput, 80);
+      }
+    }
+  };
