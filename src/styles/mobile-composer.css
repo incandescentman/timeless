@@ -1,19 +1,30 @@
-.mobile-composer-overlay {
-  position: fixed;
-  inset: 0;
+.mobile-composer-dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  width: 100%;
+  max-width: 100%;
+}
+
+.mobile-composer-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.mobile-composer-container {
+  --keyboard-offset: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(0.75rem, 4vw, 1.5rem) clamp(1rem, 5vw, 1.75rem) env(safe-area-inset-bottom, 0px);
-  background: rgba(15, 23, 42, 0.5);
-  z-index: 1000;
+  width: 100%;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: clamp(0.75rem, 4vw, 1.5rem) clamp(1rem, 5vw, 1.75rem) calc(env(safe-area-inset-bottom, 0px) + var(--keyboard-offset, 0px));
   touch-action: none;
 }
 
 @media (max-width: 768px) {
-  .mobile-composer-overlay {
+  .mobile-composer-container {
     align-items: flex-end;
-    justify-content: center;
   }
 }
 
@@ -43,11 +54,18 @@
 
 .mobile-composer__meta {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  text-align: left;
+  width: 100%;
+  gap: 0.75rem;
+}
+
+.mobile-composer__meta-text {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.45rem;
-  text-align: left;
-  width: 100%;
 }
 
 .mobile-composer__label {
@@ -68,6 +86,25 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.mobile-composer__close {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: transparent;
+  color: rgba(71, 85, 105, 0.75);
+  border-radius: 999px;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.mobile-composer__close:focus-visible {
+  outline: 2px solid rgba(71, 85, 105, 0.45);
+  outline-offset: 2px;
 }
 
 .mobile-composer__input {
@@ -98,7 +135,7 @@
 }
 
 
-body.dark-mode .mobile-composer-overlay {
+body.dark-mode .mobile-composer-dialog::backdrop {
   background: rgba(2, 6, 23, 0.6);
 }
 
@@ -137,4 +174,13 @@ body.dark-mode .mobile-composer__input:focus {
     inset 0 1px 0 rgba(30, 41, 59, 0.65),
     0 0 0 1px rgba(191, 219, 254, 0.2);
   background: rgba(15, 23, 42, 0.95);
+}
+
+body.dark-mode .mobile-composer__close {
+  border-color: rgba(71, 85, 105, 0.45);
+  color: rgba(226, 232, 240, 0.78);
+}
+
+body.dark-mode .mobile-composer__close:focus-visible {
+  outline-color: rgba(191, 219, 254, 0.35);
 }

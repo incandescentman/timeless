@@ -93,6 +93,26 @@
    - [ ] When the launch viewport drifts, inspect both CSS overrides and scroll guards before tweaking effect timing.
    - [ ] Preserve caller intent: user-triggered smooth scrolls stay smooth, but initial programmatic snaps must remain `auto` to avoid replaying months.
 
+* Mobile Composer Hidden by Keyboard
+  Date: 2025-10-12
+
+** Symptom
+   On a fresh mobile launch, tapping an empty day opened the composer but the keyboard covered the input. Users typed blind until saving the first note; subsequent captures appeared fine because the viewport stayed shifted.
+
+** Root Cause
+   The bottom sheet used fixed padding to respect safe-area insets, so we never accounted for the keyboard height. Mobile browsers shrink `visualViewport` when the keyboard appears, but the overlay didn’t react and remained pinned to the bottom edge.
+
+** Fix
+   - Subscribed to `window.visualViewport` resize/scroll events inside `MobileEventComposer.jsx` and derived a `--keyboard-offset` CSS variable (rounded to avoid noisy renders).
+   - Rebuilt the composer around the native `<dialog>` element, letting the browser manage backdrop, focus trapping, and cancel semantics instead of our custom portal overlay.
+   - Added the offset to the dialog container’s bottom padding so the composer lifts exactly the keyboard height while preserving existing safe-area space.
+   - Reset the offset whenever the composer closes to prevent stale values when reopening in a different orientation.
+
+** Prevention Checklist
+   - [ ] When building mobile overlays, combine keyboard height and safe-area padding via CSS variables instead of hard-coded pixels.
+   - [ ] Test the very first capture after a reload—persistent viewport shifts hide first-launch regressions.
+   - [ ] Don’t assume desktop emulation reveals keyboard issues; verify on physical devices or real mobile browsers.
+
 * Overflow Days Should Be Muted, Not Removed
   Date: 2025-10-08
 

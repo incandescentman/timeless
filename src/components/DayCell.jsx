@@ -3,7 +3,9 @@ import { useCalendar } from '../contexts/CalendarContext';
 import { useToast } from '../contexts/ToastContext';
 import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
-import MobileEventComposer from './MobileEventComposer';
+// Toggle between implementations for testing
+// import MobileEventComposer from './MobileEventComposer';
+import MobileEventComposer from './MobileEventComposerSimple';
 import { useSwipeable } from 'react-swipeable';
 import { IconPencil, IconTrash, IconCheck, IconTags } from '@tabler/icons-react';
 import { getEventText, isEventCompleted, getEventTags } from '../utils/eventUtils';

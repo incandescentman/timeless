@@ -109,8 +109,12 @@ export function CalendarProvider({ children }) {
         }
       });
 
-      if (!handled) {
+      if (handled === false) {
+        // Scroll API rejected the request (likely out of supported range) — stop retrying.
         initialScrollDoneRef.current = true;
+      } else if (!handled) {
+        // Virtualized list not ready yet; try again on the next animation frame.
+        rafId = window.requestAnimationFrame(attemptInitialScroll);
       }
     };
 

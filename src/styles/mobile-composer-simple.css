@@ -1,0 +1,132 @@
+/* Native dialog - let the browser handle positioning */
+.mobile-composer-dialog {
+  margin: auto;
+  border: none;
+  padding: 0;
+  background: transparent;
+  width: min(540px, calc(100% - 2rem));
+  max-width: 100%;
+  bottom: 0;
+  top: auto;
+}
+
+/* Dark backdrop */
+.mobile-composer-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+/* The actual form container */
+.mobile-composer-form {
+  background: white;
+  border-radius: 26px 26px 0 0;
+  padding: 1.5rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 -18px 42px rgba(15, 23, 42, 0.14);
+}
+
+/* Handle bar at top */
+.mobile-composer-handle {
+  width: 48px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.92);
+  margin: 0 auto;
+}
+
+/* Header section */
+.mobile-composer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.mobile-composer-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(71, 85, 105, 0.7);
+}
+
+.mobile-composer-date {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(30, 41, 59, 0.88);
+  margin-top: 0.25rem;
+}
+
+.mobile-composer-close {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  color: rgba(71, 85, 105, 0.75);
+  border-radius: 999px;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.mobile-composer-close:active {
+  opacity: 0.6;
+}
+
+/* Input field */
+.mobile-composer-input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  font-family: inherit;
+  outline: none;
+  color: rgba(15, 23, 42, 0.92);
+  background: white;
+  -webkit-appearance: none;
+}
+
+.mobile-composer-input:focus {
+  border-color: rgba(71, 85, 105, 0.45);
+  box-shadow: 0 0 0 1px rgba(71, 85, 105, 0.25);
+}
+
+/* Dark mode support */
+body.dark-mode .mobile-composer-dialog::backdrop {
+  background: rgba(2, 6, 23, 0.6);
+}
+
+body.dark-mode .mobile-composer-form {
+  background: rgba(17, 24, 39, 0.96);
+  box-shadow: 0 -18px 42px rgba(2, 6, 23, 0.58);
+}
+
+body.dark-mode .mobile-composer-handle {
+  background: rgba(71, 85, 105, 0.72);
+}
+
+body.dark-mode .mobile-composer-label {
+  color: rgba(148, 163, 184, 0.65);
+}
+
+body.dark-mode .mobile-composer-date {
+  color: rgba(226, 232, 240, 0.82);
+}
+
+body.dark-mode .mobile-composer-input {
+  background: rgba(15, 23, 42, 0.9);
+  color: rgba(226, 232, 240, 0.95);
+  border-color: rgba(71, 85, 105, 0.42);
+}
+
+body.dark-mode .mobile-composer-input:focus {
+  border-color: rgba(148, 163, 184, 0.5);
+  box-shadow: 0 0 0 1px rgba(191, 219, 254, 0.2);
+}
+
+body.dark-mode .mobile-composer-close {
+  border-color: rgba(71, 85, 105, 0.45);
+  color: rgba(226, 232, 240, 0.78);
+}
