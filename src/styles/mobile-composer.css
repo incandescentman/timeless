@@ -38,6 +38,9 @@
   gap: clamp(1rem, 3vw, 1.4rem);
   box-shadow: 0 -18px 42px rgba(15, 23, 42, 0.14);
   margin: 0 auto;
+}
+
+.mobile-composer--translated {
   transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
   transition: transform 160ms ease-out;
   will-change: transform;
@@ -47,11 +50,25 @@
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
+  z-index: 1400;
+}
+
+.mobile-composer-container--ios {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  z-index: 1400;
-  padding: 0;
+  padding: 0 clamp(1rem, 5vw, 1.75rem) env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.mobile-composer-container--ios .mobile-composer {
+  pointer-events: auto;
 }
 
 .mobile-composer__handle {

@@ -31,6 +31,10 @@ function MobileEventComposer({
   const focusWithinRef = useRef(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const [isIOS, setIsIOS] = useState(() => detectIOS());
+  const [iosViewportRect, setIosViewportRect] = useState(() => ({
+    top: 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0
+  }));
 
   const clearFocusRetry = () => {
     if (focusRetryTimeoutRef.current) {
@@ -141,7 +145,7 @@ function MobileEventComposer({
       focusAttemptsRef.current = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, isIOS]);
 
   useEffect(() => {
     if (!isIOS) {
@@ -171,6 +175,12 @@ function MobileEventComposer({
     const viewport = window.visualViewport;
     if (!viewport) {
       setKeyboardOffset(0);
+      if (isIOS) {
+        setIosViewportRect({
+          top: 0,
+          height: typeof window !== 'undefined' ? window.innerHeight : 0
+        });
+      }
       return undefined;
     }
 
@@ -179,12 +189,14 @@ function MobileEventComposer({
     const updateOffset = () => {
       const viewportHeight = viewport.height ?? window.innerHeight;
       const viewportOffsetTop = viewport.offsetTop ?? 0;
+      const top = viewport.offsetTop ?? 0;
+      const height = viewport.height ?? window.innerHeight;
       let offset = Math.max(
         0,
-        Math.round(window.innerHeight - viewportHeight - viewportOffsetTop)
+        Math.round(window.innerHeight - height - top)
       );
 
-      if (window.innerWidth <= 768) {
+      if (!isIOS && window.innerWidth <= 768) {
         const footer = document.querySelector('.mobile-footer');
         if (footer) {
           const footerBox = footer.getBoundingClientRect();
@@ -194,6 +206,12 @@ function MobileEventComposer({
       }
 
       setKeyboardOffset(offset);
+      if (isIOS) {
+        setIosViewportRect({
+          top,
+          height
+        });
+      }
     };
 
     const handleViewportChange = () => {
@@ -276,12 +294,21 @@ function MobileEventComposer({
     // Do nothing on blur - require explicit save or cancel
   };
 
+  const composerClassName = [
+    'mobile-composer',
+    !isIOS && 'mobile-composer--translated'
+  ].filter(Boolean).join(' ');
+
+  const composerStyle = !isIOS
+    ? { '--keyboard-offset': `${keyboardOffset}px` }
+    : undefined;
+
   const composerSurface = (
     <div
-      className="mobile-composer"
+      className={composerClassName}
       role="document"
       onClick={(event) => event.stopPropagation()}
-      style={{ '--keyboard-offset': `${keyboardOffset}px` }}
+      style={composerStyle}
     >
       <div className="mobile-composer__handle" aria-hidden="true" />
       <header className="mobile-composer__meta">
@@ -336,6 +363,11 @@ function MobileEventComposer({
           role="dialog"
           aria-modal="true"
           aria-label="New note composer"
+          style={{
+            '--keyboard-offset': `${keyboardOffset}px`,
+            top: `${iosViewportRect.top}px`,
+            height: `${iosViewportRect.height}px`
+          }}
         >
           {composerSurface}
         </div>
