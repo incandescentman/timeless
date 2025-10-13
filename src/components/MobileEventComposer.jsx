@@ -216,6 +216,10 @@ function MobileEventComposer({
         }
       }}
       onCancel={(event) => {
+        if (closingRef.current) {
+          // Already in a close sequence; let the browser finish it.
+          return;
+        }
         event.preventDefault();
         cancelAndClose();
       }}
