@@ -50,19 +50,29 @@ function MobileEventComposer({
     }
   };
 
+  const forceDialogClose = () => {
+    const dialog = dialogRef.current;
+    if (!dialog) {
+      return;
+    }
+    if (typeof dialog.close === 'function' && dialog.open) {
+      try {
+        dialog.close();
+      } catch (error) {
+        dialog.removeAttribute('open');
+      }
+    } else {
+      dialog.removeAttribute('open');
+    }
+  };
+
   useEffect(() => {
     const dialog = dialogRef.current;
 
     if (!open) {
       clearFocusRetry();
       focusAttemptsRef.current = 0;
-      if (dialog) {
-        if (typeof dialog.close === 'function' && dialog.open) {
-          dialog.close();
-        } else {
-          dialog?.removeAttribute('open');
-        }
-      }
+      forceDialogClose();
       return undefined;
     }
 
@@ -111,6 +121,15 @@ function MobileEventComposer({
     onCancel();
   };
 
+  const handleCloseClick = () => {
+    cancelAndClose();
+  };
+
+  const handleCloseTouchEnd = (event) => {
+    event.preventDefault();
+    cancelAndClose();
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     saveAndClose();
@@ -148,7 +167,8 @@ function MobileEventComposer({
           type="button"
           className="mobile-composer__close"
           aria-label="Close composer"
-          onClick={cancelAndClose}
+          onClick={handleCloseClick}
+          onTouchEnd={handleCloseTouchEnd}
         >
           X
         </button>
@@ -184,8 +204,7 @@ function MobileEventComposer({
           cancelAndClose();
         }
       }}
-      onCancel={(event) => {
-        event.preventDefault();
+      onCancel={() => {
         cancelAndClose();
       }}
     >
