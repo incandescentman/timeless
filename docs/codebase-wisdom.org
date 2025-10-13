@@ -104,7 +104,7 @@
 
 ** Fix
    - Subscribed to `window.visualViewport` resize/scroll events inside `MobileEventComposer.jsx` and derived a `--keyboard-offset` CSS variable (rounded to avoid noisy renders).
-   - Rebuilt the composer around the native `<dialog>` element, letting the browser manage backdrop, focus trapping, and cancel semantics instead of our custom portal overlay.
+   - Rebuilt the composer around the native `<dialog>` element, letting the browser manage backdrop, focus trapping, and cancel semantics instead of our custom portal overlay, while falling back to the legacy overlay on browsers without `<dialog>` support.
    - Added the offset to the dialog container’s bottom padding so the composer lifts exactly the keyboard height while preserving existing safe-area space.
    - Reset the offset whenever the composer closes to prevent stale values when reopening in a different orientation.
 

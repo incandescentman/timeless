@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 function MobileEventComposer({
   open,
@@ -16,8 +16,44 @@ function MobileEventComposer({
   const focusWithinRef = useRef(false);
   const closingRef = useRef(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
+  const [supportsDialog, setSupportsDialog] = useState(false);
 
-  const showDialog = () => {
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
+    let isMounted = true;
+    try {
+      const dialogSupported = typeof window.HTMLDialogElement === 'function';
+      if (!dialogSupported) {
+        if (isMounted) {
+          setSupportsDialog(false);
+        }
+        return;
+      }
+
+      const element = document.createElement('dialog');
+      const canShowModal = typeof element.showModal === 'function';
+      if (isMounted) {
+        setSupportsDialog(canShowModal);
+      }
+    } catch (error) {
+      if (isMounted) {
+        setSupportsDialog(false);
+      }
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const showDialog = useCallback(() => {
+    if (!supportsDialog) {
+      return;
+    }
+
     const dialog = dialogRef.current;
     if (!dialog || dialog.open) {
       return;
@@ -32,9 +68,13 @@ function MobileEventComposer({
     } else {
       dialog.setAttribute('open', 'true');
     }
-  };
+  }, [supportsDialog]);
 
-  const closeDialog = () => {
+  const closeDialog = useCallback(() => {
+    if (!supportsDialog) {
+      return;
+    }
+
     const dialog = dialogRef.current;
     if (!dialog) {
       return;
@@ -47,7 +87,7 @@ function MobileEventComposer({
     } else {
       dialog.removeAttribute('open');
     }
-  };
+  }, [supportsDialog]);
 
   const clearFocusRetry = () => {
     if (focusRetryTimeoutRef.current) {
@@ -102,7 +142,7 @@ function MobileEventComposer({
       focusAttemptsRef.current = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, closeDialog, showDialog]);
 
   useEffect(() => {
     if (!open) {
@@ -153,13 +193,14 @@ function MobileEventComposer({
     }
     closingRef.current = true;
     clearFocusRetry();
-    closeDialog();
     const trimmed = value.trim();
     if (trimmed) {
       onSubmit();
     } else {
       onCancel();
     }
+
+    closeDialog();
   };
 
   const cancelAndClose = () => {
@@ -168,8 +209,8 @@ function MobileEventComposer({
     }
     closingRef.current = true;
     clearFocusRetry();
-    closeDialog();
     onCancel();
+    closeDialog();
   };
 
   const handleSubmit = (event) => {
@@ -193,69 +234,93 @@ function MobileEventComposer({
     // Do nothing on blur - require explicit save or cancel
   };
 
-  return createPortal(
-    <dialog
-      ref={dialogRef}
-      className="mobile-composer-dialog"
-      aria-label="New note composer"
-      onCancel={(event) => {
-        event.preventDefault();
-        cancelAndClose();
-      }}
-      onClose={() => {
-        closingRef.current = false;
-      }}
+  const composerSurface = (
+    <div
+      className="mobile-composer"
+      role="document"
+      onClick={(event) => event.stopPropagation()}
     >
-      <div
-        className="mobile-composer-container"
-        style={{ '--keyboard-offset': `${keyboardOffset}px` }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) {
-            cancelAndClose();
-          }
+      <div className="mobile-composer__handle" aria-hidden="true" />
+      <header className="mobile-composer__meta">
+        <div className="mobile-composer__meta-text">
+          <span className="mobile-composer__label">New Note</span>
+          <span className="mobile-composer__date">{dateLabel}</span>
+        </div>
+        <button
+          type="button"
+          className="mobile-composer__close"
+          aria-label="Close composer"
+          onClick={cancelAndClose}
+        >
+          X
+        </button>
+      </header>
+      <form className="mobile-composer__form" onSubmit={handleSubmit}>
+        <input
+          id="mobileComposerInput"
+          ref={inputRef}
+          className="mobile-composer__input"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder="What happened today?"
+          autoComplete="off"
+          aria-label={`Event details for ${dateLabel}`}
+          enterKeyHint="done"
+          autoCapitalize="sentences"
+          autoCorrect="on"
+        />
+      </form>
+    </div>
+  );
+
+  if (supportsDialog) {
+    return createPortal(
+      <dialog
+        ref={dialogRef}
+        className="mobile-composer-dialog"
+        aria-label="New note composer"
+        onCancel={(event) => {
+          event.preventDefault();
+          cancelAndClose();
+        }}
+        onClose={() => {
+          closingRef.current = false;
+          setKeyboardOffset(0);
         }}
       >
         <div
-          className="mobile-composer"
-          role="document"
-          onClick={(event) => event.stopPropagation()}
+          className="mobile-composer-container"
+          style={{ '--keyboard-offset': `${keyboardOffset}px` }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              cancelAndClose();
+            }
+          }}
         >
-          <div className="mobile-composer__handle" aria-hidden="true" />
-          <header className="mobile-composer__meta">
-            <div className="mobile-composer__meta-text">
-              <span className="mobile-composer__label">New Note</span>
-              <span className="mobile-composer__date">{dateLabel}</span>
-            </div>
-            <button
-              type="button"
-              className="mobile-composer__close"
-              aria-label="Close composer"
-              onClick={cancelAndClose}
-            >
-              X
-            </button>
-          </header>
-          <form className="mobile-composer__form" onSubmit={handleSubmit}>
-            <input
-              id="mobileComposerInput"
-              ref={inputRef}
-              className="mobile-composer__input"
-              value={value}
-              onChange={(event) => onChange(event.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              placeholder="What happened today?"
-              autoComplete="off"
-              aria-label={`Event details for ${dateLabel}`}
-              enterKeyHint="done"
-              autoCapitalize="sentences"
-              autoCorrect="on"
-            />
-          </form>
+          {composerSurface}
         </div>
-      </div>
-    </dialog>,
+      </dialog>,
+      document.body
+    );
+  }
+
+  return createPortal(
+    <div
+      className="mobile-composer-overlay"
+      role="dialog"
+      aria-modal="true"
+      style={{ '--keyboard-offset': `${keyboardOffset}px` }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          cancelAndClose();
+        }
+      }}
+    >
+      {composerSurface}
+    </div>,
     document.body
   );
 }

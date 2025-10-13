@@ -93,7 +93,7 @@ Task: Replace custom overlay with native `<dialog>` for simpler focus/keyboard h
 Status: **COMPLETED**
 
 Accomplished:
-- Swapped the portal overlay for an HTML `<dialog>` in `MobileEventComposer.jsx`, using modal semantics to manage backdrop and focus trapping
+- Swapped the portal overlay for an HTML `<dialog>` in `MobileEventComposer.jsx`, using modal semantics to manage backdrop and focus trapping (with automatic fallback to the legacy overlay where `<dialog>` is unsupported)
 - Kept the keyboard offset logic by piping `visualViewport` measurements into the dialog container’s padding via `--keyboard-offset`
 - Restyled `mobile-composer.css` to theme the dialog/backdrop while preserving the bottom-sheet look in both light and dark modes
 
