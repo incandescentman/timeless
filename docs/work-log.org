@@ -1390,3 +1390,15 @@ Accomplished:
 
 Energy Level: Persistently debugging
 Next Step: Spot-check longer notes and multi-line input on iOS; confirm Android regression tests still pass.
+
+** Session: Toast experience upgrade
+Time: Night
+Task: Replace the bespoke undo toast with a smoother implementation
+
+Accomplished:
+- Swapped the homegrown toast component for `react-hot-toast` custom rendering so delete/undo feedback animates cleanly.
+- Reused the existing toast styling for consistent branding while letting the library manage stacking, timing, and dismissal.
+- Ensured the undo action still restores events immediately and dismisses the toast without jitter.
+
+Energy Level: Quick polish
+Next Step: Verify multiple overlapping toasts queue correctly during rapid deletes.

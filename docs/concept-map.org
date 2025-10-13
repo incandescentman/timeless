@@ -202,7 +202,7 @@ Visual Feedback:
 
 Behavior:
 - Triggers slide-left delete animation (300ms)
-- Shows undo toast with 4-second recovery window
+- Shows undo toast (react-hot-toast) with 4-second recovery window
 - Consistent with common mobile app deletion patterns
 
 Related: [[*Mobile Gestures]], [[*Event]]
@@ -211,4 +211,4 @@ Implementation: [[file:../src/components/DayCell.jsx][DayCell.jsx]] onSwipedLeft
 ---
 [[file:CLAUDE.org][← Docs Map]] | [[file:the-timeless-approach.org][→ Philosophy]] | [[file:design-architecture.org][→ Architecture]]
 
-Last Updated: 2025-10-12
+Last Updated: 2025-10-13
