@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useToast } from '../contexts/ToastContext';
 import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
@@ -358,6 +358,19 @@ function DayCell({ date, isCurrentMonth = true }) {
   const suppressTimeoutRef = useRef(null);
   const dateId = generateDayId(date);
 
+  const clearEditFocusRetry = useCallback(() => {
+    if (editFocusRetryRef.current) {
+      clearTimeout(editFocusRetryRef.current);
+      editFocusRetryRef.current = null;
+    }
+  }, []);
+
+  const cancelEdit = useCallback(() => {
+    setEditingIndex(null);
+    setDraftText('');
+    clearEditFocusRetry();
+  }, [clearEditFocusRetry]);
+
   const dayNumber = date.getDate();
   const dayLabel = DAY_LABELS[date.getDay()] ?? date.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase();
   const monthIndex = date.getMonth();
@@ -390,7 +403,39 @@ function DayCell({ date, isCurrentMonth = true }) {
       }
       clearEditFocusRetry();
     }
-  ), []);
+  ), [clearEditFocusRetry]);
+
+  useEffect(() => {
+    if (editingIndex === null) {
+      return undefined;
+    }
+
+    if (typeof document === 'undefined') {
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      const target = event.target;
+      const input = editInputRef.current;
+      if (input && target === input) {
+        return;
+      }
+
+      if (target instanceof Element) {
+        const editingRow = target.closest('[data-event-row]');
+        if (editingRow && editingRow.classList.contains('editing')) {
+          return;
+        }
+      }
+
+      cancelEdit();
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [editingIndex, cancelEdit]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -570,13 +615,6 @@ function DayCell({ date, isCurrentMonth = true }) {
     }
   };
 
-  const clearEditFocusRetry = () => {
-    if (editFocusRetryRef.current) {
-      clearTimeout(editFocusRetryRef.current);
-      editFocusRetryRef.current = null;
-    }
-  };
-
   const focusEditInput = () => {
     const input = editInputRef.current;
     if (!input) {
@@ -632,12 +670,6 @@ function DayCell({ date, isCurrentMonth = true }) {
   const commitEdit = () => {
     if (editingIndex === null) return;
     updateEvent(dateId, editingIndex, draftText);
-    setEditingIndex(null);
-    setDraftText('');
-    clearEditFocusRetry();
-  };
-
-  const cancelEdit = () => {
     setEditingIndex(null);
     setDraftText('');
     clearEditFocusRetry();
