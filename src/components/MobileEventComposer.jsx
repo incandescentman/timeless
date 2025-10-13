@@ -1,6 +1,21 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 
+const detectIOS = () => {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+
+  const userAgent = navigator.userAgent || '';
+  const platform = navigator.platform || '';
+
+  return (
+    /iP(ad|hone|od)/.test(platform) ||
+    (/Mac/.test(platform) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1) ||
+    /iPhone|iPad|iPod/.test(userAgent)
+  );
+};
+
 function MobileEventComposer({
   open,
   value,
@@ -15,6 +30,7 @@ function MobileEventComposer({
   const focusRetryTimeoutRef = useRef(null);
   const focusWithinRef = useRef(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
+  const [isIOS, setIsIOS] = useState(() => detectIOS());
 
   const clearFocusRetry = () => {
     if (focusRetryTimeoutRef.current) {
@@ -52,6 +68,10 @@ function MobileEventComposer({
   };
 
   const forceDialogClose = () => {
+    if (isIOS) {
+      setKeyboardOffset(0);
+      return;
+    }
     const dialog = dialogRef.current;
     if (!dialog) {
       return;
@@ -69,30 +89,51 @@ function MobileEventComposer({
   };
 
   useEffect(() => {
+    setIsIOS(detectIOS());
+  }, []);
+
+  useEffect(() => {
+    if (isIOS) {
+      if (!open) {
+        setKeyboardOffset(0);
+      }
+      return undefined;
+    }
+
     const dialog = dialogRef.current;
+    if (!dialog) {
+      return undefined;
+    }
 
     if (!open) {
-      clearFocusRetry();
-      focusAttemptsRef.current = 0;
       forceDialogClose();
       return undefined;
     }
 
-    focusAttemptsRef.current = 0;
-
-    if (dialog) {
-      try {
-        if (typeof dialog.showModal === 'function' && !dialog.open) {
-          dialog.showModal();
-        } else if (!dialog.hasAttribute('open')) {
-          dialog.setAttribute('open', 'true');
-        }
-      } catch (error) {
-        // Fallback: ensure dialog remains open even if showModal throws.
+    try {
+      if (typeof dialog.showModal === 'function' && !dialog.open) {
+        dialog.showModal();
+      } else if (!dialog.hasAttribute('open')) {
         dialog.setAttribute('open', 'true');
       }
+    } catch (error) {
+      dialog.setAttribute('open', 'true');
     }
 
+    return () => {
+      forceDialogClose();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isIOS]);
+
+  useEffect(() => {
+    if (!open) {
+      clearFocusRetry();
+      focusAttemptsRef.current = 0;
+      return undefined;
+    }
+
+    focusAttemptsRef.current = 0;
     attemptFocus();
 
     return () => {
@@ -101,6 +142,26 @@ function MobileEventComposer({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  useEffect(() => {
+    if (!isIOS) {
+      return undefined;
+    }
+
+    if (!open) {
+      return undefined;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.touchAction = originalTouchAction;
+    };
+  }, [isIOS, open]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -118,10 +179,20 @@ function MobileEventComposer({
     const updateOffset = () => {
       const viewportHeight = viewport.height ?? window.innerHeight;
       const viewportOffsetTop = viewport.offsetTop ?? 0;
-      const offset = Math.max(
+      let offset = Math.max(
         0,
         Math.round(window.innerHeight - viewportHeight - viewportOffsetTop)
       );
+
+      if (window.innerWidth <= 768) {
+        const footer = document.querySelector('.mobile-footer');
+        if (footer) {
+          const footerBox = footer.getBoundingClientRect();
+          const footerHeight = Math.round(footerBox.height ?? 0);
+          offset = Math.max(0, offset - footerHeight);
+        }
+      }
+
       setKeyboardOffset(offset);
     };
 
@@ -210,6 +281,7 @@ function MobileEventComposer({
       className="mobile-composer"
       role="document"
       onClick={(event) => event.stopPropagation()}
+      style={{ '--keyboard-offset': `${keyboardOffset}px` }}
     >
       <div className="mobile-composer__handle" aria-hidden="true" />
       <header className="mobile-composer__meta">
@@ -248,6 +320,30 @@ function MobileEventComposer({
     </div>
   );
 
+  if (isIOS) {
+    if (!open) {
+      return null;
+    }
+
+    return createPortal(
+      <div
+        className="mobile-composer-backdrop"
+        role="presentation"
+        onClick={cancelAndClose}
+      >
+        <div
+          className="mobile-composer-container mobile-composer-container--ios"
+          role="dialog"
+          aria-modal="true"
+          aria-label="New note composer"
+        >
+          {composerSurface}
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
   return createPortal(
     <dialog
       ref={dialogRef}
@@ -262,11 +358,7 @@ function MobileEventComposer({
         cancelAndClose();
       }}
     >
-      <div
-        className="mobile-composer-container"
-        onClick={(event) => event.stopPropagation()}
-        style={{ '--keyboard-offset': `${keyboardOffset}px` }}
-      >
+      <div className="mobile-composer-container">
         {composerSurface}
       </div>
     </dialog>,

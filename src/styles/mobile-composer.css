@@ -17,10 +17,7 @@
   width: 100%;
   min-height: 100dvh;
   box-sizing: border-box;
-  padding:
-    clamp(0.75rem, 4vw, 1.5rem)
-    clamp(1rem, 5vw, 1.75rem)
-    calc(env(safe-area-inset-bottom, 0px) + var(--keyboard-offset, 0px));
+  padding: clamp(0.75rem, 4vw, 1.5rem) clamp(1rem, 5vw, 1.75rem) env(safe-area-inset-bottom, 0px);
   touch-action: none;
 }
 
@@ -41,6 +38,20 @@
   gap: clamp(1rem, 3vw, 1.4rem);
   box-shadow: 0 -18px 42px rgba(15, 23, 42, 0.14);
   margin: 0 auto;
+  transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
+  transition: transform 160ms ease-out;
+  will-change: transform;
+}
+
+.mobile-composer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1400;
+  padding: 0;
 }
 
 .mobile-composer__handle {

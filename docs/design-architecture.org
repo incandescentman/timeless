@@ -169,6 +169,7 @@ const isToday = (date: Date) => {
 
 - Below 768px viewports, tapping an empty day opens a bottom-sheet overlay instead of the inline composer.
 - The sheet portals to `document.body`, anchors to the viewport bottom, and shows a frosted grab handle for affordance.
+- iOS Safari falls back to a fixed overlay (no native `<dialog>` support); macOS/iPad with hardware keyboards still use the dialog path.
 - Desktop still renders the inline composer inside `DayCell`; both flows call the same add/update handlers.
 - Mobile uses keyboard-only save: iOS keyboard checkmark (Enter) saves, tap outside or Escape cancels.
 - No save button displayed - follows iOS conventions where keyboard action is primary.
