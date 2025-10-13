@@ -56,15 +56,18 @@ Benefits:
 - **Future-proof** - works with all mobile keyboards and browsers
 - **Actually fixes the original bug** - text is always visible
 
-Lessons Learned:
-- Always check for native browser APIs before building custom solutions
-- Modern browsers have solved most mobile input problems already
-- The `<dialog>` element with showModal() is specifically designed for this use case
-- Complex custom code often recreates browser behavior poorly
-- When users say "isn't there a library for this?" - check native APIs first
+Theory:
+- The native `<dialog>` element should handle these cases better than custom code
+- Browser APIs are designed for exactly this type of UI pattern
+- Simpler code might be more maintainable if it works properly
 
-Next Step:
-- Remove original complex version after testing confirms simplified version works on all devices
+Next Steps:
+- **TEST ON MOBILE** to see if this actually fixes the visibility issue
+- Verify text input is visible on first launch
+- Check if all interactions work as expected
+- Get user feedback on whether this is actually better
+- If approved, consider removing the complex version
+- If issues found, may need to revert or adjust approach
 
 ** Session: Mobile Composer Keyboard Offset Fix
 Time: Evening
