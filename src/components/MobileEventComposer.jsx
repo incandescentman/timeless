@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function MobileEventComposer({
   open,
@@ -14,6 +14,7 @@ function MobileEventComposer({
   const focusAttemptsRef = useRef(0);
   const focusRetryTimeoutRef = useRef(null);
   const focusWithinRef = useRef(false);
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
 
   const clearFocusRetry = () => {
     if (focusRetryTimeoutRef.current) {
@@ -64,6 +65,7 @@ function MobileEventComposer({
     } else {
       dialog.removeAttribute('open');
     }
+    setKeyboardOffset(0);
   };
 
   useEffect(() => {
@@ -98,6 +100,58 @@ function MobileEventComposer({
       focusAttemptsRef.current = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const viewport = window.visualViewport;
+    if (!viewport) {
+      setKeyboardOffset(0);
+      return undefined;
+    }
+
+    let rafId = null;
+
+    const updateOffset = () => {
+      const viewportHeight = viewport.height ?? window.innerHeight;
+      const viewportOffsetTop = viewport.offsetTop ?? 0;
+      const offset = Math.max(
+        0,
+        Math.round(window.innerHeight - viewportHeight - viewportOffsetTop)
+      );
+      setKeyboardOffset(offset);
+    };
+
+    const handleViewportChange = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = window.requestAnimationFrame(updateOffset);
+    };
+
+    if (!open) {
+      setKeyboardOffset(0);
+      return () => {
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId);
+        }
+      };
+    }
+
+    updateOffset();
+    viewport.addEventListener('resize', handleViewportChange);
+    viewport.addEventListener('scroll', handleViewportChange);
+
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      viewport.removeEventListener('resize', handleViewportChange);
+      viewport.removeEventListener('scroll', handleViewportChange);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -211,6 +265,7 @@ function MobileEventComposer({
       <div
         className="mobile-composer-container"
         onClick={(event) => event.stopPropagation()}
+        style={{ '--keyboard-offset': `${keyboardOffset}px` }}
       >
         {composerSurface}
       </div>
