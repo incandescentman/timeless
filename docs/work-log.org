@@ -105,6 +105,22 @@ Lessons Learned:
 Next Step:
 - Run smoke tests on mobile Safari/Chrome to confirm the native dialog respects our swipe gestures and today highlighting
 
+** Session: Retire Mobile Composer Draft Persistence
+Time: Late evening
+Task: Remove per-day draft storage that interfered with saving
+Status: **COMPLETED**
+
+Accomplished:
+- Simplified `DayCell` by dropping the localStorage-backed draft cache so new entries start blank every time
+- Reinstated the primary `MobileEventComposer` so all modal fixes (dialog fallback, keyboard offset) apply consistently
+
+Lessons Learned:
+- Background draft persistence conflicts with the fast-capture workflow when users expect a clean state after each save
+- Maintaining a single composer implementation avoids regressions when only one variant receives bug fixes
+
+Next Step:
+- Verify on-device that the composer no longer reopens with stale text after saving or cancelling
+
 ** Session: Fixed Swipe Action Hint Positions
 Time: Evening
 Task: Fix positioning of swipe action hints to appear in revealed space

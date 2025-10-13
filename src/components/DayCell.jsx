@@ -1,17 +1,13 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCalendar } from '../contexts/CalendarContext';
 import { useToast } from '../contexts/ToastContext';
 import { generateDayId, isToday, isWeekend, addDays, shortMonths, daysOfWeek } from '../utils/dateUtils';
 import { useRipple } from '../hooks/useRipple';
-// Toggle between implementations for testing
-// import MobileEventComposer from './MobileEventComposer';
-import MobileEventComposer from './MobileEventComposerSimple';
+import MobileEventComposer from './MobileEventComposer';
 import { useSwipeable } from 'react-swipeable';
 import { IconPencil, IconTrash, IconCheck, IconTags } from '@tabler/icons-react';
 import { getEventText, isEventCompleted, getEventTags } from '../utils/eventUtils';
 import '../styles/swipeable-overrides.css';
-
-const MOBILE_COMPOSER_DRAFTS_KEY = 'timeless:mobile-composer-drafts';
 
 // Swipeable event row component
 function SwipeableEventRow({
@@ -349,7 +345,7 @@ function DayCell({ date, isCurrentMonth = true }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [draftText, setDraftText] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newEventText, setNewEventTextState] = useState('');
+  const [newEventText, setNewEventText] = useState('');
   const [isMobileViewport, setIsMobileViewport] = useState(() => (
     typeof window !== 'undefined' && window.innerWidth <= 768
   ));
@@ -359,70 +355,6 @@ function DayCell({ date, isCurrentMonth = true }) {
   const suppressOpenRef = useRef(false);
   const suppressTimeoutRef = useRef(null);
   const dateId = generateDayId(date);
-  const mobileDraftsRef = useRef(null);
-
-  const ensureDrafts = useCallback(() => {
-    if (mobileDraftsRef.current) {
-      return mobileDraftsRef.current;
-    }
-    if (typeof window === 'undefined') {
-      mobileDraftsRef.current = {};
-      return mobileDraftsRef.current;
-    }
-    try {
-      const raw = window.localStorage.getItem(MOBILE_COMPOSER_DRAFTS_KEY);
-      if (!raw) {
-        mobileDraftsRef.current = {};
-        return mobileDraftsRef.current;
-      }
-      const parsed = JSON.parse(raw);
-      mobileDraftsRef.current = parsed && typeof parsed === 'object' ? parsed : {};
-    } catch {
-      mobileDraftsRef.current = {};
-    }
-    return mobileDraftsRef.current;
-  }, []);
-
-  const persistDrafts = useCallback((drafts) => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    try {
-      const keys = Object.keys(drafts);
-      if (keys.length > 0) {
-        window.localStorage.setItem(MOBILE_COMPOSER_DRAFTS_KEY, JSON.stringify(drafts));
-      } else {
-        window.localStorage.removeItem(MOBILE_COMPOSER_DRAFTS_KEY);
-      }
-    } catch {
-      // Ignore storage errors (private mode, quota, etc.)
-    }
-  }, []);
-
-  const syncDraft = useCallback((value) => {
-    const drafts = ensureDrafts();
-    const trimmed = value.trim();
-
-    if (trimmed) {
-      if (drafts[dateId] !== value) {
-        drafts[dateId] = value;
-        persistDrafts(drafts);
-      }
-      return;
-    }
-
-    if (drafts[dateId]) {
-      delete drafts[dateId];
-      persistDrafts(drafts);
-    }
-  }, [dateId, ensureDrafts, persistDrafts]);
-
-  const setNewEventText = useCallback((value, { persist = true } = {}) => {
-    setNewEventTextState(value);
-    if (persist) {
-      syncDraft(value);
-    }
-  }, [syncDraft]);
 
   const dayNumber = date.getDate();
   const dayLabel = DAY_LABELS[date.getDay()] ?? date.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase();
@@ -442,20 +374,6 @@ function DayCell({ date, isCurrentMonth = true }) {
   const isKeyboardFocused = keyboardFocusDate && generateDayId(keyboardFocusDate) === dateId;
   const isSelected = selectedDays.includes(dateId);
   const events = getNotesForDate(date);
-
-  useEffect(() => {
-    if (!isMobileViewport || !isAddingNew || typeof window === 'undefined') {
-      return;
-    }
-    if (newEventText) {
-      return;
-    }
-    const drafts = ensureDrafts();
-    const stored = drafts?.[dateId];
-    if (typeof stored === 'string' && stored.length > 0) {
-      setNewEventTextState(stored);
-    }
-  }, [dateId, ensureDrafts, isAddingNew, isMobileViewport, newEventText]);
 
   useEffect(() => {
     setEditingIndex(null);
@@ -502,7 +420,7 @@ function DayCell({ date, isCurrentMonth = true }) {
     }
     setIsAddingNew(false);
     if (resetDraft) {
-      setNewEventText('', { persist: true });
+      setNewEventText('');
     }
   };
 
