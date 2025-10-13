@@ -115,14 +115,6 @@ function MobileEventComposer({
     } else {
       onCancel();
     }
-    const dialog = dialogRef.current;
-    if (dialog) {
-      if (typeof dialog.close === 'function' && dialog.open) {
-        dialog.close();
-      } else {
-        dialog.removeAttribute('open');
-      }
-    }
   };
 
   const cancelAndClose = () => {
@@ -132,14 +124,6 @@ function MobileEventComposer({
     closingRef.current = true;
     clearFocusRetry();
     onCancel();
-    const dialog = dialogRef.current;
-    if (dialog) {
-      if (typeof dialog.close === 'function' && dialog.open) {
-        dialog.close();
-      } else {
-        dialog.removeAttribute('open');
-      }
-    }
   };
 
   const handleSubmit = (event) => {
