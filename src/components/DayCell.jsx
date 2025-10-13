@@ -424,6 +424,10 @@ function DayCell({ date, isCurrentMonth = true }) {
     }
   };
 
+  const handleMobileComposerCancel = () => {
+    cancelNewEvent({ suppress: true, resetDraft: true });
+  };
+
   const openComposer = () => {
     if (isMultiSelectMode) return;
     setEditingIndex(null);
@@ -700,7 +704,7 @@ function DayCell({ date, isCurrentMonth = true }) {
             value={newEventText}
             onChange={setNewEventText}
             onSubmit={handleAddEvent}
-            onCancel={cancelNewEvent}
+            onCancel={handleMobileComposerCancel}
             dateLabel={mobileComposerLabel}
           />
         )}
@@ -792,7 +796,7 @@ function DayCell({ date, isCurrentMonth = true }) {
           value={newEventText}
           onChange={setNewEventText}
           onSubmit={handleAddEvent}
-          onCancel={cancelNewEvent}
+          onCancel={handleMobileComposerCancel}
           dateLabel={mobileComposerLabel}
         />
       )}
