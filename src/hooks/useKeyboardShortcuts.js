@@ -130,10 +130,10 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         return;
       }
 
-      // Export markdown diary: Cmd/Ctrl+Shift+E
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'e') {
+      // Export markdown diary: Cmd/Ctrl+E
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'e') {
         e.preventDefault();
-        emitKeystroke(e, isMac ? '⌘ + Shift + E' : 'Ctrl + Shift + E');
+        emitKeystroke(e, isMac ? '⌘ + E' : 'Ctrl + E');
         announceCommand({ label: 'Exporting markdown diary' });
         downloadMarkdownDiary();
         return;

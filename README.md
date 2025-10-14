@@ -104,7 +104,7 @@ npm run preview
 
 ### System
 - `⌘D` - Toggle dark mode
-- `⌘⇧E` / `Ctrl+Shift+E` - Export markdown
+- `⌘E` / `Ctrl+E` - Export markdown
 - `Esc` - Close overlays
 
 ## Data Storage

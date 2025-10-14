@@ -160,7 +160,7 @@ function AppContent({ experimentalMode }) {
       id: 'export-markdown',
       name: 'Export Markdown Diary',
       section: 'Data',
-      shortcut: ['cmd', 'shift', 'e'],
+      shortcut: ['cmd', 'e'],
       perform: downloadMarkdownDiary
     },
     {

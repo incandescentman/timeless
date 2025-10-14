@@ -99,7 +99,7 @@ Timeless is an infinite scroll calendar application built with React. It provide
 
 ** System
 - =⌘D= - Toggle dark mode
-- =⌘⇧E= / =Ctrl+Shift+E= - Export as markdown diary
+- =⌘E= / =Ctrl+E= - Export as markdown diary
 - =Esc= - Close overlays
 
 * Development Environment

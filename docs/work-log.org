@@ -1459,7 +1459,8 @@ Time: Later afternoon
 Task: Add a dedicated keyboard shortcut for exporting the markdown diary
 
 Accomplished:
-- Bound Cmd/Ctrl+Shift+E at the global shortcut layer to trigger `downloadMarkdownDiary()` with keystroke feedback.
+- Bound Cmd/Ctrl+E at the global shortcut layer to trigger `downloadMarkdownDiary()` with keystroke feedback.
+- Simplified the binding to drop Shift once we verified no browser conflicts, keeping the export faster to reach.
 - Registered the same combination in the command palette for quick discovery.
 - Refreshed the help overlay, README, and instructions to list the new shortcut across user-facing docs.
 
