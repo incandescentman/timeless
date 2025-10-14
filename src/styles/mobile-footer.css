@@ -14,7 +14,7 @@
   z-index: 1000;
   padding: 0 0 env(safe-area-inset-bottom, 0px);
   box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.02);
-  transition: all 0.3s ease;
+  transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 @media (max-width: 768px) {
@@ -36,7 +36,7 @@
   padding: 0;
   color: #666666;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
   -webkit-tap-highlight-color: transparent;
   position: relative;
@@ -51,7 +51,7 @@
   justify-content: center;
   border-radius: 12px;
   background: transparent;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   margin: 0 auto;
 }
@@ -68,7 +68,7 @@
   stroke-width: 2;
   display: block;
   flex-shrink: 0;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0;
   position: relative;
 }

@@ -1,0 +1,99 @@
+#+title: Emacs Calendar Instructions
+#+author: Jay
+
+* Overview
+- Launch the calendar with ~M-x calendar~ (or any key binding wired to ~calendar~).
+- The window shows the current month centered, with the previous and next months above/below.
+- Dates with diary entries are highlighted using the ~diary~ face (red in the Leuven Jay theme).
+- Holiday highlighting is optional; toggle it via ~(setq calendar-mark-holidays-flag nil)~ if you prefer a uniform look.
+
+* Diary Integration
+- Diary file: ~~/Dropbox/github/timeless/jay-diary.md~ (set in =shared-functions.org:8479=).
+- Entries must begin with a literal date line formatted as ~M/D/YYYY~ (e.g., ~5/8/2025~). Headings starting with ~#~ are treated as comments because ~(setq diary-comment-start "#")~.
+- Calendar auto-marks diary dates because ~(setq calendar-mark-diary-entries-flag t)~ and ~(setq calendar-view-diary-initially-flag t)~.
+- Auto-revert relies on polling (file notifications are disabled for cloud storage), so updates appear automatically after a short delay.
+
+* Custom Enhancements
+- =RET= → ~diary-view-entries~ (configured in =shared-functions.org:8514=) to show entries for the date at point.
+- =o= → ~my-calendar-jump-to-diary-entry~ opens ~jay-diary.md~ in another window and jumps to the matching date string, warning if missing.
+- =t= → custom lambda that runs ~calendar-goto-today~ followed by ~my-calendar-jump-to-diary-entry~; quick path to today’s entry.
+- These bindings are activated with ~(with-eval-after-load 'calendar ...)~ so they apply whenever the calendar package loads.
+
+* Typical Workflow
+1. Invoke ~M-x calendar~.
+2. Navigate to a day (arrows, ~f/b~, ~n/p~, or month/year jumps).
+3. Press =RET= to preview entries; press =o= to edit the diary at that date.
+4. Use the ~i~ prefix commands to insert new entries (diary inserts the timestamp for you).
+5. After editing ~jay-diary.md~, save; the calendar automatically updates highlights on the next refresh.
+
+* Calendar Faces & Visuals
+- Diary markers use the ~diary~ face; customize via ~M-x customize-face RET diary RET~ if you prefer a different color.
+- Holidays use the ~holiday~ face; disable with ~(setq calendar-mark-holidays-flag nil)~ or customize the face.
+- Today’s date uses ~calendar-today~; in the Leuven Jay theme it shares the calendar month header colors.
+
+* Launching & Exiting
+- Launch: ~M-x calendar~ (Spacemacs equivalent: =SPC a d c= unless remapped).
+- Close: =q= quits the calendar window. If you opened a separate diary window, close it normally (=q= works there too when using fancy diary).
+
+* Navigation Keys
+| Key | Command | Notes |
+|-----+---------+-------|
+| f / C-f / → | ~calendar-forward-day~ | Move forward one day |
+| b / C-b / ← | ~calendar-backward-day~ | Move backward one day |
+| n / C-n / ↓ | ~calendar-forward-week~ | Forward one week |
+| p / C-p / ↑ | ~calendar-backward-week~ | Back one week |
+| M-} / > / C-x > | ~calendar-forward-month~ / ~calendar-scroll-left~ | Jump or scroll one month forward |
+| M-{ / < / C-x < | ~calendar-backward-month~ / ~calendar-scroll-right~ | Jump or scroll one month back |
+| C-x ] | ~calendar-forward-year~ | Next year |
+| C-x [ | ~calendar-backward-year~ | Previous year |
+| . | ~calendar-goto-today~ | Move cursor to today |
+| g d | ~calendar-goto-date~ | Prompt for specific date |
+| g w | ~calendar-iso-goto-week~ | Go to ISO week |
+| g C | ~calendar-chinese-goto-date~ | Many regional calendars available |
+
+* Diary Commands (Prefix ~i~)
+| Key | Command | Description |
+|-----+---------+-------------|
+| i d | ~diary-insert-entry~ | Single-day entry |
+| i w | ~diary-insert-weekly-entry~ | Repeat weekly |
+| i m | ~diary-insert-monthly-entry~ | Repeat monthly |
+| i y | ~diary-insert-yearly-entry~ | Anniversary-style |
+| i b | ~diary-insert-block-entry~ | Multi-day spans |
+| i c | ~diary-insert-cyclic-entry~ | Every N days |
+| i a | ~diary-insert-anniversary-entry~ | Anniversary with age calculation |
+
+* Viewing & Managing Entries
+- =RET= (custom) shows entries for the cursor date in the fancy diary buffer.
+- =o= (custom) jumps directly into ~jay-diary.md~ at that date.
+- =t= (custom) moves to today and opens today’s diary entry.
+- =d= (~diary-view-entries~) also shows entries but respects defaults instead of the custom fancy view.
+- =s= (~diary-show-all-entries~) displays a list of all entries for the visible three-month window.
+- =m= (~diary-mark-entries~) forces a refresh of diary markers.
+- =u= (~calendar-unmark~) removes markings (useful after toggling options).
+
+* Holiday & Solar Info
+- =x= marks holidays in the current window if ~(setq calendar-mark-holidays-flag t)~.
+- =a= (~calendar-list-holidays~) shows holidays in a help buffer.
+- =M= (~calendar-lunar-phases~) displays moon phases for the visible window.
+- =S= (~calendar-sunrise-sunset~) prints sunrise/sunset for the cursor day; use prefix ~t~ commands under =S= for month-wide data.
+
+* Export & Printing
+- Prefix =p= prints dates in alternate calendars (Bahá’í, Hebrew, ISO, etc.).
+- Prefix =t= exports LaTeX calendars (day, month, or year, portrait or landscape).
+- Prefix =H= exports HTML calendars for the current month or year.
+
+* Custom Function Reference
+- ~my-calendar-jump-to-diary-entry~ :: Opens the diary file in another window, searches for the selected date (string formatted as ~M/D/YYYY~), and returns focus to the calendar. Bound to =o= and called by the =t= shortcut.
+- Fancy diary display :: ~diary-display-function~ is set to ~diary-fancy-display~, giving a structured buffer with navigation keys (~n~ / ~p~ advance within the fancy list after an entry exists).
+- Weekly layout :: Monday is the first day of the week ~(setq calendar-week-start-day 1)~, matching the way diary entries are organized in the Markdown file.
+
+* Troubleshooting
+- “No diary entries for …” even though you have one → ensure the line begins with an exact ~M/D/YYYY~ date (no leading zeros required) and that the buffer is saved.
+- Blue vs. black dates → holiday highlighting. Disable by ~(setq calendar-mark-holidays-flag nil)~ or customize ~holiday~ face.
+- Fancy diary n/p undefined → happens when there is no ~*Fancy Diary Entries*~ buffer yet; insert at least one entry so the buffer exists.
+- Calendar not updating after edits → wait for the polling auto-revert cycle or run ~revert-buffer~ in ~jay-diary.md~.
+
+* Related Files
+- =shared-functions.org:8479-8525= for calendar and diary configuration.
+- =~/Dropbox/github/timeless/jay-diary.md= for diary content (Markdown).
+- =jay-custom-color-themes/leuven-jay.el= for theme faces affecting calendar colors.

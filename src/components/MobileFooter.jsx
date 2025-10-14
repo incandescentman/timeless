@@ -25,40 +25,64 @@ function MobileFooter() {
     return () => window.removeEventListener('resize', handler);
   }, []);
 
-  const handleToday = useCallback(() => {
+  const stopPointerPropagation = useCallback((event) => {
+    if (!event) return;
+    if (typeof event.stopPropagation === 'function') {
+      event.stopPropagation();
+    }
+    if (event.nativeEvent && typeof event.nativeEvent.stopImmediatePropagation === 'function') {
+      event.nativeEvent.stopImmediatePropagation();
+    }
+  }, []);
+
+  const interceptNavigationEvent = useCallback((event) => {
+    if (!event) return;
+    stopPointerPropagation(event);
+    if (typeof event.preventDefault === 'function') {
+      event.preventDefault();
+    }
+  }, [stopPointerPropagation]);
+
+  const handleToday = useCallback((event) => {
+    interceptNavigationEvent(event);
     // Scroll to today
     announceCommand({ label: 'Centering on today' });
     scrollToToday({ behavior: 'smooth', align: 'center' });
-  }, [announceCommand, scrollToToday]);
+  }, [announceCommand, interceptNavigationEvent, scrollToToday]);
 
-  const handlePreviousMonth = useCallback(() => {
+  const handlePreviousMonth = useCallback((event) => {
+    interceptNavigationEvent(event);
     if (isMobileViewport) {
       announceCommand({ label: 'Scrolling to previous week' });
       scrollWeeks(-1);
       return;
     }
     announceAndJump(-1, describeDirection(-1));
-  }, [announceAndJump, announceCommand, describeDirection, isMobileViewport]);
+  }, [announceAndJump, announceCommand, describeDirection, interceptNavigationEvent, isMobileViewport]);
 
-  const handleNextMonth = useCallback(() => {
+  const handleNextMonth = useCallback((event) => {
+    interceptNavigationEvent(event);
     if (isMobileViewport) {
       announceCommand({ label: 'Scrolling to next week' });
       scrollWeeks(1);
       return;
     }
     announceAndJump(1, describeDirection(1));
-  }, [announceAndJump, announceCommand, describeDirection, isMobileViewport]);
+  }, [announceAndJump, announceCommand, describeDirection, interceptNavigationEvent, isMobileViewport]);
 
-  const handleMenu = useCallback(() => {
+  const handleMenu = useCallback((event) => {
+    interceptNavigationEvent(event);
     announceCommand({ label: 'Opening command palette' });
     query.toggle();
-  }, [announceCommand, query]);
+  }, [announceCommand, interceptNavigationEvent, query]);
 
   return (
     <div className="mobile-footer">
       <button
+        type="button"
         className="mobile-footer__button"
         onClick={handleToday}
+        onPointerDownCapture={stopPointerPropagation}
         aria-label="Go to today"
       >
         <div className="mobile-footer__icon-container">
@@ -74,8 +98,10 @@ function MobileFooter() {
       </button>
 
       <button
+        type="button"
         className="mobile-footer__button"
         onClick={handlePreviousMonth}
+        onPointerDownCapture={stopPointerPropagation}
         aria-label="Previous month"
       >
         <div className="mobile-footer__icon-container">
@@ -88,8 +114,10 @@ function MobileFooter() {
       </button>
 
       <button
+        type="button"
         className="mobile-footer__button"
         onClick={handleNextMonth}
+        onPointerDownCapture={stopPointerPropagation}
         aria-label="Next month"
       >
         <div className="mobile-footer__icon-container">
@@ -102,8 +130,10 @@ function MobileFooter() {
       </button>
 
       <button
+        type="button"
         className="mobile-footer__button"
         onClick={handleMenu}
+        onPointerDownCapture={stopPointerPropagation}
         aria-label="Open menu"
       >
         <div className="mobile-footer__icon-container">

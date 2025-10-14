@@ -1,0 +1,204 @@
+#+title: Timeless Calendar — Instructions
+#+date: 2025-10-13
+
+* Overview
+Timeless is an infinite scroll calendar application built with React. It provides seamless navigation through weeks, months, and years with persistent note-taking capabilities. The calendar stores data locally with optional server sync via Redis.
+
+* Prerequisites
+- Node.js 18+ (LTS recommended)
+- npm (comes with Node.js)
+
+* Install & Run
+1. Navigate to the project directory:
+   #+BEGIN_SRC bash
+   cd /Users/jay/Library/CloudStorage/Dropbox/github/timeless
+   #+END_SRC
+
+2. Install dependencies:
+   #+BEGIN_SRC bash
+   npm install
+   #+END_SRC
+
+3. Start development server (auto-opens browser):
+   #+BEGIN_SRC bash
+   npm run dev
+   #+END_SRC
+
+4. Build production bundle:
+   #+BEGIN_SRC bash
+   npm run build && npm run preview
+   #+END_SRC
+
+* Access Modes
+- **Local Development**: Run =npm run dev= for full editing capabilities with hot reload. Vite serves on port 5173 by default.
+- **Production Preview**: Run =npm run build && npm run preview= to test the production build locally.
+- **Vercel Deployment**: Deployed builds include serverless API functions for optional Redis sync.
+- **Offline Mode**: Calendar works entirely offline using LocalStorage. Server sync is optional enhancement.
+
+* Core Features
+
+** Infinite Calendar
+- Seamless scrolling through past and future dates
+- Pre-renders ±26 weeks around current view
+- Automatic extension when reaching boundaries
+- Seven-column week layout with shared borders
+
+** Note Management
+- Add/edit notes for any day
+- Multiple notes per day with card-style layout
+- Auto-resizing text areas
+- Markdown-style shortcuts (Ctrl+B/I/H for bold/italic/headers)
+- Swipe-to-delete on mobile
+- Multi-select mode for bulk operations
+
+** Navigation Systems
+- **Mini Calendar**: Three-month sidebar view with wheel navigation
+- **Year View**: Annual grid overlay for long-distance jumps
+- **Command Palette**: ⌘K/Ctrl+K for quick actions
+- **Natural Language**: Jump to "next friday", "december 2024", etc.
+
+** Data Management
+- **LocalStorage**: Primary storage, works offline
+- **JSON Export/Import**: Full backup and restore capability
+- **Markdown Export**: Export notes as diary format
+- **Server Sync**: Optional Redis-backed sync (requires API setup)
+
+* Layout & Responsive Design
+
+** Desktop (>768px)
+- Fixed 240px sidebar with mini calendar
+- Main calendar: 1440px width, centered
+- Total UI width: 1680px (auto-centers on large displays)
+- Seamless seven-column grid with shared borders
+
+** Mobile (≤768px)
+- No sidebar (mini calendar hidden)
+- Full viewport width
+- One day per row, card-style layout
+- Bottom action bar: Prev • Today • Next • Menu
+- Swipe gestures for note management
+
+* Keyboard Shortcuts
+
+** Navigation
+- =⌘K= / =/= - Command palette
+- =t= - Jump to today
+- =y= - Year view overlay
+- =p= / =n= - Previous/next month
+- =P= / =N= - Previous/next year (12-month jumps)
+- =i= - Enter navigation mode
+- =?= - Help overlay
+
+** Editing
+- =c= / =T= - Add note to today
+- =m= - Multi-select mode
+- =Tab= / =⇧Tab= - Save & move between notes
+- =Return= - Save & exit editing
+- =⌘Z= / =⌘Y= - Undo/redo
+- =Backspace= - Delete selected day's notes
+
+** System
+- =⌘D= - Toggle dark mode
+- =⇧D= - Export as markdown diary
+- =Esc= - Close overlays
+
+* Development Environment
+
+** Environment Variables
+Create =.env.local= with:
+#+BEGIN_SRC bash
+VITE_API_BASE_URL=your-api-endpoint  # Optional for server sync
+REDIS_URL=your-redis-connection      # Optional for server sync
+#+END_SRC
+
+** File Structure
+- =src/main.jsx= - Application entry point
+- =src/App.jsx= - Root component with providers
+- =src/contexts/= - CalendarContext and ThemeContext
+- =src/components/= - Reusable UI components
+- =src/utils/= - Storage, date utilities, helpers
+- =src/styles/= - Global CSS (imported in main.jsx)
+- =api/calendar.js= - Serverless function for server sync
+- =docs/= - Project documentation
+
+** Key Components
+- =Calendar.jsx= - Infinite scroll calendar grid
+- =DayCell.jsx= - Individual day with note editing
+- =Header.jsx= - Top bar with mini calendar and controls
+- =MiniCalendar.jsx= - Three-month sidebar navigation
+- =YearView.jsx= - Annual overview overlay
+- =CommandPalette.jsx= - ⌘K quick actions
+
+* Data Storage & Sync
+
+** LocalStorage (Primary)
+- Calendar data stored as JSON in browser
+- Automatic saving on every edit
+- Undo/redo stacks maintained
+- Works completely offline
+
+** Optional Server Sync
+- Redis-backed sync via serverless API
+- Timestamp-based conflict resolution
+- Debounced saves (reduces API calls)
+- Falls back to localStorage if unavailable
+
+** Export/Import
+- JSON backup includes all notes and metadata
+- Markdown export formats as diary entries
+- Import validates and merges with existing data
+
+* Experimental Mode
+- Uses =@jaydixit/experimental-mode= package
+- Enables feature variants and A/B testing
+- Configuration in experimental mode contexts
+- See =docs/experimental-mode-plan.org= for details
+
+* Testing & Build
+
+** Development
+- Vite dev server with hot reload
+- React Fast Refresh for component updates
+- CSS changes apply instantly
+
+** Production Build
+- Vite optimizes and bundles for production
+- Tree-shaking removes unused code
+- Assets optimized and fingerprinted
+- Preview mode tests production build locally
+
+** Browser Support
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Modern ES2020+ features used
+
+* Troubleshooting
+
+** Common Issues
+- **Calendar not centering**: Check viewport width, ensure CSS variables loaded
+- **Notes not saving**: Verify LocalStorage permissions, check console errors
+- **Keyboard shortcuts not working**: Check for input focus conflicts
+- **Mini calendar missing**: Mobile viewport detected, working as intended
+- **Server sync failing**: Verify =VITE_API_BASE_URL= and Redis connection
+
+** Development Debug
+- Use React DevTools for component inspection
+- Check browser console for error messages
+- Verify LocalStorage data in DevTools Application tab
+- Test API endpoints independently if using server sync
+
+* Architecture Notes
+- State managed via React Context (CalendarContext, ThemeContext)
+- Global keyboard shortcuts via custom hook
+- Infinite scroll uses intersection observers
+- Date utilities keep calendar logic reusable
+- Responsive design uses CSS media queries
+- Theme switching via CSS custom properties
+
+* Related Documentation
+- [[file:../README.md][README.md]] - Feature overview and recent updates
+- [[file:../project-overview.org][project-overview.org]] - Technical architecture summary  
+- [[file:design-architecture.org][docs/design-architecture.org]] - Detailed component architecture
+- [[file:codebase-wisdom.org][docs/codebase-wisdom.org]] - Development patterns and decisions
+- [[file:experimental-mode-plan.org][docs/experimental-mode-plan.org]] - Future feature variants

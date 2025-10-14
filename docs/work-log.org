@@ -1416,3 +1416,26 @@ Accomplished:
 
 Energy Level: Focused
 Next Step: QA inline editing with both mouse and touch to confirm pointerdown capture covers swipe rows without side effects.
+
+** Session: Mobile footer interaction hardening
+Time: Evening
+Task: Keep mobile navigation taps from spawning the composer and stabilize the sticky footer
+
+Accomplished:
+- Intercepted footer button pointer/click events so Today/Prev/Next/Menu no longer bubble into DayCell and open the mobile composer (`src/components/MobileFooter.jsx`).
+- Narrowed footer CSS transitions to visual properties only, stopping the fixed bar from animating upward when the viewport height shifts (`src/styles/mobile-footer.css`).
+
+Energy Level: Steady
+Next Step: QA on physical phones to confirm footer navigation works without triggering the composer and that the bar stays pinned above the safe area while typing.
+
+** Session: Footer guard verification + docs handoff
+Time: Late evening
+Task: Double-check footer interception behaviour and capture supporting notes
+
+Accomplished:
+- Confirmed the stopPropagation + preventDefault path blocks both pointerdown and click bubbling in React synthetic events, preventing the inline composer from re-opening during footer navigation (`src/components/MobileFooter.jsx`).
+- Limited footer CSS transitions to color/background properties to eliminate layout jank when the mobile viewport height oscillates (`src/styles/mobile-footer.css`).
+- Captured updated setup + feature orientation in `docs/instructions.org` so newcomers land in the right place before touching navigation code.
+
+Energy Level: Reflective
+Next Step: Smoke-test footer controls on iOS Safari and Android Chrome to ensure the pointer interception holds up outside the simulator; roll the instructions doc into the onboarding checklist.
