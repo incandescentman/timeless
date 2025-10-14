@@ -1466,3 +1466,4 @@ Accomplished:
 
 Energy Level: Focused
 Next Step: Watch for conflicts with browser-reserved shortcuts and gather feedback on discoverability.
+Handoff: Confirm Cmd/Ctrl+E exports cleanly on both macOS and Windows browsers, and note any platform shortcuts it conflicts with before expanding docs further.
