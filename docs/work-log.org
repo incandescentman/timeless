@@ -1453,3 +1453,15 @@ Accomplished:
 
 Energy Level: Steady
 Next Step: Run the in-app export after future data model changes to confirm headings and bullets stay intact.
+
+** Session: Markdown export shortcut
+Time: Later afternoon
+Task: Add a dedicated keyboard shortcut for exporting the markdown diary
+
+Accomplished:
+- Bound Cmd/Ctrl+Shift+E at the global shortcut layer to trigger `downloadMarkdownDiary()` with keystroke feedback.
+- Registered the same combination in the command palette for quick discovery.
+- Refreshed the help overlay, README, and instructions to list the new shortcut across user-facing docs.
+
+Energy Level: Focused
+Next Step: Watch for conflicts with browser-reserved shortcuts and gather feedback on discoverability.

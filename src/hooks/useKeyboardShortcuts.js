@@ -4,6 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useCommandFeedback } from '../contexts/CommandFeedbackContext';
 import { useKeystrokeFeedback } from '../contexts/KeystrokeFeedbackContext';
 import { addDays, generateDayId } from '../utils/dateUtils';
+import { downloadMarkdownDiary } from '../utils/storage';
 import { useMonthNavigation } from './useMonthNavigation';
 
 export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommandPalette }) {
@@ -126,6 +127,15 @@ export function useKeyboardShortcuts({ onShowYearView, onShowHelp, onShowCommand
         emitKeystroke(e);
         announceCommand({ label: 'Opening year view' });
         onShowYearView();
+        return;
+      }
+
+      // Export markdown diary: Cmd/Ctrl+Shift+E
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        emitKeystroke(e, isMac ? '⌘ + Shift + E' : 'Ctrl + Shift + E');
+        announceCommand({ label: 'Exporting markdown diary' });
+        downloadMarkdownDiary();
         return;
       }
 

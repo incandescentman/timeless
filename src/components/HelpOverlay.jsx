@@ -39,7 +39,7 @@ const shortcutSections = [
     icon: IconSettings,
     items: [
       { label: 'Toggle Dark Mode', keys: ['⌘D'] },
-      { label: 'Export Markdown', keys: ['⇧D'] },
+      { label: 'Export Markdown', keys: ['⌘⇧E', 'Ctrl+Shift+E'] },
       { label: 'Show This Help', keys: ['?'] },
       { label: 'Close Overlays', keys: ['Esc'] }
     ]
