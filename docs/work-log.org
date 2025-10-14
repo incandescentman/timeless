@@ -1439,3 +1439,17 @@ Accomplished:
 
 Energy Level: Reflective
 Next Step: Smoke-test footer controls on iOS Safari and Android Chrome to ensure the pointer interception holds up outside the simulator; roll the instructions doc into the onboarding checklist.
+
+** Session: Markdown diary export fix
+Time: Morning
+Task: Restore markdown export to match the canonical diary format
+
+Accomplished:
+- Reworked `exportAsMarkdownDiary()` to emit year and month headings plus `M/D/YYYY` lines with indented bullet notes so exports align with `jay-diary.md`.
+- Normalised event entries to preserve completion ticks and tags while skipping empty rows.
+- Renamed the download target to `jay-diary.md` to match the repository file and avoid date-stamped filenames.
+- Clarified the export behaviour in `docs/instructions.org` for future reference.
+- Confirmed via manual export that the markdown pull uses live calendar data from localStorage.
+
+Energy Level: Steady
+Next Step: Run the in-app export after future data model changes to confirm headings and bullets stay intact.

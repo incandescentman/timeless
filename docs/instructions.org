@@ -145,7 +145,7 @@ REDIS_URL=your-redis-connection      # Optional for server sync
 
 ** Export/Import
 - JSON backup includes all notes and metadata
-- Markdown export formats as diary entries
+- Markdown export downloads `jay-diary.md` with year/month headings and indented daily bullets
 - Import validates and merges with existing data
 
 * Experimental Mode

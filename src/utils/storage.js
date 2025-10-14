@@ -293,44 +293,70 @@ export function exportAsMarkdownDiary() {
     return { date, events: list };
   }).sort((a, b) => a.date - b.date);
 
-  let markdown = '# Calendar Diary\n\n';
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const lines = [];
   let currentYear = null;
   let currentMonth = null;
 
   entries.forEach(({ date, events }) => {
+    const normalisedEvents = (events || [])
+      .map(event => {
+        if (typeof event === 'string') {
+          return { text: event };
+        }
+        if (event && typeof event === 'object') {
+          return {
+            text: event.text,
+            completed: Boolean(event.completed),
+            tags: Array.isArray(event.tags) ? event.tags : []
+          };
+        }
+        return null;
+      })
+      .filter(item => item && item.text);
+
+    if (normalisedEvents.length === 0) {
+      return;
+    }
+
     const year = date.getFullYear();
     const month = date.getMonth();
     const day = date.getDate();
 
     if (year !== currentYear) {
       currentYear = year;
-      markdown += `## ${year}\n\n`;
+      currentMonth = null;
+      lines.push(`# ${year}`, '');
     }
 
     if (month !== currentMonth) {
       currentMonth = month;
-      const monthNames = ["January", "February", "March", "April", "May", "June",
-                         "July", "August", "September", "October", "November", "December"];
-      markdown += `### ${monthNames[month]}\n\n`;
+      lines.push(`## ${monthNames[month]} ${year}`, '');
     }
 
-    if (!events || events.length === 0) {
-      return;
-    }
+    const monthLabel = month + 1;
+    const dateLabel = `${monthLabel}/${day}/${year}`;
+    lines.push(dateLabel);
 
-    events.forEach((event, idx) => {
-      const prefix = events.length > 1 ? `**${day} (${idx + 1})**` : `**${day}**`;
-      // Handle both string and object events
-      const eventText = typeof event === 'string' ? event : event.text;
-      const completed = typeof event === 'object' && event.completed ? ' [✓]' : '';
-      const tags = typeof event === 'object' && event.tags && event.tags.length > 0
-        ? ` #${event.tags.join(' #')}`
-        : '';
-      markdown += `${prefix}: ${eventText}${completed}${tags}\n\n`;
+    normalisedEvents.forEach(({ text, completed, tags }) => {
+      let line = `  - ${text}`;
+      if (completed) {
+        line += ' [✓]';
+      }
+      if (tags && tags.length > 0) {
+        line += ` #${tags.join(' #')}`;
+      }
+      lines.push(line);
     });
+
+    lines.push('');
   });
 
-  return markdown;
+  return `${lines.join('\n').trimEnd()}\n`;
 }
 
 /**
@@ -342,7 +368,7 @@ export function downloadMarkdownDiary() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `calendar-diary-${new Date().toISOString().split('T')[0]}.md`;
+  a.download = 'jay-diary.md';
   a.click();
   URL.revokeObjectURL(url);
 
