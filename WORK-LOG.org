@@ -4,6 +4,17 @@ All notable changes to Timeless calendar are documented in this file.
 
 ## [Unreleased]
 
+### Added - 2025-10-14
+- Dropbox-backed calendar sync flow:
+  - Markdown diary helpers for JSON↔Markdown conversion with embedded timestamps
+  - Vite dev middleware endpoints (`/__load-calendar-diary`, `/__update-calendar-diary`) writing to the Dropbox symlink
+  - Dropbox API handlers (`api/calendar-load`, `api/calendar-save`) with shared token cache
+- Documentation updates covering Dropbox env vars, dev defaults, and deployment steps
+
+### Changed - 2025-10-14
+- `/api/calendar` now delegates to the Dropbox handlers; removed Redis dependency (`ioredis`)
+- `src/utils/storage` defaults dev sync/load endpoints to the middleware and respects the new env overrides
+
 ### Added - 2025-10-04
 - Local iOS app icon and favicon generated from timeless-etched.png
   - 180x180 apple-touch-icon.png for iOS home screen
