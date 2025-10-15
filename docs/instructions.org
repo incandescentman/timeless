@@ -87,6 +87,7 @@ Timeless is an infinite scroll calendar application built with React. It provide
 - =p= / =n= - Previous/next month
 - =P= / =N= - Previous/next year (12-month jumps)
 - =i= - Enter navigation mode
+- =q= / =Esc= - Exit navigation mode
 - =?= - Help overlay
 
 ** Editing
@@ -95,7 +96,7 @@ Timeless is an infinite scroll calendar application built with React. It provide
 - =Tab= / =⇧Tab= - Save & move between notes
 - =Return= - Save & exit editing
 - =⌘Z= / =⌘Y= - Undo/redo
-- =Backspace= - Delete selected day's notes
+- =Backspace= - Delete focused day's notes (after pressing =i= to enter nav mode)
 
 ** System
 - =⌘D= - Toggle dark mode
@@ -155,6 +156,7 @@ Deployed environments should also expose =VITE_CALENDAR_SYNC_ENDPOINT=/VITE_CALE
 - Timestamp metadata (`<!-- lastSavedTimestamp: … -->`) prevents conflicts across devices
 - Dev middleware mimics this flow locally so you can work offline without Dropbox credentials
 - Falls back to LocalStorage if the API call fails; you can still export/import manually
+- Health check: `npm run health` pings `/api/calendar-load` (use `--endpoint` to target staging) so you can spot token expiry before it reaches users
 
 ** Export/Import
 - JSON backup includes all notes and metadata

@@ -1572,6 +1572,10 @@ Root Cause:
 Solution:
 - Generated a new refresh token for the Dropbox app, updated `DROPBOX_APP_KEY`/`DROPBOX_APP_SECRET`/`DROPBOX_REFRESH_TOKEN` in Vercel, and redeployed so the refresh flow could mint a fresh access token.
 - Verified `https://timeless-calendar.vercel.app/api/calendar-load` returns JSON and confirmed both desktop and iPhone load the same events after a hard refresh.
+- Added `scripts/check-calendar-health.mjs` plus `npm run health` to quickly detect future token expiries without waiting for client reports.
+- Applied `viewport-fit=cover` and safe-area padding adjustments to lift the mobile footer, though QA shows the buttons still grazed the iPhone home indicator.
+- Escalated the mobile footer fix by offsetting the bar above the safe-area inset and extending a backdrop pseudo-element so buttons no longer clip against the iPhone’s curved corners.
+- Traced the red-on-red “Today” event styling to mobile overrides and captured the fix so today’s notes stay legible on the scarlet cell.
 
 Energy Level: Relieved
-Next Step: Add a lightweight health check that alerts when `/api/calendar-load` starts returning token errors so we catch credential drift before clients notice.
+Next Step: Automate the new health check (Scheduled GitHub Action or external cron) so token failures trigger alerts without manual runs.

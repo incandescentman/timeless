@@ -3,18 +3,33 @@
 .mobile-footer {
   display: none;
   position: fixed;
-  bottom: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
   left: 0;
   right: 0;
-  height: calc(68px + env(safe-area-inset-bottom, 0px));
+  min-height: calc(68px + env(safe-area-inset-bottom, 0px));
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 0.5px solid rgba(0, 0, 0, 0.05);
   z-index: 1000;
-  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  padding: 12px clamp(16px, 4vw, 20px) calc(env(safe-area-inset-bottom, 0px) + 12px);
   box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.02);
   transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  box-sizing: border-box;
+}
+
+.mobile-footer::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * (env(safe-area-inset-bottom, 0px) + 8px));
+  height: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: inherit;
+  -webkit-backdrop-filter: inherit;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.05);
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -95,6 +110,11 @@ body.dark-mode .mobile-footer {
   box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.05);
 }
 
+body.dark-mode .mobile-footer::after {
+  background: rgba(0, 0, 0, 0.75);
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
 body.dark-mode .mobile-footer__button {
   color: #999999;
 }
@@ -111,6 +131,6 @@ body.dark-mode .mobile-footer__button:first-child .mobile-footer__icon {
 /* Ensure footer stays above all content */
 @media (max-width: 768px) {
   .calendar-layout {
-    margin-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
   }
 }

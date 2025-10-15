@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
+    "health": "node scripts/check-calendar-health.mjs",
     "postinstall": "patch-package"
   },
   "dependencies": {

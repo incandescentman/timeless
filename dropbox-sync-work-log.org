@@ -5,6 +5,9 @@ All notable changes to Timeless calendar are documented in this file.
 ## [Unreleased]
 
 ### Fixed - 2025-10-15
+- **Mobile Footer Safe Area:** Implemented a robust fix for the mobile footer being cut off on iPhones. The footer is now lifted above the safe area inset, with a pseudo-element extending the background to the screen edge for a seamless look.
+
+### Fixed - 2025-10-15
 - **True Root Cause Identified:** The mobile sync issue was caused by a stale Dropbox refresh token on the Vercel server. The API was failing to fetch data from Dropbox and returning an empty response. The fix was to update the `DROPBOX_REFRESH_TOKEN` environment variable on Vercel.
 
 ### Changed - 2025-10-15
