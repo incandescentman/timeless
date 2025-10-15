@@ -12,21 +12,45 @@ LLM_CONTEXT:
 
 * 2025-10-15 Wednesday
 
+** Session: Final Resolution of Mobile Sync Issue
+Time: Afternoon
+Task: Document the true root cause and solution for the mobile sync failure.
+Status: **COMPLETED**
+
+Problem:
+After a previous attempted fix, the user reported that the mobile sync issue persisted. The iPhone client was still not displaying the latest calendar events.
+
+Root Cause Analysis:
+The issue was not client-side logic, but server-side authentication. The Vercel deployment was using a stale or invalid Dropbox refresh token. This caused the `/api/calendar-load` function to fail when trying to download the diary file from Dropbox.
+
+- The API would then return an empty calendar response to the client.
+- Desktop browsers appeared to work correctly because they were relying on a recent, valid cache of events in `localStorage`.
+- Mobile browsers, often starting with a clear cache, would fetch the empty response from the failing API and display a blank calendar.
+
+Solution:
+The user manually updated the Dropbox API credentials (specifically the `DROPBOX_REFRESH_TOKEN`) in the Vercel project's environment variables. Once the server had a valid token, it could successfully authenticate with Dropbox, fetch the diary file, and serve the correct data to all clients.
+
+Key Takeaway:
+When debugging sync issues, always verify the entire data path, including server-side authentication with third-party services. Client-side caches can easily mask upstream failures.
+
 ** Session: Fix Mobile Sync Issue
 Time: Afternoon
 Task: Diagnose and fix an issue where diary changes were not appearing on iPhone.
-Status: **COMPLETED**
+Status: **IN PROGRESS**
 
 Problem:
 The user reported that edits made directly to the `jay-diary.md` file were visible on the web app on a laptop but not on an iPhone. This pointed to a client-side caching or data invalidation problem specific to mobile.
 
-Root Cause:
-The serverless function `api/calendar-load.js` was including the current server time (`Date.now()`) in the `lastSavedTimestamp` it sent to the client. This meant every API response had a brand new, unique timestamp, regardless of whether the underlying diary file had actually changed. This broke the timestamp-based synchronization logic, as the client could not reliably determine if it had stale data.
+Root Cause Analysis:
+The serverless function `api/calendar-load.js` was including the current server time (`Date.now()`) in the `lastSavedTimestamp` it sent to the client. This meant every API response had a brand new, unique timestamp, regardless of whether the underlying diary file had actually changed. This broke the timestamp-based synchronization logic.
 
-Solution:
+Attempted Solution:
 - Removed the use of `Date.now()` from the `Math.max()` calculation in `api/calendar-load.js`.
 - The server now only uses the timestamp embedded in the diary file or the `server_modified` timestamp from the Dropbox file metadata.
-- This makes the API response idempotent for an unchanged file, allowing clients to correctly determine when they need to update their local `localStorage` cache.
+- This was intended to make the API response idempotent for an unchanged file, allowing clients to correctly determine when they need to update their local cache.
+
+Result:
+The fix was deployed, but the user reports the issue is still occurring on iPhone. The initial diagnosis was correct but insufficient. The root cause is not fully addressed, and further investigation into the client-side fetching and caching logic is required.
 
 Files Changed:
 - `api/calendar-load.js` (fixed timestamp logic)
@@ -34,8 +58,7 @@ Files Changed:
 - `docs/work-log.org` (this entry)
 
 Benefits:
-- Restores reliable, timestamp-based data synchronization.
-- Fixes the issue where mobile clients were not seeing updated events.
+- The server-side API now correctly reports the file modification timestamp, which is a necessary step for reliable sync.
 
 ** Session: Add Tests and Fix Diary Parser
 Time: Morning
@@ -1533,3 +1556,22 @@ Accomplished:
 Energy Level: Focused
 Next Step: Watch for conflicts with browser-reserved shortcuts and gather feedback on discoverability.
 Handoff: Confirm Cmd/Ctrl+E exports cleanly on both macOS and Windows browsers, and note any platform shortcuts it conflicts with before expanding docs further.
+
+* 2025-10-15 Wednesday
+
+** Session: Dropbox diary sync repair
+Time: Evening
+Task: Restore calendar updates across devices after mobile stopped receiving new entries
+
+Problem:
+- Mac client showed fresh events from `data/jay-diary.md`, but iPhone rendered an empty calendar despite a successful save.
+
+Root Cause:
+- `/api/calendar-load` returned `invalid_grant` from Dropbox because the Vercel `DROPBOX_REFRESH_TOKEN` had gone stale. Desktop still looked correct thanks to cached localStorage; mobile had no cache, so the failed fetch left it blank.
+
+Solution:
+- Generated a new refresh token for the Dropbox app, updated `DROPBOX_APP_KEY`/`DROPBOX_APP_SECRET`/`DROPBOX_REFRESH_TOKEN` in Vercel, and redeployed so the refresh flow could mint a fresh access token.
+- Verified `https://timeless-calendar.vercel.app/api/calendar-load` returns JSON and confirmed both desktop and iPhone load the same events after a hard refresh.
+
+Energy Level: Relieved
+Next Step: Add a lightweight health check that alerts when `/api/calendar-load` starts returning token errors so we catch credential drift before clients notice.

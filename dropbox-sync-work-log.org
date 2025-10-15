@@ -5,7 +5,12 @@ All notable changes to Timeless calendar are documented in this file.
 ## [Unreleased]
 
 ### Fixed - 2025-10-15
-- Resolved a mobile sync issue where changes to the diary were not appearing on iPhone. The `calendar-load` API was incorrectly including `Date.now()` in the `lastSavedTimestamp`, causing stale data to be served to clients with aggressive caching. The fix removes `Date.now()` to ensure the timestamp reflects the true file modification time.
+- **True Root Cause Identified:** The mobile sync issue was caused by a stale Dropbox refresh token on the Vercel server. The API was failing to fetch data from Dropbox and returning an empty response. The fix was to update the `DROPBOX_REFRESH_TOKEN` environment variable on Vercel.
+
+### Changed - 2025-10-15
+- Attempted to fix a mobile sync issue by removing `Date.now()` from the `calendar-load` API's timestamp calculation. This ensures the server reports the true file modification time, but the underlying sync problem on mobile persists and requires further investigation.
+
+### Fixed - 2025-10-15
 
 ### Added - 2025-10-15
 - Test suite (`vitest`) for `calendarDiary.js` helpers to ensure robust parsing and formatting.

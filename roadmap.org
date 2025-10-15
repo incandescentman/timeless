@@ -1,0 +1,127 @@
+
+* Ideas to implement [0/0]
+- [ ] Add a refresh button to mobile action bar
+- [ ] On mobile, swipe left on an event to delete it
+- [ ] Create conspicuous gaps to remind me to fill them in, e.g. going to events after work, making plans with friends
+
+
+* o1
+Here's some overall feedback and suggestions for improvement on the code for your infinitely scrolling mobile calendar. In general, the code is *well-documented*, and it's clear you've put a lot of thought into the user experience (command palette, infinite scroll in both directions, multi-select mode, year view, etc.). Below is a more detailed code review:
+
+** 1. Overall Architecture and Organization
+
+1. *Monolithic File*
+  - You've got a large amount of functionality (infinite scrolling, multi-selection, data persistence, command palette, year view, etc.) all in a single file.
+  - *Suggestion:* Consider splitting these features into separate modules or files---for example, a separate file for:
+    - *Data/storage logic* (localStorage, server sync, import/export)
+    - *UI generation* (building day cells, building the table, handling the layout)
+    - *User interaction* (keyboard navigation, command palette, multi-select logic)
+    - *Utility functions* (throttle, debounce, date parsing, etc.)
+  - This modular approach can make the codebase easier to maintain and read.
+
+2. *Separation of Concerns*
+  - The code mixes "business logic" (e.g. storing notes in localStorage, synchronizing data) with direct DOM manipulation (e.g. creating ~<textarea>~ elements, adding event listeners).
+  - *Suggestion:* Consider a small "model" or "store" module that deals with reading/writing data, returning pure JavaScript objects, while a "view" module handles the DOM building. This also makes the code more testable.
+
+3. *Global vs. Local State*
+  - You have a fair amount of global variables: ~currentCalendarDate~, ~keyboardFocusDate~, ~undoStack~, ~redoStack~, etc.
+  - *Suggestion:* Wrap them in a single global object or a class, or keep them in module-scope if you split your code. This prevents naming collisions and clarifies which variables are "app-wide."
+
+4. *Event Wiring*
+  - Most event handlers (~document.addEventListener("click", ...)~, ~document.addEventListener("keydown", ...)~) are added in the global scope or at window load. That's fine for a smaller codebase, but as it grows, you can easily lose track.
+  - *Suggestion:* If you break your code into modules, consider a single "events" section or a small "init" function that wires everything in a single place. That helps see "all the app's event listeners at a glance."
+
+** 2. Code Quality and Style
+
+1. *Commenting*
+  - You've done a good job adding comments---both block comments that explain each function's purpose and inline comments that clarify logic. This is a big plus.
+  - Make sure to keep them *up to date* as your code changes so comments don't become misleading.
+
+2. *Naming*
+  - Most function names are quite descriptive. It's easy to see what ~loadCalendarAroundDate()~, ~scrollPositionForElement()~, etc. do.
+  - *Suggestion:* For large blocks of logic like ~loadCalendarAroundDate()~, consider whether you can break them down into smaller functions with equally descriptive names (e.g. a separate ~loadAdditionalWeeksIfNeeded()~ or ~fillInitialViewport()~).
+
+3. *Redundant Code*
+  - There are some repeated snippets (like the ~buildMobileDayCard()~ function is declared twice, or at least included in two spots). You might have done so just to show an alternative approach for mobile, but in production code, ensure you don't keep duplicates.
+  - Similarly, the code for building month headings sometimes appears in both ~appendWeek()~ and ~prependWeek()~. That's necessary, but see if you can unify the creation of "month boundary rows" in a helper function.
+
+4. *Magic Numbers*
+  - You have things like ~200px~ offset for intersection observers, or ~5~ for the note's ~style.height = ta.scrollHeight + 5~.
+  - *Suggestion:* Collect these in "constants" (e.g., ~const SCROLL_OFFSET = 200~, ~const TEXTAREA_PADDING_PX = 5~) for clarity and reusability.
+
+** 3. Performance Considerations
+
+1. *Infinite Scrolling*
+  - You're using IntersectionObserver to automatically load weeks as you approach the top or bottom. That's great.
+  - You also have a fallback with ~setInterval(checkInfiniteScroll, 100)~. Make sure that runs only if IntersectionObserver is not available---otherwise it can lead to two simultaneous infinite-scroll triggers.
+
+2. *Batch Loading*
+  - ~loadCalendarAroundDate()~ uses a loop that calls ~prependWeek()~ and ~appendWeek()~ in small batches until the screen has enough content. This is a nice approach to avoid huge immediate loads.
+  - Be cautious about performance if the user is on a very large screen and it's loading many weeks. The code mentions a maximum iteration of 10 to avoid infinite loops, which is good.
+  - If you do want to handle very large ranges, consider "virtualization" (only rendering the rows that are actually on-screen). That's more complex, though, and might be unnecessary if your user base is small.
+
+3. *LocalStorage*
+  - Accessing localStorage in loops can be slower for large data sets. For example, you repeatedly read or write ~localStorage~ inside for-loops.
+  - *Suggestion:* If performance becomes an issue, read ~localStorage~ once (or maintain an in-memory object) and only write back after changes. Right now, it may be perfectly fine if you don't have thousands of notes.
+
+4. *Large JSON Imports*
+  - You're storing everything in ~localStorage~ and also exporting/importing a big JSON file. That can be quite big in some use cases. Just keep in mind ~localStorage~ has size limits (often around 5-10MB depending on the browser).
+
+** 4. UI & UX Details
+
+1. *Mobile Responsiveness*
+  - You have mobile-specific logic (e.g. building day cards, short-month labels, top-row layout for small screens). Good job.
+  - If you find you have two significantly different designs (mobile day-cards vs. desktop table view), you could consider storing them in separate templates or re-rendering the HTML as different "modes." Right now, you're toggling inside the same function. That's simpler but can grow complex.
+
+2. *Command Palette*
+  - Having a mini "fuzzy search" for commands is a great feature. The code for it (populating commands, filtering, navigating) is fairly self-contained. You might move it to its own module.
+  - It's also well-documented. The approach is straightforward and should be easy to maintain.
+
+3. *Keyboard Shortcuts*
+  - There are a lot of key combinations (e.g. ~m~ toggles multi-select, ~d~ shows quick date input, etc.). They're scattered throughout a ~document.addEventListener("keydown", ...)~ switch statement.
+  - *Suggestion:* Possibly create a small mapping object like:
+     ~~~js
+     const KEY_BINDINGS = {
+       'm': toggleMultiSelectMode,
+       'd': showQuickDateInput,
+       // ...
+     };
+     ~~~
+     Then have the listener just look up the function. This keeps the big "switch" from getting too unwieldy.
+
+4. *Multi-Select Mode*
+  - This is a nice feature (press ~m~ to enter multi-select, then space to add days). The code is fairly straightforward.
+  - If you expand multi-select in the future (like adding "copy days," "move days," etc.), you might consider a small "state machine" that tracks which multi-select action is active.
+
+5. *Year View*
+  - Good "zoomed-out" approach.
+  - *Suggestion:* If you anticipate a user wanting to jump to a day in the year view repeatedly, you might want a better way to close the year view after a single click (right now you call ~hideYearView()~ after day click). That's fine. Just keep an eye on user flows.
+
+** 5. Data Handling & Server Sync
+
+1. *Merging Server Data*
+  - You have a fairly robust logic that checks timestamps (~lastSavedTimestamp~), merges if the server is newer, or else tries to upload local changes if local is newer.
+  - *Suggestion:* Real merges can get tricky if you and the server both have changes. Right now, you either overwrite local or overwrite server. If you ever need "true merging" of changes, you'll need conflict resolution at the item/field level. But for personal or single-user usage, your approach is fine.
+
+2. *Backup and Overwrite*
+  - The logic to download a local backup JSON file before overwriting from the server is a very nice touch. If the backup fails, you skip the overwrite. That's a good safety measure.
+  - The code for "downloading backup → applying server data" is well commented. Just keep an eye on potential error states (like partial data overwritten).
+
+3. *Security*
+  - If you plan on storing sensitive data, consider whether you trust storing it plainly in localStorage + JSON on your server. (Probably fine for a personal calendar if you own the server, just something to note.)
+
+** 6. Smaller Observations & Polishing
+
+- *Potential Library Use:* You do a fair amount of date/time manipulation. It might be simpler to use a small library like [[https://day.js.org/][Day.js]] or [[https://date-fns.org/][date-fns]] for robust date operations (especially for leaps, time zones, etc.). Vanilla JS is fine for simple cases but can get tricky with edge cases.
+- *Event Sourcing vs. Storing Snapshots:* Right now, you store "snapshots" of each day's notes in localStorage. That's usually easiest. If the app grows, you might consider a different approach (like storing entries in an "events list" or something more structured).
+- *UI Flickers / Loading Indicators:* You show/hide a loading overlay. Make sure transitions are smooth (e.g. a short fade in/out), so it doesn't feel jarring.
+- *Use of Comments* like ~// ... (other utilities like throttle, debounce, etc.)~: looks like placeholders. Make sure they're consistent or remove them to avoid confusion.
+- ~console.log~ vs. ~console.warn~ vs. ~console.error~: You're using them nicely. Just ensure that in production builds you might remove or reduce logging so the console isn't too noisy for your end users.
+
+** Conclusion
+
+Overall, *the code is functional, impressively documented*, and shows clear effort in polishing the user experience. The main areas of improvement are *modularizing* the code (splitting out large functions and grouping related logic), *maintaining a clear separation between data and DOM manipulation*, and *streamlining* repeated patterns (like generating month rows, handling date logic, etc.).
+
+That said, if this is primarily a personal project or an internal tool, the existing structure may be fine---just keep these suggestions in mind if you expect the project to grow or other developers to collaborate.
+
+You've built a lot of useful features in pure vanilla JavaScript, which is both impressive and flexible. Good job, and hopefully these suggestions help you continue to improve it!
