@@ -1592,3 +1592,15 @@ Accomplished:
 Energy Level: Grounded
 Next Step: Validate on physical iOS and Android devices that the adjusted offset feels natural yet still clears the system gesture zone.
 Handoff: Capture feedback from real device smoke-tests (screenshot + notes) and adjust safe-area padding if thumbs report cramped spacing near the gesture bar.
+
+** Session: Mobile footer spacing tune
+Time: Night
+Task: Dial in footer button position and tighten mobile event density
+
+Accomplished:
+- Iterated the button offset to land at a 9px relative drop, keeping the frosted tray fixed while restoring thumb clearance (`src/styles/mobile-footer.css`).
+- Trimmed the mobile event card vertical padding so stacked notes fit without overwhelming shorter viewports (`src/styles/mobile.css`).
+
+Energy Level: Focused
+Next Step: Run the latest build on physical iOS/Android hardware to confirm the footer alignment feels natural and the denser event stack stays legible.
+Handoff: Capture real-device screenshots plus tactile feedback on footer reachability and event readability; adjust spacing again if thumbs still feel cramped.
