@@ -14,7 +14,7 @@ All notable changes to Timeless calendar are documented in this file.
 ### Changed - 2025-10-14
 - `/api/calendar` now delegates to the Dropbox handlers; removed Redis dependency (`ioredis`)
 - `src/utils/storage` defaults dev sync/load endpoints to the middleware and respects the new env overrides
-- Verified production flow: web captures write through to `data/jay-diary.md` in Dropbox; manual diary edits still require bumping the embedded timestamp comment until metadata-based detection ships.
+- Verified production flow: web captures write through to `data/jay-diary.md` in Dropbox; manual diary edits automatically refresh once Dropbox metadata changes are detected (no manual timestamp bump needed).
 
 ### Added - 2025-10-04
 - Local iOS app icon and favicon generated from timeless-etched.png
