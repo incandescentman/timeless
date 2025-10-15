@@ -16,7 +16,7 @@ All notable changes to Timeless calendar are documented in this file.
 - `src/utils/storage` defaults dev sync/load endpoints to the middleware and respects the new env overrides
 - Verified production flow: web captures write through to `data/jay-diary.md` in Dropbox. Manual edits now piggyback on Dropbox `server_modified` timestamps (no manual comment bump); next test is remote edit → auto pull in browser.
 - Added focus/visibility listeners and 60s polling so browser notices remote diary edits shortly after they land.
-
+- Remote edits now rely on Dropbox `server_modified`; browser fetches them within ~60s or on focus.
 ### Added - 2025-10-04
 - Local iOS app icon and favicon generated from timeless-etched.png
   - 180x180 apple-touch-icon.png for iOS home screen

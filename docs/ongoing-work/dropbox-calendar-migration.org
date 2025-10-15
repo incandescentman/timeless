@@ -3,7 +3,7 @@
 #+UPDATED: <2024-10-14 Mon>
 
 * Context
-The production Timeless calendar persists shared state to Redis via =api/calendar.js=, while the browser keeps an offline copy in =localStorage=. We want parity with Canonical's minimalist capture flow by storing the shared Markdown diary in a Dropbox-synced file. The diary must stay writable in local dev, and Vercel deployments must read/write it via Dropbox's content API without changing the client-side experience.
+The production Timeless calendar now persists shared state to a Dropbox-backed Markdown diary via `/api/calendar`, while the browser keeps an offline copy in LocalStorage. The goal is parity with Canonical's minimalist capture flow: the diary remains the single source of truth, editable in local dev, with production writes/reads handled through Dropbox.
 
 * Goals
 - Replace Redis as the canonical data store without regressing multi-device sync or undo behaviour.
@@ -43,37 +43,44 @@ The production Timeless calendar persists shared state to Redis via =api/calenda
 
 * Implementation Plan
 ** Preparation
-- [ ] Create =data/jay-diary.md= symlink pointing at Dropbox canonical file.
+- [x] Ensure =data/jay-diary.md= points at the Dropbox-backed diary (repo now lives in Dropbox; no extra symlink required).
 - [ ] Export current Redis snapshot, convert to Markdown via =exportAsMarkdownDiary()=, seed the Dropbox file, and verify manually.
 - [x] Document Dropbox env vars + Markdown format expectations in =README.org= / deployment runbook.
 
 ** Shared Helpers & Tests
-- [x] Implement =formatCalendarAsMarkdown= and =parseMarkdownDiary= in =src/utils/calendarDiary.ts=.
-- [ ] Cover edge cases (hashtags with dashes, unchecked items, blank sections, missing timestamp).
-- [ ] Add Vitest suite that round-trips representative JSON ↔ Markdown snippets (including existing =jay-diary.md= sample lines).
+- [x] Implemented =formatCalendarAsMarkdown= and =parseMarkdownDiary= in =src/utils/calendarDiary.js= (timestamp comment, dashed hashtags, whitespace handling).
+- [ ] Add Vitest suite that round-trips representative JSON ↔ Markdown snippets (including existing =jay-diary.md= sample lines). *Still todo.*
 
 ** Local Dev Middleware
-- [x] Add middleware in =vite.config.js= for load/save routes using the shared helpers (JSON in ⇄ Markdown out).
-- [x] Default dev env vars so saves/loads point at middleware automatically.
-- [x] Ensure middleware validates payloads, logs concise messages, and mirrors Canonical’s error handling.
+- [x] Added =/__load-calendar-diary= and =/__update-calendar-diary= middleware using shared helpers (JSON ⇄ Markdown).
+- [x] Dev env defaults point at middleware; logging makes saves/loads visible in console.
 
 ** Client Refactor
-- [x] Extend =src/utils/storage.js= to use custom endpoints, rely on shared helpers, preserve timestamp conflict logic, and keep undo stack intact.
-- [ ] Introduce optional dev bootstrap via =import.meta.glob('/data/jay-diary.md', { as: 'raw' })= when the symlink exists.
+- [x] Storage module honours =VITE_CALENDAR_*_ENDPOINT= (defaults to `/api/calendar`) and uses shared helpers.
+- [x] Dropbox metadata (server_modified) drives conflict resolution; undo stack preserved; focus/visibility listeners + 60s polling keep clients fresh.
+- [ ] Optional dev bootstrap via =import.meta.glob('/data/jay-diary.md', { as: 'raw' })= (consider later).
 
 ** Serverless Dropbox Bridge
-- [x] Add =lib/dropbox.ts= with cached token refresh helper (ported from Canonical).
-- [x] Implement =api/calendar-load.ts= and =api/calendar-save.ts= that reuse shared helpers.
-- [x] Update =api/calendar.js= so =/api/calendar= GET/POST route delegates to the new handlers.
-- [x] Remove Redis dependency (=ioredis=) and related env var docs once Dropbox flow is proven stable.
+- [x] Added =lib/dropbox.js= token helper (refresh-token flow + cache).
+- [x] Implemented =api/calendar-load.js= and =api/calendar-save.js= using metadata timestamps.
+- [x] =api/calendar.js= now delegates GET/POST to Dropbox handlers.
+- [x] Removed Redis dependency (=ioredis=) and related docs.
 
 ** QA & Cutover
-- [ ] Run dev smoke tests with multiple tabs/devices to verify timestamp ordering and undo stack survival.
-- [ ] Deploy preview build hitting Dropbox sandbox; verify manual edits in Dropbox propagate back.
-- [ ] Monitor Dropbox API response codes, add logging around token refresh to catch edge cases.
-- [ ] After stable window, remove Redis env references and archive legacy handler.
+- [x] Dev + prod verified: multi-tab sync, Dropbox writes from web confirmed.
+- [x] Manual diary edits propagate automatically (Dropbox metadata + client polling).
+- [x] Logging captures token refresh failures; no Redis env references remain.
+
+* Current Status
+- Web UI save path writes directly to `data/jay-diary.md` in Dropbox (verified prod).
+- Manual edits in the diary file hydrate in under a minute or immediately on tab focus via metadata-aware sync.
+- 60s polling + focus/visibility triggers keep clients fresh without manual refresh.
+- Dropbox auth handled via refresh-token flow; error payloads bubble through API responses.
+- Docs and work log updated with env setup + behaviour notes.
+
 
 * Open Questions
-- Keep Redis handler behind a feature flag for emergency rollback?
-- Do we want to surface Dropbox revision IDs in the UI for audit/debug?
-- Should mobile clients get a dedicated read-only endpoint that streams Markdown for faster loading?
+- Add automated tests for diary parsing/formatting (Vitest todo above).
+- Consider Dropbox long-poll/webhook integration if we ever need near-instant updates.
+- Optional dev bootstrap via `import.meta.glob` (see TODO) if startup perf becomes an issue.
+- Surface Dropbox revision metadata in UI or logs for audit/debug?
