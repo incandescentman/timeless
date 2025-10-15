@@ -103,6 +103,7 @@ export default async function handler(req, res) {
     sendJson(res, 200, { status: 'ok', savedTimestamp: String(timestamp) });
   } catch (error) {
     console.error('Dropbox calendar save failed:', error);
-    sendJson(res, 500, { status: 'error', message: 'Unexpected error while uploading to Dropbox' });
+    const message = error instanceof Error ? error.message : String(error);
+    sendJson(res, 500, { status: 'error', message: 'Unexpected error while uploading to Dropbox', detail: message });
   }
 }

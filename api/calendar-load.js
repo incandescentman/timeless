@@ -65,6 +65,7 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Dropbox calendar load failed:', error);
-    sendJson(res, 500, { status: 'error', message: 'Unexpected error while downloading from Dropbox' });
+    const message = error instanceof Error ? error.message : String(error);
+    sendJson(res, 500, { status: 'error', message: 'Unexpected error while downloading from Dropbox', detail: message });
   }
 }
