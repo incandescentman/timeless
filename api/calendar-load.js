@@ -79,8 +79,7 @@ export default async function handler(req, res) {
       lastSavedTimestamp: String(
         Math.max(
           Number.isFinite(lastSavedTimestamp) ? lastSavedTimestamp : 0,
-          metadataTimestamp,
-          Date.now()
+          metadataTimestamp
         )
       )
     });

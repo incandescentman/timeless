@@ -12,6 +12,31 @@ LLM_CONTEXT:
 
 * 2025-10-15 Wednesday
 
+** Session: Fix Mobile Sync Issue
+Time: Afternoon
+Task: Diagnose and fix an issue where diary changes were not appearing on iPhone.
+Status: **COMPLETED**
+
+Problem:
+The user reported that edits made directly to the `jay-diary.md` file were visible on the web app on a laptop but not on an iPhone. This pointed to a client-side caching or data invalidation problem specific to mobile.
+
+Root Cause:
+The serverless function `api/calendar-load.js` was including the current server time (`Date.now()`) in the `lastSavedTimestamp` it sent to the client. This meant every API response had a brand new, unique timestamp, regardless of whether the underlying diary file had actually changed. This broke the timestamp-based synchronization logic, as the client could not reliably determine if it had stale data.
+
+Solution:
+- Removed the use of `Date.now()` from the `Math.max()` calculation in `api/calendar-load.js`.
+- The server now only uses the timestamp embedded in the diary file or the `server_modified` timestamp from the Dropbox file metadata.
+- This makes the API response idempotent for an unchanged file, allowing clients to correctly determine when they need to update their local `localStorage` cache.
+
+Files Changed:
+- `api/calendar-load.js` (fixed timestamp logic)
+- `dropbox-sync-work-log.org` (updated changelog)
+- `docs/work-log.org` (this entry)
+
+Benefits:
+- Restores reliable, timestamp-based data synchronization.
+- Fixes the issue where mobile clients were not seeing updated events.
+
 ** Session: Add Tests and Fix Diary Parser
 Time: Morning
 Task: Add automated tests for the Dropbox diary sync helpers and fix parsing bugs.

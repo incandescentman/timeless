@@ -4,6 +4,9 @@ All notable changes to Timeless calendar are documented in this file.
 
 ## [Unreleased]
 
+### Fixed - 2025-10-15
+- Resolved a mobile sync issue where changes to the diary were not appearing on iPhone. The `calendar-load` API was incorrectly including `Date.now()` in the `lastSavedTimestamp`, causing stale data to be served to clients with aggressive caching. The fix removes `Date.now()` to ensure the timestamp reflects the true file modification time.
+
 ### Added - 2025-10-15
 - Test suite (`vitest`) for `calendarDiary.js` helpers to ensure robust parsing and formatting.
 - Round-trip tests to guarantee data integrity between parsing and formatting.
