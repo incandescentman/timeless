@@ -21,8 +21,11 @@ const API_ENDPOINT = trimmedBase
 const rawCalendarSyncEndpoint = (import.meta.env.VITE_CALENDAR_SYNC_ENDPOINT || '').trim();
 const rawCalendarLoadEndpoint = (import.meta.env.VITE_CALENDAR_LOAD_ENDPOINT || '').trim();
 
-const SYNC_ENDPOINT = rawCalendarSyncEndpoint || API_ENDPOINT;
-const LOAD_ENDPOINT = rawCalendarLoadEndpoint || API_ENDPOINT;
+const DEFAULT_DEV_SYNC_ENDPOINT = import.meta.env.DEV ? '/__update-calendar-diary' : API_ENDPOINT;
+const DEFAULT_DEV_LOAD_ENDPOINT = import.meta.env.DEV ? '/__load-calendar-diary' : API_ENDPOINT;
+
+const SYNC_ENDPOINT = rawCalendarSyncEndpoint || DEFAULT_DEV_SYNC_ENDPOINT;
+const LOAD_ENDPOINT = rawCalendarLoadEndpoint || DEFAULT_DEV_LOAD_ENDPOINT;
 
 function readLocalStorageEntries() {
   const entries = {};

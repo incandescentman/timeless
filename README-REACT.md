@@ -102,36 +102,31 @@ All original features have been preserved:
 - Infinite scroll with Intersection Observer
 - Throttled scroll handlers
 - Efficient React rendering with proper keys
-- Local storage persistence with optional server-side sync (Redis)
+- Local storage persistence with optional Dropbox-backed sync
 
 ### Data Sync
-- `src/utils/storage.js` normalises local data and calls `/api/calendar`
-- `src/contexts/CalendarContext.jsx` compares timestamps, merges fresher server data, and debounces saves
-- Serverless API lives in `api/calendar.js` and stores payloads in Redis (key `calendar:data`)
+- `src/utils/storage.js` normalises local data and posts JSON payloads to `/api/calendar`
+- `src/utils/calendarDiary.js` converts between JSON and the Markdown diary, injecting timestamp metadata
+- `api/calendar.js` delegates to Dropbox-backed handlers that overwrite `jay-diary.md` in Dropbox
 
 ## 🌐 Deployment
 
-### Backend (Redis + Serverless API)
-1. Provision a Redis instance (Vercel’s Upstash integration, Redis Cloud, etc.) and note the connection URL.
-2. Set the environment variable `REDIS_URL` in your Vercel project (and locally via `.env.local` if needed).
-3. Deploy this repository to Vercel. The route `api/calendar.js` becomes a serverless function that reads/writes the `calendar:data` hash via `ioredis`.
-4. (Optional) Seed the store once deployed:
-   ```bash
-   curl -X POST "https://<your-app>.vercel.app/api/calendar" \
-     -H "Content-Type: application/json" \
-     -d '{"lastSavedTimestamp":"0"}'
-   ```
+### Backend (Dropbox + Serverless API)
+1. Create a Dropbox app (Scoped access, Full Dropbox or App Folder) and generate `DROPBOX_APP_KEY`, `DROPBOX_APP_SECRET`, and a long-lived `DROPBOX_REFRESH_TOKEN`.
+2. Configure these env vars in Vercel (and optionally `.env.local` for local testing). You can use `DROPBOX_ACCESS_TOKEN` instead of the refresh trio for ad-hoc local runs.
+3. (Optional) Set `DROPBOX_CALENDAR_PATH` if you want a custom diary location; default is `/Apps/Timeless/calendar/jay-diary.md`.
+4. Deploy the repository to Vercel. `/api/calendar` now reads/writes the Markdown diary via the Dropbox Content API.
 
 ### Frontend
-- **Vercel**: Build and deploy as normal. Set `VITE_API_BASE_URL` to your production origin (e.g. `https://<your-app>.vercel.app`). The client will call `${VITE_API_BASE_URL}/api/calendar`.
-- **Other static hosts (Netlify, GitHub Pages, etc.)**: Upload `dist/` to your CDN and point `VITE_API_BASE_URL` at the deployed API (for example, the Vercel function above).
+- **Vercel**: Build and deploy as normal. Set `VITE_CALENDAR_SYNC_ENDPOINT=/api/calendar` and `VITE_CALENDAR_LOAD_ENDPOINT=/api/calendar` (or rely on defaults). Optionally set `VITE_API_BASE_URL` to your production origin if you need absolute URLs.
+- **Other static hosts (Netlify, GitHub Pages, etc.)**: Upload `dist/` to your CDN and point `VITE_CALENDAR_*_ENDPOINT` at the deployed API (for example, the Vercel function above).
 
 ### Local Development
 1. `npm install`
-2. Create `.env.local` with `VITE_API_BASE_URL` (and `REDIS_URL` if you’re running a local Redis instance or connecting to a cloud instance from your machine).
-3. Start a local API (`vercel dev` is recommended so the serverless function can reach Redis using the pulled credentials).
-4. `npm run dev`
-5. Use the command palette (“Sync with Server”) to verify round-trips.
+2. (Optional) Create `.env.local` with `VITE_CALENDAR_SYNC_ENDPOINT=/__update-calendar-diary` and `VITE_CALENDAR_LOAD_ENDPOINT=/__load-calendar-diary` (defaults already point here).
+3. Symlink `data/jay-diary.md` to your Dropbox diary so local saves flow to the shared file.
+4. `npm run dev` — the middleware handles read/write without any external services.
+5. Use the command palette (“Sync with Server”) to verify round-trips when Dropbox creds are configured.
 
 ## 🔄 Migration Notes
 

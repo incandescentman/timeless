@@ -45,27 +45,27 @@ The production Timeless calendar persists shared state to Redis via =api/calenda
 ** Preparation
 - [ ] Create =data/jay-diary.md= symlink pointing at Dropbox canonical file.
 - [ ] Export current Redis snapshot, convert to Markdown via =exportAsMarkdownDiary()=, seed the Dropbox file, and verify manually.
-- [ ] Document Dropbox env vars + Markdown format expectations in =README.org= / deployment runbook.
+- [x] Document Dropbox env vars + Markdown format expectations in =README.org= / deployment runbook.
 
 ** Shared Helpers & Tests
-- [ ] Implement =formatCalendarAsMarkdown= and =parseMarkdownDiary= in =src/utils/calendarDiary.ts=.
+- [x] Implement =formatCalendarAsMarkdown= and =parseMarkdownDiary= in =src/utils/calendarDiary.ts=.
 - [ ] Cover edge cases (hashtags with dashes, unchecked items, blank sections, missing timestamp).
 - [ ] Add Vitest suite that round-trips representative JSON ↔ Markdown snippets (including existing =jay-diary.md= sample lines).
 
 ** Local Dev Middleware
-- [ ] Add middleware in =vite.config.js= for load/save routes using the shared helpers (JSON in ⇄ Markdown out).
-- [ ] Default dev env vars so saves/loads point at middleware automatically.
-- [ ] Ensure middleware validates payloads, logs concise messages, and mirrors Canonical’s error handling.
+- [x] Add middleware in =vite.config.js= for load/save routes using the shared helpers (JSON in ⇄ Markdown out).
+- [x] Default dev env vars so saves/loads point at middleware automatically.
+- [x] Ensure middleware validates payloads, logs concise messages, and mirrors Canonical’s error handling.
 
 ** Client Refactor
-- [ ] Extend =src/utils/storage.js= to use custom endpoints, rely on shared helpers, preserve timestamp conflict logic, and keep undo stack intact.
+- [x] Extend =src/utils/storage.js= to use custom endpoints, rely on shared helpers, preserve timestamp conflict logic, and keep undo stack intact.
 - [ ] Introduce optional dev bootstrap via =import.meta.glob('/data/jay-diary.md', { as: 'raw' })= when the symlink exists.
 
 ** Serverless Dropbox Bridge
-- [ ] Add =lib/dropbox.ts= with cached token refresh helper (ported from Canonical).
-- [ ] Implement =api/calendar-load.ts= and =api/calendar-save.ts= that reuse shared helpers.
-- [ ] Update =vercel.json= so =/api/calendar= GET/POST route to the new handlers (backwards compatible with existing client code).
-- [ ] Remove Redis dependency (=ioredis=) and related env var docs once Dropbox flow is proven stable.
+- [x] Add =lib/dropbox.ts= with cached token refresh helper (ported from Canonical).
+- [x] Implement =api/calendar-load.ts= and =api/calendar-save.ts= that reuse shared helpers.
+- [x] Update =api/calendar.js= so =/api/calendar= GET/POST route delegates to the new handlers.
+- [x] Remove Redis dependency (=ioredis=) and related env var docs once Dropbox flow is proven stable.
 
 ** QA & Cutover
 - [ ] Run dev smoke tests with multiple tabs/devices to verify timestamp ordering and undo stack survival.

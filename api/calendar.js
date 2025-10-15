@@ -1,31 +1,5 @@
-import Redis from 'ioredis';
-
-const KEY = 'calendar:data';
-const redis = new Redis(process.env.REDIS_URL);
-
-function parseRequestBody(req) {
-  if (!req.body) {
-    return {};
-  }
-
-  if (typeof req.body === 'string') {
-    try {
-      return req.body ? JSON.parse(req.body) : {};
-    } catch (error) {
-      throw new Error('Invalid JSON payload');
-    }
-  }
-
-  if (Buffer.isBuffer(req.body)) {
-    try {
-      return JSON.parse(req.body.toString('utf8'));
-    } catch (error) {
-      throw new Error('Invalid JSON payload');
-    }
-  }
-
-  return req.body;
-}
+import calendarLoadHandler from './calendar-load.js';
+import calendarSaveHandler from './calendar-save.js';
 
 function sendJson(res, status, body) {
   res.status(status);
@@ -37,52 +11,19 @@ function sendJson(res, status, body) {
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const raw = await redis.get(KEY);
-      let payload = {};
-
-      if (raw) {
-        try {
-          payload = JSON.parse(raw);
-        } catch (error) {
-          console.error('Failed to parse calendar payload from Redis:', error);
-        }
-      }
-
-      sendJson(res, 200, payload);
+      await calendarLoadHandler(req, res);
       return;
     }
 
     if (req.method === 'POST') {
-      let payload;
-      try {
-        payload = parseRequestBody(req);
-      } catch (error) {
-        sendJson(res, 400, { status: 'error', message: error.message });
-        return;
-      }
-
-      if (typeof payload !== 'object' || payload === null) {
-        sendJson(res, 400, { status: 'error', message: 'Invalid payload' });
-        return;
-      }
-
-      const timestamp = Date.now().toString();
-      await redis.set(
-        KEY,
-        JSON.stringify({
-          ...payload,
-          lastSavedTimestamp: timestamp
-        })
-      );
-
-      sendJson(res, 200, { status: 'ok', savedTimestamp: timestamp });
+      await calendarSaveHandler(req, res);
       return;
     }
 
     res.setHeader('Allow', 'GET, POST');
-    sendJson(res, 405, { error: 'Method not allowed' });
+    sendJson(res, 405, { status: 'error', message: 'Method not allowed' });
   } catch (error) {
-    console.error('Redis handler error:', error);
+    console.error('Calendar handler error:', error);
     sendJson(res, 500, { status: 'error', message: 'Internal server error' });
   }
 }
