@@ -18,6 +18,12 @@ const API_ENDPOINT = trimmedBase
     : `${trimmedBase}/api/calendar`
   : '/api/calendar';
 
+const rawCalendarSyncEndpoint = (import.meta.env.VITE_CALENDAR_SYNC_ENDPOINT || '').trim();
+const rawCalendarLoadEndpoint = (import.meta.env.VITE_CALENDAR_LOAD_ENDPOINT || '').trim();
+
+const SYNC_ENDPOINT = rawCalendarSyncEndpoint || API_ENDPOINT;
+const LOAD_ENDPOINT = rawCalendarLoadEndpoint || API_ENDPOINT;
+
 function readLocalStorageEntries() {
   const entries = {};
   for (let i = 0; i < localStorage.length; i++) {
@@ -207,7 +213,11 @@ function createServerPayload(calendarData, timestamp) {
 }
 
 export async function fetchServerCalendar() {
-  const response = await fetch(`${API_ENDPOINT}?t=${Date.now()}`, {
+  const url = LOAD_ENDPOINT.includes('?')
+    ? `${LOAD_ENDPOINT}&t=${Date.now()}`
+    : `${LOAD_ENDPOINT}?t=${Date.now()}`;
+
+  const response = await fetch(url, {
     headers: {
       'Accept': 'application/json'
     },
@@ -231,7 +241,7 @@ export async function fetchServerCalendar() {
 export async function saveCalendarToServer(calendarData, timestamp) {
   const payload = createServerPayload(calendarData, timestamp);
 
-  const response = await fetch(API_ENDPOINT, {
+  const response = await fetch(SYNC_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
