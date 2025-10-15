@@ -54,10 +54,8 @@ export default async function handler(req, res) {
       return;
     }
 
-    const { lastSavedTimestamp, ...rest } = parsed;
-    const timestamp = typeof lastSavedTimestamp === 'string' || typeof lastSavedTimestamp === 'number'
-      ? lastSavedTimestamp
-      : Date.now();
+    const { lastSavedTimestamp: _ignoredLastSavedTimestamp, ...rest } = parsed;
+    const timestampForSave = Date.now();
 
     const calendarData = {};
     Object.entries(rest).forEach(([key, value]) => {
@@ -66,7 +64,7 @@ export default async function handler(req, res) {
       calendarData[key] = value;
     });
 
-    const markdown = formatCalendarAsMarkdown(calendarData, timestamp);
+    const markdown = formatCalendarAsMarkdown(calendarData, timestampForSave);
 
     const attemptUpload = (token) => fetch(DROPBOX_UPLOAD_URL, {
       method: 'POST',
@@ -100,7 +98,20 @@ export default async function handler(req, res) {
       return;
     }
 
-    sendJson(res, 200, { status: 'ok', savedTimestamp: String(timestamp) });
+    let metadataTimestamp = 0;
+    try {
+      const metadata = await uploadResponse.json();
+      const parsed = metadata?.server_modified ? Date.parse(metadata.server_modified) : NaN;
+      if (Number.isFinite(parsed)) {
+        metadataTimestamp = parsed;
+      }
+    } catch (metadataError) {
+      console.warn('Failed to parse Dropbox upload metadata', metadataError);
+    }
+
+    const effectiveTimestamp = metadataTimestamp || timestampForSave;
+
+    sendJson(res, 200, { status: 'ok', savedTimestamp: String(effectiveTimestamp) });
   } catch (error) {
     console.error('Dropbox calendar save failed:', error);
     const message = error instanceof Error ? error.message : String(error);

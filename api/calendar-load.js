@@ -55,13 +55,34 @@ export default async function handler(req, res) {
       return;
     }
 
+    const metadataHeader = downloadResponse.headers.get('Dropbox-API-Result');
+    let metadataTimestamp = 0;
+
+    if (metadataHeader) {
+      try {
+        const metadata = JSON.parse(metadataHeader);
+        const parsed = metadata?.server_modified ? Date.parse(metadata.server_modified) : NaN;
+        if (Number.isFinite(parsed)) {
+          metadataTimestamp = parsed;
+        }
+      } catch (metadataError) {
+        console.warn('Failed to parse Dropbox metadata header', metadataError);
+      }
+    }
+
     const buffer = await downloadResponse.arrayBuffer();
     const content = Buffer.from(buffer).toString('utf-8');
     const { calendarData, lastSavedTimestamp } = parseMarkdownDiary(content);
 
     sendJson(res, 200, {
       ...calendarData,
-      lastSavedTimestamp: String(lastSavedTimestamp || Date.now())
+      lastSavedTimestamp: String(
+        Math.max(
+          Number.isFinite(lastSavedTimestamp) ? lastSavedTimestamp : 0,
+          metadataTimestamp,
+          Date.now()
+        )
+      )
     });
   } catch (error) {
     console.error('Dropbox calendar load failed:', error);
