@@ -5,3 +5,5 @@ dist/
 .env.local
 .env.development.local
 .vercel
+logs/
+data/
