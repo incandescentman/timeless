@@ -7,6 +7,7 @@
     "dev": "vite --open",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
     "playwright": "^1.48.2",
     "shadcn": "^3.3.1",
     "sharp": "^0.34.4",
-    "vite": "^5.4.2"
+    "vite": "^5.4.2",
+    "vitest": "^3.2.4"
   }
 }

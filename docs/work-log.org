@@ -10,6 +10,47 @@ LLM_CONTEXT:
 - Always read before: Starting new session or resuming work
 #+END_COMMENT
 
+* 2025-10-15 Wednesday
+
+** Session: Add Tests and Fix Diary Parser
+Time: Morning
+Task: Add automated tests for the Dropbox diary sync helpers and fix parsing bugs.
+Status: **COMPLETED**
+
+Problem:
+The new Dropbox-backed calendar sync logic in `src/utils/calendarDiary.js` was implemented without automated tests, risking data corruption during parsing or formatting. The user requested an inspection of the implementation and a comprehensive test suite.
+
+Solution:
+- Added `vitest` as the testing framework.
+- Created a new test suite `src/utils/calendarDiary.test.js`.
+- Implemented tests covering:
+  - Parsing of simple and complex diary entries (with tags and completion markers).
+  - Formatting of calendar data into markdown.
+  - A round-trip test to ensure `parse(format(data))` results in no data loss.
+  - Edge cases like empty files and malformed lines.
+- The tests revealed a bug in `parseMarkdownDiary` where it failed to correctly parse lines containing both a `[✓]` marker and tags.
+- Fixed the bug by correcting the order of parsing operations.
+- Created `docs/sample-diary.md` to document the correct format for future reference.
+
+Files Created:
+- `src/utils/calendarDiary.test.js`
+- `docs/sample-diary.md`
+
+Files Changed:
+- `package.json` (added `vitest` and `test` script)
+- `package-lock.json`
+- `src/utils/calendarDiary.js` (fixed parsing bug)
+- `dropbox-sync-work-log.org` (updated changelog)
+- `docs/work-log.org` (this entry)
+
+Benefits:
+- Increased confidence in the data integrity of the calendar sync mechanism.
+- A safety net for future refactoring of the diary parsing/formatting logic.
+- Clear documentation of the expected diary format.
+
+Tests:
+- `npm test` now runs the new test suite, and all tests are passing.
+
 * 2025-10-12 Sunday (continued)
 
 ** Session: Simplify Mobile Event Composer with Native Dialog

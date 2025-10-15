@@ -173,13 +173,6 @@ export function parseMarkdownDiary(raw = '') {
     }
 
     const parts = remainder.split(/\s+/)
-    let completed = false
-
-    if (parts.length > 0 && parts[parts.length - 1] === '[✓]') {
-      completed = true
-      parts.pop()
-    }
-
     const tags = []
     while (parts.length > 0 && TAG_REGEX.test(parts[parts.length - 1])) {
       const match = parts.pop()
@@ -188,6 +181,13 @@ export function parseMarkdownDiary(raw = '') {
       if (tag) {
         tags.unshift(tag)
       }
+    }
+
+    let completed = false
+
+    if (parts.length > 0 && parts[parts.length - 1] === '[✓]') {
+      completed = true
+      parts.pop()
     }
 
     const text = parts.join(' ').trim()

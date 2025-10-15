@@ -4,6 +4,17 @@ All notable changes to Timeless calendar are documented in this file.
 
 ## [Unreleased]
 
+### Added - 2025-10-15
+- Test suite (`vitest`) for `calendarDiary.js` helpers to ensure robust parsing and formatting.
+- Round-trip tests to guarantee data integrity between parsing and formatting.
+- A `sample-diary.md` in `docs/` for format reference.
+
+### Fixed - 2025-10-15
+- Corrected a bug in `parseMarkdownDiary` where events with both a completion marker and tags were parsed incorrectly.
+
+### Changed - 2025-10-15
+- Added `vitest` as a dev dependency and a `test` script to `package.json`.
+
 ### Added - 2025-10-14
 - Dropbox-backed calendar sync flow:
   - Markdown diary helpers for JSON↔Markdown conversion with embedded timestamps

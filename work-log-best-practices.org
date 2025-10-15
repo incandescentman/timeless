@@ -240,7 +240,7 @@ Think of it as a conversation with future developers who are encountering the sa
 
 * What We're Already Doing Well
 
-Based on analysis of existing WORK-LOG.org files in astro-monorepo:
+Based on analysis of existing work log files in astro-monorepo:
 
 ** ✅ Structured Problem/Changes/Outcome Format
 Your logs follow a clear pattern:
@@ -369,7 +369,7 @@ MIGRATION PATH: Update timeless to use npm package instead of file reference
 
 ** 🎯 What's Missing vs What You Already Do
 
-Comparing astro-monorepo WORK-LOG.org entries to today's experimental-mode work:
+Comparing astro-monorepo work log entries to today's experimental-mode work:
 
 *** Things You're NOT Capturing (but should):
 
