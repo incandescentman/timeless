@@ -55,7 +55,7 @@
   flex: 1;
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  top: 8px; /* Nudge buttons down without moving the footer background */
+  top: 9px; /* Nudge buttons down without moving the footer background */
 }
 
 /* Icon container - minimal and clean */

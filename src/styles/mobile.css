@@ -227,7 +227,7 @@ body {
   }
 
   .day-cell--baseline .day-event {
-    padding: clamp(0.5rem, 2.5vw, 0.7rem) clamp(0.6rem, 3vw, 0.85rem);
+    padding: clamp(0.4rem, 2.2vw, 0.6rem) clamp(0.6rem, 3vw, 0.85rem);
     border-radius: 12px;
     background: rgba(148, 163, 184, 0.12);
     border: 1px solid rgba(148, 163, 184, 0.18);
