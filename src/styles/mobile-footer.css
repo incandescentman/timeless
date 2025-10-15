@@ -3,10 +3,10 @@
 .mobile-footer {
   display: none;
   position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  bottom: 0;
   left: 0;
   right: 0;
-  min-height: calc(68px + env(safe-area-inset-bottom, 0px));
+  min-height: calc(64px + env(safe-area-inset-bottom, 0px));
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -23,8 +23,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(-1 * (env(safe-area-inset-bottom, 0px) + 8px));
-  height: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  height: env(safe-area-inset-bottom, 0px);
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: inherit;
   -webkit-backdrop-filter: inherit;
@@ -131,6 +131,6 @@ body.dark-mode .mobile-footer__button:first-child .mobile-footer__icon {
 /* Ensure footer stays above all content */
 @media (max-width: 768px) {
   .calendar-layout {
-    margin-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 }

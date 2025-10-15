@@ -1579,3 +1579,15 @@ Solution:
 
 Energy Level: Relieved
 Next Step: Automate the new health check (Scheduled GitHub Action or external cron) so token failures trigger alerts without manual runs.
+Handoff: Schedule recurring `npm run health` (GitHub Action or external cron) and keep validating the mobile footer on physical devices to ensure the lifted bar stays clear of curved corners across models.
+
+** Session: Mobile footer height correction
+Time: Late night
+Task: Lower the safe-area offset so mobile controls sit closer to the home indicator
+
+Accomplished:
+- Re-anchored the footer to `bottom: 0` and trimmed its minimum height so navigation buttons rest just above the iOS home affordance (`src/styles/mobile-footer.css`).
+- Realigned the pseudo-background extension and calendar bottom margin to preserve the glass backdrop while keeping the grid clear of the footer (`src/styles/mobile-footer.css`).
+
+Energy Level: Grounded
+Next Step: Validate on physical iOS and Android devices that the adjusted offset feels natural yet still clears the system gesture zone.
