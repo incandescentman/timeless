@@ -4,6 +4,7 @@
 
 import { generateDayId } from './dateUtils';
 import { normalizeEvents } from './eventUtils';
+import { formatCalendarAsMarkdown } from './calendarDiary';
 
 const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -286,77 +287,8 @@ export function importCalendarData(jsonData) {
  */
 export function exportAsMarkdownDiary() {
   const data = getAllCalendarData();
-  const entries = Object.entries(data).map(([dateId, events]) => {
-    const [month, day, year] = dateId.split('_').map(Number);
-    const date = new Date(year, month, day);
-    const list = Array.isArray(events) ? events : toEventArray(events);
-    return { date, events: list };
-  }).sort((a, b) => a.date - b.date);
-
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const lines = [];
-  let currentYear = null;
-  let currentMonth = null;
-
-  entries.forEach(({ date, events }) => {
-    const normalisedEvents = (events || [])
-      .map(event => {
-        if (typeof event === 'string') {
-          return { text: event };
-        }
-        if (event && typeof event === 'object') {
-          return {
-            text: event.text,
-            completed: Boolean(event.completed),
-            tags: Array.isArray(event.tags) ? event.tags : []
-          };
-        }
-        return null;
-      })
-      .filter(item => item && item.text);
-
-    if (normalisedEvents.length === 0) {
-      return;
-    }
-
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDate();
-
-    if (year !== currentYear) {
-      currentYear = year;
-      currentMonth = null;
-      lines.push(`# ${year}`, '');
-    }
-
-    if (month !== currentMonth) {
-      currentMonth = month;
-      lines.push(`## ${monthNames[month]} ${year}`, '');
-    }
-
-    const monthLabel = month + 1;
-    const dateLabel = `${monthLabel}/${day}/${year}`;
-    lines.push(dateLabel);
-
-    normalisedEvents.forEach(({ text, completed, tags }) => {
-      let line = `  - ${text}`;
-      if (completed) {
-        line += ' [✓]';
-      }
-      if (tags && tags.length > 0) {
-        line += ` #${tags.join(' #')}`;
-      }
-      lines.push(line);
-    });
-
-    lines.push('');
-  });
-
-  return `${lines.join('\n').trimEnd()}\n`;
+  const timestamp = getLocalTimestamp();
+  return formatCalendarAsMarkdown(data, timestamp);
 }
 
 /**
