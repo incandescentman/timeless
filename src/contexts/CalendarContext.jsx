@@ -13,6 +13,7 @@ import { toggleEventCompletion, setEventTags, setEventText } from '../utils/even
 const CalendarContext = createContext();
 
 const MAX_UNDO = 5;
+const REMOTE_SYNC_INTERVAL_MS = 60 * 1000;
 
 export function CalendarProvider({ children }) {
   // Core calendar state
@@ -141,6 +142,7 @@ export function CalendarProvider({ children }) {
   const saveTimeoutRef = useRef(null);
   const initialisedRef = useRef(false);
   const calendarDataRef = useRef(calendarData);
+  const lastVisibilitySyncRef = useRef(0);
 
   useEffect(() => {
     calendarDataRef.current = calendarData;
@@ -511,9 +513,42 @@ export function CalendarProvider({ children }) {
     runInitialSync();
     const interval = setInterval(() => {
       performServerSync().catch(() => {});
-    }, 5 * 60 * 1000);
+    }, REMOTE_SYNC_INTERVAL_MS);
 
     return () => clearInterval(interval);
+  }, [performServerSync]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return undefined;
+    }
+
+    const triggerSync = () => {
+      const now = Date.now();
+      if (now - lastVisibilitySyncRef.current < 5000) {
+        return;
+      }
+      lastVisibilitySyncRef.current = now;
+      performServerSync().catch(() => {});
+    };
+
+    const handleFocus = () => {
+      triggerSync();
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        triggerSync();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [performServerSync]);
 
   const value = {
