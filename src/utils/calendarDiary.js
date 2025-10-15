@@ -1,4 +1,4 @@
-import { normalizeEvents } from './eventUtils'
+import { normalizeEvents } from './eventUtils.js'
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
