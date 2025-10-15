@@ -1591,3 +1591,4 @@ Accomplished:
 
 Energy Level: Grounded
 Next Step: Validate on physical iOS and Android devices that the adjusted offset feels natural yet still clears the system gesture zone.
+Handoff: Capture feedback from real device smoke-tests (screenshot + notes) and adjust safe-area padding if thumbs report cramped spacing near the gesture bar.
