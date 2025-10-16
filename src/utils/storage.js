@@ -313,7 +313,7 @@ export function downloadMarkdownDiary() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'jay-diary.md';
+  a.download = 'timeline.md';
   a.click();
   URL.revokeObjectURL(url);
 

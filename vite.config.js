@@ -8,7 +8,7 @@ import { formatCalendarAsMarkdown, parseMarkdownDiary } from './src/utils/calend
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DIARY_PATH = path.resolve(__dirname, 'data', 'jay-diary.md');
+const DIARY_PATH = path.resolve(__dirname, 'data', 'timeline.md');
 const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 
 function sendJson(res, statusCode, body) {

@@ -6,7 +6,7 @@ import {
   DROPBOX_UPLOAD_URL
 } from '../lib/dropbox.js';
 
-const DROPBOX_CALENDAR_PATH = process.env.DROPBOX_CALENDAR_PATH || '/Apps/Timeless/calendar/jay-diary.md';
+const DROPBOX_CALENDAR_PATH = process.env.DROPBOX_CALENDAR_PATH || '/Apps/Timeless/calendar/timeline.md';
 const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 
 function parseRequestBody(req) {

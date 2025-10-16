@@ -42,7 +42,7 @@ When you launch the calendar, the window shows the current month centered, with 
 * Diary Integration
 
 ** Custom Configuration
-- Diary file: ~/Users/jay/Dropbox/github/timeless/jay-diary.md~
+- Diary file: ~/Users/jay/Dropbox/github/timeless/timeline.md~ (renamed from `jay-diary.md`)
 - Comment syntax: ~#~ ... (no closing delimiter)
 - Week starts: Monday (~calendar-week-start-day 1~) - the weekend is treated as a unit
 - Format: Entries are expected in ~M/D/YYYY~ format (no leading zeros required)
@@ -167,7 +167,7 @@ The calendar integrates with your Emacs theme:
 
 * Diary File Format
 
-Your diary uses Markdown format (~jay-diary.md~) with these conventions:
+Your diary uses Markdown format (~timeline.md~, formerly ~jay-diary.md~) with these conventions:
 
 ** Date Format
 Entries should be formatted as: ~M/D/YYYY~
@@ -211,11 +211,11 @@ If ~o~ shows this message, the date string doesn't exist in your diary file. The
 
 ** Diary not showing entries
 Check that:
-1. ~diary-file~ points to correct file: ~/Users/jay/Dropbox/github/timeless/jay-diary.md~
+1. ~diary-file~ points to correct file: ~/Users/jay/Dropbox/github/timeless/timeline.md~
 2. Dates in diary file use ~M/D/YYYY~ format (no leading zeros required)
 3. File is accessible and not locked
 4. Buffer is saved - calendar won't detect unsaved changes immediately
-5. Wait for polling auto-revert cycle or run ~M-x revert-buffer~ in ~jay-diary.md~
+5. Wait for polling auto-revert cycle or run ~M-x revert-buffer~ in ~timeline.md~
 
 ** Blue vs. black dates
 If some dates appear blue instead of black, that's holiday highlighting. Disable by setting ~(setq calendar-mark-holidays-flag nil)~ or customize the ~holiday~ face.
@@ -224,7 +224,7 @@ If some dates appear blue instead of black, that's holiday highlighting. Disable
 This happens when there is no ~*Fancy Diary Entries*~ buffer yet. Insert at least one entry so the buffer exists, then ~n~/~p~ will work for navigation within the fancy diary list.
 
 ** Calendar not updating after edits
-The calendar uses polling-based auto-revert for cloud storage. Wait a few seconds for the automatic refresh, or manually run ~M-x revert-buffer~ in ~jay-diary.md~ to force an immediate update.
+The calendar uses polling-based auto-revert for cloud storage. Wait a few seconds for the automatic refresh, or manually run ~M-x revert-buffer~ in ~timeline.md~ to force an immediate update.
 
 ** Calendar keybindings not working
 Ensure ~calendar-mode-map~ customizations are loaded:
@@ -242,5 +242,5 @@ Ensure ~calendar-mode-map~ customizations are loaded:
 
 Configuration sources:
 - ~shared-functions.org:8479-8525~ - Calendar and diary configuration code
-- ~~/Dropbox/github/timeless/jay-diary.md~ - Diary content (Markdown format)
+- ~~/Dropbox/github/timeless/timeline.md~ - Diary content (Markdown format)
 - ~jay-custom-color-themes/leuven-jay.el~ - Theme faces affecting calendar colors

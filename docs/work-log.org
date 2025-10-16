@@ -39,7 +39,7 @@ Task: Diagnose and fix an issue where diary changes were not appearing on iPhone
 Status: **IN PROGRESS**
 
 Problem:
-The user reported that edits made directly to the `jay-diary.md` file were visible on the web app on a laptop but not on an iPhone. This pointed to a client-side caching or data invalidation problem specific to mobile.
+The user reported that edits made directly to the `jay-diary.md` file (now renamed to `timeline.md`) were visible on the web app on a laptop but not on an iPhone. This pointed to a client-side caching or data invalidation problem specific to mobile.
 
 Root Cause Analysis:
 The serverless function `api/calendar-load.js` was including the current server time (`Date.now()`) in the `lastSavedTimestamp` it sent to the client. This meant every API response had a brand new, unique timestamp, regardless of whether the underlying diary file had actually changed. This broke the timestamp-based synchronization logic.
@@ -1534,9 +1534,9 @@ Time: Morning
 Task: Restore markdown export to match the canonical diary format
 
 Accomplished:
-- Reworked `exportAsMarkdownDiary()` to emit year and month headings plus `M/D/YYYY` lines with indented bullet notes so exports align with `jay-diary.md`.
+- Reworked `exportAsMarkdownDiary()` to emit year and month headings plus `M/D/YYYY` lines with indented bullet notes so exports align with `timeline.md` (formerly `jay-diary.md`).
 - Normalised event entries to preserve completion ticks and tags while skipping empty rows.
-- Renamed the download target to `jay-diary.md` to match the repository file and avoid date-stamped filenames.
+- Renamed the download target to `jay-diary.md` (now updated again to `timeline.md`) to match the repository file and avoid date-stamped filenames.
 - Clarified the export behaviour in `docs/instructions.org` for future reference.
 - Confirmed via manual export that the markdown pull uses live calendar data from localStorage.
 
@@ -1559,12 +1559,24 @@ Handoff: Confirm Cmd/Ctrl+E exports cleanly on both macOS and Windows browsers, 
 
 * 2025-10-15 Wednesday
 
+** Session: Diary rename + env sync
+Time: Evening
+Task: Align codebase and infrastructure with `jay-diary.md` → `timeline.md` rename
+
+Accomplished:
+- Updated dev middleware, Dropbox API handlers, and markdown export download name to target `timeline.md`.
+- Refreshed instructions, migration notes, Emacs guide, and related documentation to reflect the new canonical file name.
+- Coordinated with production by updating `DROPBOX_CALENDAR_PATH` to `/github/timeless/data/timeline.md` so Vercel now reads and writes the renamed diary.
+
+Energy Level: Intentional
+Next Step: Monitor upcoming sync health checks to confirm the renamed path continues to round-trip cleanly across devices.
+
 ** Session: Dropbox diary sync repair
 Time: Evening
 Task: Restore calendar updates across devices after mobile stopped receiving new entries
 
 Problem:
-- Mac client showed fresh events from `data/jay-diary.md`, but iPhone rendered an empty calendar despite a successful save.
+- Mac client showed fresh events from `data/jay-diary.md` (now `data/timeline.md`), but iPhone rendered an empty calendar despite a successful save.
 
 Root Cause:
 - `/api/calendar-load` returned `invalid_grant` from Dropbox because the Vercel `DROPBOX_REFRESH_TOKEN` had gone stale. Desktop still looked correct thanks to cached localStorage; mobile had no cache, so the failed fetch left it blank.

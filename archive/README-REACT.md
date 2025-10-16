@@ -107,14 +107,14 @@ All original features have been preserved:
 ### Data Sync
 - `src/utils/storage.js` normalises local data and posts JSON payloads to `/api/calendar`
 - `src/utils/calendarDiary.js` converts between JSON and the Markdown diary, injecting timestamp metadata
-- `api/calendar.js` delegates to Dropbox-backed handlers that overwrite `jay-diary.md` in Dropbox
+- `api/calendar.js` delegates to Dropbox-backed handlers that overwrite `timeline.md` in Dropbox
 
 ## 🌐 Deployment
 
 ### Backend (Dropbox + Serverless API)
 1. Create a Dropbox app (Scoped access, Full Dropbox or App Folder) and generate `DROPBOX_APP_KEY`, `DROPBOX_APP_SECRET`, and a long-lived `DROPBOX_REFRESH_TOKEN`.
 2. Configure these env vars in Vercel (and optionally `.env.local` for local testing). You can use `DROPBOX_ACCESS_TOKEN` instead of the refresh trio for ad-hoc local runs.
-3. (Optional) Set `DROPBOX_CALENDAR_PATH` if you want a custom diary location; default is `/Apps/Timeless/calendar/jay-diary.md`.
+3. (Optional) Set `DROPBOX_CALENDAR_PATH` if you want a custom diary location; default is `/Apps/Timeless/calendar/timeline.md`.
 4. Deploy the repository to Vercel. `/api/calendar` now reads/writes the Markdown diary via the Dropbox Content API.
 
 ### Frontend
@@ -124,7 +124,7 @@ All original features have been preserved:
 ### Local Development
 1. `npm install`
 2. (Optional) Create `.env.local` with `VITE_CALENDAR_SYNC_ENDPOINT=/__update-calendar-diary` and `VITE_CALENDAR_LOAD_ENDPOINT=/__load-calendar-diary` (defaults already point here).
-3. Symlink `data/jay-diary.md` to your Dropbox diary so local saves flow to the shared file.
+3. Symlink `data/timeline.md` to your Dropbox diary so local saves flow to the shared file (or rename your diary accordingly).
 4. `npm run dev` — the middleware handles read/write without any external services.
 5. Use the command palette (“Sync with Server”) to verify round-trips when Dropbox creds are configured.
 

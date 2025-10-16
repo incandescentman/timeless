@@ -2,7 +2,7 @@
 #+date: 2025-10-13
 
 * Overview
-Timeless is an infinite scroll calendar application built with React. It provides seamless navigation through weeks, months, and years with persistent note-taking capabilities. The calendar stores data locally and, when configured, syncs to a Dropbox-backed Markdown diary (`jay-diary.md`) so every device shares the same human-readable log.
+Timeless is an infinite scroll calendar application built with React. It provides seamless navigation through weeks, months, and years with persistent note-taking capabilities. The calendar stores data locally and, when configured, syncs to a Dropbox-backed Markdown diary (`timeline.md`, renamed from `jay-diary.md`) so every device shares the same human-readable log.
 
 * Prerequisites
 - Node.js 18+ (LTS recommended)
@@ -30,7 +30,7 @@ Timeless is an infinite scroll calendar application built with React. It provide
    #+END_SRC
 
 * Access Modes
-- **Local Development**: Run =npm run dev= for full editing capabilities with hot reload. Vite serves on port 5173 by default. The dev server exposes =/__load-calendar-diary= and =/__update-calendar-diary= so saves go straight into `data/jay-diary.md` (symlinked to Dropbox).
+- **Local Development**: Run =npm run dev= for full editing capabilities with hot reload. Vite serves on port 5173 by default. The dev server exposes =/__load-calendar-diary= and =/__update-calendar-diary= so saves go straight into `data/timeline.md` (symlinked to Dropbox).
 - **Production Preview**: Run =npm run build && npm run preview= to test the production bundle locally.
 - **Vercel Deployment**: Deploy with the Dropbox env vars configured; `/api/calendar` now reads/writes the Markdown diary via Dropbox’s content API.
 - **Offline Mode**: Calendar works entirely offline using LocalStorage. Server sync is optional and only needed for cross-device sharing/backups.
@@ -61,7 +61,7 @@ Timeless is an infinite scroll calendar application built with React. It provide
 - **LocalStorage**: Primary storage, works offline
 - **JSON Export/Import**: Full backup and restore capability
 - **Markdown Export**: Export notes as diary format
-- **Dropbox Sync**: Optional sync that persists the diary to Dropbox (`jay-diary.md`) via `/api/calendar`
+- **Dropbox Sync**: Optional sync that persists the diary to Dropbox (`timeline.md`) via `/api/calendar`
 
 * Layout & Responsive Design
 
@@ -119,8 +119,8 @@ DROPBOX_REFRESH_TOKEN=...
 # Optional: direct access token for local testing (bypasses refresh flow)
 # DROPBOX_ACCESS_TOKEN=...
 
-# Custom diary path if you don’t use the default (/Apps/Timeless/calendar/jay-diary.md)
-# DROPBOX_CALENDAR_PATH=/Apps/Timeless/calendar/jay-diary.md
+# Custom diary path if you don’t use the default (/Apps/Timeless/calendar/timeline.md)
+# DROPBOX_CALENDAR_PATH=/Apps/Timeless/calendar/timeline.md
 #+END_SRC
 
 Deployed environments should also expose =VITE_CALENDAR_SYNC_ENDPOINT=/VITE_CALENDAR_LOAD_ENDPOINT= pointing at =/api/calendar=.
@@ -160,7 +160,7 @@ Deployed environments should also expose =VITE_CALENDAR_SYNC_ENDPOINT=/VITE_CALE
 
 ** Export/Import
 - JSON backup includes all notes and metadata
-- Markdown export downloads `jay-diary.md` with year/month headings and indented daily bullets
+- Markdown export downloads `timeline.md` with year/month headings and indented daily bullets
 - Import validates and merges with existing data
 
 * Experimental Mode

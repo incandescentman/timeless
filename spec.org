@@ -89,7 +89,7 @@ I grouped requirements by domain and kept the wording imperative so you can copy
 - downloadLocalStorageData() - Shift B key or palette.
 - loadDataFromFile() via hidden file input + palette "Import calendar data".
 - Markdown diary export (Shift D)
-- Groups by # Year, * Month Year, then dates & bullet points; downloads jay-diary.md and copies to clipboard.
+- Groups by # Year, * Month Year, then dates & bullet points; downloads timeline.md and copies to clipboard.
 
 
 

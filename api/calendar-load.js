@@ -6,7 +6,7 @@ import {
   DROPBOX_DOWNLOAD_URL
 } from '../lib/dropbox.js';
 
-const DROPBOX_CALENDAR_PATH = process.env.DROPBOX_CALENDAR_PATH || '/Apps/Timeless/calendar/jay-diary.md';
+const DROPBOX_CALENDAR_PATH = process.env.DROPBOX_CALENDAR_PATH || '/Apps/Timeless/calendar/timeline.md';
 
 function sendJson(res, status, body) {
   res.status(status);
