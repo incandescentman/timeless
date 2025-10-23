@@ -14,6 +14,8 @@ const CalendarContext = createContext();
 
 const MAX_UNDO = 5;
 const REMOTE_SYNC_INTERVAL_MS = 60 * 1000;
+const MOBILE_REFOCUS_THRESHOLD_MS = 5 * 60 * 1000;
+const MOBILE_VIEWPORT_MAX_WIDTH = 768;
 
 export function CalendarProvider({ children }) {
   // Core calendar state
@@ -143,6 +145,8 @@ export function CalendarProvider({ children }) {
   const initialisedRef = useRef(false);
   const calendarDataRef = useRef(calendarData);
   const lastVisibilitySyncRef = useRef(0);
+  const lastHiddenTimestampRef = useRef(Date.now());
+  const lastMobileRefocusScrollRef = useRef(0);
 
   useEffect(() => {
     calendarDataRef.current = calendarData;
@@ -523,6 +527,40 @@ export function CalendarProvider({ children }) {
       return undefined;
     }
 
+    const isMobileViewport = () => {
+      if (typeof window.matchMedia === 'function') {
+        return window.matchMedia(`(max-width: ${MOBILE_VIEWPORT_MAX_WIDTH}px)`).matches;
+      }
+      return window.innerWidth <= MOBILE_VIEWPORT_MAX_WIDTH;
+    };
+
+    const maybeScrollToTodayOnReturn = () => {
+      if (!isMobileViewport()) {
+        return;
+      }
+
+      const now = Date.now();
+      const timeAway = now - lastHiddenTimestampRef.current;
+      if (timeAway < MOBILE_REFOCUS_THRESHOLD_MS) {
+        return;
+      }
+
+      if (now - lastMobileRefocusScrollRef.current < 1000) {
+        return;
+      }
+
+      const handled = scrollToToday({
+        behavior: 'auto',
+        align: 'center',
+        maxAttempts: 240
+      });
+
+      if (handled) {
+        lastMobileRefocusScrollRef.current = now;
+        lastHiddenTimestampRef.current = now;
+      }
+    };
+
     const triggerSync = () => {
       const now = Date.now();
       if (now - lastVisibilitySyncRef.current < 5000) {
@@ -534,11 +572,15 @@ export function CalendarProvider({ children }) {
 
     const handleFocus = () => {
       triggerSync();
+      maybeScrollToTodayOnReturn();
     };
 
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         triggerSync();
+        maybeScrollToTodayOnReturn();
+      } else if (document.visibilityState === 'hidden') {
+        lastHiddenTimestampRef.current = Date.now();
       }
     };
 
@@ -549,7 +591,7 @@ export function CalendarProvider({ children }) {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [performServerSync]);
+  }, [performServerSync, scrollToToday]);
 
   const value = {
     // Data

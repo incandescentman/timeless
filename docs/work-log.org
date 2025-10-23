@@ -1617,3 +1617,15 @@ Energy Level: Focused
 Next Step: Run the latest build on physical iOS/Android hardware to confirm the footer alignment feels natural and the denser event stack stays legible.
 Handoff: Capture real-device screenshots plus tactile feedback on footer reachability and event readability; adjust spacing again if thumbs still feel cramped.
 Handoff: Validate the latest footer button offset and event padding on physical devices, gather feedback, and note any follow-up spacing tweaks before the next session.
+
+** Session: Mobile refocus to Today
+Time: Late evening
+Task: Snap returning mobile sessions back to the current day after idle stretches
+
+Accomplished:
+- Added a mobile-only refocus guard in `CalendarContext` that tracks when the tab was hidden and auto-scrolls to today after 5+ minutes away.
+- Reused the existing scroll helper so the virtualization layer stays in sync and preserves today’s styling invariants.
+- Left desktop behaviour unchanged to avoid jarring jumps when returning on larger screens.
+
+Energy Level: Steady
+Next Step: QA on physical iOS/Android devices: background the app for 5+ minutes, reopen, confirm it recenters on today without breaking footer navigation.
