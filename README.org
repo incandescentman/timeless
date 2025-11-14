@@ -5,7 +5,7 @@
 Welcome to *Timeless*, an infinitely scrolling calendar designed to help you visualize time continuously as you plan your life.
 
 Here it is in action:
-[[https://incandescentman.github.io/timeless/][Timeless: The Infinitely Scrolling Calendar 🎡🕰️]]
+[[https://timeless-calendar.vercel.app/][Timeless: The Infinitely Scrolling Calendar 🎡🕰️]]
 
 #+ATTR_HTML: :width 300px
 [[file:docs/assets/_img/unreliablenarrator_infinite_future._macos_application_icon_dc535484-c32d-4ba0-a99f-b920d9e44f2b.png]]
