@@ -11,14 +11,14 @@ Here it is in action:
 [[file:docs/assets/_img/unreliablenarrator_infinite_future._macos_application_icon_dc535484-c32d-4ba0-a99f-b920d9e44f2b.png]]
 
 ** Summary:
-- A web-based, infinitely scrolling calendar that lets you add notes to any day. New weeks generate dynamically as you scroll, expanding endlessly in both directions. 🔄📖
-- All data is stored client-side using ~localStorage~, ensuring complete privacy. 🔐📝
+- A web-based, infinitely scrolling calendar built with React and TypeScript that lets you add notes to any day. Desktop and mobile views use virtualization for smooth performance across thousands of days. 🔄📖
+- Data persists immediately to ~localStorage~ and syncs in the background to your Dropbox account via ~timeline.md~, ensuring privacy and cross-device access. 🔐📝
 - To add a note, just click a day and start typing. Pressing Enter saves it; deleting the text removes it. ✍️🚀
 - The current date is always highlighted, and the calendar auto-scrolls to today upon loading. A calendar button lets you return to today instantly. 📍🎯
 - Month names and years appear in the blank space after each month, making navigation intuitive even when scrolling far ahead or back. 🗓️🔍
-- Export and import calendar data via JSON files, making backups simple. 💾📂
-- Sync across devices by saving your calendar data to a shared drive (iCloud, Dropbox, Google Drive).
-   + The sync button compares timestamps, ensuring newer data is preserved. 🔄🌐
+- Export your calendar as a Markdown diary (~Cmd/Ctrl+E~) or JSON backup. Import from JSON to restore or migrate data. 💾📂
+- Background sync with Dropbox compares timestamps and preserves the newest changes, keeping your timeline consistent across devices.
+   + Health checks available via ~npm run health~ to verify sync integrity. 🔄🌐
 
 This project is an appreciative fork of [[https://madebyevan.com/calendar/][Continuous Calendar]] by Evan Wallace, with additional functionality I've added.
 
@@ -198,23 +198,17 @@ What You've Enhanced & Suggestions for Further Improvements
 - The new keyboard navigation mode---toggled via the "i" key, with "q" (or Escape) to exit---provides a clear, dedicated mode for day-by-day navigation.
 - The visual indication (via a body outline) and toast messages make the mode change clear to users.
 
-Below is an example README section describing the new "Download Org-Mode Events" feature, along with an update to the help information:
+** Export as Markdown Diary
 
-Download Org-Mode Events
+The Markdown Diary export (~Cmd/Ctrl+E~) lets you export your entire timeline as a human-readable Markdown file named ~timeline.md~:
 
-The new Download Org-Mode Events feature allows you to quickly export your upcoming events in a format that is compatible with Emacs Org-mode. When you click the download button, the calendar will scan for events starting from today through the next month and generate a plain text file named timeless-calendar-events.org. The export will include only those dates that have entries, and each date is formatted in the standard Org-mode timestamp style.
+- *One-Click Export:* Press ~Cmd+E~ (Mac) or ~Ctrl+E~ (Windows/Linux) to download your complete timeline
+- *Clipboard Copy:* The export automatically copies to your clipboard for easy pasting
+- *Chronological Format:* Events are organized by date in descending order (newest first)
+- *Clean Markdown:* Each date appears as a heading with events listed below
+- *Dropbox Integration:* The same ~timeline.md~ format is used for background syncing to Dropbox
 
-Note: Dates with no events are omitted from the export.
-
-Additionally, when you download the events the output is automatically copied to the MacOS clipboard for easy pasting into your Org-mode files.
-
-How It Works
- - Button: A new button with a download icon (an SVG icon is provided) is added to the header.
- - Function: Clicking the button triggers the downloadOrgEvents() function, which gathers the event data, formats it according to the Org-mode structure described above, and then:
- - Saves the output to a file named timeless-calendar-events.org.
- - Copies the output text to your MacOS clipboard.
-
-By including this functionality, you can easily integrate your calendar events into your Org-mode workflow for better planning and task management.
+The Markdown export provides a portable, version-control-friendly backup of your entire timeline that can be read in any text editor or imported back into Timeless.
 
 * Recent Updates (October 2025)
 
@@ -250,7 +244,7 @@ By including this functionality, you can easily integrate your calendar events i
 
 * Getting Started
 ** Non-expert users
-Simply visit: [[https://incandescentman.github.io/timeless/][Timeless: The Infinitely Scrolling Calendar 🌏🚀]]
+Simply visit: [[https://timeless-calendar.vercel.app/][Timeless: The Infinitely Scrolling Calendar 🌏🚀]]
 
 Start adding events immediately!
 
@@ -273,10 +267,29 @@ npm run preview
 * Technical Details
 
 ** Tech Stack
-- *React 18* with hooks
-- *Vite* for build tooling
+
+*** Frontend
+- *React 18* with hooks and TypeScript for type safety
+- *Vite* for build tooling and hot module replacement
 - *CSS3* with CSS variables for theming
-- *LocalStorage* for data persistence
+- *date-fns* for date manipulation
+- *@tabler/icons-react* for consistent iconography
+- *kbar* for command palette
+- *react-hot-toast* for notifications
+
+*** Backend & Sync
+- *Vercel Serverless Functions* for API endpoints
+- *Dropbox API* for cloud storage and cross-device sync
+  - ~/api/calendar-load.js~ - Downloads and parses ~timeline.md~ from Dropbox
+  - ~/api/calendar-save.js~ - Uploads calendar data to Dropbox
+  - ~/api/calendar.js~ - Unified GET/POST handler
+- *Timestamp reconciliation* - Compares local vs. server timestamps to preserve newest data
+- *Health checks* - ~npm run health~ validates sync integrity
+
+*** Performance
+- *Virtualization* - Desktop and mobile views render only visible date ranges for smooth scrolling across thousands of days
+- *LocalStorage* - Immediate persistence with background Dropbox sync
+- Different virtualization strategies: desktop renders week-by-week, mobile renders day-by-day for optimal touch interaction
 
 ** Layout Specifications
 
@@ -327,13 +340,40 @@ npm run preview
 
 * Data Storage
 
-Calendar data is stored in browser LocalStorage with automatic saving. Data can be:
-- Exported as JSON backup
-- Exported as Markdown diary
-- Imported from JSON backup files
+Timeless uses a dual-layer persistence model combining immediate local storage with background cloud sync:
+
+** Local Persistence
+- *LocalStorage:* All changes persist immediately to browser ~localStorage~ for instant availability
+- *Normalized format:* Events stored as JSON arrays keyed by date (~YYYY_MM_DD~)
+- *Legacy cleanup:* Old ~itemN~ token references and ISO-format keys are automatically migrated
+
+** Cloud Sync (Dropbox)
+- *Background sync:* Changes sync to ~/Apps/Timeless/calendar/timeline.md~ in your Dropbox
+- *Timestamp reconciliation:* On load, compares ~lastSavedTimestamp~ between local and server, preserves newest data
+- *Markdown format:* Uses human-readable Markdown for version control and easy inspection
+- *Conflict resolution:* Server timestamps (~server_modified~) and embedded ~lastSavedTimestamp~ ensure consistency
+
+** Export & Import
+- *Markdown diary:* Press ~Cmd/Ctrl+E~ to export as ~timeline.md~ (same format as Dropbox sync)
+- *JSON backup:* Export complete calendar as JSON for manual backups
+- *Import from JSON:* Restore or migrate data from JSON backup files
+- *Health checks:* Run ~npm run health~ to validate sync integrity and detect timestamp mismatches
 
 * Customization
-Modify the CSS in ~css/style.css~ to match your aesthetic, or tweak functionality in ~js/calendar.js~ to suit your needs. 🎨🔧
+
+The React/Vite architecture makes customization straightforward:
+
+** Visual Styling
+- *Theme variables:* Edit ~src/styles/index.css~ to adjust colors, spacing, and typography via CSS custom properties
+- *Component styles:* Individual component styles live alongside their React components in ~src/components/~
+- *Dark mode:* Theme switching logic in ~src/App.tsx~ toggles between light/dark CSS variable sets
+
+** Functionality
+- *Main app:* ~src/App.tsx~ - Core application logic, state management, and event handling
+- *Calendar components:* ~src/components/Calendar.tsx~, ~DayCell.tsx~, ~EventCard.tsx~, etc.
+- *Date utilities:* ~src/utils/dateUtils.ts~ - Date manipulation and formatting helpers
+- *Storage layer:* ~src/utils/storage.js~ - LocalStorage and Dropbox sync logic
+- *Type definitions:* ~src/types/index.ts~ - TypeScript interfaces for events and calendar data 🎨🔧
 
 * Contributing
 All contributions welcome---I need all the help I can get. Fork the repo, make your changes, and submit a pull request. I look forward to seeing what you come up with! 🚀💡
