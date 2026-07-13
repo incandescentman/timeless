@@ -754,13 +754,13 @@ Frequency: Low - Usually only happens with date manipulation
      - At top: `rect.top >= 0 && rect.top < 100`
 
 ** Quick Reference: Position Properties
-   | Property | Measures From | Changes on Scroll | Use Case |
-   |----------|--------------|--------------------|----------|
-   | offsetTop | Document top | No | Total distance from page top |
-   | getBoundingClientRect().top | Viewport top | Yes | Is element visible? |
-   | scrollY | Document top | Yes | Current scroll position |
-   | clientY (events) | Viewport top | No | Mouse/touch position |
-   | pageY (events) | Document top | No | Mouse/touch absolute position |
+   | Property                    | Measures From | Changes on Scroll | Use Case                      |
+   |-----------------------------+---------------+-------------------+-------------------------------|
+   | offsetTop                   | Document top  | No                | Total distance from page top  |
+   | getBoundingClientRect().top | Viewport top  | Yes               | Is element visible?           |
+   | scrollY                     | Document top  | Yes               | Current scroll position       |
+   | clientY (events)            | Viewport top  | No                | Mouse/touch position          |
+   | pageY (events)              | Document top  | No                | Mouse/touch absolute position |
 
 ** The Pattern: Finding Currently Visible Element
    #+begin_src javascript
