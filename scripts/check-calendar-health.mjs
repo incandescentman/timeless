@@ -106,10 +106,21 @@ async function main() {
     console.warn('Warning: Missing or invalid lastSavedTimestamp in response.');
   }
 
+  if (typeof payload?.serverFileExists !== 'boolean') {
+    console.error('Calendar endpoint did not return serverFileExists revision metadata.');
+    exit(1);
+  }
+
+  if (payload.serverFileExists && (typeof payload.serverRevision !== 'string' || !payload.serverRevision)) {
+    console.error('Calendar endpoint reported an existing file without serverRevision.');
+    exit(1);
+  }
+
   const eventKeys = Object.keys(payload || {}).filter(key => /^\d+_\d+_\d+$/.test(key));
   console.log('Calendar load healthy ✅');
   console.log(`HTTP status: ${response.status}`);
   console.log(`lastSavedTimestamp: ${rawTimestamp ?? 'n/a'}`);
+  console.log(`serverRevision: ${payload.serverRevision ?? 'file absent'}`);
   console.log(`Total days with events: ${eventKeys.length}`);
 }
 

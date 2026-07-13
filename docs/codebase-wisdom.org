@@ -1144,3 +1144,26 @@ Frequency: Low - Usually only happens with date manipulation
      }
    }
    #+end_src
+
+* Vite Dev Middleware Must Be Registered as a Plugin Hook
+
+** Trigger
+The documented ~/__load-calendar-diary~ endpoint returned ~index.html~ instead of JSON even though ~registerCalendarDiaryMiddleware~ existed in [[file+emacs:/Users/jay/Dropbox/github/timeless/vite.config.js][vite.config.js]].
+
+** Mechanism
+~configureServer~ is a Vite plugin hook, not a property of the top-level ~server~ options object. Putting it under ~server.configureServer~ leaves the function present in source but never registers it, so Vite’s SPA fallback handles the request and returns the app HTML.
+
+** Actionable Insight
+Wrap custom dev middleware in a plugin object and put it in ~plugins~:
+#+begin_src javascript
+function calendarDiaryPlugin() {
+  return {
+    name: 'timeless-calendar-diary',
+    configureServer(server) {
+      registerCalendarDiaryMiddleware(server);
+    }
+  };
+}
+#+end_src
+
+After changing this hook, verify the endpoint itself with ~curl~ and confirm its content type/body; a successful Vite page load does not prove custom middleware is registered.

@@ -29,6 +29,12 @@
   text-align: center;
 }
 
+.toast__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
 .toast__action {
   flex-shrink: 0;
   background: transparent;

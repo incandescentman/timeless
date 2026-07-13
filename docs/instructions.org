@@ -1,8 +1,8 @@
 #+title: Timeless Calendar — Instructions
-#+date: 2025-10-13
+#+date: 2026-07-13
 
 * Overview
-Timeless is an infinite scroll calendar application built with React. It provides seamless navigation through weeks, months, and years with persistent note-taking capabilities. The calendar stores data locally and, when configured, syncs to a Dropbox-backed Markdown diary (`timeline.md`, renamed from `jay-diary.md`) so every device shares the same human-readable log.
+Timeless is an infinite scroll calendar application built with React. It provides seamless navigation through weeks, months, and years with persistent note-taking capabilities. The calendar stores data locally and, when configured, syncs to the Dropbox-backed [[file+emacs:/Users/jay/Dropbox/github/timeless/data/timeline.md][timeline.md]] diary so every device shares the same human-readable log.
 
 * Prerequisites
 - Node.js 18+ (LTS recommended)
@@ -11,7 +11,7 @@ Timeless is an infinite scroll calendar application built with React. It provide
 * Install & Run
 1. Navigate to the project directory:
    #+BEGIN_SRC bash
-   cd /Users/jay/Library/CloudStorage/Dropbox/github/timeless
+   cd /Users/jay/Dropbox/github/timeless
    #+END_SRC
 
 2. Install dependencies:
@@ -30,7 +30,7 @@ Timeless is an infinite scroll calendar application built with React. It provide
    #+END_SRC
 
 * Access Modes
-- **Local Development**: Run =npm run dev= for full editing capabilities with hot reload. Vite serves on port 5173 by default. The dev server exposes =/__load-calendar-diary= and =/__update-calendar-diary= so saves go straight into `data/timeline.md` (symlinked to Dropbox).
+- **Local Development**: Run =npm run dev= for full editing capabilities with hot reload. This project configures Vite on port 5000. The dev server exposes =/__load-calendar-diary= and =/__update-calendar-diary= so saves go straight into the regular Dropbox-synced file at [[file+emacs:/Users/jay/Dropbox/github/timeless/data/timeline.md][data/timeline.md]].
 - **Production Preview**: Run =npm run build && npm run preview= to test the production bundle locally.
 - **Vercel Deployment**: Deploy with the Dropbox env vars configured; `/api/calendar` now reads/writes the Markdown diary via Dropbox’s content API.
 - **Offline Mode**: Calendar works entirely offline using LocalStorage. Server sync is optional and only needed for cross-device sharing/backups.
@@ -152,9 +152,11 @@ Deployed environments should also expose =VITE_CALENDAR_SYNC_ENDPOINT=/VITE_CALE
 - Works completely offline
 
 ** Dropbox Sync (Optional)
-- `/api/calendar` saves accept JSON payloads, convert to Markdown, and overwrite the Dropbox diary
-- Timestamp metadata (`<!-- lastSavedTimestamp: … -->`) prevents conflicts across devices
-- Dev middleware mimics this flow locally so you can work offline without Dropbox credentials
+- ~/api/calendar~ saves accept JSON payloads, convert them to Markdown, and conditionally update the Dropbox diary only when the client’s ~baseRevision~ still matches Dropbox’s current revision.
+- Each successful load returns ~serverRevision~ and ~serverFileExists~. Each save sends that baseline back; a stale revision returns HTTP 409 instead of overwriting newer Dropbox content.
+- The browser records whether it has unsynced local edits. If Dropbox and the browser both changed, Timeless preserves the browser copy and offers explicit ~Use Dropbox~ and ~Keep Browser~ choices.
+- ~lastSavedTimestamp~ and Dropbox’s ~server_modified~ time remain available for display and diagnostics. A browser created before revision tracking adopts the Dropbox revision only when the calendar content matches; divergent copies become an explicit conflict rather than trusting device clocks.
+- Dev middleware uses a content hash as its local revision and replaces [[file+emacs:/Users/jay/Dropbox/github/timeless/data/timeline.md][data/timeline.md]] through a temporary file after a second revision check.
 - Falls back to LocalStorage if the API call fails; you can still export/import manually
 - Health check: `npm run health` pings `/api/calendar-load` (use `--endpoint` to target staging) so you can spot token expiry before it reaches users
 
@@ -205,6 +207,7 @@ This convention marks the event's opening and closing dates without cluttering e
 - **Keyboard shortcuts not working**: Check for input focus conflicts
 - **Mini calendar missing**: Mobile viewport detected, working as intended
 - **Server sync failing**: Confirm Dropbox credentials, ensure =DROPBOX_CALENDAR_PATH= is correct, and inspect `/api/calendar` logs
+- **Sync conflict**: Both copies changed after the browser’s last successful sync. Use the toast or command palette to choose ~Use Dropbox~ or ~Keep Browser~; Timeless never resolves this by silently overwriting one copy.
 
 ** Development Debug
 - Use React DevTools for component inspection
@@ -221,8 +224,7 @@ This convention marks the event's opening and closing dates without cluttering e
 - Theme switching via CSS custom properties
 
 * Related Documentation
-- [[file:../README.md][README.md]] - Feature overview and recent updates
-- [[file:../project-overview.org][project-overview.org]] - Technical architecture summary  
-- [[file:design-architecture.org][docs/design-architecture.org]] - Detailed component architecture
-- [[file:codebase-wisdom.org][docs/codebase-wisdom.org]] - Development patterns and decisions
-- [[file:experimental-mode-plan.org][docs/experimental-mode-plan.org]] - Future feature variants
+- [[file+emacs:/Users/jay/Dropbox/github/timeless/README.org][README.org]] - Feature overview and recent updates
+- [[file+emacs:/Users/jay/Dropbox/github/timeless/docs/design-architecture.org][docs/design-architecture.org]] - Detailed component architecture
+- [[file+emacs:/Users/jay/Dropbox/github/timeless/docs/codebase-wisdom.org][docs/codebase-wisdom.org]] - Development patterns and decisions
+- [[file+emacs:/Users/jay/Dropbox/github/timeless/docs/experimental-mode-plan.org][docs/experimental-mode-plan.org]] - Future feature variants

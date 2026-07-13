@@ -257,14 +257,18 @@ Validation:
 5. State update triggers re-render
 6. Calendar.tsx re-renders → EventCard displays new event
 
-** Local Storage (Future)
+** Local Storage and Revision-Guarded Dropbox Sync
 
-Events will be persisted to localStorage for durability.
+Calendar events are persisted immediately to browser ~localStorage~ as arrays keyed by ~M_D_YYYY~ date IDs. The browser also stores the last successfully synchronized Dropbox revision and a durable unsynced-changes flag.
 
-Key: "timeless-events"
-Format: JSON.stringify(events)
+The background sync contract is optimistic concurrency control:
+1. ~/api/calendar-load~ returns the parsed diary plus ~serverRevision~ and ~serverFileExists~.
+2. The browser sends that baseline as ~baseRevision~ and ~baseFileExists~ with its next save.
+3. ~/api/calendar-save~ uses Dropbox ~update~ mode with ~strict_conflict~ enabled. Dropbox accepts the write only if the revision still matches.
+4. A mismatch returns HTTP 409. Timeless keeps the browser’s local edits and requires an explicit choice between the Dropbox copy and the browser copy.
+5. Successful saves return the new Dropbox revision, which becomes the next baseline.
 
-Load on mount, save on every mutation.
+Server operations are serialized in ~CalendarContext~ so rapid edits cannot race two writes against the same revision. The local Vite middleware mirrors the contract with a SHA-256 content revision and a temporary-file replacement.
 
 * State Management Approach
 

@@ -17,7 +17,7 @@ Here it is in action:
 - The current date is always highlighted, and the calendar auto-scrolls to today upon loading. A calendar button lets you return to today instantly. 📍🎯
 - Month names and years appear in the blank space after each month, making navigation intuitive even when scrolling far ahead or back. 🗓️🔍
 - Export your calendar as a Markdown diary (~Cmd/Ctrl+E~) or JSON backup. Import from JSON to restore or migrate data. 💾📂
-- Background sync with Dropbox compares timestamps and preserves the newest changes, keeping your timeline consistent across devices.
+- Background sync uses Dropbox file revisions: a stale browser cannot overwrite a newer diary, and Timeless asks which copy to keep when both changed.
    + Health checks available via ~npm run health~ to verify sync integrity. 🔄🌐
 
 This project is an appreciative fork of [[https://madebyevan.com/calendar/][Continuous Calendar]] by Evan Wallace, with additional functionality I've added.
@@ -283,7 +283,7 @@ npm run preview
   - ~/api/calendar-load.js~ - Downloads and parses ~timeline.md~ from Dropbox
   - ~/api/calendar-save.js~ - Uploads calendar data to Dropbox
   - ~/api/calendar.js~ - Unified GET/POST handler
-- *Timestamp reconciliation* - Compares local vs. server timestamps to preserve newest data
+- *Revision-guarded writes* - Saves update only the exact Dropbox revision the browser last synchronized; stale writes return HTTP 409
 - *Health checks* - ~npm run health~ validates sync integrity
 
 *** Performance
@@ -348,16 +348,16 @@ Timeless uses a dual-layer persistence model combining immediate local storage w
 - *Legacy cleanup:* Old ~itemN~ token references and ISO-format keys are automatically migrated
 
 ** Cloud Sync (Dropbox)
-- *Background sync:* Changes sync to ~/Apps/Timeless/calendar/timeline.md~ in your Dropbox
-- *Timestamp reconciliation:* On load, compares ~lastSavedTimestamp~ between local and server, preserves newest data
+- *Background sync:* Changes sync to the configured Dropbox diary path; production uses ~/github/timeless/data/timeline.md~
+- *Revision baseline:* Each load records Dropbox’s current file revision, and each save must match it
 - *Markdown format:* Uses human-readable Markdown for version control and easy inspection
-- *Conflict resolution:* Server timestamps (~server_modified~) and embedded ~lastSavedTimestamp~ ensure consistency
+- *Conflict resolution:* A revision mismatch preserves browser edits and offers explicit ~Use Dropbox~ and ~Keep Browser~ choices; timestamps are retained for display and diagnostics, not as a lock
 
 ** Export & Import
 - *Markdown diary:* Press ~Cmd/Ctrl+E~ to export as ~timeline.md~ (same format as Dropbox sync)
 - *JSON backup:* Export complete calendar as JSON for manual backups
 - *Import from JSON:* Restore or migrate data from JSON backup files
-- *Health checks:* Run ~npm run health~ to validate sync integrity and detect timestamp mismatches
+- *Health checks:* Run ~npm run health~ to validate the production load endpoint, Dropbox credentials, timestamp, and populated-date count
 
 * Customization
 

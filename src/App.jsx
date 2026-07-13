@@ -1,11 +1,11 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { KBarProvider, useKBar } from 'kbar';
 import { useExperimentalMode } from '@jaydixit/experimental-mode/react';
 import { CalendarProvider, useCalendar } from './contexts/CalendarContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { CommandFeedbackProvider } from './contexts/CommandFeedbackContext';
 import { KeystrokeFeedbackProvider } from './contexts/KeystrokeFeedbackContext';
-import { ToastProvider } from './contexts/ToastContext';
+import { ToastProvider, useToast } from './contexts/ToastContext';
 import Calendar from './components/Calendar';
 import MobileHeader from './components/MobileHeader';
 import MobileFooter from './components/MobileFooter';
@@ -24,6 +24,8 @@ function AppContent({ experimentalMode }) {
   const [showHelp, setShowHelp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toggleDarkMode } = useTheme();
+  const { showToast } = useToast();
+  const conflictToastKeyRef = useRef(null);
   const {
     scrollToDate,
     scrollToToday,
@@ -32,8 +34,61 @@ function AppContent({ experimentalMode }) {
     canUndo,
     canRedo,
     syncWithServer,
-    isSyncingWithServer
+    isSyncingWithServer,
+    syncConflict,
+    resolveSyncConflict
   } = useCalendar();
+
+  const useDropboxCopy = useCallback(() => {
+    const confirmed = window.confirm(
+      'Use the Dropbox copy? This replaces unsynced calendar changes in this browser.'
+    );
+    if (!confirmed) return false;
+    conflictToastKeyRef.current = null;
+    resolveSyncConflict('server').catch(() => {});
+    return true;
+  }, [resolveSyncConflict]);
+
+  const keepBrowserCopy = useCallback(() => {
+    const confirmed = window.confirm(
+      'Keep this browser copy? This replaces the current Dropbox calendar.'
+    );
+    if (!confirmed) return false;
+    conflictToastKeyRef.current = null;
+    resolveSyncConflict('local').catch(() => {});
+    return true;
+  }, [resolveSyncConflict]);
+
+  useEffect(() => {
+    if (!syncConflict) {
+      conflictToastKeyRef.current = null;
+      return;
+    }
+
+    const syncState = syncConflict.serverSyncState;
+    const toastKey = syncState
+      ? `${syncState.fileExists}:${syncState.revision || 'missing'}`
+      : 'unavailable';
+    if (conflictToastKeyRef.current === toastKey) return;
+
+    conflictToastKeyRef.current = toastKey;
+    showToast(
+      'Sync conflict: Dropbox and this browser both changed. Your browser edits are safe.',
+      {
+        duration: 30000,
+        actions: [
+          {
+            label: 'Use Dropbox',
+            onClick: useDropboxCopy
+          },
+          {
+            label: 'Keep Browser',
+            onClick: keepBrowserCopy
+          }
+        ]
+      }
+    );
+  }, [keepBrowserCopy, showToast, syncConflict, useDropboxCopy]);
 
   const goToToday = useCallback(() => {
     scrollToToday({ behavior: 'smooth', align: 'center' });
@@ -171,6 +226,25 @@ function AppContent({ experimentalMode }) {
     }
   ];
 
+    if (syncConflict) {
+      baseActions.push(
+        {
+          id: 'resolve-sync-use-dropbox',
+          name: 'Resolve Sync: Use Dropbox Copy',
+          section: 'Data',
+          subtitle: 'Replace unsynced browser changes with the current Dropbox calendar',
+          perform: useDropboxCopy
+        },
+        {
+          id: 'resolve-sync-keep-browser',
+          name: 'Resolve Sync: Keep This Browser Copy',
+          section: 'Data',
+          subtitle: 'Replace Dropbox with this browser’s current calendar',
+          perform: keepBrowserCopy
+        }
+      );
+    }
+
     // Add experimental mode actions if experimental mode is enabled
     if (experimentalMode && experimentalMode.enabled) {
       const variantActions = experimentalMode.variants.map(variant => ({
@@ -202,6 +276,9 @@ function AppContent({ experimentalMode }) {
     undo,
     syncWithServer,
     isSyncingWithServer,
+    syncConflict,
+    useDropboxCopy,
+    keepBrowserCopy,
     experimentalMode
   ]);
 
@@ -285,15 +362,15 @@ function App() {
 
   return (
     <ThemeProvider>
-      <CalendarProvider>
-        <CommandFeedbackProvider>
-          <KeystrokeFeedbackProvider>
-            <ToastProvider>
+      <ToastProvider>
+        <CalendarProvider>
+          <CommandFeedbackProvider>
+            <KeystrokeFeedbackProvider>
               <AppContent experimentalMode={experimentalMode} />
-            </ToastProvider>
-          </KeystrokeFeedbackProvider>
-        </CommandFeedbackProvider>
-      </CalendarProvider>
+            </KeystrokeFeedbackProvider>
+          </CommandFeedbackProvider>
+        </CalendarProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

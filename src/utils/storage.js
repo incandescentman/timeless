@@ -9,6 +9,9 @@ import { formatCalendarAsMarkdown } from './calendarDiary';
 const DATE_KEY_REGEX = /^\d+_\d+_\d+$/;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const ITEM_KEY_REGEX = /^item\d+$/;
+const SERVER_REVISION_KEY = 'calendarServerRevision';
+const SERVER_FILE_EXISTS_KEY = 'calendarServerFileExists';
+const UNSYNCED_CHANGES_KEY = 'calendarHasUnsyncedChanges';
 
 const rawApiBase = import.meta.env.VITE_API_BASE_URL || '';
 const trimmedBase = rawApiBase.replace(/\/$/, '');
@@ -208,11 +211,68 @@ export function getLocalTimestamp() {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function createServerPayload(calendarData, timestamp) {
+function createServerPayload(calendarData, timestamp, serverSyncState) {
   return {
     ...calendarData,
-    lastSavedTimestamp: timestamp
+    lastSavedTimestamp: timestamp,
+    baseRevision: serverSyncState.revision,
+    baseFileExists: serverSyncState.fileExists
   };
+}
+
+export class CalendarSyncError extends Error {
+  constructor(message, { status = 0, code = 'sync_error', detail = null } = {}) {
+    super(message);
+    this.name = 'CalendarSyncError';
+    this.status = status;
+    this.code = code;
+    this.detail = detail;
+  }
+}
+
+export function isCalendarSyncConflict(error) {
+  return error instanceof CalendarSyncError && error.code === 'revision_conflict';
+}
+
+export function getServerSyncState() {
+  const revision = localStorage.getItem(SERVER_REVISION_KEY);
+  const rawFileExists = localStorage.getItem(SERVER_FILE_EXISTS_KEY);
+
+  return {
+    revision: revision || null,
+    fileExists: rawFileExists === null ? null : rawFileExists === 'true'
+  };
+}
+
+export function saveServerSyncState({ revision, fileExists }) {
+  if (fileExists === null || typeof fileExists === 'undefined') {
+    localStorage.removeItem(SERVER_REVISION_KEY);
+    localStorage.removeItem(SERVER_FILE_EXISTS_KEY);
+    return;
+  }
+
+  localStorage.setItem(SERVER_FILE_EXISTS_KEY, fileExists ? 'true' : 'false');
+  if (fileExists && revision) {
+    localStorage.setItem(SERVER_REVISION_KEY, revision);
+  } else {
+    localStorage.removeItem(SERVER_REVISION_KEY);
+  }
+}
+
+export function hasUnsyncedCalendarChanges() {
+  return localStorage.getItem(UNSYNCED_CHANGES_KEY) === 'true';
+}
+
+export function setUnsyncedCalendarChanges(hasChanges) {
+  if (hasChanges) {
+    localStorage.setItem(UNSYNCED_CHANGES_KEY, 'true');
+  } else {
+    localStorage.removeItem(UNSYNCED_CHANGES_KEY);
+  }
+}
+
+export function calendarDataMatches(left, right) {
+  return formatCalendarAsMarkdown(left || {}, 0) === formatCalendarAsMarkdown(right || {}, 0);
 }
 
 export async function fetchServerCalendar() {
@@ -234,15 +294,39 @@ export async function fetchServerCalendar() {
   const rawData = await response.json();
   const timestamp = parseInt(rawData?.lastSavedTimestamp ?? '0', 10) || 0;
   const calendarData = normaliseCalendarEntries(rawData || {});
+  const serverFileExists = typeof rawData?.serverFileExists === 'boolean'
+    ? rawData.serverFileExists
+    : null;
+  const serverRevision = typeof rawData?.serverRevision === 'string' && rawData.serverRevision
+    ? rawData.serverRevision
+    : null;
 
   return {
     calendarData,
-    lastSavedTimestamp: timestamp
+    lastSavedTimestamp: timestamp,
+    serverSyncState: {
+      revision: serverRevision,
+      fileExists: serverFileExists
+    }
   };
 }
 
-export async function saveCalendarToServer(calendarData, timestamp) {
-  const payload = createServerPayload(calendarData, timestamp);
+export async function saveCalendarToServer(calendarData, timestamp, serverSyncState) {
+  if (!serverSyncState || typeof serverSyncState.fileExists !== 'boolean') {
+    throw new CalendarSyncError(
+      'Calendar must load the current server revision before it can save safely.',
+      { status: 428, code: 'missing_revision' }
+    );
+  }
+
+  if (serverSyncState.fileExists && !serverSyncState.revision) {
+    throw new CalendarSyncError(
+      'The server calendar exists, but its revision is unavailable.',
+      { status: 428, code: 'missing_revision' }
+    );
+  }
+
+  const payload = createServerPayload(calendarData, timestamp, serverSyncState);
 
   const response = await fetch(SYNC_ENDPOINT, {
     method: 'POST',
@@ -253,10 +337,34 @@ export async function saveCalendarToServer(calendarData, timestamp) {
   });
 
   if (!response.ok) {
-    throw new Error(`Server responded with ${response.status}`);
+    let errorPayload = null;
+    try {
+      errorPayload = await response.json();
+    } catch (error) {
+      // Preserve the status even when an upstream proxy returns a non-JSON body.
+    }
+
+    const code = response.status === 409
+      ? 'revision_conflict'
+      : errorPayload?.code || 'sync_error';
+    const message = errorPayload?.message || `Server responded with ${response.status}`;
+    throw new CalendarSyncError(message, {
+      status: response.status,
+      code,
+      detail: errorPayload?.detail || null
+    });
   }
 
-  return response.json();
+  const result = await response.json();
+  return {
+    ...result,
+    serverSyncState: {
+      revision: typeof result?.serverRevision === 'string' && result.serverRevision
+        ? result.serverRevision
+        : null,
+      fileExists: result?.serverFileExists === true
+    }
+  };
 }
 
 /**
@@ -288,6 +396,7 @@ export function importCalendarData(jsonData) {
     });
 
     localStorage.setItem('lastSavedTimestamp', Date.now().toString());
+    setUnsyncedCalendarChanges(true);
     return true;
   } catch (error) {
     console.error('Error importing calendar data:', error);

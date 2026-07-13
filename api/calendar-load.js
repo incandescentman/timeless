@@ -41,26 +41,33 @@ export default async function handler(req, res) {
     }
 
     if (!downloadResponse.ok) {
+      const detail = await downloadResponse.text();
       if (downloadResponse.status === 409) {
-        const detail = await downloadResponse.text();
         if (detail.includes('path/not_found/')) {
-          sendJson(res, 200, { lastSavedTimestamp: Date.now().toString() });
+          sendJson(res, 200, {
+            lastSavedTimestamp: '0',
+            serverRevision: null,
+            serverFileExists: false
+          });
           return;
         }
       }
 
-      const message = await downloadResponse.text();
-      console.error('Dropbox download failed:', message);
-      sendJson(res, downloadResponse.status, { status: 'error', message: 'Dropbox download failed', detail: message });
+      console.error('Dropbox download failed:', detail);
+      sendJson(res, downloadResponse.status, { status: 'error', message: 'Dropbox download failed', detail });
       return;
     }
 
     const metadataHeader = downloadResponse.headers.get('Dropbox-API-Result');
     let metadataTimestamp = 0;
+    let serverRevision = null;
 
     if (metadataHeader) {
       try {
         const metadata = JSON.parse(metadataHeader);
+        if (typeof metadata?.rev === 'string' && metadata.rev) {
+          serverRevision = metadata.rev;
+        }
         const parsed = metadata?.server_modified ? Date.parse(metadata.server_modified) : NaN;
         if (Number.isFinite(parsed)) {
           metadataTimestamp = parsed;
@@ -68,6 +75,15 @@ export default async function handler(req, res) {
       } catch (metadataError) {
         console.warn('Failed to parse Dropbox metadata header', metadataError);
       }
+    }
+
+    if (!serverRevision) {
+      sendJson(res, 502, {
+        status: 'error',
+        code: 'missing_revision',
+        message: 'Dropbox returned the calendar without a file revision. Reload before saving.'
+      });
+      return;
     }
 
     const buffer = await downloadResponse.arrayBuffer();
@@ -81,7 +97,9 @@ export default async function handler(req, res) {
           Number.isFinite(lastSavedTimestamp) ? lastSavedTimestamp : 0,
           metadataTimestamp
         )
-      )
+      ),
+      serverRevision,
+      serverFileExists: true
     });
   } catch (error) {
     console.error('Dropbox calendar load failed:', error);

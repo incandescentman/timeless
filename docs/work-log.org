@@ -1634,3 +1634,11 @@ Next Step: QA on physical iOS/Android devices: background the app for 5+ minutes
 - Added the canonical first-day/last-day convention to [[file+emacs:/Users/jay/Dropbox/github/timeless/docs/instructions.org][docs/instructions.org]].
 - Multi-day events use the full description and complete range on the first day and a ~Last day of [event]~ marker on the final day, with no intervening duplicates and no unsupported Emacs ~%%(diary-block ...)~ entries.
 - Cross-referenced the protocol from [[file+emacs:/Users/jay/emacs/emacs-settings/docs/emacs-calendar-instructions.org][the Emacs Calendar guide]].
+
+* 2026-07-13: Add revision-safe Dropbox synchronization
+- Replaced unconditional Dropbox overwrites with revision-guarded ~update~ writes using the exact revision returned by the last load.
+- Added durable browser tracking for the synchronized revision and unsynced local changes, plus serialized save/sync operations so rapid edits cannot race each other.
+- A stale save now returns HTTP 409, preserves browser edits, and shows explicit ~Use Dropbox~ and ~Keep Browser~ recovery actions in the existing toast and command palette.
+- Mirrored revision checks in local Vite middleware with content hashes and temporary-file replacement.
+- Fixed the pre-existing Vite hook placement that caused the documented diary middleware URLs to fall through to ~index.html~.
+- Added API and browser-storage regression coverage. Verification: 22 Vitest tests passed, the production build passed, a clean headless Chrome session loaded without console errors, and a forced stale-revision smoke test left [[file+emacs:/Users/jay/Dropbox/github/timeless/data/timeline.md][data/timeline.md]] unchanged.

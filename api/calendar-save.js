@@ -54,7 +54,46 @@ export default async function handler(req, res) {
       return;
     }
 
-    const { lastSavedTimestamp: _ignoredLastSavedTimestamp, ...rest } = parsed;
+    const hasBaseRevision = Object.prototype.hasOwnProperty.call(parsed, 'baseRevision');
+    const hasBaseFileExists = Object.prototype.hasOwnProperty.call(parsed, 'baseFileExists');
+    if (!hasBaseRevision || !hasBaseFileExists) {
+      sendJson(res, 428, {
+        status: 'error',
+        code: 'missing_revision',
+        message: 'Load the current calendar revision before saving.'
+      });
+      return;
+    }
+
+    const { baseRevision, baseFileExists } = parsed;
+    if (typeof baseFileExists !== 'boolean') {
+      sendJson(res, 400, { status: 'error', message: 'baseFileExists must be a boolean' });
+      return;
+    }
+
+    if (baseFileExists && (typeof baseRevision !== 'string' || !baseRevision)) {
+      sendJson(res, 428, {
+        status: 'error',
+        code: 'missing_revision',
+        message: 'The existing calendar requires its latest Dropbox revision.'
+      });
+      return;
+    }
+
+    if (!baseFileExists && baseRevision !== null) {
+      sendJson(res, 400, {
+        status: 'error',
+        message: 'baseRevision must be null when the calendar file does not exist.'
+      });
+      return;
+    }
+
+    const {
+      lastSavedTimestamp: _ignoredLastSavedTimestamp,
+      baseRevision: _ignoredBaseRevision,
+      baseFileExists: _ignoredBaseFileExists,
+      ...rest
+    } = parsed;
     const timestampForSave = Date.now();
 
     const calendarData = {};
@@ -73,10 +112,12 @@ export default async function handler(req, res) {
         'Content-Type': 'application/octet-stream',
         'Dropbox-API-Arg': JSON.stringify({
           path: DROPBOX_CALENDAR_PATH,
-          mode: 'overwrite',
+          mode: baseFileExists
+            ? { '.tag': 'update', update: baseRevision }
+            : { '.tag': 'add' },
           autorename: false,
           mute: true,
-          strict_conflict: false
+          strict_conflict: true
         })
       },
       body: Buffer.from(markdown, 'utf-8')
@@ -94,13 +135,27 @@ export default async function handler(req, res) {
     if (!uploadResponse.ok) {
       const detail = await uploadResponse.text();
       console.error('Dropbox upload failed:', detail);
+      if (uploadResponse.status === 409) {
+        sendJson(res, 409, {
+          status: 'conflict',
+          code: 'revision_conflict',
+          message: 'Dropbox changed since this browser last loaded the calendar. Local changes were preserved.',
+          detail
+        });
+        return;
+      }
+
       sendJson(res, uploadResponse.status, { status: 'error', message: 'Dropbox upload failed', detail });
       return;
     }
 
     let metadataTimestamp = 0;
+    let serverRevision = null;
     try {
       const metadata = await uploadResponse.json();
+      if (typeof metadata?.rev === 'string' && metadata.rev) {
+        serverRevision = metadata.rev;
+      }
       const parsed = metadata?.server_modified ? Date.parse(metadata.server_modified) : NaN;
       if (Number.isFinite(parsed)) {
         metadataTimestamp = parsed;
@@ -109,9 +164,23 @@ export default async function handler(req, res) {
       console.warn('Failed to parse Dropbox upload metadata', metadataError);
     }
 
+    if (!serverRevision) {
+      sendJson(res, 502, {
+        status: 'error',
+        code: 'missing_revision',
+        message: 'Dropbox saved the calendar but did not return a revision. Reload before saving again.'
+      });
+      return;
+    }
+
     const effectiveTimestamp = metadataTimestamp || timestampForSave;
 
-    sendJson(res, 200, { status: 'ok', savedTimestamp: String(effectiveTimestamp) });
+    sendJson(res, 200, {
+      status: 'ok',
+      savedTimestamp: String(effectiveTimestamp),
+      serverRevision,
+      serverFileExists: true
+    });
   } catch (error) {
     console.error('Dropbox calendar save failed:', error);
     const message = error instanceof Error ? error.message : String(error);

@@ -5,7 +5,12 @@ const ToastContext = createContext(null);
 
 export function ToastProvider({ children }) {
   const showToast = useCallback((message, options = {}) => {
-    const { action, duration = action ? 4000 : 2000 } = options;
+    const { action, actions, duration = (action || actions?.length) ? 4000 : 2000 } = options;
+    const resolvedActions = Array.isArray(actions)
+      ? actions.filter(Boolean)
+      : action
+        ? [action]
+        : [];
 
     return toast.custom((t) => (
       <div
@@ -14,19 +19,26 @@ export function ToastProvider({ children }) {
         aria-live="polite"
       >
         <span className="toast__message">{message}</span>
-        {action && (
-          <button
-            className="toast__action"
-            type="button"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              action.onClick?.();
-              toast.dismiss(t.id);
-            }}
-          >
-            {action.label}
-          </button>
+        {resolvedActions.length > 0 && (
+          <div className="toast__actions">
+            {resolvedActions.map((resolvedAction) => (
+              <button
+                className="toast__action"
+                type="button"
+                key={resolvedAction.label}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  const shouldDismiss = resolvedAction.onClick?.();
+                  if (shouldDismiss !== false) {
+                    toast.dismiss(t.id);
+                  }
+                }}
+              >
+                {resolvedAction.label}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     ), {
