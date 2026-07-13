@@ -1629,3 +1629,8 @@ Accomplished:
 
 Energy Level: Steady
 Next Step: QA on physical iOS/Android devices: background the app for 5+ minutes, reopen, confirm it recenters on today without breaking footer navigation.
+
+* 2026-07-13: Define the shared multi-day event protocol
+- Added the canonical first-day/last-day convention to [[file+emacs:/Users/jay/Dropbox/github/timeless/docs/instructions.org][docs/instructions.org]].
+- Multi-day events use the full description and complete range on the first day and a ~Last day of [event]~ marker on the final day, with no intervening duplicates and no unsupported Emacs ~%%(diary-block ...)~ entries.
+- Cross-referenced the protocol from [[file+emacs:/Users/jay/emacs/emacs-settings/docs/emacs-calendar-instructions.org][the Emacs Calendar guide]].

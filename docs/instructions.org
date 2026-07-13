@@ -163,6 +163,15 @@ Deployed environments should also expose =VITE_CALENDAR_SYNC_ENDPOINT=/VITE_CALE
 - Markdown export downloads `timeline.md` with year/month headings and indented daily bullets
 - Import validates and merges with existing data
 
+** Multi-Day Event Protocol
+The shared Markdown format has no native date-range primitive. Represent a multi-day event with two boundary entries:
+- On the first day, add the full event description, including its complete date range.
+- On the final day, add ~Last day of [event]~.
+- Do not repeat the event on intervening days.
+- Do not use Emacs ~%%(diary-block ...)~ entries for shared Timeline data; Timeless and the custom Emacs agenda do not parse them.
+
+This convention marks the event's opening and closing dates without cluttering every day in between.
+
 * Experimental Mode
 - Uses =@jaydixit/experimental-mode= package
 - Enables feature variants and A/B testing
